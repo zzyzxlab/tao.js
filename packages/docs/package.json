@@ -1,0 +1,15 @@
+{
+  "name": "docs",
+  "version": "0.1.0",
+  "description": "documentation for tao.js projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "eudaimos",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "gitbook-cli": "^2.3.2",
+    "rimraf": "^2.6.2"
+  }
+}

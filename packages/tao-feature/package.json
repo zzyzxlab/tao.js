@@ -1,0 +1,19 @@
+{
+  "name": "tao-feature",
+  "version": "0.1.0",
+  "description": "enable dynamic loading of features using tao",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "eudaimos",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.42",
+    "@babel/core": "^7.0.0-beta.42",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.42",
+    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.42",
+    "@babel/preset-env": "^7.0.0-beta.42",
+    "rimraf": "^2.6.2"
+  }
+}
