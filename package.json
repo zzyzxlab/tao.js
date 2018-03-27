@@ -25,7 +25,26 @@
     }
   },
   "lint-staged": {
-    "*.{js,json,css,md}": ["prettier --write", "git add"]
+    "*.{js,json,css,md}": [
+      "prettier --write",
+      "git add",
+      "jest --bail --findRelatedTests"
+    ]
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "**/src/**/*.{js,jsx}",
+      "!**/*.story.{js,jsx}",
+      "!**/node_modules/**"
+    ],
+    "setupFiles": ["<rootDir>/config/jest.js"],
+    "snapshotSerializers": ["enzyme-to-json/serializer"],
+    "testURL": "http://localhost",
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
+        "<rootDir>/config/__mocks__/fileMock.js",
+      "\\.(css|less)$": "identity-obj-proxy"
+    }
   },
   "dependencies": {},
   "devDependencies": {
@@ -33,6 +52,8 @@
     "babel-eslint": "^7.2.3",
     "commitizen": "^2.9.6",
     "cz-lerna-changelog": "^1.2.1",
+    "enzyme": "^3.3.0",
+    "enzyme-to-json": "^3.3.3",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.6.0",
