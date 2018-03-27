@@ -2,3 +2,4 @@
 
 * [Introduction](README.md)
 
+* [Glossary](GLOSSARY.md)
