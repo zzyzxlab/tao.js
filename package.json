@@ -1,19 +1,39 @@
 {
-  "devDependencies": {
-    "lerna": "^2.9.0"
-  },
   "name": "tao.js",
   "version": "0.1.0",
   "main": "index.js",
+  "private": true,
   "directories": {
     "doc": "docs",
     "example": "examples"
   },
-  "dependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "",
   "license": "Apache-2.0",
-  "description": ""
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint:packages": "eslint packages/*/src"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json,css,md}": ["prettier --write", "git add"]
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.0.0-beta.42",
+    "babel-eslint": "^7.2.3",
+    "eslint": "^4.19.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-prettier": "^2.6.0",
+    "husky": "^0.15.0-rc.13",
+    "jest": "^22.4.3",
+    "lerna": "^2.9.0",
+    "lint-staged": "^7.0.0",
+    "prettier": "^1.11.1",
+    "rimraf": "^2.6.2"
+  }
 }
