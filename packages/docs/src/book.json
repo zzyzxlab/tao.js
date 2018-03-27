@@ -1,0 +1,4 @@
+{
+    "root": "content",
+    "plugins": ["prism", "-highlight"]
+}

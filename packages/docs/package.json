@@ -4,7 +4,10 @@
   "description": "documentation for tao.js projects",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "book:prep": "gitbook install ./src",
+    "book:clean": "rimraf dist",
+    "book:build": "gitbook build ./src ./dist",
+    "make": "npm run book:clean && npm run book:prep && npm run book:build"
   },
   "author": "eudaimos",
   "license": "Apache-2.0",
