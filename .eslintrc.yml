@@ -1,3 +1,9 @@
 extends:
   - "plugin:prettier/recommended"
 parser: babel-eslint
+rules:
+  quotes:
+    - error
+    - single:
+        avoidEscape: true
+        allowTemplateLiterals: true

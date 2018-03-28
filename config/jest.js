@@ -1,7 +1,7 @@
-import { shallow, render, mount } from "enzyme";
+import { shallow, render, mount } from 'enzyme';
 
 export const setPathname = pathname => {
-  Object.defineProperty(window.location, "pathname", {
+  Object.defineProperty(window.location, 'pathname', {
     writable: true,
     value: pathname
   });
@@ -33,4 +33,4 @@ const localStorageMock = (function() {
     }
   };
 })();
-Object.defineProperty(window, "localStorage", { value: localStorageMock });
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
