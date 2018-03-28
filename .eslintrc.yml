@@ -1,6 +1,8 @@
 extends:
   - "plugin:prettier/recommended"
 parser: babel-eslint
+plugins:
+  - babel
 rules:
   quotes:
     - error
