@@ -1,0 +1,51 @@
+added Async handler for 'App' 'Init' 'Portal'
+added Inline handler for 'App' 'Init' 'Portal'
+added Async handler for '*' '*' 'Portal'
+added Inline handler for 'App' 'Enter' 'Portal'
+added Inline handler for '*' '*' 'Portal'
+=====><===== About to set context to 'App' 'Init' 'Portal' - let's see what happens =====><=====
+
+-------logger got: { tao: { t: 'App', a: 'Init', o: 'Portal' },
+  data: { App: { options: 'too many for ju' } } }
+>>>>>>>> starting async context within ['App', 'Init', 'Portal'] <<<<<<<<<<
+=>| AppCtx from async: ['App', 'Init', 'Portal']
+  - data from async:
+ { App: { options: 'too many for ju' } }
+returning 'App' 'Enter' 'Portal' from Async Handler for 'App' 'Init' 'Portal'
+>>>>>>>> starting async context within ['App', 'Init', 'Portal'] <<<<<<<<<<
+=>|* AppCtx from async WILDCARD: ['App', 'Init', 'Portal']
+   - data from async WILDCARD:
+ { App: { options: 'too many for ju' } }
+=> AppCtx from inline: ['App', 'Init', 'Portal']
+ - data from inline:
+ { App: { options: 'too many for ju' } }
+returning 'User' 'Find' 'Portal' from Inline Handler for 'App' 'Init' 'Portal'
+=====><===== done setting context to 'App' 'Init' 'Portal' =====><=====
+-------logger got: { tao: { t: 'App', a: 'Enter', o: 'Portal' },
+  data: { Enter: 'Hello, World!' } }
+>>>>>>>> starting async context within ['App', 'Enter', 'Portal'] <<<<<<<<<<
+=>|* AppCtx from async WILDCARD: ['App', 'Enter', 'Portal']
+   - data from async WILDCARD:
+ { Enter: 'Hello, World!' }
+=> AppCtx from inline: ['App', 'Enter', 'Portal']
+ - data from inline:
+ { Enter: 'Hello, World!' }
+>>>>>>>> ending async context within ['App', 'Init', 'Portal'] <<<<<<<<<<
+>>>>>>>> ending async context within ['App', 'Init', 'Portal'] <<<<<<<<<<
+=>* AppCtx from inline WILDCARD: ['App', 'Init', 'Portal']
+   - data from inline WILDCARD:
+ { App: { options: 'too many for ju' } }
+>>>>>>>> ending async context within ['App', 'Enter', 'Portal'] <<<<<<<<<<
+=>* AppCtx from inline WILDCARD: ['App', 'Enter', 'Portal']
+   - data from inline WILDCARD:
+ { Enter: 'Hello, World!' }
+-------logger got: { tao: { t: 'User', a: 'Find', o: 'Portal' },
+  data: { User: { token: 'asf;lkj6789' } } }
+>>>>>>>> starting async context within ['User', 'Find', 'Portal'] <<<<<<<<<<
+=>|* AppCtx from async WILDCARD: ['User', 'Find', 'Portal']
+   - data from async WILDCARD:
+ { User: { token: 'asf;lkj6789' } }
+=>* AppCtx from inline WILDCARD: ['User', 'Find', 'Portal']
+   - data from inline WILDCARD:
+ { User: { token: 'asf;lkj6789' } }
+>>>>>>>> ending async context within ['User', 'Find', 'Portal'] <<<<<<<<<<

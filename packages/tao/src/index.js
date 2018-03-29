@@ -1,3 +1,4 @@
+// need this when running in Node.js environment
 import { clearTimeout } from 'timers';
 
 // taken from http://stackoverflow.com/questions/18884249/checking-whether-something-is-iterable
@@ -9,6 +10,7 @@ function isIterable(obj) {
   return typeof obj[Symbol.iterator] === 'function';
 }
 
+// needed a convenience function for this
 function concatIterables(...iterables) {
   const rv = [];
   if (iterables.length) {
@@ -21,7 +23,21 @@ function concatIterables(...iterables) {
   return rv;
 }
 
+const WILDCARD = '*';
+const INTERCEPT = 'Intercept';
+const ASYNC = 'Async';
+const INLINE = 'Inline';
+const TIMEOUT_REJECT = 'timeout';
+
 // Private methods for TAO
+function _cleanAC({ t, term, a, action, o, orient }) {
+  return {
+    term: term || t,
+    action: action || a,
+    orient: orient || o
+  };
+}
+
 function _appendLeaves(leavesFrom, leavesTo, taoism) {
   if (taoism) {
     if (leavesFrom.has(taoism) && leavesFrom.get(taoism).size) {
@@ -38,8 +54,8 @@ function _appendWildcards(wildcardsFrom, wildcardsTo, taoism) {
   if (wildcardsFrom.has(taoism)) {
     wildcardsFrom.get(taoism).forEach(wc => wildcardsTo.add(wc));
   }
-  if (wildcardsFrom.has('*')) {
-    wildcardsFrom.get('*').forEach(wc => wildcardsTo.add(wc));
+  if (wildcardsFrom.has(WILDCARD)) {
+    wildcardsFrom.get(WILDCARD).forEach(wc => wildcardsTo.add(wc));
   }
 }
 
@@ -64,9 +80,9 @@ function _addACHandler(
   taoWildcards,
   { term, action, orient }
 ) {
-  const t = term || '*';
-  const a = action || '*';
-  const o = orient || '*';
+  const t = term || WILDCARD;
+  const a = action || WILDCARD;
+  const o = orient || WILDCARD;
   const acKey = AppCtxRoot.getKey(t, a, o);
   if (taoHandlers.has(acKey)) {
     return taoHandlers.get(acKey);
@@ -76,11 +92,8 @@ function _addACHandler(
   if (ach.isWildcard) {
     let leaves = new Set();
     _appendLeaves(taoLeaves.t, leaves, term);
-    // console.log(`leaves after TERM '${term}':`, leaves);
     _appendLeaves(taoLeaves.a, leaves, action);
-    // console.log(`leaves after ACTION '${action}':`, leaves);
     _appendLeaves(taoLeaves.o, leaves, orient);
-    // console.log(`leaves after ORIENT '${orient}':`, leaves);
 
     ach.addLeafHandlers(leaves);
 
@@ -109,16 +122,16 @@ function _removeHandler(taoHandlers, { term, action, orient }, handler, type) {
   if (!handler) {
     throw new Error('cannot remove empty handler');
   }
-  type = type || 'Inline';
-  if (type !== 'Async' && type !== 'Inline' && type !== 'Intercept') {
+  type = type || INLINE;
+  if (type !== ASYNC && type !== INLINE && type !== INTERCEPT) {
     throw new Error(
-      `${type} not a known handler type - try Async, Inline or Intercept`
+      `${type} not a known handler type - try ${ASYNC}, ${INLINE} or ${INTERCEPT}`
     );
   }
-  term = term || '*';
-  action = action || '*';
-  orient = orient || '*';
-  const acKey = AppCtxRoot.getKey(term, action, orient);
+  const t = term || WILDCARD;
+  const a = action || WILDCARD;
+  const o = orient || WILDCARD;
+  const acKey = AppCtxRoot.getKey(t, a, o);
   if (!taoHandlers.has(acKey)) {
     return;
   }
@@ -126,28 +139,42 @@ function _removeHandler(taoHandlers, { term, action, orient }, handler, type) {
   return this;
 }
 
-function _removeHandlers(handlers, acList, tao) {
+function _removeHandlers(taoHandlers, acList, handlers, type) {
   handlers.forEach(handler =>
-    acList.forEach(ac => tao.removeInlineHandler(ac, handler))
+    acList.forEach(ac =>
+      _removeHandler(taoHandlers, _cleanAC(ac), handler, type)
+    )
   );
 }
 
-function _hookHandler(tao, acList, promiseFn, timeoutHook) {
+// function _removeHookHandlers(handlers, acList, tao) {
+//   handlers.forEach(handler =>
+//     acList.forEach(ac => tao.removeInlineHandler(ac, handler))
+//   );
+// }
+
+function _createPromiseHandler(
+  taoHandlers,
+  acList,
+  promiseFn,
+  timeoutHook,
+  handlerType
+) {
   let owner = this;
   if (!owner.handlers) {
     owner.handlers = [];
   }
-  const acHandler = (tao, data) => {
+  const acHandler = (ac, data) => {
     timeoutHook && timeoutHook();
-    _removeHandlers(owner.handlers, acList, tao);
-    promiseFn({ tao, data });
+    _removeHandlers(taoHandlers, acList, owner.handlers, handlerType);
+    promiseFn({ tao: ac, data });
   };
   owner.handlers.push(acHandler);
   return acHandler;
 }
 
 class TAORoot {
-  constructor(handlers) {
+  constructor(handlers, canSetWildcard = false) {
     this._handlers = handlers || new Map();
     this._leaves = {
       t: new Map(),
@@ -159,45 +186,52 @@ class TAORoot {
       a: new Map(),
       o: new Map()
     };
+    this._canSetWildcard = canSetWildcard;
   }
 
-  setContext({ t, a, o }, data) {
+  setCtx({ t, term, a, action, o, orient }, data) {
     // get the hash for the ac
-    const acKey = AppCtxRoot.getKey(t, a, o);
-    if (!this._handlers.has(acKey) && AppCtxRoot.isConcrete({ t, a, o })) {
-      // console.log('in setContext, with:', { t, a, o, data, acKey });
-      _addACHandler(this, this._handlers, this._leaves, this._wildcards, {
-        term: t,
-        action: a,
-        orient: o
-      });
-      // this._addACHandler({ term: t, action: a, orient: o });
+    const acIn = _cleanAC({ t, term, a, action, o, orient });
+    const isWild = AppCtxRoot.isWildcard(acIn);
+    if (!this._canSetWildcard && isWild) {
+      // Ignore or Throw Error?
+      return;
+    }
+    const acKey = AppCtxRoot.getKey(acIn.term, acIn.action, acIn.orient);
+    if (!this._handlers.has(acKey) && !isWild) {
+      _addACHandler(this, this._handlers, this._leaves, this._wildcards, acIn);
     }
     if (this._handlers.has(acKey)) {
-      const ac = new AppCtx(t, a, o, data);
+      const ac = new AppCtx(acIn.term, acIn.action, acIn.orient, data);
+      // why not forward the call to setAppCtx? -> b/c don't want to execute check against existing again
       this._handlers.get(acKey).handleAppCon(ac);
     }
   }
 
-  setCtx(appCtx) {
+  setAppCtx(appCtx) {
     if (!(appCtx instanceof AppCtx)) {
       throw new Error(`'appCtx' not an instance of AppCtx`);
     }
-    if (!this._handlers.has(appCtx.key) && appCtx.isConcrete) {
-      // console.log('in setCtx, with:', { appCtx });
-      _addACHandler(this, this._handlers, this._leaves, this._wildcards, {
-        term: appCtx.t,
-        action: appCtx.a,
-        orient: appCtx.o
-      });
-      // this._addACHandler({ term: appCtx.t, action: appCtx.a, orient: appCtx.o });
+    const isWild = appCtx.isWildcard;
+    if (!this._canSetWildcard && isWild) {
+      // Ignore or Throw Error?
+      return;
+    }
+    if (!this._handlers.has(appCtx.key) && !isWild) {
+      _addACHandler(
+        this,
+        this._handlers,
+        this._leaves,
+        this._wildcards,
+        _cleanAC(appCtx)
+      );
     }
     if (this._handlers.has(appCtx.key)) {
       this._handlers.get(appCtx.key).handleAppCon(appCtx);
     }
   }
 
-  hook({ resolveOn, rejectOn }, timeoutMs = 0) {
+  asPromiseHook({ resolveOn, rejectOn }, timeoutMs = 0) {
     const resolvers = isIterable(resolveOn) ? resolveOn : [resolveOn];
     const rejectors = isIterable(rejectOn) ? rejectOn : [rejectOn];
     const allAcs = concatIterables(resolvers, rejectors);
@@ -206,43 +240,40 @@ class TAORoot {
         let to = null;
         const clearTO = () => to && clearTimeout(to);
         const handlerOwner = {};
-        const resolveHandler = _hookHandler.call(
+        const resolveHandler = _createPromiseHandler.call(
           handlerOwner,
-          this,
+          this._handlers,
           allAcs,
           resolve,
-          clearTO
+          clearTO,
+          INLINE
         );
         resolvers.forEach(ac => this.addInlineHandler(ac, resolveHandler));
-        const rejectHandler = _hookHandler.call(
+        const rejectHandler = _createPromiseHandler.call(
           handlerOwner,
-          this,
+          this._handlers,
           allAcs,
           reject,
-          clearTO
+          clearTO,
+          INLINE
         );
         rejectors.forEach(ac => this.addInlineHandler(ac, rejectHandler));
         if (timeoutMs > 0) {
           to = setTimeout(() => {
-            _removeHandlers(handlerOwner.handlers, allAcs, this);
-            reject('timeout');
+            _removeHandlers(
+              this._handlers,
+              allAcs,
+              handlerOwner.handlers,
+              INLINE
+            );
+            reject(TIMEOUT_REJECT);
           }, timeoutMs);
         }
-        this.setContext({ t, a, o }, data);
+        this.setCtx({ t, a, o }, data);
       });
   }
 
-  // setInterceptHandler({ term, action, orient }, handler, overwrite = false) {
-  //     if (!handler) {
-  //         throw new Error('cannot add empty handler');
-  //     }
-  //     const ach = _addACHandler(this, this._handlers, this._leaves,
-  //         this._wildcards, { term, action, orient });
-  //     ach.setInterceptHandler(handler, overwrite);
-  //     return this;
-  // }
-
-  addInterceptHandler({ term, action, orient }, handler) {
+  addInterceptHandler({ t, term, a, action, o, orient }, handler) {
     if (!handler) {
       throw new Error('cannot add empty handler');
     }
@@ -251,13 +282,13 @@ class TAORoot {
       this._handlers,
       this._leaves,
       this._wildcards,
-      { term, action, orient }
+      _cleanAC({ t, term, a, action, o, orient })
     );
     ach.addInterceptHandler(handler);
     return this;
   }
 
-  addAsyncHandler({ term, action, orient }, handler) {
+  addAsyncHandler({ t, term, a, action, o, orient }, handler) {
     if (!handler) {
       throw new Error('cannot add empty handler');
     }
@@ -266,13 +297,13 @@ class TAORoot {
       this._handlers,
       this._leaves,
       this._wildcards,
-      { term, action, orient }
+      _cleanAC({ t, term, a, action, o, orient })
     );
     ach.addAsyncHandler(handler);
     return this;
   }
 
-  addInlineHandler({ term, action, orient }, handler) {
+  addInlineHandler({ t, term, a, action, o, orient }, handler) {
     if (!handler) {
       throw new Error('cannot add empty handler');
     }
@@ -281,45 +312,45 @@ class TAORoot {
       this._handlers,
       this._leaves,
       this._wildcards,
-      { term, action, orient }
+      _cleanAC({ t, term, a, action, o, orient })
     );
     ach.addInlineHandler(handler);
     return this;
   }
 
-  removeInterceptHandler({ term, action, orient }, handler) {
+  removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
     return _removeHandler(
       this._handlers,
-      { term, action, orient },
+      _cleanAC({ t, term, a, action, o, orient }),
       handler,
-      'Intercept'
+      INTERCEPT
     );
   }
 
-  removeAsyncHandler({ term, action, orient }, handler) {
+  removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
     return _removeHandler(
       this._handlers,
-      { term, action, orient },
+      _cleanAC({ t, term, a, action, o, orient }),
       handler,
-      'Async'
+      ASYNC
     );
   }
 
-  removeInlineHandler({ term, action, orient }, handler) {
+  removeInlineHandler({ t, term, a, action, o, orient }, handler) {
     return _removeHandler(
       this._handlers,
-      { term, action, orient },
+      _cleanAC({ t, term, a, action, o, orient }),
       handler,
-      'Inline'
+      INLINE
     );
   }
 }
 
 class AppCtxRoot {
   constructor(term, action, orient) {
-    this._term = term || '*';
-    this._action = action || '*';
-    this._orient = orient || '*';
+    this._term = term || WILDCARD;
+    this._action = action || WILDCARD;
+    this._orient = orient || WILDCARD;
   }
 
   get key() {
@@ -342,34 +373,34 @@ class AppCtxRoot {
     return `${term}|${action}|${orient}`;
   }
 
-  static isWildcard({ t, a, o }) {
+  static isWildcard({ term, action, orient }) {
     return (
-      !t ||
-      !a ||
-      !o ||
-      !t.length ||
-      !a.length ||
-      !o.length ||
-      t === '*' ||
-      a === '*' ||
-      o === '*'
+      !term ||
+      !action ||
+      !orient ||
+      !term.length ||
+      !action.length ||
+      !orient.length ||
+      term === WILDCARD ||
+      action === WILDCARD ||
+      orient === WILDCARD
     );
   }
 
-  static isConcrete({ t, a, o }) {
-    return !AppCtxRoot.isWildcard({ t, a, o });
+  static isConcrete({ term, action, orient }) {
+    return !AppCtxRoot.isWildcard({ term, action, orient });
   }
 
   get isTermWild() {
-    return this._term === '*' || !this._term.length;
+    return this._term === WILDCARD || !this._term.length;
   }
 
   get isActionWild() {
-    return this._action === '*' || !this._action.length;
+    return this._action === WILDCARD || !this._action.length;
   }
 
   get isOrientWild() {
-    return this._orient === '*' || !this._orient.length;
+    return this._orient === WILDCARD || !this._orient.length;
   }
 
   get isWildcard() {
@@ -381,51 +412,90 @@ class AppCtxRoot {
   }
 }
 
+function _cleanDatum(term, action, orient, ...data) {
+  if (data.length) {
+    if (data.length === 1) {
+      // attempt to infer object
+      let datum = {};
+      const obj = data[0];
+      let assigned = false;
+      if (obj.term || obj.t) {
+        datum[term] = obj.term || obj.t;
+        assigned = true;
+      } else if (obj[term]) {
+        datum[term] = obj[term];
+        assigned = true;
+      }
+      if (obj.action || obj.a) {
+        datum[action] = obj.action || obj.a;
+        assigned = true;
+      } else if (obj[action]) {
+        datum[action] = obj[action];
+        assigned = true;
+      }
+      if (obj.orient || obj.o) {
+        datum[orient] = obj.orient || obj.o;
+        assigned = true;
+      } else if (obj[orient]) {
+        datum[orient] = obj[orient];
+        assigned = true;
+      }
+      if (assigned) {
+        return datum;
+      }
+    }
+    // assume tuple
+    return {
+      [term]: data[0],
+      [action]: data[1],
+      [orient]: data[2]
+    };
+  }
+  return {};
+}
+
+class Datum {
+  constructor(term, action, orient, ...data) {
+    Object.assign(this, _cleanDatum(term, action, orient, ...data));
+    this._term = term;
+    this._action = action;
+    this._orient = orient;
+  }
+
+  get(key) {
+    return this[key];
+  }
+
+  get t() {
+    return this.get(this._term);
+  }
+
+  get a() {
+    return this.get(this._action);
+  }
+
+  get o() {
+    return this.get(this._orient);
+  }
+
+  get unwrap() {
+    return {
+      [this._term]: this.t,
+      t: this.t,
+      [this._action]: this.a,
+      a: this.a,
+      [this._orient]: this.o,
+      o: this.o
+    };
+  }
+}
+
 export class AppCtx extends AppCtxRoot {
   constructor(term, action, orient, ...data) {
     super(term, action, orient);
-    // TODO: figure out how to deal with associated AppCon data
-    if (data.length) {
-      if (data.length === 1) {
-        // attempt to infer object
-        let datum = {};
-        let assigned = false;
-        if (data[0].term) {
-          datum[term] = data[0].term;
-          assigned = true;
-        } else if (data[0][term]) {
-          datum[term] = data[0][term];
-          assigned = true;
-        }
-        if (data[0].action) {
-          datum[action] = data[0].action;
-          assigned = true;
-        } else if (data[0][action]) {
-          datum[action] = data[0][action];
-          assigned = true;
-        }
-        if (data[0].orient) {
-          datum[orient] = data[0].orient;
-          assigned = true;
-        } else if (data[0][orient]) {
-          datum[orient] = data[0][orient];
-          assigned = true;
-        }
-        if (assigned) {
-          this.datum = datum;
-        }
-      }
-      if (!this.datum) {
-        // assume tuple
-        this.datum = {
-          [term]: data[0],
-          [action]: data[1],
-          [orient]: data[2]
-        };
-      }
-    } else {
-      this.datum = {};
-    }
+    // TODO: figure out how to deal with associated AppCon data <-- what did I mean by this?
+    // this.datum = new Datum(term, action, orient, ...data);
+    this.datum = _cleanDatum(term, action, orient, ...data);
   }
 
   get data() {
@@ -457,11 +527,6 @@ class AppCtxHandlers extends AppCtxRoot {
       (this.isOrientWild || this.o === leafAch.o)
     ) {
       this._leafAppConHandlers.add(leafAch);
-      // if (this._intercept) {
-      //     // TODO: figure out how to handle intercept handler from wildcard to leaves
-      //     // FOR NOW: setting the intercept without overwrite
-      //     leafAch.setInterceptHandler(this._intercept, false);
-      // }
       this._intercept.forEach(inHandler =>
         leafAch.addInterceptHandler(inHandler)
       );
@@ -471,14 +536,10 @@ class AppCtxHandlers extends AppCtxRoot {
   }
 
   addLeafHandlers(leafAches) {
-    // console.log('add set of leaf handlers from:', leafAches);
     if (!isIterable(leafAches)) {
-      // console.log('convinced not iterable');
       this.addLeafHandler(leafAches);
     } else {
-      // console.log('oh its iterable');
       for (let leaf of leafAches) {
-        // console.log('here is the leaf Im adding:', leaf);
         this.addLeafHandler(leaf);
       }
     }
@@ -500,30 +561,6 @@ class AppCtxHandlers extends AppCtxRoot {
       leafAch.removeInterceptHandler(handler)
     );
   }
-
-  // setInterceptHandler(handler, overwrite = false) {
-  //     if (typeof handler !== 'function') {
-  //         throw new Error('An InterceptHandler can only be a function');
-  //     }
-  //     const oldIntercepts = new Set();
-  //     const prevIntercept = this._intercept;
-  //     if (!this._intercept || overwrite) {
-  //         this._intercept = handler;
-  //     }
-  //     if (prevIntercept && (prevIntercept !== handler)) {
-  //         oldIntercepts.add(prevIntercept);
-  //     }
-  //     if (this._leafAppConHandlers.size) {
-  //         for (let leafAch of this._leafAppConHandlers) {
-  //             oldIntercepts.add(leafAch.setInterceptHandler(handler, overwrite));
-  //         }
-  //     }
-  //     return oldIntercepts;
-  // }
-
-  // removeInterceptHandler(handler) {
-  //     // TODO: figure out intercept handler hierarchy and how to remove
-  // }
 
   addAsyncHandler(handler) {
     if (typeof handler !== 'function') {
@@ -569,7 +606,6 @@ class AppCtxHandlers extends AppCtxRoot {
     if (this._intercept) {
       return this._intercept;
     }
-    // TODO: figure out how to traverse wildcard handlers to find the single intercept to use
   }
 
   get asyncHandlers() {
@@ -581,12 +617,7 @@ class AppCtxHandlers extends AppCtxRoot {
   }
 
   async handleAppCon(ac) {
-    // const intercept = this.interceptHandlers;
-    const { t, a, o } = ac;
-    // const tao = { t: ac.term, a: ac.action, o: ac.orient };
-    // if (intercept && intercept({ t, a, o }, ac.data)) {
-    //     return;
-    // }
+    const { t, a, o, data } = ac;
     /*
      * Intercept Handlers
      * always occur first
@@ -595,12 +626,12 @@ class AppCtxHandlers extends AppCtxRoot {
      */
     for (let interceptH of this.interceptHandlers) {
       // using the decorator pattern to call these?
-      let intercepted = interceptH({ t, a, o }, ac.datum);
+      let intercepted = interceptH({ t, a, o }, data);
       if (!intercepted) {
         continue;
       }
       if (intercepted instanceof AppCtx) {
-        this.TAO.setCtx(intercepted);
+        this.TAO.setAppCtx(intercepted);
       }
       return;
     }
@@ -620,10 +651,10 @@ class AppCtxHandlers extends AppCtxRoot {
         console.log(
           `>>>>>>>> starting async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`
         );
-        Promise.resolve(asyncH({ t, a, o }, ac.datum))
+        Promise.resolve(asyncH({ t, a, o }, data))
           .then(nextAc => {
-            if (nextAc) {
-              this.TAO.setCtx(nextAc);
+            if (nextAc && nextAc instanceof AppCtx) {
+              this.TAO.setAppCtx(nextAc);
             }
             console.log(
               `>>>>>>>> ending async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`
@@ -648,19 +679,18 @@ class AppCtxHandlers extends AppCtxRoot {
      */
     const nextSpool = [];
     for (let inlineH of this.inlineHandlers) {
-      // let nextInlineAc = await inlineH({ t, a, o }, ac.datum);
-      let nextInlineAc = await inlineH({ t, a, o }, ac.datum);
-      nextInlineAc && nextSpool.push(nextInlineAc);
+      let nextInlineAc = await inlineH({ t, a, o }, data);
+      if (nextInlineAc && nextInlineAc instanceof AppCtx) {
+        nextSpool.push(nextInlineAc);
+      }
     }
     if (nextSpool.length) {
       for (let nextAc of nextSpool) {
-        // nextSpool.forEach(nextAc => {
         try {
-          this.TAO.setCtx(nextAc);
+          this.TAO.setAppCtx(nextAc);
         } catch (error) {
           console.error('error on next inline:', error);
         }
-        // });
       }
     }
   }

@@ -19,9 +19,9 @@ TAO.addInterceptHandler({}, logger);
 TAO.addAsyncHandler(
   {
     // Context
-    term: 'App',
-    action: 'Init',
-    orient: 'Portal'
+    t: 'App',
+    a: 'Init',
+    o: 'Portal'
   }, // Handler
   (tao, data) => {
     console.log(`=>| AppCtx from async: ['${tao.t}', '${tao.a}', '${tao.o}']`);
@@ -43,9 +43,9 @@ function inlineHandler(tao, data) {
 
 TAO.addInlineHandler(
   {
-    term: 'App',
-    action: 'Init',
-    orient: 'Portal'
+    t: 'App',
+    a: 'Init',
+    o: 'Portal'
   },
   (tao, data) => {
     inlineHandler(tao, data);
@@ -61,7 +61,7 @@ console.log(`added Inline handler for 'App' 'Init' 'Portal'`);
 
 TAO.addAsyncHandler(
   {
-    orient: 'Portal'
+    o: 'Portal'
   },
   (tao, data) => {
     console.log(
@@ -74,9 +74,9 @@ console.log(`added Async handler for '*' '*' 'Portal'`);
 
 TAO.addInlineHandler(
   {
-    term: 'App',
-    action: 'Enter',
-    orient: 'Portal'
+    t: 'App',
+    a: 'Enter',
+    o: 'Portal'
   },
   inlineHandler
 );
@@ -84,7 +84,7 @@ console.log(`added Inline handler for 'App' 'Enter' 'Portal'`);
 
 TAO.addInlineHandler(
   {
-    orient: 'Portal'
+    o: 'Portal'
   },
   (tao, data) => {
     console.log(
@@ -98,7 +98,7 @@ console.log(`added Inline handler for '*' '*' 'Portal'`);
 console.log(
   `=====><===== About to set context to 'App' 'Init' 'Portal' - let's see what happens =====><=====\n`
 );
-TAO.setContext(
+TAO.setCtx(
   { t: 'App', a: 'Init', o: 'Portal' },
   {
     App: {
