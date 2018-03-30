@@ -23,7 +23,7 @@ function concatIterables(...iterables) {
   return rv;
 }
 
-const WILDCARD = '*';
+export const WILDCARD = '*';
 const INTERCEPT = 'Intercept';
 const ASYNC = 'Async';
 const INLINE = 'Inline';

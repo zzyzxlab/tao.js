@@ -7,7 +7,7 @@
     "hnw.vsode-auto-open-markdown-preview",
     "dzannotti.vscode-babel-coloring",
     "eamodio.vscode-gitlens",
-    "kisstkondoros.vscode-codemetrics",
+    // "kisstkondoros.vscode-codemetrics", // don't use
     "pflannery.vscode-versionlens",
     "chrmarti.regex",
     "vikas.code-navigation",
@@ -33,6 +33,7 @@
     "robertohuertasm.vscode-icons",
     "DavidAnson.vscode-markdownlint",
     "eg2.vscode-npm-script",
-    "christian-kohler.npm-intellisense"
+    "christian-kohler.npm-intellisense",
+    "Orta.vscode-jest"
   ]
 }

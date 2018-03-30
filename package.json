@@ -11,7 +11,8 @@
   "license": "Apache-2.0",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
     "lint:packages": "eslint packages/*/src",
     "docs:clean":
       "ls docs | grep -v \"CNAME\" | awk '{print \"docs/\"$1}' | xargs rimraf",
@@ -40,9 +41,12 @@
     "collectCoverageFrom": [
       "**/src/**/*.{js,jsx}",
       "!**/*.story.{js,jsx}",
-      "!**/node_modules/**"
+      "!**/node_modules/**",
+      "!**/docs/**",
+      "!config/**"
     ],
     "setupFiles": ["<rootDir>/config/jest.js"],
+    "setupTestFrameworkScriptFile": "<rootDir>/config/setup.js",
     "snapshotSerializers": ["enzyme-to-json/serializer"],
     "testURL": "http://localhost",
     "moduleNameMapper": {
