@@ -22,9 +22,10 @@ This really needs to be filled out
     * [ ] adding inline handler unit tests
     * [ ] adding async handler unit tests
     * [ ] adding intercept handler unit tests
-    * [ ] adding inline handler unit tests
-    * [ ] adding async handler unit tests
-    * [ ] adding intercept handler unit tests
+    * [ ] removing inline handler unit tests
+    * [ ] removing async handler unit tests
+    * [ ] removing intercept handler unit tests
+    - [ ] using `asPromiseHook`
 * [ ] complete `react-tao` package
 * [ ] complete `koa-tao` package
 * [ ] write phase 1 of `docs`
