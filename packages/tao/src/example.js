@@ -1,4 +1,5 @@
-import { TAO, AppCtx } from './index';
+import { TAO } from './index';
+import AppCtx from './AppCtx';
 
 // const tao = new TAO();
 // console.log('created TAO as:\n', tao);
