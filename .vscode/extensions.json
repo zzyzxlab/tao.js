@@ -3,6 +3,36 @@
   // for the documentation about the extensions.json format
   "recommendations": [
     // Extension identifier format: ${publisher}.${name}. Example: vscode.csharp
-    "EditorConfig.editorconfig"
+    "EditorConfig.editorconfig",
+    "hnw.vsode-auto-open-markdown-preview",
+    "dzannotti.vscode-babel-coloring",
+    "eamodio.vscode-gitlens",
+    "kisstkondoros.vscode-codemetrics",
+    "pflannery.vscode-versionlens",
+    "chrmarti.regex",
+    "vikas.code-navigation",
+    "kogai.regex-railroad-diagrams",
+    "formulahendry.code-runner",
+    "msjsdiag.debugger-for-chrome",
+    "hbenl.vscode-firefox-debug",
+    "iradul.debugger-for-phantomjs",
+    "joelday.docthis",
+    "abierbaum.vscode-file-peek",
+    "waderyan.gitblame",
+    "donjayamanne.githistory",
+    "hashhar.gitattributes",
+    "codezombiech.gitignore",
+    "michelemelluso.gitignore",
+    "cmstead.jsrefactor",
+    "sallar.json-to-js-object",
+    "nfiorello.split-copy-path",
+    "cssho.vscode-svgviewer",
+    "jsTestGen.js-test-gen-vscode",
+    "roblourens.unittest-navigate",
+    "mezzalab.vscode-annotations",
+    "robertohuertasm.vscode-icons",
+    "DavidAnson.vscode-markdownlint",
+    "eg2.vscode-npm-script",
+    "christian-kohler.npm-intellisense"
   ]
 }
