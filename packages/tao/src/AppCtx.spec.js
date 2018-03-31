@@ -72,4 +72,26 @@ describe('AppCtx should hold a tao App Context', () => {
     expect(actualOrient.isTermWild).toBe(true);
     expect(actualOrient.isActionWild).toBe(true);
   });
+
+  it('should accept data as a single item array for the Term', () => {
+    // Assemble
+    const expectedTermData = {
+      id: 1234567,
+      name: 'My Name',
+      other: { thing: 'below ' }
+    };
+    const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
+    const expected = {
+      ...expectedTao,
+      data: {
+        [TERM]: {
+          ...expectedTermData
+        }
+      }
+    };
+    // Act
+    const actual = new AppCtx(TERM, ACTION, ORIENT, [expectedTermData]);
+    // Assert
+    expect(actual).toEqualOn(expected);
+  });
 });

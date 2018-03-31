@@ -1,6 +1,6 @@
 {
   "eslint.enable": true,
-  // "tslint.enable": false,
+  "tslint.enable": false,
   "jstestgen.testSufix": ".spec",
   "jest.autoEnable": true
 }

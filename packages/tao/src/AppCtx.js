@@ -1,11 +1,18 @@
 import AppCtxRoot from './AppCtxRoot';
 
 function _cleanDatum(term, action, orient, ...data) {
-  if (data.length) {
-    if (data.length === 1) {
-      // attempt to infer object
-      let datum = {};
-      const obj = data[0];
+  const datum = {};
+  if (!data.length) {
+    return {};
+  }
+  let checkData = data;
+  if (checkData.length === 1) {
+    // MUST check Array first b/c ([] instanceof Object === true)
+    if (checkData[0] instanceof Array) {
+      checkData = checkData[0];
+    } else if (checkData[0] instanceof Object) {
+      // infer all context data from single object
+      const obj = checkData[0];
       let assigned = false;
       if (obj.term || obj.t) {
         datum[term] = obj.term || obj.t;
@@ -28,18 +35,23 @@ function _cleanDatum(term, action, orient, ...data) {
         datum[orient] = obj[orient];
         assigned = true;
       }
+      // if the single object passed defined a tuple with the expected keys
       if (assigned) {
         return datum;
       }
     }
-    // assume tuple
-    return {
-      [term]: data[0],
-      [action]: data[1],
-      [orient]: data[2]
-    };
   }
-  return {};
+  // if we are left then assume the first object is term only
+  if (checkData[0]) {
+    datum[term] = checkData[0];
+  }
+  if (checkData[1]) {
+    datum[action] = checkData[1];
+  }
+  if (checkData[2]) {
+    datum[orient] = checkData[2];
+  }
+  return datum;
 }
 
 class Datum {
