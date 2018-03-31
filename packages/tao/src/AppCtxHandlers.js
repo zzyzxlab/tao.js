@@ -3,10 +3,9 @@ import AppCtx from './AppCtx';
 import { isIterable } from './utils';
 
 export default class AppCtxHandlers extends AppCtxRoot {
-  constructor(term, action, orient, taoRoot, leafAppConHandlers) {
+  constructor(term, action, orient, leafAppConHandlers) {
     super(term, action, orient);
 
-    this._taoRoot = taoRoot;
     this._leafAppConHandlers = new Set(leafAppConHandlers);
     this._intercept = new Set();
     this._async = new Set();
@@ -97,10 +96,6 @@ export default class AppCtxHandlers extends AppCtxRoot {
 
   populateHandlersFromWildcards() {}
 
-  get TAO() {
-    return this._taoRoot;
-  }
-
   get interceptHandlers() {
     if (this._intercept) {
       return this._intercept;
@@ -115,7 +110,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
     return this._inline;
   }
 
-  async handleAppCon(ac) {
+  async handleAppCon(ac, setAppCtx) {
     const { t, a, o, data } = ac;
     /*
      * Intercept Handlers
@@ -130,7 +125,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
         continue;
       }
       if (intercepted instanceof AppCtx) {
-        this.TAO.setAppCtx(intercepted);
+        setAppCtx(intercepted);
       }
       return;
     }
@@ -153,7 +148,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
         Promise.resolve(asyncH({ t, a, o }, data))
           .then(nextAc => {
             if (nextAc && nextAc instanceof AppCtx) {
-              this.TAO.setAppCtx(nextAc);
+              setAppCtx(nextAc);
             }
             console.log(
               `>>>>>>>> ending async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`
@@ -186,7 +181,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
     if (nextSpool.length) {
       for (let nextAc of nextSpool) {
         try {
-          this.TAO.setAppCtx(nextAc);
+          setAppCtx(nextAc);
         } catch (error) {
           console.error('error on next inline:', error);
         }
