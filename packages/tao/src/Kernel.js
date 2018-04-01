@@ -160,7 +160,7 @@ function _createPromiseHandler(
  * from a central root theme of Taoism, De is an intrinsic quality of integrity
  * https://en.wikipedia.org/wiki/De_(Chinese)
 */
-export default class De {
+export default class Kernel {
   constructor(handlers, canSetWildcard = false) {
     this._handlers = handlers || new Map();
     this._leaves = {
