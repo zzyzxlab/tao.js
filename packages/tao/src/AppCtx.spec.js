@@ -94,4 +94,181 @@ describe('AppCtx should hold a tao App Context', () => {
     // Assert
     expect(actual).toEqualOn(expected);
   });
+
+  it('should accept data as a single object for the Term', () => {
+    // Assemble
+    const expectedTermData = {
+      id: 1234567,
+      name: 'My Name',
+      other: { thing: 'below ' }
+    };
+    const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
+    const expected = {
+      ...expectedTao,
+      data: {
+        [TERM]: {
+          ...expectedTermData
+        }
+      }
+    };
+    // Act
+    const actual = new AppCtx(TERM, ACTION, ORIENT, expectedTermData);
+    // Assert
+    expect(actual).toEqualOn(expected);
+  });
+
+  it('should accept data as an array tuple for the Context to be assigned by position', () => {
+    // Assemble
+    const expectedTermData = {
+      id: 1234567,
+      name: 'My Name',
+      other: { thing: 'below ' }
+    };
+    const expectedActionData = {
+      a: 'thing'
+    };
+    const expectedOrientData = {
+      token: 'qwertyuiop'
+    };
+    const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
+    const expected = {
+      ...expectedTao,
+      data: {
+        [TERM]: {
+          ...expectedTermData
+        },
+        [ACTION]: {
+          ...expectedActionData
+        },
+        [ORIENT]: {
+          ...expectedOrientData
+        }
+      }
+    };
+    // Act
+    const actual = new AppCtx(TERM, ACTION, ORIENT, [
+      expectedTermData,
+      expectedActionData,
+      expectedOrientData
+    ]);
+    // Assert
+    expect(actual).toEqualOn(expected);
+  });
+
+  it('should accept data as an object with keys of the tao for the Context', () => {
+    // Assemble
+    const expectedTermData = {
+      id: 1234567,
+      name: 'My Name',
+      other: { thing: 'below ' }
+    };
+    const expectedActionData = {
+      a: 'thing'
+    };
+    const expectedOrientData = {
+      token: 'qwertyuiop'
+    };
+    const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
+    const expected = {
+      ...expectedTao,
+      data: {
+        [TERM]: {
+          ...expectedTermData
+        },
+        [ACTION]: {
+          ...expectedActionData
+        },
+        [ORIENT]: {
+          ...expectedOrientData
+        }
+      }
+    };
+    // Act
+    const actual = new AppCtx(TERM, ACTION, ORIENT, {
+      [TERM]: expectedTermData,
+      [ACTION]: expectedActionData,
+      [ORIENT]: expectedOrientData
+    });
+    // Assert
+    expect(actual).toEqualOn(expected);
+  });
+
+  it('should accept data as an object with keys term, action, orient for the Context', () => {
+    // Assemble
+    const expectedTermData = {
+      id: 1234567,
+      name: 'My Name',
+      other: { thing: 'below ' }
+    };
+    const expectedActionData = {
+      a: 'thing'
+    };
+    const expectedOrientData = {
+      token: 'qwertyuiop'
+    };
+    const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
+    const expected = {
+      ...expectedTao,
+      data: {
+        [TERM]: {
+          ...expectedTermData
+        },
+        [ACTION]: {
+          ...expectedActionData
+        },
+        [ORIENT]: {
+          ...expectedOrientData
+        }
+      }
+    };
+    // Act
+    const actual = new AppCtx(TERM, ACTION, ORIENT, {
+      term: expectedTermData,
+      action: expectedActionData,
+      orient: expectedOrientData
+    });
+    // Assert
+    expect(actual).toEqualOn(expected);
+  });
+
+  it('should accept data as an set of args for the Context by position', () => {
+    // Assemble
+    const expectedTermData = {
+      id: 1234567,
+      name: 'My Name',
+      other: { thing: 'below ' }
+    };
+    const expectedActionData = {
+      a: 'thing'
+    };
+    const expectedOrientData = {
+      token: 'qwertyuiop'
+    };
+    const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
+    const expected = {
+      ...expectedTao,
+      data: {
+        [TERM]: {
+          ...expectedTermData
+        },
+        [ACTION]: {
+          ...expectedActionData
+        },
+        [ORIENT]: {
+          ...expectedOrientData
+        }
+      }
+    };
+    // Act
+    const actual = new AppCtx(
+      TERM,
+      ACTION,
+      ORIENT,
+      expectedTermData,
+      expectedActionData,
+      expectedOrientData
+    );
+    // Assert
+    expect(actual).toEqualOn(expected);
+  });
 });
