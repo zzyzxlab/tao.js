@@ -4,18 +4,25 @@ export function isIterable(obj) {
   if (obj == null) {
     return false;
   }
+  if (typeof obj === 'string') {
+    return false;
+  }
   return typeof obj[Symbol.iterator] === 'function';
 }
 
 // needed a convenience function for this
 export function concatIterables(...iterables) {
-  const rv = [];
+  let rv = [];
   if (iterables.length) {
-    iterables.forEach(list => {
-      if (list.length) {
-        list.forEach(item => rv.concat(item));
+    for (let list of iterables) {
+      let iterator = list[Symbol.iterator]();
+      if (list.values && typeof list.values === 'function') {
+        iterator = list.values();
       }
-    });
+      for (let item of iterator) {
+        rv = rv.concat(item);
+      }
+    }
   }
   return rv;
 }
