@@ -12,6 +12,7 @@
   "description": "",
   "scripts": {
     "test": "jest --coverage",
+    "test:coverage:view": "open .coverage/index.html",
     "test:watch": "jest --watch",
     "lint:packages": "eslint packages/*/src",
     "docs:clean":
@@ -45,6 +46,8 @@
       "!**/docs/**",
       "!config/**"
     ],
+    "coverageReporters": ["html"],
+    "coverageDirectory": ".coverage",
     "setupFiles": ["<rootDir>/config/jest.js"],
     "setupTestFrameworkScriptFile": "<rootDir>/config/setup.js",
     "snapshotSerializers": ["enzyme-to-json/serializer"],
