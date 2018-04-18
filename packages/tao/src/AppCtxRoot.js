@@ -27,22 +27,27 @@ export default class AppCtxRoot {
     return `${term}|${action}|${orient}`;
   }
 
-  static isWildcard({ term, action, orient }) {
+  // static isWildcard({ term = WILDCARD, action = WILDCARD, orient = WILDCARD } = {}) {
+  static isWildcard(ac = {}) {
+    const { t, term, a, action, o, orient } = ac;
+    const checkT = t || term;
+    const checkA = a || action;
+    const checkO = o || orient;
     return (
-      !term ||
-      !action ||
-      !orient ||
-      !term.length ||
-      !action.length ||
-      !orient.length ||
-      term === WILDCARD ||
-      action === WILDCARD ||
-      orient === WILDCARD
+      !checkT ||
+      !checkA ||
+      !checkO ||
+      !checkT.length ||
+      !checkA.length ||
+      !checkO.length ||
+      checkT === WILDCARD ||
+      checkA === WILDCARD ||
+      checkO === WILDCARD
     );
   }
 
-  static isConcrete({ term, action, orient }) {
-    return !AppCtxRoot.isWildcard({ term, action, orient });
+  static isConcrete(ac = {}) {
+    return !AppCtxRoot.isWildcard(ac);
   }
 
   get isTermWild() {
