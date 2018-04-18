@@ -11,6 +11,8 @@ const ALT_TERM = 'dude';
 const ALT_ACTION = 'fistbump';
 const ALT_ORIENT = 'bros';
 
+jest.useFakeTimers();
+
 /**
  * Passing this test means it inherits the tests from AppCtxRoot
  */
@@ -170,6 +172,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       uut.addInlineHandler(handler);
       const matchAc = new AppCtx(TERM, ACTION, ORIENT);
       // Act
+      // await
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
       expect(setAppCtx).toBeCalledWith(nextAc);
@@ -242,14 +245,14 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(uut.asyncHandlers).not.toContain(handler);
     });
 
-    it('should call the async handler when asked to handle App Con', async () => {
+    it('should call the async handler when asked to handle App Con without having to await', async () => {
       // Assemble
       const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
       const handler = jest.fn();
       uut.addAsyncHandler(handler);
       const matchAc = new AppCtx(TERM, ACTION, ORIENT);
       // Act
-      await uut.handleAppCon(matchAc);
+      uut.handleAppCon(matchAc);
       // Assert
       expect(handler).toBeCalledWith(
         expect.objectContaining({
@@ -261,12 +264,37 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       );
     });
 
-    it('should call all async handlers when asked to handle App Con', async () => {
+    it('should call all async handlers when asked to handle App Con without having to await', async () => {
       // Assemble
+      expect.assertions(3);
       const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
       const handler1 = jest.fn().mockName('handler_one');
-      const handler2 = jest.fn().mockName('handler_two');
-      const handler3 = jest.fn().mockName('handler_three');
+      const handler2 = jest
+        .fn(() => {
+          return new Promise(resolve =>
+            setImmediate(() => {
+              console.log('async 2');
+              resolve();
+            })
+          );
+        })
+        .mockName('handler_two');
+      const handler3 = jest
+        .fn(() => {
+          return new Promise(resolve =>
+            setTimeout(() => {
+              console.log('async 3');
+              resolve();
+            }, 1000)
+          );
+        })
+        .mockName('handler_three');
+      const inlineH = ({ t, a, o }, data) => {
+        console.log(
+          `-------- inline call with ['${t}', '${a}', '${o}'] ----------`
+        );
+      };
+      uut.addInlineHandler(inlineH);
       uut.addAsyncHandler(handler1);
       uut.addAsyncHandler(handler2);
       uut.addAsyncHandler(handler3);
@@ -277,7 +305,8 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
         o: ORIENT
       });
       // Act
-      await uut.handleAppCon(matchAc);
+      uut.handleAppCon(matchAc);
+      jest.runAllTimers();
       // Assert
       expect(handler1).toBeCalledWith(callingArg, {});
       expect(handler2).toBeCalledWith(callingArg, {});
@@ -292,7 +321,8 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       const matchAc = new AppCtx(TERM, ACTION, ORIENT);
       // Act
       uut.removeAsyncHandler(handler);
-      await uut.handleAppCon(matchAc);
+      // await
+      uut.handleAppCon(matchAc);
       // Assert
       expect(handler).not.toBeCalled();
     });
@@ -316,7 +346,8 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       uut.removeAsyncHandler(handler1);
       uut.removeAsyncHandler(handler2);
       uut.removeAsyncHandler(handler3);
-      await uut.handleAppCon(matchAc);
+      // await
+      uut.handleAppCon(matchAc);
       // Assert
       expect(handler1).not.toBeCalled();
       expect(handler2).not.toBeCalled();
@@ -331,7 +362,9 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       const setAppCtx = jest.fn().mockName('setAppCtx');
       uut.addAsyncHandler(handler);
       const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      expect.assertions(1);
       // Act
+      // await
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
       expect(setAppCtx).toBeCalledWith(nextAc);
