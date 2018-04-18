@@ -54,41 +54,43 @@ function _cleanDatum(term, action, orient, ...data) {
   return datum;
 }
 
-class Datum {
-  constructor(term, action, orient, ...data) {
-    Object.assign(this, _cleanDatum(term, action, orient, ...data));
-    this._term = term;
-    this._action = action;
-    this._orient = orient;
-  }
+// Keeping for potential use but not used now
+// commenting to remove from test coverage calculation
+// class Datum {
+//   constructor(term, action, orient, ...data) {
+//     Object.assign(this, _cleanDatum(term, action, orient, ...data));
+//     this._term = term;
+//     this._action = action;
+//     this._orient = orient;
+//   }
 
-  get(key) {
-    return this[key];
-  }
+//   get(key) {
+//     return this[key];
+//   }
 
-  get t() {
-    return this.get(this._term);
-  }
+//   get t() {
+//     return this.get(this._term);
+//   }
 
-  get a() {
-    return this.get(this._action);
-  }
+//   get a() {
+//     return this.get(this._action);
+//   }
 
-  get o() {
-    return this.get(this._orient);
-  }
+//   get o() {
+//     return this.get(this._orient);
+//   }
 
-  get unwrap() {
-    return {
-      [this._term]: this.t,
-      t: this.t,
-      [this._action]: this.a,
-      a: this.a,
-      [this._orient]: this.o,
-      o: this.o
-    };
-  }
-}
+//   get unwrap() {
+//     return {
+//       [this._term]: this.t,
+//       t: this.t,
+//       [this._action]: this.a,
+//       a: this.a,
+//       [this._orient]: this.o,
+//       o: this.o
+//     };
+//   }
+// }
 
 export default class AppCtx extends AppCtxRoot {
   constructor(term, action, orient, ...data) {

@@ -252,6 +252,22 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       expect(actual).toEqualOn(expected);
     });
 
+    it('should accept data as a single value arg for the Term', () => {
+      // Assemble
+      const expectedTermData = 'awesome sauce';
+      const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
+      const expected = {
+        ...expectedTao,
+        data: {
+          [TERM]: expectedTermData
+        }
+      };
+      // Act
+      const actual = new AppCtx(TERM, ACTION, ORIENT, expectedTermData);
+      // Assert
+      expect(actual).toEqualOn(expected);
+    });
+
     it('should accept data in the 2nd position as a single object for the Action', () => {
       // Assemble
       const expectedActionData = {
@@ -278,6 +294,28 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       expect(actual).toEqualOn(expected);
     });
 
+    it('should accept data in the 2nd position as a value for the Action', () => {
+      // Assemble
+      const expectedActionData = 99.99966;
+      const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
+      const expected = {
+        ...expectedTao,
+        data: {
+          [ACTION]: expectedActionData
+        }
+      };
+      // Act
+      const actual = new AppCtx(
+        TERM,
+        ACTION,
+        ORIENT,
+        undefined,
+        expectedActionData
+      );
+      // Assert
+      expect(actual).toEqualOn(expected);
+    });
+
     it('should accept data in the 3rd position as a single object for the Orient', () => {
       // Assemble
       const expectedOrientData = {
@@ -290,6 +328,29 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
           [ORIENT]: {
             ...expectedOrientData
           }
+        }
+      };
+      // Act
+      const actual = new AppCtx(
+        TERM,
+        ACTION,
+        ORIENT,
+        null,
+        undefined,
+        expectedOrientData
+      );
+      // Assert
+      expect(actual).toEqualOn(expected);
+    });
+
+    it('should accept data in the 3rd position as a value for the Orient', () => {
+      // Assemble
+      const expectedOrientData = Date.now();
+      const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
+      const expected = {
+        ...expectedTao,
+        data: {
+          [ORIENT]: expectedOrientData
         }
       };
       // Act

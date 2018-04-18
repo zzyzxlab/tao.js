@@ -48,6 +48,7 @@
     ],
     "coverageReporters": ["html"],
     "coverageDirectory": ".coverage",
+    "coveragePathIgnorePatterns": ["/node_modules/", "example.js"],
     "setupFiles": ["<rootDir>/config/jest.js"],
     "setupTestFrameworkScriptFile": "<rootDir>/config/setup.js",
     "snapshotSerializers": ["enzyme-to-json/serializer"],
