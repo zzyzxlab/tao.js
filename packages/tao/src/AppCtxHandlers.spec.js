@@ -45,6 +45,15 @@ describe('AppCtxHandlers exports a class extending AppCtxRoot', () => {
 
 describe('AppCtxHandlers is used to attach handlers for Application Contexts', () => {
   describe('as Inline handlers', () => {
+    it('should throw if handler is not a function', () => {
+      // Assemble
+      const uut = new AppCtxHandlers();
+      // Act
+      const willThrow = () => uut.addInlineHandler({});
+      // Assert
+      expect(willThrow).toThrow();
+    });
+
     it('should attach an inline handler', () => {
       // Assemble
       const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
@@ -205,9 +214,41 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Assert
       expect(setAppCtx).not.toBeCalled();
     });
+
+    it('should prevent setAppCtx Errors from bubbling:', async () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const nextAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
+      const handler = jest.fn().mockReturnValue(nextAc);
+      const setAppCtx = jest
+        .fn(() => {
+          throw new Error('testing throw is caught');
+        })
+        .mockName('setAppCtx');
+      uut.addInlineHandler(handler);
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+
+      // Act
+      const wontThrow = async () => await uut.handleAppCon(matchAc, setAppCtx);
+
+      // Assert
+      expect(setAppCtx).toThrow();
+      await expect(wontThrow()).resolves.not.toThrow();
+      expect(handler).toBeCalled();
+      expect(setAppCtx).toBeCalledWith(nextAc);
+    });
   });
 
   describe('as Async handlers', () => {
+    it('should throw if handler is not a function', () => {
+      // Assemble
+      const uut = new AppCtxHandlers();
+      // Act
+      const willThrow = () => uut.addAsyncHandler({});
+      // Assert
+      expect(willThrow).toThrow();
+    });
+
     it('should attach an async handler', () => {
       // Assemble
       const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
@@ -397,9 +438,41 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Assert
       expect(setAppCtx).not.toBeCalled();
     });
+
+    it('should prevent setAppCtx Errors from bubbling:', async () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const nextAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
+      const handler = jest.fn().mockReturnValue(nextAc);
+      const setAppCtx = jest
+        .fn(() => {
+          throw new Error('testing throw is caught');
+        })
+        .mockName('setAppCtx');
+      uut.addAsyncHandler(handler);
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+
+      // Act
+      const wontThrow = async () => await uut.handleAppCon(matchAc, setAppCtx);
+
+      // Assert
+      expect(setAppCtx).toThrow();
+      await expect(wontThrow()).resolves.not.toThrow();
+      expect(handler).toBeCalled();
+      expect(setAppCtx).toBeCalledWith(nextAc);
+    });
   });
 
   describe('as Intercept handlers', () => {
+    it('should throw if handler is not a function', () => {
+      // Assemble
+      const uut = new AppCtxHandlers();
+      // Act
+      const willThrow = () => uut.addInterceptHandler({});
+      // Assert
+      expect(willThrow).toThrow();
+    });
+
     it('should attach an intercept handler', () => {
       // Assemble
       const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
@@ -560,6 +633,29 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(setAppCtx).not.toBeCalled();
     });
 
+    it('should prevent setAppCtx Errors from bubbling:', async () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const nextAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
+      const handler = jest.fn().mockReturnValue(nextAc);
+      const setAppCtx = jest
+        .fn(() => {
+          throw new Error('testing throw is caught');
+        })
+        .mockName('setAppCtx');
+      uut.addInterceptHandler(handler);
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+
+      // Act
+      const wontThrow = async () => await uut.handleAppCon(matchAc, setAppCtx);
+
+      // Assert
+      expect(setAppCtx).toThrow();
+      await expect(wontThrow()).resolves.not.toThrow();
+      expect(handler).toBeCalled();
+      expect(setAppCtx).toBeCalledWith(nextAc);
+    });
+
     it('should not call inlineHander if handler returns truthy value', async () => {
       // Assemble
       const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
@@ -593,5 +689,235 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(setAppCtx).not.toBeCalled();
       expect(inlineHandler).toBeCalled();
     });
+  });
+});
+
+describe('AppCtxHandlers can be linked to create a tree of handlers', () => {
+  it('should require a Leaf Handler to be an AppCtxHandler', () => {
+    // Assemble
+    const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+    // const nextAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
+    // const handler = jest.fn().mockReturnValue(null);
+    // const inlineHandler = jest.fn().mockName('inlineHandler');
+    // const setAppCtx = jest.fn().mockName('setAppCtx');
+    // uut.addInterceptHandler(handler);
+    // uut.addInlineHandler(inlineHandler);
+    // const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+    // Act
+    // Assert
+    expect(() => uut.addLeafHandler({})).toThrow(
+      "'leafAch' is not an instance of AppCtxHandlers"
+    );
+  });
+
+  it('should ignore adding a Leaf Handler to a Concrete AppCtxHandlers', () => {
+    // Assemble
+    const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+    const ach = new AppCtxHandlers(ALT_TERM, ALT_ACTION, ALT_ORIENT);
+    // Act
+    uut.addLeafHandler(ach);
+    // Assert
+    expect(uut._leafAppConHandlers).not.toContain(ach);
+  });
+
+  it('should ignore adding a Wildcard AppCtxHandlers as a Laef Handler', () => {
+    // Assemble
+    const uut = new AppCtxHandlers(WILDCARD, WILDCARD, WILDCARD);
+    const wildTerm = new AppCtxHandlers(WILDCARD, ACTION, ORIENT);
+    const wildAction = new AppCtxHandlers(TERM, WILDCARD, ORIENT);
+    const wildOrient = new AppCtxHandlers(TERM, ACTION, WILDCARD);
+    // Act
+    uut.addLeafHandler(wildTerm);
+    uut.addLeafHandler(wildAction);
+    uut.addLeafHandler(wildOrient);
+    // Assert
+    expect(uut._leafAppConHandlers).not.toContain(wildTerm);
+    expect(uut._leafAppConHandlers).not.toContain(wildAction);
+    expect(uut._leafAppConHandlers).not.toContain(wildOrient);
+  });
+
+  it('should ignore adding Leaf Handlers that cannot match', () => {
+    // Assemble
+    const uutTerm = new AppCtxHandlers(TERM, WILDCARD, WILDCARD);
+    const uutAction = new AppCtxHandlers(WILDCARD, ACTION, WILDCARD);
+    const uutOrient = new AppCtxHandlers(WILDCARD, WILDCARD, ORIENT);
+    const leaf = new AppCtxHandlers(ALT_TERM, ALT_ACTION, ALT_ORIENT);
+
+    // ACT
+    uutTerm.addLeafHandler(leaf);
+    uutAction.addLeafHandler(leaf);
+    uutOrient.addLeafHandler(leaf);
+
+    // Assert
+    expect(uutTerm._leafAppConHandlers).not.toContain(leaf);
+    expect(uutAction._leafAppConHandlers).not.toContain(leaf);
+    expect(uutOrient._leafAppConHandlers).not.toContain(leaf);
+  });
+
+  it('should add a Concrete Leaf Handler to a Wildcard Handler and populate the Leaf Handlers', () => {
+    // Assemble
+    const uut = new AppCtxHandlers(WILDCARD, WILDCARD, WILDCARD);
+    const leaf = new AppCtxHandlers(TERM, ACTION, ORIENT);
+    const interceptH = jest.fn().mockName('intercept handler');
+    const asyncH = jest.fn().mockName('async handler');
+    const inlineH = jest.fn().mockName('inline handler');
+    uut.addInterceptHandler(interceptH);
+    uut.addAsyncHandler(asyncH);
+    uut.addInlineHandler(inlineH);
+
+    // Act
+    uut.addLeafHandler(leaf);
+
+    // Assert
+    expect(uut._leafAppConHandlers).toContain(leaf);
+    expect(uut._intercept).toContain(interceptH);
+    expect(leaf._intercept).toContain(interceptH);
+    expect(uut._async).toContain(asyncH);
+    expect(leaf._async).toContain(asyncH);
+    expect(uut._inline).toContain(inlineH);
+    expect(leaf._inline).toContain(inlineH);
+  });
+
+  it('should add multiple Concrete Leaf Handlers to a Wildcard Handler that matches', () => {
+    // Assemble
+    const uut = new AppCtxHandlers(WILDCARD, ACTION, ORIENT);
+    const leaf1 = new AppCtxHandlers(TERM, ACTION, ORIENT);
+    const leaf2 = new AppCtxHandlers(ALT_TERM, ACTION, ORIENT);
+    const leaves = [leaf1, leaf2];
+    const interceptH = jest.fn().mockName('intercept handler');
+    const asyncH = jest.fn().mockName('async handler');
+    const inlineH = jest.fn().mockName('inline handler');
+    uut.addInterceptHandler(interceptH);
+    uut.addAsyncHandler(asyncH);
+    uut.addInlineHandler(inlineH);
+
+    // Act
+    uut.addLeafHandlers(leaves);
+
+    // Assert
+    expect(uut._leafAppConHandlers).toContain(leaf1);
+    expect(uut._leafAppConHandlers).toContain(leaf2);
+    expect(uut._intercept).toContain(interceptH);
+    expect(leaf1._intercept).toContain(interceptH);
+    expect(leaf2._intercept).toContain(interceptH);
+    expect(uut._async).toContain(asyncH);
+    expect(leaf1._async).toContain(asyncH);
+    expect(leaf2._async).toContain(asyncH);
+    expect(uut._inline).toContain(inlineH);
+    expect(leaf1._inline).toContain(inlineH);
+    expect(leaf2._inline).toContain(inlineH);
+  });
+
+  it('should only add the same Leaf Handler once', () => {
+    // Assemble
+    const uut = new AppCtxHandlers();
+    const leaf = new AppCtxHandlers(TERM, ACTION, ORIENT);
+    const interceptH = jest.fn().mockName('intercept handler');
+    const asyncH = jest.fn().mockName('async handler');
+    const inlineH = jest.fn().mockName('inline handler');
+    uut.addInterceptHandler(interceptH);
+    uut.addAsyncHandler(asyncH);
+    uut.addInlineHandler(inlineH);
+
+    // Act
+    uut.addLeafHandler(leaf);
+    uut.addLeafHandler(leaf);
+
+    // Assert
+    expect(uut._leafAppConHandlers).toContain(leaf);
+    expect(uut._leafAppConHandlers.size).toBe(1);
+    expect(uut._intercept).toContain(interceptH);
+    expect(leaf._intercept).toContain(interceptH);
+    expect(leaf._intercept.size).toBe(1);
+    expect(uut._async).toContain(asyncH);
+    expect(leaf._async).toContain(asyncH);
+    expect(leaf._async.size).toBe(1);
+    expect(uut._inline).toContain(inlineH);
+    expect(leaf._inline).toContain(inlineH);
+    expect(leaf._inline.size).toBe(1);
+  });
+
+  it('should treat adding Multiple with non-Iterable as adding Single Leaf Handler', () => {
+    // Assemble
+    const uut = new AppCtxHandlers();
+    const leaf = new AppCtxHandlers(TERM, ACTION, ORIENT);
+    const interceptH = jest.fn().mockName('intercept handler');
+    const asyncH = jest.fn().mockName('async handler');
+    const inlineH = jest.fn().mockName('inline handler');
+    uut.addInterceptHandler(interceptH);
+    uut.addAsyncHandler(asyncH);
+    uut.addInlineHandler(inlineH);
+
+    // Act
+    uut.addLeafHandlers(leaf);
+
+    // Assert
+    expect(uut._leafAppConHandlers).toContain(leaf);
+    expect(uut._intercept).toContain(interceptH);
+    expect(leaf._intercept).toContain(interceptH);
+    expect(uut._async).toContain(asyncH);
+    expect(leaf._async).toContain(asyncH);
+    expect(uut._inline).toContain(inlineH);
+    expect(leaf._inline).toContain(inlineH);
+  });
+
+  it('should add Handlers to Leaves when adding to Wildcard', () => {
+    // Assemble
+    const uut = new AppCtxHandlers();
+    const leaf = new AppCtxHandlers(TERM, ACTION, ORIENT);
+    const interceptH = jest.fn().mockName('intercept handler');
+    const asyncH = jest.fn().mockName('async handler');
+    const inlineH = jest.fn().mockName('inline handler');
+
+    // Act
+    uut.addLeafHandler(leaf);
+    uut.addInterceptHandler(interceptH);
+    uut.addAsyncHandler(asyncH);
+    uut.addInlineHandler(inlineH);
+
+    // Assert
+    expect(uut._leafAppConHandlers).toContain(leaf);
+    expect(uut._intercept).toContain(interceptH);
+    expect(leaf._intercept).toContain(interceptH);
+    expect(uut._async).toContain(asyncH);
+    expect(leaf._async).toContain(asyncH);
+    expect(uut._inline).toContain(inlineH);
+    expect(leaf._inline).toContain(inlineH);
+  });
+
+  it('should remove Handlers from Leaves when removing from Wildcard', () => {
+    // Assemble
+    const uut = new AppCtxHandlers();
+    const leaf = new AppCtxHandlers(TERM, ACTION, ORIENT);
+    const preInterceptH = jest.fn().mockName('intercept handler pre-leaf');
+    const preAsyncH = jest.fn().mockName('async handler pre-leaf');
+    const preInlineH = jest.fn().mockName('inline handler pre-leaf');
+    const postInterceptH = jest.fn().mockName('intercept handler post-leaf');
+    const postAsyncH = jest.fn().mockName('async handler post-leaf');
+    const postInlineH = jest.fn().mockName('inline handler post-leaf');
+    uut.addInterceptHandler(preInterceptH);
+    uut.addAsyncHandler(preAsyncH);
+    uut.addInlineHandler(preInlineH);
+    uut.addLeafHandler(leaf);
+    uut.addInterceptHandler(postInterceptH);
+    uut.addAsyncHandler(postAsyncH);
+    uut.addInlineHandler(postInlineH);
+
+    // Act
+    uut.removeInterceptHandler(preInterceptH);
+    uut.removeInterceptHandler(postInterceptH);
+    uut.removeAsyncHandler(preAsyncH);
+    uut.removeAsyncHandler(postAsyncH);
+    uut.removeInlineHandler(preInlineH);
+    uut.removeInlineHandler(postInlineH);
+
+    // Assert
+    expect(uut._leafAppConHandlers).toContain(leaf);
+    expect(leaf._intercept).not.toContain(preInterceptH);
+    expect(leaf._intercept).not.toContain(postInterceptH);
+    expect(leaf._async).not.toContain(preAsyncH);
+    expect(leaf._async).not.toContain(postAsyncH);
+    expect(leaf._inline).not.toContain(preInlineH);
+    expect(leaf._inline).not.toContain(postInlineH);
   });
 });

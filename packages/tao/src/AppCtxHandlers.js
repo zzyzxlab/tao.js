@@ -14,7 +14,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
 
   addLeafHandler(leafAch) {
     if (!(leafAch instanceof AppCtxHandlers)) {
-      throw new Error("'leafAch' is not an instance of AppConHandlers");
+      throw new Error("'leafAch' is not an instance of AppCtxHandlers");
     }
     if (!this.isWildcard || !leafAch.isConcrete) {
       return;
@@ -94,12 +94,11 @@ export default class AppCtxHandlers extends AppCtxRoot {
     );
   }
 
-  populateHandlersFromWildcards() {}
+  // Might need but removing to have accurate code coverage metric
+  // populateHandlersFromWildcards() {}
 
   get interceptHandlers() {
-    if (this._intercept) {
-      return this._intercept;
-    }
+    return this._intercept;
   }
 
   get asyncHandlers() {
@@ -125,7 +124,14 @@ export default class AppCtxHandlers extends AppCtxRoot {
         continue;
       }
       if (intercepted instanceof AppCtx) {
-        setAppCtx(intercepted);
+        try {
+          setAppCtx(intercepted);
+        } catch (interceptErr) {
+          console.log(
+            'error setting context returned from intercept handler:',
+            interceptErr
+          );
+        }
       }
       return;
     }
@@ -154,10 +160,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
               `>>>>>>>> ending async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`
             );
           })
-          .catch(error => {
+          .catch(asyncErr => {
             // swallow async errors
             // possibility to set an AC for errors
-            console.error('error in async handler:', error);
+            console.error('error in async handler:', asyncErr);
           });
       })();
     }
@@ -182,8 +188,8 @@ export default class AppCtxHandlers extends AppCtxRoot {
       for (let nextAc of nextSpool) {
         try {
           setAppCtx(nextAc);
-        } catch (error) {
-          console.error('error on next inline:', error);
+        } catch (inlineErr) {
+          console.error('error on next inline:', inlineErr);
         }
       }
     }
