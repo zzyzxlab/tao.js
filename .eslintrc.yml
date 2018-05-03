@@ -6,6 +6,6 @@ plugins:
 rules:
   quotes:
     - error
-    - single:
-        avoidEscape: true
-        allowTemplateLiterals: true
+    - single
+    - avoidEscape: true
+      allowTemplateLiterals: true
