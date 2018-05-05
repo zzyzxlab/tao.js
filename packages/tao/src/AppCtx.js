@@ -103,4 +103,8 @@ export default class AppCtx extends AppCtxRoot {
   get data() {
     return this.datum;
   }
+
+  unwrapCtx() {
+    return { t: this.t, a: this.a, o: this.o };
+  }
 }

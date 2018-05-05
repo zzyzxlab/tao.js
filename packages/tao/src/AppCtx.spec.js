@@ -36,6 +36,21 @@ describe('AppCtx exports a class extending AppCtxRoot', () => {
   });
 });
 
+describe('AppCtx can be unwrapped to a bare TAO App Context', () => {
+  it('should have an unwrapCtx function returning an object of the form { t, a, o } that can be used with other APIs', () => {
+    // Assemble
+    const uut = new AppCtx(TERM, ACTION, ORIENT);
+    // Act
+    const unwrapped = uut.unwrapCtx();
+    // Assert
+    expect(unwrapped).toMatchObject({
+      t: TERM,
+      a: ACTION,
+      o: ORIENT
+    });
+  });
+});
+
 describe('AppCtx adds data in order to define concrete Application Contexts during execution', () => {
   it('should create an AppCtx with empty data', () => {
     // Assemble
