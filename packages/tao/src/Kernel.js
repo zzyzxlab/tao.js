@@ -21,6 +21,15 @@ function _cleanAC({ t, term, a, action, o, orient }) {
   };
 }
 
+function _validateHandler(handler) {
+  if (!handler) {
+    throw new Error('cannot add empty handler');
+  }
+  if (typeof handler !== 'function') {
+    throw new Error('handler must be a function');
+  }
+}
+
 function _appendLeaves(leavesFrom, leavesTo, taoism) {
   if (taoism) {
     if (leavesFrom.has(taoism) && leavesFrom.get(taoism).size) {
@@ -156,10 +165,6 @@ function _createPromiseHandler(
   return acHandler;
 }
 
-/*
- * from a central root theme of Taoism, De is an intrinsic quality of integrity
- * https://en.wikipedia.org/wiki/De_(Chinese)
-*/
 export default class Kernel {
   constructor(handlers, canSetWildcard = false) {
     this._handlers = handlers || new Map();
@@ -191,7 +196,8 @@ export default class Kernel {
     if (this._handlers.has(acKey)) {
       const appCtx = new AppCtx(acIn.term, acIn.action, acIn.orient, data);
       // why not forward the call to setAppCtx? -> b/c don't want to execute check against existing again
-      this._handlers.get(acKey).handleAppCon(appCtx, ac => this.setAppCtx(ac));
+      const handler = this._handlers.get(acKey);
+      handler.handleAppCon(appCtx, ac => this.setAppCtx(ac));
     }
   }
 
@@ -214,9 +220,8 @@ export default class Kernel {
       );
     }
     if (this._handlers.has(appCtx.key)) {
-      this._handlers
-        .get(appCtx.key)
-        .handleAppCon(appCtx, ac => this.setAppCtx(ac));
+      const handler = this._handlers.get(appCtx.key);
+      handler.handleAppCon(appCtx, ac => this.setAppCtx(ac));
     }
   }
 
@@ -224,7 +229,7 @@ export default class Kernel {
     const resolvers = isIterable(resolveOn) ? resolveOn : [resolveOn];
     const rejectors = isIterable(rejectOn) ? rejectOn : [rejectOn];
     const allAcs = concatIterables(resolvers, rejectors);
-    return ({ t, a, o }, data) =>
+    return ({ t, term, a, action, o, orient }, data) =>
       new Promise((resolve, reject) => {
         let to = null;
         const clearTO = () => to && clearTimeout(to);
@@ -258,14 +263,12 @@ export default class Kernel {
             reject(TIMEOUT_REJECT);
           }, timeoutMs);
         }
-        this.setCtx({ t, a, o }, data);
+        this.setCtx({ t, term, a, action, o, orient }, data);
       });
   }
 
   addInterceptHandler({ t, term, a, action, o, orient }, handler) {
-    if (!handler) {
-      throw new Error('cannot add empty handler');
-    }
+    _validateHandler(handler);
     const ach = _addACHandler(
       this,
       this._handlers,
@@ -278,9 +281,7 @@ export default class Kernel {
   }
 
   addAsyncHandler({ t, term, a, action, o, orient }, handler) {
-    if (!handler) {
-      throw new Error('cannot add empty handler');
-    }
+    _validateHandler(handler);
     const ach = _addACHandler(
       this,
       this._handlers,
@@ -293,9 +294,7 @@ export default class Kernel {
   }
 
   addInlineHandler({ t, term, a, action, o, orient }, handler) {
-    if (!handler) {
-      throw new Error('cannot add empty handler');
-    }
+    _validateHandler(handler);
     const ach = _addACHandler(
       this,
       this._handlers,

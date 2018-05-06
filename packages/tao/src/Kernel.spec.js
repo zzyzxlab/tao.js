@@ -1,254 +1,320 @@
 import { WILDCARD } from './constants';
+import AppCtxRoot from './AppCtxRoot';
 import AppCtx from './AppCtx';
 import Kernel from './Kernel';
+import { start } from 'repl';
 
-xdescribe('AppCtxHandlers is used to attach handlers for Application Contexts', () => {
-  it('should create an empty set of Handlers for AppCtx', () => {
+const TERM = 'colleague';
+const ACTION = 'hug';
+const ORIENT = 'justfriends';
+
+const ALT_TERM = 'dude';
+const ALT_ACTION = 'fistbump';
+const ALT_ORIENT = 'bros';
+
+describe('Kernel is the base entry point of execution for a tao.js app', () => {
+  it('should provide a constructor', () => {
     // Assemble
-    const expected = {};
     // Act
-    const actual = new AppCtxHandlers();
     // Assert
-    expect(actual).toEqual(expect.anything());
+    expect(Kernel).toBeDefined();
+    expect(new Kernel()).toBeInstanceOf(Kernel);
+    expect(new Kernel()).not.toBeInstanceOf(Function);
   });
 
-  describe('as inline handlers', () => {
-    describe('for Concrete Application Contexts', () => {
-      it('should attach an inline handler', () => {
-        // Assemble
-        const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
-        const handler = jest.fn();
-        // Act
-        uut.addInlineHandler(handler);
-        // Assert
-        expect(uut.inlineHandlers).toContain(handler);
+  describe('provides ability to add handlers for App Contexts', () => {
+    it('should allow adding inline handlers called when context is set', () => {
+      // Assemble
+      const uut = new Kernel();
+      const leafH = jest.fn().mockName('leaf');
+      const wildH = jest.fn().mockName('wild');
+      const wildTermH = jest.fn().mockName('wild term');
+      const wildActionH = jest.fn().mockName('wild action');
+      const wildOrientH = jest
+        .fn(() => new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT))
+        .mockName('wild orient');
+      expect.assertions(5);
+      // Act
+      uut.addInlineHandler({ t: TERM, a: ACTION, o: ORIENT }, leafH);
+      uut.addInlineHandler({}, wildH);
+      uut.addInlineHandler(
+        { term: '', action: ACTION, orient: ORIENT },
+        wildTermH
+      );
+      uut.addInlineHandler({ term: TERM, o: ORIENT }, wildActionH);
+      uut.addInlineHandler({ t: TERM, action: ACTION, o: '' }, wildOrientH);
+      uut.setCtx({ t: TERM, a: ACTION, o: ORIENT });
+      // Assert
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          expect(leafH).toBeCalled();
+          expect(wildH).toBeCalled();
+          expect(wildTermH).toBeCalled();
+          expect(wildActionH).toBeCalled();
+          expect(wildOrientH).toBeCalled();
+          resolve();
+        }, 300);
       });
-
-      it('should be able to remove an inline handler', () => {
-        // Assemble
-        const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
-        const handler = jest.fn();
-        // Act
-        uut.addInlineHandler(handler);
-        uut.removeInlineHandler(handler);
-        // Assert
-        expect(uut.inlineHandlers).not.toContain(handler);
-      });
-
-      it('should call the inline handler when asked to handle App Con', () => {
-        // Assemble
-        const ach = new AppCtxHandlers(TERM, ACTION, ORIENT);
-        const handler = jest.fn();
-        ach.addInlineHandler(handler);
-        const matchAc = new AppCtx(TERM, ACTION, ORIENT);
-        // Act
-        ach.handleAppCon(matchAc);
-        // Assert
-        expect(handler).toBeCalledWith(
-          expect.objectContaining({
-            t: TERM,
-            a: ACTION,
-            o: ORIENT
-          }),
-          {}
-        );
-      });
-
-      it("should not call the handler when an Application Context that doesn't match is set", () => {
-        // Assemble
-        const ach = new AppCtxHandlers(TERM, ACTION, ORIENT);
-        const handler = jest.fn();
-        ach.addInlineHandler(handler);
-        const missOnTerm = new AppCtx(ALT_TERM, ACTION, ORIENT);
-        const missOnAction = new AppCtx(TERM, ALT_ACTION, ORIENT);
-        const missOnOrient = new AppCtx(TERM, ACTION, ALT_ORIENT);
-        // Act
-        ach.handleAppCon(missOnTerm);
-        ach.handleAppCon(missOnAction);
-        ach.handleAppCon(missOnOrient);
-        // Assert
-        expect(handler).not.toBeCalled();
-      });
-
-      it('should not call a removed handler when a matching Application Context is set', () => {});
     });
 
-    describe('for Wildcard Application Contexts', () => {
-      describe('using Term Wildcard', () => {
-        it('should attach an inline handler', () => {});
-
-        it('should be able to remove an inline handler', () => {});
-
-        it('should call the inline handler when a matching Application Context is set', () => {});
-
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-        it('should not call a removed handler when a matching Application Context is set', () => {});
+    it('should allow adding async handlers called when context is set', () => {
+      // Assemble
+      const uut = new Kernel();
+      const leafH = jest.fn().mockName('leaf');
+      const wildH = jest.fn().mockName('wild');
+      const wildTermH = jest.fn().mockName('wild term');
+      const wildActionH = jest.fn().mockName('wild action');
+      const wildOrientH = jest.fn().mockName('wild orient');
+      expect.assertions(5);
+      // Act
+      uut.addAsyncHandler({ t: TERM, a: ACTION, o: ORIENT }, leafH);
+      uut.addAsyncHandler({}, wildH);
+      uut.addAsyncHandler(
+        { term: '', action: ACTION, orient: ORIENT },
+        wildTermH
+      );
+      uut.addAsyncHandler({ term: TERM, o: ORIENT }, wildActionH);
+      uut.addAsyncHandler({ t: TERM, action: ACTION, o: '' }, wildOrientH);
+      uut.setCtx({ t: TERM, a: ACTION, o: ORIENT });
+      // Assert
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          expect(leafH).toBeCalled();
+          expect(wildH).toBeCalled();
+          expect(wildTermH).toBeCalled();
+          expect(wildActionH).toBeCalled();
+          expect(wildOrientH).toBeCalled();
+          resolve();
+        }, 300);
       });
+    });
 
-      describe('using Action Wildcard', () => {
-        it('should attach an inline handler', () => {});
-
-        it('should be able to remove an inline handler', () => {});
-
-        it('should call the inline handler when a matching Application Context is set', () => {});
-
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-        it('should not call a removed handler when a matching Application Context is set', () => {});
+    it('should allow adding intercept handlers called when context is set', () => {
+      // Assemble
+      const uut = new Kernel();
+      const leafH = jest.fn().mockName('leaf');
+      const wildH = jest.fn().mockName('wild');
+      const wildTermH = jest.fn().mockName('wild term');
+      const wildActionH = jest.fn().mockName('wild action');
+      const wildOrientH = jest.fn().mockName('wild orient');
+      expect.assertions(5);
+      // Act
+      uut.addInterceptHandler({ t: TERM, a: ACTION, o: ORIENT }, leafH);
+      uut.addInterceptHandler({}, wildH);
+      uut.addInterceptHandler(
+        { term: '', action: ACTION, orient: ORIENT },
+        wildTermH
+      );
+      uut.addInterceptHandler({ term: TERM, o: ORIENT }, wildActionH);
+      uut.addInterceptHandler({ t: TERM, action: ACTION, o: '' }, wildOrientH);
+      uut.setCtx({ t: TERM, a: ACTION, o: ORIENT });
+      // Assert
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          expect(leafH).toBeCalled();
+          expect(wildH).toBeCalled();
+          expect(wildTermH).toBeCalled();
+          expect(wildActionH).toBeCalled();
+          expect(wildOrientH).toBeCalled();
+          resolve();
+        }, 300);
       });
+    });
 
-      describe('using Orient Wildcard', () => {
-        it('should attach an inline handler', () => {});
+    it('should throw if adding a handler that is not a function', () => {
+      // Assemble
+      const uut = new Kernel();
+      const ac = { t: TERM, a: ACTION, o: ORIENT };
+      expect.assertions(6);
 
-        it('should be able to remove an inline handler', () => {});
+      // Act
+      const inlineThrowsEmpty = () => uut.addInlineHandler(ac);
+      const inlineThrowsFunc = () => uut.addInlineHandler(ac, {});
+      const asyncThrowsEmpty = () => uut.addAsyncHandler(ac);
+      const asyncThrowsFunc = () => uut.addAsyncHandler(ac, []);
+      const interceptThrowsEmpty = () => uut.addInterceptHandler(ac);
+      const interceptThrowsFunc = () => uut.addInterceptHandler(ac, true);
 
-        it('should call the inline handler when a matching Application Context is set', () => {});
+      // Assert
+      expect(inlineThrowsEmpty).toThrow('cannot add empty handler');
+      expect(inlineThrowsFunc).toThrow('handler must be a function');
+      expect(asyncThrowsEmpty).toThrow('cannot add empty handler');
+      expect(asyncThrowsFunc).toThrow('handler must be a function');
+      expect(interceptThrowsEmpty).toThrow('cannot add empty handler');
+      expect(interceptThrowsFunc).toThrow('handler must be a function');
+    });
 
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
+    it('should by default prevent setting wildcard App Contexts', () => {
+      // Assemble
+      const uut = new Kernel();
+      const indlineWildH = jest.fn().mockName('inline wild');
+      const asyncWildH = jest.fn().mockName('async wild');
+      const interceptWildH = jest.fn().mockName('intercept wild');
+      uut.addInlineHandler({}, indlineWildH);
+      uut.addAsyncHandler({}, asyncWildH);
+      uut.addInterceptHandler({}, interceptWildH);
+      expect.assertions(3);
 
-        it('should not call a removed handler when a matching Application Context is set', () => {});
+      // Act
+      uut.setCtx({});
+      uut.setAppCtx(new AppCtx());
+
+      // Assert
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          expect(indlineWildH).not.toBeCalled();
+          expect(asyncWildH).not.toBeCalled();
+          expect(interceptWildH).not.toBeCalled();
+          resolve();
+        }, 300);
       });
+    });
 
-      describe('using All Wildcard', () => {
-        it('should attach an inline handler', () => {});
+    it('should allow setting wildcard App Contexts with a constructor setting', () => {
+      // Assemble
+      const uut = new Kernel(null, true);
+      const indlineWildH = jest.fn().mockName('inline wild');
+      const asyncWildH = jest.fn().mockName('async wild');
+      const interceptWildH = jest.fn().mockName('intercept wild');
+      uut.addInlineHandler({}, indlineWildH);
+      uut.addAsyncHandler({}, asyncWildH);
+      uut.addInterceptHandler({}, interceptWildH);
+      expect.assertions(3);
 
-        it('should be able to remove an inline handler', () => {});
+      // Act
+      uut.setAppCtx(new AppCtx());
 
-        it('should call the inline handler when a matching Application Context is set', () => {});
+      // Assert
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          expect(indlineWildH).toBeCalled();
+          expect(asyncWildH).toBeCalled();
+          expect(interceptWildH).toBeCalled();
+          resolve();
+        }, 300);
+      });
+    });
 
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
+    it('should add missing empty leaf handler if context is set to that App Context', () => {
+      // Assemble
+      const uut = new Kernel();
+      const ctx1 = { t: TERM, a: ACTION, o: ORIENT };
+      const ctx1Key = AppCtxRoot.getKey(ctx1.t, ctx1.a, ctx1.o);
+      const ctx2 = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
+      const ctx2Key = ctx2.key;
+      // expect.assertions(3);
 
-        it('should not call a removed handler when a matching Application Context is set', () => {});
+      // Act
+      uut.setCtx(ctx1);
+      uut.setAppCtx(ctx2);
+
+      // Assert
+      expect(uut._handlers.keys()).toContain(ctx1Key);
+      expect(uut._handlers.keys()).toContain(ctx2Key);
+    });
+
+    it('should not add missing empty wildcard handler if context is set to matching App Context', () => {
+      // Assemble
+      const uut = new Kernel(null, true);
+      const ctx1 = { t: WILDCARD, a: ACTION, o: ORIENT };
+      const ctx1Key = AppCtxRoot.getKey(ctx1.t, ctx1.a, ctx1.o);
+      const ctx2 = new AppCtx(ALT_TERM, ALT_ACTION);
+      const ctx2Key = ctx2.key;
+      // expect.assertions(3);
+
+      // Act
+      uut.setCtx(ctx1);
+      uut.setAppCtx(ctx2);
+
+      // Assert
+      expect(uut._handlers.keys()).not.toContain(ctx1Key);
+      expect(uut._handlers.keys()).not.toContain(ctx2Key);
+    });
+
+    it('should throw if setAppCtx called without an AppCtx', () => {
+      // Assemble
+      const uut = new Kernel();
+
+      // Act
+      const willThrow = () => uut.setAppCtx({});
+
+      // Assert
+      expect(willThrow).toThrow(`'appCtx' not an instance of AppCtx`);
+    });
+  });
+
+  describe('provides ability to cascade App Contexts from handlers that return AppCtx', () => {
+    it('should call next handler if handler returns an AppCtx', () => {
+      // Assemble
+      const uut = new Kernel();
+      const one = new AppCtx(TERM, ACTION, ORIENT);
+      const two = new AppCtx(TERM, ACTION, ALT_ORIENT);
+      const three = new AppCtx(TERM, ALT_ACTION, ORIENT);
+      const four = new AppCtx(TERM, ALT_ACTION, ALT_ORIENT);
+      const five = new AppCtx(ALT_TERM, ACTION, ORIENT);
+      const six = new AppCtx(ALT_TERM, ACTION, ALT_ORIENT);
+      const seven = new AppCtx(ALT_TERM, ALT_ACTION, ORIENT);
+      const eight = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
+
+      const interceptToAsync = jest
+        .fn(() => two)
+        .mockName('intercept-async handler');
+      const asyncToInline = jest
+        .fn(() => three)
+        .mockName('async-inline handler');
+      const asyncToAsync = jest.fn().mockName('async-async handler');
+      const inlineToIntercept = jest
+        .fn(() => four)
+        .mockName('inline-intercept handler');
+      const interceptToInline = jest
+        .fn(() => five)
+        .mockName('intercept-inline handler');
+      const inlineToAsync = jest.fn(() => six).mockName('inline-async handler');
+      const inlineToInline = jest.fn().mockName('inline-inline handler');
+      const asyncToInterceptAndAsync = jest
+        .fn(() => seven)
+        .mockName('async-intercept+async handler');
+      const interceptToIntercept = jest
+        .fn(() => eight)
+        .mockName('intercept-intercept handler');
+      const interceptEnd = jest
+        .fn()
+        .mockName('intercept from intercept handler');
+
+      uut.addInterceptHandler(one.unwrapCtx(), interceptToAsync);
+      uut.addAsyncHandler(two.unwrapCtx(), asyncToInline);
+      uut.addAsyncHandler(three.unwrapCtx(), asyncToAsync);
+      uut.addInlineHandler(three.unwrapCtx(), inlineToIntercept);
+      uut.addInterceptHandler(four.unwrapCtx(), interceptToInline);
+      uut.addInlineHandler(five.unwrapCtx(), inlineToAsync);
+      uut.addInlineHandler(six.unwrapCtx(), inlineToInline);
+      uut.addAsyncHandler(six.unwrapCtx(), asyncToInterceptAndAsync);
+      uut.addInterceptHandler(seven.unwrapCtx(), interceptToIntercept);
+      uut.addInterceptHandler(eight.unwrapCtx(), interceptEnd);
+
+      expect.assertions(10);
+
+      // Act
+      uut.setCtx(one.unwrapCtx());
+
+      // Assert
+      return new Promise(resolve => {
+        setTimeout(() => {
+          expect(interceptToAsync).toBeCalled();
+          expect(asyncToInline).toBeCalled();
+          expect(asyncToAsync).toBeCalled();
+          expect(inlineToIntercept).toBeCalled();
+          expect(interceptToInline).toBeCalled();
+          expect(inlineToAsync).toBeCalled();
+          expect(inlineToInline).toBeCalled();
+          expect(asyncToInterceptAndAsync).toBeCalled();
+          expect(interceptToIntercept).toBeCalled();
+          expect(interceptEnd).toBeCalled();
+          resolve();
+        }, 300);
       });
     });
   });
 
-  describe('as async handlers', () => {
-    describe('for Concrete Application Contexts', () => {
-      it('should attach an inline handler', () => {});
-
-      it('should be able to remove an inline handler', () => {});
-
-      it('should call the inline handler when a matching Application Context is set', () => {});
-
-      it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-      it('should not call a removed handler when a matching Application Context is set', () => {});
-    });
-
-    describe('for Wildcard Application Contexts', () => {
-      describe('using Term Wildcard', () => {
-        it('should attach an inline handler', () => {});
-
-        it('should be able to remove an inline handler', () => {});
-
-        it('should call the inline handler when a matching Application Context is set', () => {});
-
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-        it('should not call a removed handler when a matching Application Context is set', () => {});
-      });
-
-      describe('using Action Wildcard', () => {
-        it('should attach an inline handler', () => {});
-
-        it('should be able to remove an inline handler', () => {});
-
-        it('should call the inline handler when a matching Application Context is set', () => {});
-
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-        it('should not call a removed handler when a matching Application Context is set', () => {});
-      });
-
-      describe('using Orient Wildcard', () => {
-        it('should attach an inline handler', () => {});
-
-        it('should be able to remove an inline handler', () => {});
-
-        it('should call the inline handler when a matching Application Context is set', () => {});
-
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-        it('should not call a removed handler when a matching Application Context is set', () => {});
-      });
-
-      describe('using All Wildcard', () => {
-        it('should attach an inline handler', () => {});
-
-        it('should be able to remove an inline handler', () => {});
-
-        it('should call the inline handler when a matching Application Context is set', () => {});
-
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-        it('should not call a removed handler when a matching Application Context is set', () => {});
-      });
-    });
-  });
-
-  describe('as intercept handlers', () => {
-    describe('for Concrete Application Contexts', () => {
-      it('should attach an inline handler', () => {});
-
-      it('should be able to remove an inline handler', () => {});
-
-      it('should call the inline handler when a matching Application Context is set', () => {});
-
-      it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-      it('should not call a removed handler when a matching Application Context is set', () => {});
-    });
-
-    describe('for Wildcard Application Contexts', () => {
-      describe('using Term Wildcard', () => {
-        it('should attach an inline handler', () => {});
-
-        it('should be able to remove an inline handler', () => {});
-
-        it('should call the inline handler when a matching Application Context is set', () => {});
-
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-        it('should not call a removed handler when a matching Application Context is set', () => {});
-      });
-
-      describe('using Action Wildcard', () => {
-        it('should attach an inline handler', () => {});
-
-        it('should be able to remove an inline handler', () => {});
-
-        it('should call the inline handler when a matching Application Context is set', () => {});
-
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-        it('should not call a removed handler when a matching Application Context is set', () => {});
-      });
-
-      describe('using Orient Wildcard', () => {
-        it('should attach an inline handler', () => {});
-
-        it('should be able to remove an inline handler', () => {});
-
-        it('should call the inline handler when a matching Application Context is set', () => {});
-
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-        it('should not call a removed handler when a matching Application Context is set', () => {});
-      });
-
-      describe('using All Wildcard', () => {
-        it('should attach an inline handler', () => {});
-
-        it('should be able to remove an inline handler', () => {});
-
-        it('should call the inline handler when a matching Application Context is set', () => {});
-
-        it("should not call the handler when an Application Context that doesn't match is set", () => {});
-
-        it('should not call a removed handler when a matching Application Context is set', () => {});
-      });
-    });
-  });
+  describe('converts a set of Contexts as a Promise Hook', () => {});
 });
