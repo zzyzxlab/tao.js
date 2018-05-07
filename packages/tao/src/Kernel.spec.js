@@ -28,21 +28,23 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       const uut = new Kernel();
       const leafH = jest.fn().mockName('leaf');
       const wildH = jest.fn().mockName('wild');
+      const wildPartialH = jest.fn().mockName('wild partial');
       const wildTermH = jest.fn().mockName('wild term');
       const wildActionH = jest.fn().mockName('wild action');
       const wildOrientH = jest
         .fn(() => new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT))
         .mockName('wild orient');
-      expect.assertions(5);
+      expect.assertions(6);
       // Act
-      uut.addInlineHandler({ t: TERM, a: ACTION, o: ORIENT }, leafH);
       uut.addInlineHandler({}, wildH);
       uut.addInlineHandler(
         { term: '', action: ACTION, orient: ORIENT },
         wildTermH
       );
+      uut.addInlineHandler({ orient: ORIENT }, wildPartialH);
       uut.addInlineHandler({ term: TERM, o: ORIENT }, wildActionH);
       uut.addInlineHandler({ t: TERM, action: ACTION, o: '' }, wildOrientH);
+      uut.addInlineHandler({ t: TERM, a: ACTION, o: ORIENT }, leafH);
       uut.setCtx({ t: TERM, a: ACTION, o: ORIENT });
       // Assert
       return new Promise((resolve, reject) => {
@@ -52,6 +54,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
           expect(wildTermH).toBeCalled();
           expect(wildActionH).toBeCalled();
           expect(wildOrientH).toBeCalled();
+          expect(wildPartialH).toBeCalled();
           resolve();
         }, 300);
       });
@@ -67,7 +70,6 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       const wildOrientH = jest.fn().mockName('wild orient');
       expect.assertions(5);
       // Act
-      uut.addAsyncHandler({ t: TERM, a: ACTION, o: ORIENT }, leafH);
       uut.addAsyncHandler({}, wildH);
       uut.addAsyncHandler(
         { term: '', action: ACTION, orient: ORIENT },
@@ -75,6 +77,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       );
       uut.addAsyncHandler({ term: TERM, o: ORIENT }, wildActionH);
       uut.addAsyncHandler({ t: TERM, action: ACTION, o: '' }, wildOrientH);
+      uut.addAsyncHandler({ t: TERM, a: ACTION, o: ORIENT }, leafH);
       uut.setCtx({ t: TERM, a: ACTION, o: ORIENT });
       // Assert
       return new Promise((resolve, reject) => {
@@ -136,12 +139,61 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       const interceptThrowsFunc = () => uut.addInterceptHandler(ac, true);
 
       // Assert
-      expect(inlineThrowsEmpty).toThrow('cannot add empty handler');
+      expect(inlineThrowsEmpty).toThrow(
+        'cannot do anything with missing handler'
+      );
       expect(inlineThrowsFunc).toThrow('handler must be a function');
-      expect(asyncThrowsEmpty).toThrow('cannot add empty handler');
+      expect(asyncThrowsEmpty).toThrow(
+        'cannot do anything with missing handler'
+      );
       expect(asyncThrowsFunc).toThrow('handler must be a function');
-      expect(interceptThrowsEmpty).toThrow('cannot add empty handler');
+      expect(interceptThrowsEmpty).toThrow(
+        'cannot do anything with missing handler'
+      );
       expect(interceptThrowsFunc).toThrow('handler must be a function');
+    });
+
+    it('should not add the same handler more than once for a given type of handling', () => {
+      // Assemble
+      const uut = new Kernel();
+      const inlineConcrete = jest.fn().mockName('inline concrete handler');
+      const asyncConcrete = jest.fn().mockName('async concrete handler');
+      const interceptConcrete = jest
+        .fn()
+        .mockName('intercept concrete handler');
+      const inlineWild = jest.fn().mockName('inline wild handler');
+      const asyncWild = jest.fn().mockName('async wild handler');
+      const interceptWild = jest.fn().mockName('intercept wild handler');
+      const ac = new AppCtx(TERM, ACTION, ORIENT);
+      expect.assertions(6);
+
+      // Act
+      uut.addInlineHandler(ac.unwrapCtx(), inlineConcrete);
+      uut.addInlineHandler(ac.unwrapCtx(), inlineConcrete);
+      uut.addAsyncHandler(ac.unwrapCtx(), asyncConcrete);
+      uut.addAsyncHandler(ac.unwrapCtx(), asyncConcrete);
+      uut.addInterceptHandler(ac.unwrapCtx(), interceptConcrete);
+      uut.addInterceptHandler(ac.unwrapCtx(), interceptConcrete);
+      uut.addInlineHandler({}, inlineWild);
+      uut.addInlineHandler({}, inlineWild);
+      uut.addAsyncHandler({}, asyncWild);
+      uut.addAsyncHandler({}, asyncWild);
+      uut.addInterceptHandler({}, interceptWild);
+      uut.addInterceptHandler({}, interceptWild);
+      uut.setAppCtx(ac);
+
+      // Assert
+      return new Promise(resolve => {
+        setTimeout(() => {
+          expect(inlineConcrete.mock.calls.length).toBe(1);
+          expect(asyncConcrete.mock.calls.length).toBe(1);
+          expect(interceptConcrete.mock.calls.length).toBe(1);
+          expect(inlineWild.mock.calls.length).toBe(1);
+          expect(asyncWild.mock.calls.length).toBe(1);
+          expect(interceptWild.mock.calls.length).toBe(1);
+          resolve();
+        }, 30);
+      });
     });
 
     it('should by default prevent setting wildcard App Contexts', () => {
@@ -243,6 +295,100 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
     });
   });
 
+  describe('provides ability to remove handlers for App Contexts', () => {
+    it('should not add the same handler more than once for a given type of handling', () => {
+      // Assemble
+      const uut = new Kernel();
+      const inlineConcrete = jest.fn().mockName('inline concrete handler');
+      const asyncConcrete = jest.fn().mockName('async concrete handler');
+      const interceptConcrete = jest
+        .fn()
+        .mockName('intercept concrete handler');
+      const inlineWild = jest.fn().mockName('inline wild handler');
+      const asyncWild = jest.fn().mockName('async wild handler');
+      const interceptWild = jest.fn().mockName('intercept wild handler');
+      const ac = new AppCtx(TERM, ACTION, ORIENT);
+      uut.addInlineHandler(ac.unwrapCtx(), inlineConcrete);
+      uut.addInlineHandler(ac.unwrapCtx(), inlineConcrete);
+      uut.addAsyncHandler(ac.unwrapCtx(), asyncConcrete);
+      uut.addAsyncHandler(ac.unwrapCtx(), asyncConcrete);
+      uut.addInterceptHandler(ac.unwrapCtx(), interceptConcrete);
+      uut.addInterceptHandler(ac.unwrapCtx(), interceptConcrete);
+      uut.addInlineHandler({}, inlineWild);
+      uut.addInlineHandler({}, inlineWild);
+      uut.addAsyncHandler({}, asyncWild);
+      uut.addAsyncHandler({}, asyncWild);
+      uut.addInterceptHandler({}, interceptWild);
+      uut.addInterceptHandler({}, interceptWild);
+      expect.assertions(6);
+
+      // Act
+      uut.removeInlineHandler(ac.unwrapCtx(), inlineConcrete);
+      uut.removeAsyncHandler(ac.unwrapCtx(), asyncConcrete);
+      uut.removeInterceptHandler(ac.unwrapCtx(), interceptConcrete);
+      uut.removeInlineHandler(ac.unwrapCtx(), inlineWild);
+      uut.removeAsyncHandler(ac.unwrapCtx(), asyncWild);
+      uut.removeInterceptHandler(ac.unwrapCtx(), interceptWild);
+      uut.setAppCtx(ac);
+
+      // Assert
+      return new Promise(resolve => {
+        setTimeout(() => {
+          expect(inlineConcrete).not.toBeCalled();
+          expect(asyncConcrete).not.toBeCalled();
+          expect(interceptConcrete).not.toBeCalled();
+          expect(inlineWild).not.toBeCalled();
+          expect(asyncWild).not.toBeCalled();
+          expect(interceptWild).not.toBeCalled();
+          resolve();
+        }, 30);
+      });
+    });
+
+    it('should throw an Error if trying to remove a handler that is not a function', () => {
+      // Assemble
+      const uut = new Kernel();
+      const ac = { t: TERM, a: ACTION, o: ORIENT };
+      expect.assertions(6);
+
+      // Act
+      const inlineThrowsEmpty = () => uut.removeInlineHandler(ac);
+      const inlineThrowsFunc = () => uut.removeInlineHandler(ac, {});
+      const asyncThrowsEmpty = () => uut.removeAsyncHandler(ac);
+      const asyncThrowsFunc = () => uut.removeAsyncHandler(ac, []);
+      const interceptThrowsEmpty = () => uut.removeInterceptHandler(ac);
+      const interceptThrowsFunc = () => uut.removeInterceptHandler(ac, true);
+
+      // Assert
+      expect(inlineThrowsEmpty).toThrow(
+        'cannot do anything with missing handler'
+      );
+      expect(inlineThrowsFunc).toThrow('handler must be a function');
+      expect(asyncThrowsEmpty).toThrow(
+        'cannot do anything with missing handler'
+      );
+      expect(asyncThrowsFunc).toThrow('handler must be a function');
+      expect(interceptThrowsEmpty).toThrow(
+        'cannot do anything with missing handler'
+      );
+      expect(interceptThrowsFunc).toThrow('handler must be a function');
+    });
+
+    it('should ignore removing handlers on App Contexts which do not have handlers added', () => {
+      // Assemble
+      const uut = new Kernel();
+      const ac = { t: TERM, a: ACTION, o: ORIENT };
+      // Act
+      // Assert
+      expect(uut.removeInlineHandler(ac, () => 1)).toBe(uut);
+      expect(uut.removeInlineHandler({}, () => 1)).toBe(uut);
+      expect(uut.removeAsyncHandler(ac, () => 1)).toBe(uut);
+      expect(uut.removeAsyncHandler({}, () => 1)).toBe(uut);
+      expect(uut.removeInterceptHandler(ac, () => 1)).toBe(uut);
+      expect(uut.removeInterceptHandler({}, () => 1)).toBe(uut);
+    });
+  });
+
   describe('provides ability to cascade App Contexts from handlers that return AppCtx', () => {
     it('should call next handler if handler returns an AppCtx', () => {
       // Assemble
@@ -316,5 +462,17 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
     });
   });
 
-  describe('converts a set of Contexts as a Promise Hook', () => {});
+  describe('converts a set of Contexts as a Promise Hook', () => {
+    it('should return a function used for setting context when getting a Promise Hook', () => {});
+
+    it('should remove handlers involved with a Promise Hook once the Promise has settled', () => {});
+
+    it('should resolve a promise from a specified Concrete App Context', () => {});
+
+    it('should reject a promise from a specified Concrete App Context', () => {});
+
+    it('should resolve a promise from a specified Wild App Context', () => {});
+
+    it('should reject a promise from a specified Wild App Context', () => {});
+  });
 });

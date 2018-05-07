@@ -23,7 +23,7 @@ function _cleanAC({ t, term, a, action, o, orient }) {
 
 function _validateHandler(handler) {
   if (!handler) {
-    throw new Error('cannot add empty handler');
+    throw new Error('cannot do anything with missing handler');
   }
   if (typeof handler !== 'function') {
     throw new Error('handler must be a function');
@@ -111,9 +111,7 @@ function _addACHandler(
 }
 
 function _removeHandler(taoHandlers, { term, action, orient }, handler, type) {
-  if (!handler) {
-    throw new Error('cannot remove empty handler');
-  }
+  _validateHandler(handler);
   type = type || INLINE;
   if (type !== ASYNC && type !== INLINE && type !== INTERCEPT) {
     throw new Error(
@@ -128,7 +126,6 @@ function _removeHandler(taoHandlers, { term, action, orient }, handler, type) {
     return;
   }
   taoHandlers.get(acKey)[`remove${type}Handler`](handler);
-  return this;
 }
 
 function _removeHandlers(taoHandlers, acList, handlers, type) {
@@ -307,29 +304,32 @@ export default class Kernel {
   }
 
   removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
-    return _removeHandler(
+    _removeHandler(
       this._handlers,
       _cleanAC({ t, term, a, action, o, orient }),
       handler,
       INTERCEPT
     );
+    return this;
   }
 
   removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
-    return _removeHandler(
+    _removeHandler(
       this._handlers,
       _cleanAC({ t, term, a, action, o, orient }),
       handler,
       ASYNC
     );
+    return this;
   }
 
   removeInlineHandler({ t, term, a, action, o, orient }, handler) {
-    return _removeHandler(
+    _removeHandler(
       this._handlers,
       _cleanAC({ t, term, a, action, o, orient }),
       handler,
       INLINE
     );
+    return this;
   }
 }
