@@ -783,6 +783,18 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
     it('should reject a promise after a specified timeout', () => {
       // Assemble
       const uut = new Kernel();
+      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
       const promiseSetCtx = uut.asPromiseHook(
         {
           resolveOn: { t: TERM, a: ACTION, o: ORIENT },
@@ -801,14 +813,188 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       return expect(rejectingPromise).rejects.toBe(TIMEOUT_REJECT);
     });
 
-    it('should resolve a promise before a specified timeout', () => {});
+    it('should resolve a promise before a specified timeout', () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+      });
+      expect.assertions(1);
+      // Act
+      const resolvingPromise = promiseSetCtx(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        100
+      );
+      // Assert
+      return expect(resolvingPromise).resolves.toMatchObject({
+        tao: expectedAc.unwrapCtx(),
+        data: expectedAc.data
+      });
+    });
 
-    it('should reject a promise before a specified timeout', () => {});
+    it('should reject a promise before a specified timeout', () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT, [
+        { a: 1 }
+      ]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook(
+        {
+          resolveOn: { t: TERM, a: ACTION, o: ORIENT },
+          rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+        },
+        100
+      );
+      expect.assertions(1);
+      // Act
+      const rejectingPromise = promiseSetCtx({
+        t: ALT_TERM,
+        a: ACTION,
+        o: ORIENT
+      });
+      // Assert
+      return expect(rejectingPromise).rejects.toMatchObject({
+        tao: expectedAc.unwrapCtx(),
+        data: expectedAc.data
+      });
+    });
 
-    it('should ignore a timeout value less than or equal to 0', () => {});
+    it('should ignore a timeout value less than or equal to 0', () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+      });
+      expect.assertions(1);
+      // Act
+      const resolvingPromise = promiseSetCtx(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        -1
+      );
+      // Assert
+      return expect(resolvingPromise).resolves.toMatchObject({
+        tao: expectedAc.unwrapCtx(),
+        data: expectedAc.data
+      });
+    });
 
-    it('should not add handlers involved with a Promise Hook until the Promise Context is set', () => {});
+    xit('should not add handlers involved with a Promise Hook until the Promise Context is set', async () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
+      const triggeringAc = new AppCtx(ALT_TERM, ACTION, ORIENT);
+      const rejectOnAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: expectedAc.unwrapCtx(),
+        rejectOn: rejectOnAc.unwrapCtx()
+      });
+      // expect.assertions(1);
+      // Act
+      const preSetHandlers = new Map(uut._handlers);
+      const resolvingPromise = promiseSetCtx(triggeringAc.unwrapCtx());
+      const postSetHandlers = new Map(uut._handlers);
+      await resolvingPromise;
+      // Assert
+      expect(preSetHandlers.size).toBe(1);
+      expect(postSetHandlers.size).toBe(3);
+      const preKeys = preSetHandlers.keys();
+      expect(preKeys).toContain(triggeringAc.key);
+      expect(preKeys).not.toContain(expectedAc.key);
+      expect(preKeys).not.toContain(rejectOnAc.key);
+      const postKeys = postSetHandlers.keys();
+      expect(postKeys).toContain(triggeringAc.key);
+      expect(postKeys).toContain(expectedAc.key);
+      expect(postKeys).toContain(rejectOnAc.key);
+    });
 
-    it('should remove handlers involved with a Promise Hook once the Promise has settled', () => {});
+    xit('should remove handlers involved with a Promise Hook once the Promise has settled', async () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+      });
+      // expect.assertions(1);
+      // Act
+      const resolvingPromise = promiseSetCtx({
+        t: ALT_TERM,
+        a: ACTION,
+        o: ORIENT
+      });
+      const preSettleHandlerCount = uut._handlers.size;
+      await resolvingPromise;
+      const postSettleHandlerCount = uut._handlers.size;
+      // Assert
+      expect(preSettleHandlerCount).toBe(3);
+      expect(postSettleHandlerCount).toBe(1);
+    });
   });
 });
