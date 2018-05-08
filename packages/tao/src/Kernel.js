@@ -222,9 +222,23 @@ export default class Kernel {
     }
   }
 
-  asPromiseHook({ resolveOn, rejectOn }, timeoutMs = 0) {
-    const resolvers = isIterable(resolveOn) ? resolveOn : [resolveOn];
-    const rejectors = isIterable(rejectOn) ? rejectOn : [rejectOn];
+  asPromiseHook({ resolveOn = [], rejectOn = [] }, timeoutMs = 0) {
+    const resolvers = isIterable(resolveOn)
+      ? resolveOn
+      : resolveOn ? [resolveOn] : [];
+    const rejectors = isIterable(rejectOn)
+      ? rejectOn
+      : rejectOn ? [rejectOn] : [];
+    if (
+      !resolvers.length &&
+      !resolvers.size &&
+      !rejectors.length &&
+      !rejectors.size
+    ) {
+      throw new Error(
+        'asPromiseHook must be provided with a way to settle the Promise: `resolveOn` or `rejectOn` must have a value'
+      );
+    }
     const allAcs = concatIterables(resolvers, rejectors);
     return ({ t, term, a, action, o, orient }, data) =>
       new Promise((resolve, reject) => {

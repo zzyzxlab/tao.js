@@ -1,4 +1,4 @@
-import { WILDCARD } from './constants';
+import { WILDCARD, TIMEOUT_REJECT } from './constants';
 import AppCtxRoot from './AppCtxRoot';
 import AppCtx from './AppCtx';
 import Kernel from './Kernel';
@@ -463,16 +463,352 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
   });
 
   describe('converts a set of Contexts as a Promise Hook', () => {
-    it('should return a function used for setting context when getting a Promise Hook', () => {});
+    it('should return a function used for setting context when getting a Promise Hook', () => {
+      // Assemble
+      const uut = new Kernel();
+      // Act
+      const actual = uut.asPromiseHook({
+        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+      });
+      // Assert
+      expect(actual).toBeDefined();
+      expect(actual).toBeInstanceOf(Function);
+    });
+
+    it('should throw an Error when creating a Promise Hook with no App Contexts', () => {
+      // Assemble
+      const uut = new Kernel();
+      // Act
+      const noArgsThrows = () => uut.asPromiseHook();
+      const undefinedThrows = () =>
+        uut.asPromiseHook({ resolveOn: undefined, rejectOn: undefined });
+      const nullThrows = () =>
+        uut.asPromiseHook({ resolveOn: null, rejectOn: null });
+      const emptyThrows = () =>
+        uut.asPromiseHook({ resolveOn: '', rejectOn: '' });
+      // Assert
+      expect(noArgsThrows).toThrow();
+      expect(undefinedThrows).toThrow();
+      expect(nullThrows).toThrow();
+      expect(emptyThrows).toThrow();
+    });
+
+    it('should resolve a promise from a specified Concrete App Context', () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+      });
+      expect.assertions(1);
+      // Act
+      const resolvingPromise = promiseSetCtx({
+        t: ALT_TERM,
+        a: ACTION,
+        o: ORIENT
+      });
+      // Assert
+      return expect(resolvingPromise).resolves.toMatchObject({
+        tao: expectedAc.unwrapCtx(),
+        data: expectedAc.data
+      });
+    });
+
+    it('should reject a promise from a specified Concrete App Context', () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT, [
+        { a: 1 }
+      ]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+      });
+      expect.assertions(1);
+      // Act
+      const rejectingPromise = promiseSetCtx({
+        t: ALT_TERM,
+        a: ACTION,
+        o: ORIENT
+      });
+      // Assert
+      return expect(rejectingPromise).rejects.toMatchObject({
+        tao: expectedAc.unwrapCtx(),
+        data: expectedAc.data
+      });
+    });
+
+    it('should resolve a promise from a list of Concrete App Contexts', () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(TERM, ALT_ACTION, ORIENT, [{ a: 1 }]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: [{ t: TERM, a: ACTION, o: ORIENT }, expectedAc.unwrapCtx()],
+        rejectOn: [
+          { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
+          { t: ALT_TERM, a: ALT_ACTION, o: ORIENT }
+        ]
+      });
+      expect.assertions(1);
+      // Act
+      const resolvingPromise = promiseSetCtx({
+        t: ALT_TERM,
+        a: ACTION,
+        o: ORIENT
+      });
+      // Assert
+      return expect(resolvingPromise).resolves.toMatchObject({
+        tao: expectedAc.unwrapCtx(),
+        data: expectedAc.data
+      });
+    });
+
+    it('should reject a promise from a list of Concrete App Contexts', () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(ALT_TERM, ALT_ACTION, ORIENT, [{ a: 1 }]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: [
+          { t: TERM, a: ACTION, o: ORIENT },
+          { t: TERM, a: ALT_ACTION, o: ORIENT }
+        ],
+        rejectOn: [
+          { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
+          expectedAc.unwrapCtx()
+        ]
+      });
+      expect.assertions(1);
+      // Act
+      const rejectingPromise = promiseSetCtx({
+        t: ALT_TERM,
+        a: ACTION,
+        o: ORIENT
+      });
+      // Assert
+      return expect(rejectingPromise).rejects.toMatchObject({
+        tao: expectedAc.unwrapCtx(),
+        data: expectedAc.data
+      });
+    });
+
+    it('should resolve a promise from a specified Wild App Context', () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: { t: TERM, a: '', o: ORIENT },
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+      });
+      expect.assertions(1);
+      // Act
+      const resolvingPromise = promiseSetCtx({
+        t: ALT_TERM,
+        a: ACTION,
+        o: ORIENT
+      });
+      // Assert
+      return expect(resolvingPromise).resolves.toMatchObject({
+        tao: expectedAc.unwrapCtx(),
+        data: expectedAc.data
+      });
+    });
+
+    it('should reject a promise from a specified Wild App Context', () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT, [
+        { a: 1 }
+      ]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
+        rejectOn: { o: ALT_ORIENT }
+      });
+      expect.assertions(1);
+      // Act
+      const rejectingPromise = promiseSetCtx({
+        t: ALT_TERM,
+        a: ACTION,
+        o: ORIENT
+      });
+      // Assert
+      return expect(rejectingPromise).rejects.toMatchObject({
+        tao: expectedAc.unwrapCtx(),
+        data: expectedAc.data
+      });
+    });
+
+    it('should resolve a promise from a list of Wild App Contexts', () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(TERM, ALT_ACTION, ORIENT, [{ a: 1 }]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: [{ t: TERM, o: ALT_ORIENT }, { a: ALT_ACTION, o: ORIENT }],
+        rejectOn: [
+          { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
+          { t: TERM, a: ACTION, o: ALT_ORIENT }
+        ]
+      });
+      expect.assertions(1);
+      // Act
+      const resolvingPromise = promiseSetCtx({
+        t: ALT_TERM,
+        a: ACTION,
+        o: ORIENT
+      });
+      // Assert
+      return expect(resolvingPromise).resolves.toMatchObject({
+        tao: expectedAc.unwrapCtx(),
+        data: expectedAc.data
+      });
+    });
+
+    it('should reject a promise from a list of Wild App Contexts', () => {
+      // Assemble
+      const uut = new Kernel();
+      const expectedAc = new AppCtx(ALT_TERM, ACTION, ALT_ORIENT, [{ a: 1 }]);
+      const handler = jest
+        .fn(() => expectedAc)
+        .mockName('intermediate handler');
+      uut.addInlineHandler(
+        {
+          t: ALT_TERM,
+          a: ACTION,
+          o: ORIENT
+        },
+        handler
+      );
+      const promiseSetCtx = uut.asPromiseHook({
+        resolveOn: [
+          { t: TERM, a: ACTION, o: ORIENT },
+          { t: TERM, a: ALT_ACTION, o: ORIENT }
+        ],
+        rejectOn: [
+          { t: ALT_TERM, a: ALT_ACTION },
+          { t: ALT_TERM, o: ALT_ORIENT }
+        ]
+      });
+      expect.assertions(1);
+      // Act
+      const rejectingPromise = promiseSetCtx({
+        t: ALT_TERM,
+        a: ACTION,
+        o: ORIENT
+      });
+      // Assert
+      return expect(rejectingPromise).rejects.toMatchObject({
+        tao: expectedAc.unwrapCtx(),
+        data: expectedAc.data
+      });
+    });
+
+    it('should reject a promise after a specified timeout', () => {
+      // Assemble
+      const uut = new Kernel();
+      const promiseSetCtx = uut.asPromiseHook(
+        {
+          resolveOn: { t: TERM, a: ACTION, o: ORIENT },
+          rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+        },
+        100
+      );
+      expect.assertions(1);
+      // Act
+      const rejectingPromise = promiseSetCtx({
+        t: TERM,
+        a: ALT_ACTION,
+        o: ORIENT
+      });
+      // Assert
+      return expect(rejectingPromise).rejects.toBe(TIMEOUT_REJECT);
+    });
+
+    it('should resolve a promise before a specified timeout', () => {});
+
+    it('should reject a promise before a specified timeout', () => {});
+
+    it('should ignore a timeout value less than or equal to 0', () => {});
+
+    it('should not add handlers involved with a Promise Hook until the Promise Context is set', () => {});
 
     it('should remove handlers involved with a Promise Hook once the Promise has settled', () => {});
-
-    it('should resolve a promise from a specified Concrete App Context', () => {});
-
-    it('should reject a promise from a specified Concrete App Context', () => {});
-
-    it('should resolve a promise from a specified Wild App Context', () => {});
-
-    it('should reject a promise from a specified Wild App Context', () => {});
   });
 });
