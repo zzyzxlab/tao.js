@@ -2,6 +2,11 @@ import AppCtxRoot from './AppCtxRoot';
 import AppCtx from './AppCtx';
 import { isIterable } from './utils';
 
+const console = {
+  error: () => 1,
+  log: () => 1
+};
+
 export default class AppCtxHandlers extends AppCtxRoot {
   constructor(term, action, orient, leafAppConHandlers) {
     super(term, action, orient);
@@ -98,15 +103,15 @@ export default class AppCtxHandlers extends AppCtxRoot {
   // populateHandlersFromWildcards() {}
 
   get interceptHandlers() {
-    return this._intercept;
+    return this._intercept.values();
   }
 
   get asyncHandlers() {
-    return this._async;
+    return this._async.values();
   }
 
   get inlineHandlers() {
-    return this._inline;
+    return this._inline.values();
   }
 
   async handleAppCon(ac, setAppCtx) {

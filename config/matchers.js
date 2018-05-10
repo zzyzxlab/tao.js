@@ -50,6 +50,22 @@ const getMatchers = () => ({
         };
 
     return { actual: received, pass, message };
+  },
+  toBeIterable(received, ignoreStrings = false) {
+    const exists = received != null;
+    const isIterable =
+      exists && typeof received[Symbol.iterator] === 'function';
+    const isMatch = !ignoreStrings
+      ? isIterable
+      : typeof received === 'string' ? false : isIterable;
+    const message = () =>
+      this.utils.matcherHint(`${isMatch ? '.not' : ''}.toBeIterable`) +
+      '\n\n' +
+      `Expected value ${isMatch ? 'not ' : ''}to be Iterable${
+        ignoreStrings ? ' (ignoring strings)' : ''
+      }, instead received:\n` +
+      `  ${this.utils.printReceived(received)}`;
+    return { actual: received, pass: isMatch, message };
   }
 });
 

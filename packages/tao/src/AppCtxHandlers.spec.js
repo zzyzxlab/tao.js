@@ -45,6 +45,18 @@ describe('AppCtxHandlers exports a class extending AppCtxRoot', () => {
 
 describe('AppCtxHandlers is used to attach handlers for Application Contexts', () => {
   describe('as Inline handlers', () => {
+    it('should expose an inlineHandlers iterable property that is not the underlying collection', () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      // Act
+      // Assert
+      expect(uut.inlineHandlers).toBeDefined();
+      expect(uut.inlineHandlers).toBeIterable(true);
+      expect(uut.inlineHandlers).not.toBeInstanceOf(Set);
+      expect(uut.inlineHandlers).not.toBeInstanceOf(Array);
+      expect(uut.inlineHandlers).not.toBeInstanceOf(Map);
+    });
+
     it('should throw if handler is not a function', () => {
       // Assemble
       const uut = new AppCtxHandlers();
@@ -58,6 +70,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Assemble
       const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
       const handler = jest.fn();
+      // const beforeAttach = Array.from()
       // Act
       uut.addInlineHandler(handler);
       // Assert
@@ -240,6 +253,18 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
   });
 
   describe('as Async handlers', () => {
+    it('should expose an asyncHandlers iterable property that is not the underlying collection', () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      // Act
+      // Assert
+      expect(uut.asyncHandlers).toBeDefined();
+      expect(uut.asyncHandlers).toBeIterable(true);
+      expect(uut.asyncHandlers).not.toBeInstanceOf(Set);
+      expect(uut.asyncHandlers).not.toBeInstanceOf(Array);
+      expect(uut.asyncHandlers).not.toBeInstanceOf(Map);
+    });
+
     it('should throw if handler is not a function', () => {
       // Assemble
       const uut = new AppCtxHandlers();
@@ -464,6 +489,18 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
   });
 
   describe('as Intercept handlers', () => {
+    it('should expose an interceptHandlers iterable property that is not the underlying collection', () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      // Act
+      // Assert
+      expect(uut.interceptHandlers).toBeDefined();
+      expect(uut.interceptHandlers).toBeIterable(true);
+      expect(uut.interceptHandlers).not.toBeInstanceOf(Set);
+      expect(uut.interceptHandlers).not.toBeInstanceOf(Array);
+      expect(uut.interceptHandlers).not.toBeInstanceOf(Map);
+    });
+
     it('should throw if handler is not a function', () => {
       // Assemble
       const uut = new AppCtxHandlers();

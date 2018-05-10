@@ -981,14 +981,14 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       const rejectHandlers = postResolveHandlers.get(rejectOnAc.key);
       // Assert
       expect(triggerHandlers).toBeDefined();
-      expect(triggerHandlers.inlineHandlers).toBeInstanceOf(Set);
-      expect(triggerHandlers.inlineHandlers.size).toBe(1);
+      expect(triggerHandlers.inlineHandlers).toBeIterable(true);
+      expect(Array.from(triggerHandlers.inlineHandlers).length).toBe(1);
       expect(resolveHandlers).toBeDefined();
-      expect(resolveHandlers.inlineHandlers).toBeInstanceOf(Set);
-      expect(resolveHandlers.inlineHandlers.size).toBe(0);
+      expect(resolveHandlers.inlineHandlers).toBeIterable(true);
+      expect(Array.from(resolveHandlers.inlineHandlers).length).toBe(0);
       expect(rejectHandlers).toBeDefined();
-      expect(rejectHandlers.inlineHandlers).toBeInstanceOf(Set);
-      expect(rejectHandlers.inlineHandlers.size).toBe(0);
+      expect(rejectHandlers.inlineHandlers).toBeIterable(true);
+      expect(Array.from(rejectHandlers.inlineHandlers).length).toBe(0);
     });
   });
 });
