@@ -923,25 +923,18 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       });
     });
 
-    xit('should not add handlers involved with a Promise Hook until the Promise Context is set', async () => {
+    it('should not add handlers involved with a Promise Hook until the Promise Context is set', async () => {
       // Assemble
       const uut = new Kernel();
-      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
+      const resolveOnAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
       const triggeringAc = new AppCtx(ALT_TERM, ACTION, ORIENT);
       const rejectOnAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
       const handler = jest
-        .fn(() => expectedAc)
+        .fn(() => resolveOnAc)
         .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT
-        },
-        handler
-      );
+      uut.addInlineHandler(triggeringAc.unwrapCtx(), handler);
       const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: expectedAc.unwrapCtx(),
+        resolveOn: resolveOnAc.unwrapCtx(),
         rejectOn: rejectOnAc.unwrapCtx()
       });
       // expect.assertions(1);
@@ -953,48 +946,49 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       // Assert
       expect(preSetHandlers.size).toBe(1);
       expect(postSetHandlers.size).toBe(3);
-      const preKeys = preSetHandlers.keys();
+      const preKeys = Array.from(preSetHandlers.keys());
+      // console.log('preKeys:', preKeys);
       expect(preKeys).toContain(triggeringAc.key);
-      expect(preKeys).not.toContain(expectedAc.key);
+      expect(preKeys).not.toContain(resolveOnAc.key);
       expect(preKeys).not.toContain(rejectOnAc.key);
-      const postKeys = postSetHandlers.keys();
+      const postKeys = Array.from(postSetHandlers.keys());
+      // console.log('postKeys:', postKeys);
       expect(postKeys).toContain(triggeringAc.key);
-      expect(postKeys).toContain(expectedAc.key);
+      expect(postKeys).toContain(resolveOnAc.key);
       expect(postKeys).toContain(rejectOnAc.key);
     });
 
-    xit('should remove handlers involved with a Promise Hook once the Promise has settled', async () => {
+    it('should remove handlers involved with a Promise Hook once the Promise has settled', async () => {
       // Assemble
       const uut = new Kernel();
-      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
+      const resolveOnAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
+      const triggeringAc = new AppCtx(ALT_TERM, ACTION, ORIENT);
+      const rejectOnAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
       const handler = jest
-        .fn(() => expectedAc)
+        .fn(() => resolveOnAc)
         .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT
-        },
-        handler
-      );
+      uut.addInlineHandler(triggeringAc.unwrapCtx(), handler);
       const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+        resolveOn: resolveOnAc.unwrapCtx(),
+        rejectOn: rejectOnAc.unwrapCtx()
       });
       // expect.assertions(1);
       // Act
-      const resolvingPromise = promiseSetCtx({
-        t: ALT_TERM,
-        a: ACTION,
-        o: ORIENT
-      });
-      const preSettleHandlerCount = uut._handlers.size;
-      await resolvingPromise;
-      const postSettleHandlerCount = uut._handlers.size;
+      const result = await promiseSetCtx(triggeringAc.unwrapCtx());
+      const postResolveHandlers = new Map(uut._handlers);
+      const triggerHandlers = postResolveHandlers.get(triggeringAc.key);
+      const resolveHandlers = postResolveHandlers.get(resolveOnAc.key);
+      const rejectHandlers = postResolveHandlers.get(rejectOnAc.key);
       // Assert
-      expect(preSettleHandlerCount).toBe(3);
-      expect(postSettleHandlerCount).toBe(1);
+      expect(triggerHandlers).toBeDefined();
+      expect(triggerHandlers.inlineHandlers).toBeInstanceOf(Set);
+      expect(triggerHandlers.inlineHandlers.size).toBe(1);
+      expect(resolveHandlers).toBeDefined();
+      expect(resolveHandlers.inlineHandlers).toBeInstanceOf(Set);
+      expect(resolveHandlers.inlineHandlers.size).toBe(0);
+      expect(rejectHandlers).toBeDefined();
+      expect(rejectHandlers.inlineHandlers).toBeInstanceOf(Set);
+      expect(rejectHandlers.inlineHandlers.size).toBe(0);
     });
   });
 });

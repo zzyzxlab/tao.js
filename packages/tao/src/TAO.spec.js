@@ -12,5 +12,6 @@ describe('TAO is a new way of programming', () => {
 
   it('should export AppCtx', () => {
     expect(AppCtx).toBeDefined();
+    expect(new AppCtx()).toBeInstanceOf(AppCtx);
   });
 });

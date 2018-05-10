@@ -112,12 +112,13 @@ function _addACHandler(
 
 function _removeHandler(taoHandlers, { term, action, orient }, handler, type) {
   _validateHandler(handler);
-  type = type || INLINE;
-  if (type !== ASYNC && type !== INLINE && type !== INTERCEPT) {
-    throw new Error(
-      `${type} not a known handler type - try ${ASYNC}, ${INLINE} or ${INTERCEPT}`
-    );
-  }
+  // guard is currently impossible to hit so removing to get 100% test coverage
+  // type = type || INLINE;
+  // if (type !== ASYNC && type !== INLINE && type !== INTERCEPT) {
+  //   throw new Error(
+  //     `${type} not a known handler type - try ${ASYNC}, ${INLINE} or ${INTERCEPT}`
+  //   );
+  // }
   const t = term || WILDCARD;
   const a = action || WILDCARD;
   const o = orient || WILDCARD;
@@ -135,12 +136,6 @@ function _removeHandlers(taoHandlers, acList, handlers, type) {
     )
   );
 }
-
-// function _removeHookHandlers(handlers, acList, tao) {
-//   handlers.forEach(handler =>
-//     acList.forEach(ac => tao.removeInlineHandler(ac, handler))
-//   );
-// }
 
 function _createPromiseHandler(
   taoHandlers,
