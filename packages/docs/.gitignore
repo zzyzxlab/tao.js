@@ -1,1 +1,8 @@
+# location of gitbook build - when publishing copies to //root/docs
 dist
+
+# location used for jest.coverageDirectory so it can be published with docs
+src/content/coverage
+
+# intermediate location of generated gitbook when using gitbook serve
+src/_book

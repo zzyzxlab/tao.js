@@ -14,18 +14,19 @@ This really needs to be filled out
 
 ## To Dos
 
-* [ ] bootstrapping
-  * [ ] add test coverage reporting
+* [x] bootstrapping
+  * [x] add test coverage reporting
 * [ ] complete `tao` package
   * [x] refactor the `tao` API for consistency - e.g. replace external references to `term` => `t`, `action` => `a`, `orient` => `o`
-  * [ ] write unit tests
-    * [ ] adding inline handler unit tests
-    * [ ] adding async handler unit tests
-    * [ ] adding intercept handler unit tests
-    * [ ] removing inline handler unit tests
-    * [ ] removing async handler unit tests
-    * [ ] removing intercept handler unit tests
-    * [ ] using `asPromiseHook`
+  * [x] write unit tests
+    * [x] adding inline handler unit tests
+    * [x] adding async handler unit tests
+    * [x] adding intercept handler unit tests
+    * [x] removing inline handler unit tests
+    * [x] removing async handler unit tests
+    * [x] removing intercept handler unit tests
+    * [x] using `asPromiseHook`
+  * [ ] create non-asynchronous version of `setCtx` and `setAppCtx` as originally intended
 * [ ] complete `react-tao` package
 * [ ] complete `koa-tao` package
 * [ ] write phase 1 of `docs`
