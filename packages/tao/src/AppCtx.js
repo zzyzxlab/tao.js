@@ -104,7 +104,9 @@ export default class AppCtx extends AppCtxRoot {
     return this.datum;
   }
 
-  unwrapCtx() {
-    return { t: this.t, a: this.a, o: this.o };
+  unwrapCtx(verbose = false) {
+    return !verbose
+      ? { t: this.t, a: this.a, o: this.o }
+      : { term: this.t, action: this.a, orient: this.o };
   }
 }
