@@ -1,5 +1,5 @@
 {
-  "name": "koa-tao",
+  "name": "@tao.js/koa",
   "version": "0.1.0",
   "description": "middleware to hook tao into koa server",
   "main": "index.js",
@@ -14,6 +14,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.42",
     "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.42",
     "@babel/preset-env": "^7.0.0-beta.42",
+    "@tao.js/core": "^0.1.0",
     "rimraf": "^2.6.2"
   }
 }

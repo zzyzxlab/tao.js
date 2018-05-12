@@ -1,5 +1,5 @@
 {
-  "name": "react-tao",
+  "name": "@tao.js/react",
   "version": "0.1.0",
   "description": "set of components to use tao with React",
   "main": "index.js",
@@ -8,12 +8,23 @@
   },
   "author": "eudaimos",
   "license": "Apache-2.0",
+  "peerDependencies": {
+    "@tao.js/core": "^0.1.0",
+    "prop-types": "^15.6.1",
+    "react": "^16.3.2"
+  },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.42",
     "@babel/core": "^7.0.0-beta.42",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.42",
     "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.42",
     "@babel/preset-env": "^7.0.0-beta.42",
+    "@tao.js/core": "^0.1.0",
+    "prop-types": "^15.6.1",
+    "react": "^16.3.2",
     "rimraf": "^2.6.2"
+  },
+  "dependencies": {
+    "cartesian": "^1.0.1"
   }
 }
