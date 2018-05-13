@@ -1,6 +1,12 @@
 import cartesian from 'cartesian';
 import { AppCtx } from '@tao.js/core';
 
+const cleanInput = ({ term, action, orient }) => {
+  const incoming = { term, action, orient };
+  Object.keys(incoming).forEach(k => incoming[k] == null && delete incoming[k]);
+  return incoming;
+};
+
 const wrappedHandler = (Component, props, _provider) => (tao, data) => {
   _provider._current = {
     Component,
@@ -30,7 +36,7 @@ class Provider {
   }
 
   set defaultCtx({ term, action, orient } = {}) {
-    this._default = { term, action, orient };
+    this._default = cleanInput({ term, action, orient });
   }
 
   setDefaultCtx({ term, action, orient } = {}) {
@@ -39,8 +45,17 @@ class Provider {
   }
 
   addComponentHandler({ term, action, orient } = {}, Component, props) {
-    const ctx = Object.assign(this.defaultCtx, { term, action, orient });
+    if (!Component) {
+      throw new Error(
+        'cannot add a Component handler without providing a Component'
+      );
+    }
+    const tao = cleanInput({ term, action, orient });
+    const ctx = Object.assign(this.defaultCtx, tao);
     const permutations = cartesian(ctx);
+    if (!permutations.length) {
+      return this;
+    }
     const handler = wrappedHandler(Component, props, this);
     if (!this._components.has(Component)) {
       this._components.set(Component, {
@@ -56,8 +71,10 @@ class Provider {
         componentHandlers.index.set(acKey, new AppCtx(term, action, orient));
       }
       const ac = componentHandlers.index.get(acKey);
-      componentHandlers.handlers.set(ac, handler);
-      this._tao.addInlineHandler(ac.unwrapCtx(), handler);
+      if (!componentHandlers.handlers.has(ac)) {
+        componentHandlers.handlers.set(ac, handler);
+        this._tao.addInlineHandler(ac.unwrapCtx(), handler);
+      }
     });
 
     return this;
@@ -70,9 +87,9 @@ class Provider {
     const componentHandlers = this._components.get(Component);
     if (!term && !action && !orient) {
       // remove all handlers
-      componentHandlers.handlers.forEach((ac, handler) => {
+      for ([ac, handler] of componentHandlers.handlers) {
         this._tao.removeInlineHandler(ac.unwrapCtx(), handler);
-      });
+      }
       this._components.delete(Component);
       return this;
     }
@@ -85,9 +102,10 @@ class Provider {
         return;
       }
       componentHandlers.index.delete(acKey);
-      if (!componentHandlers.handlers.has(ac)) {
-        return;
-      }
+      // currently cannot hit this guard
+      // if (!componentHandlers.handlers.has(ac)) {
+      //   return;
+      // }
       const handler = componentHandlers.handlers.get(ac);
       this._tao.removeInlineHandler(ac.unwrapCtx(), handler);
       componentHandlers.handlers.delete(ac);
