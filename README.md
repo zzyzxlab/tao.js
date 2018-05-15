@@ -28,6 +28,13 @@ This really needs to be filled out
     * [x] using `asPromiseHook`
   * [ ] create non-asynchronous version of `setCtx` and `setAppCtx` as originally intended
 * [ ] complete `react-tao` package
+  * [x] port `Provider`
+  * [x] port `Reactor`
+  * [x] unit tests for `Provider`
+  * [ ] unit tests for `Reactor`
+  * [ ] enable `Provider` to unset current component using `null` as a handler for TAO ACs
+  * [ ] `Reactor`+`Provider` combo implements `shouldComponentUpdate`
+  * [ ] `Reactor` support multiple children?
 * [ ] complete `koa-tao` package
 * [ ] write phase 1 of `docs`
 * [ ] complete `tao-connect` package
