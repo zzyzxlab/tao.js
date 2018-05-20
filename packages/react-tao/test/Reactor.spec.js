@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import TestRenderer from 'react-test-renderer';
+// import { mount } from 'enzyme';
 import { AppCtx } from '@tao.js/core';
 import Kernel from '@tao.js/core/src/Kernel';
 import Provider from './Provider';
