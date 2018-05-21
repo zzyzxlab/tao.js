@@ -31,7 +31,9 @@ class Reactor extends Component {
     }
   }
 
-  // shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps) {
+    return true;
+  }
   //   // TODO: Implement this properly
   //   // CURRENTLY: this.props.provider already has the changes after a TAO Handler
   //   const { provider, children, ...props } = this.props;
