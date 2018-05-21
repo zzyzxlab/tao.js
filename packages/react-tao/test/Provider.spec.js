@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { AppCtx } from '@tao.js/core';
-import Kernel from '@tao.js/core/src/Kernel';
-import Provider from './Provider';
+import Kernel from '@tao.js/core/build/Kernel';
+import Provider from '../build/Provider';
 
 const TERM = 'colleague';
 const ACTION = 'hug';

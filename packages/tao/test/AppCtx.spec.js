@@ -1,6 +1,6 @@
-import { WILDCARD } from './constants';
-import AppCtxRoot from './AppCtxRoot';
-import AppCtx from './AppCtx';
+import { WILDCARD } from '../build/constants';
+import AppCtxRoot from '../build/AppCtxRoot';
+import AppCtx from '../build/AppCtx';
 
 const TERM = 'colleague';
 const ACTION = 'hug';

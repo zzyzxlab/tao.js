@@ -1,8 +1,7 @@
-import { WILDCARD, TIMEOUT_REJECT } from './constants';
-import AppCtxRoot from './AppCtxRoot';
-import AppCtx from './AppCtx';
-import Kernel from './Kernel';
-import { start } from 'repl';
+import { WILDCARD, TIMEOUT_REJECT } from '../build/constants';
+import AppCtxRoot from '../build/AppCtxRoot';
+import AppCtx from '../build/AppCtx';
+import Kernel from '../build/Kernel';
 
 const TERM = 'colleague';
 const ACTION = 'hug';

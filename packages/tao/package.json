@@ -2,9 +2,13 @@
   "name": "@tao.js/core",
   "version": "0.1.0",
   "description": "new way of programming",
-  "main": "src/index.js",
+  "main": "build/index.js",
+  "files": ["build"],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:clean": "rimraf build",
+    "build:transpile": "babel src -d build --source-maps --copy-files",
+    "build": "npm run build:clean && npm run build:transpile"
   },
   "author": "eudaimos",
   "license": "Apache-2.0",

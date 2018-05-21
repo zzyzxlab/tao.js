@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom';
 import TestRenderer from 'react-test-renderer';
 // import { mount } from 'enzyme';
 import { AppCtx } from '@tao.js/core';
-import Kernel from '@tao.js/core/src/Kernel';
-import Provider from './Provider';
-import Reactor from './Reactor';
+import Kernel from '@tao.js/core/build/Kernel';
+import Provider from '../build/Provider';
+import Reactor from '../build/Reactor';
 
 const TERM = 'colleague';
 const ACTION = 'hug';

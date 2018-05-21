@@ -67,3 +67,5 @@ typings/
 
 # VS Code
 .vscode/*.sql
+
+build

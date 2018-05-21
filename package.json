@@ -11,7 +11,8 @@
   "license": "Apache-2.0",
   "description": "",
   "scripts": {
-    "test": "jest --coverage",
+    "build": "lerna run build --ignore=docs",
+    "test": "BABEL_ENV=test npm run build && jest --coverage",
     "test:coverage:view": "open packages/docs/src/content/coverage/index.html",
     "test:watch": "jest --watch",
     "lint:packages": "eslint packages/*/src",
@@ -47,17 +48,24 @@
   },
   "jest": {
     "collectCoverageFrom": [
-      "**/src/**/*.{js,jsx}",
+      "packages/*/src/**/*.{js,jsx}",
       "!**/*.story.{js,jsx}",
       "!**/node_modules/**",
       "!**/docs/**",
-      "!config/**"
+      "!config/**/*.js",
+      "!packages/*/build/**",
+      "!packages/*/test/**"
     ],
+    "testRegex": "./(packages|examples)/[^/]+/test/.+\\.m?js$",
     "coverageReporters": ["html"],
     "coverageDirectory": "packages/docs/src/content/coverage",
     "coveragePathIgnorePatterns": ["/node_modules/", "example.js"],
     "setupFiles": ["<rootDir>/config/jest.js"],
     "setupTestFrameworkScriptFile": "<rootDir>/config/setup.js",
+    "transformIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/(packages|examples)/[^/]+/build/"
+    ],
     "snapshotSerializers": ["enzyme-to-json/serializer"],
     "testURL": "http://localhost",
     "moduleNameMapper": {
@@ -76,6 +84,7 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^7.2.3",
     "babel-jest": "^22.4.3",
+    "babel-plugin-istanbul": "^4.1.6",
     "commitizen": "^2.9.6",
     "cz-lerna-changelog": "^1.2.1",
     "enzyme": "^3.3.0",
@@ -90,6 +99,9 @@
     "lint-staged": "^7.1.0",
     "plop": "^2.0.0",
     "prettier": "^1.12.1",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
+    "react-test-renderer": "^16.3.2",
     "regenerator-runtime": "^0.11.1",
     "rimraf": "^2.6.2"
   }

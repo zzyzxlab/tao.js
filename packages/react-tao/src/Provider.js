@@ -87,7 +87,7 @@ class Provider {
     const componentHandlers = this._components.get(Component);
     if (!term && !action && !orient) {
       // remove all handlers
-      for ([ac, handler] of componentHandlers.handlers) {
+      for (let [ac, handler] of componentHandlers.handlers) {
         this._tao.removeInlineHandler(ac.unwrapCtx(), handler);
       }
       this._components.delete(Component);

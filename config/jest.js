@@ -1,11 +1,11 @@
-import { shallow, render, mount } from 'enzyme';
+// import { shallow, render, mount } from 'enzyme';
 
-export const setPathname = pathname => {
-  Object.defineProperty(window.location, 'pathname', {
-    writable: true,
-    value: pathname
-  });
-};
+// export const setPathname = pathname => {
+//   Object.defineProperty(window.location, 'pathname', {
+//     writable: true,
+//     value: pathname
+//   });
+// };
 
 // // Skip createElement warnings but fail tests on any other warning
 // console.error = message => {
@@ -14,23 +14,23 @@ export const setPathname = pathname => {
 //   }
 // };
 
-// Make Enzyme functions available in all test files without importing
-global.shallow = shallow;
-global.render = render;
-global.mount = mount;
+// // Make Enzyme functions available in all test files without importing
+// global.shallow = shallow;
+// global.render = render;
+// global.mount = mount;
 
-const localStorageMock = (function() {
-  let store = {};
-  return {
-    getItem(key) {
-      return store[key];
-    },
-    setItem(key, value) {
-      store[key] = value.toString();
-    },
-    clear() {
-      store = {};
-    }
-  };
-})();
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+// const localStorageMock = (function() {
+//   let store = {};
+//   return {
+//     getItem(key) {
+//       return store[key];
+//     },
+//     setItem(key, value) {
+//       store[key] = value.toString();
+//     },
+//     clear() {
+//       store = {};
+//     }
+//   };
+// })();
+// Object.defineProperty(window, 'localStorage', { value: localStorageMock });
