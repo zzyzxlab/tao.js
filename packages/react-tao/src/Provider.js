@@ -1,4 +1,5 @@
 import cartesian from 'cartesian';
+import { Component } from 'react';
 import { AppCtx } from '@tao.js/core';
 
 const noop = () => {};
@@ -9,7 +10,10 @@ const cleanInput = ({ term, action, orient }) => {
   return incoming;
 };
 
-const wrappedHandler = (ComponentHandler, props, _provider) => (tao, data) => {
+const wrappedHandler = (ComponentHandler = null, props, _provider) => (
+  tao,
+  data
+) => {
   _provider._current = {
     ComponentHandler,
     tao,
@@ -27,7 +31,6 @@ class Provider {
     this._current = null;
     this._default = {};
     this._reactors = new Map();
-    // this._taoIndex = new Map();
     this._components = new Map();
   }
 
@@ -49,9 +52,15 @@ class Provider {
   }
 
   addComponentHandler({ term, action, orient } = {}, ComponentHandler, props) {
-    if (!ComponentHandler) {
+    if (
+      ComponentHandler &&
+      !(
+        ComponentHandler instanceof Component ||
+        ComponentHandler instanceof Function
+      )
+    ) {
       throw new Error(
-        'cannot add a Component handler without providing a Component'
+        'cannot add a Component handler that is not a React.Component or Function'
       );
     }
     const tao = cleanInput({ term, action, orient });

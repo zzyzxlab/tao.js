@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component, createElement } from 'react';
 import { AppCtx } from '@tao.js/core';
 import Kernel from '@tao.js/core/build/Kernel';
 import Provider from '../build/Provider';
@@ -119,15 +119,18 @@ describe('Provider integrates with React', () => {
       expect(uut.addComponentHandler(ac.unwrapCtx(true), Component)).toBe(uut);
     });
 
-    it('should throw an Error when trying to add a null or undefined Component', () => {
+    it('should throw an Error when trying to add handler for something other than a React.Component', () => {
       // Assemble
       const uut = new Provider(TAO);
       // Act
       const willThrow = () =>
-        uut.addComponentHandler({ term: TERM, action: ACTION, orient: ORIENT });
+        uut.addComponentHandler(
+          { term: TERM, action: ACTION, orient: ORIENT },
+          'Component'
+        );
       // Assert
       expect(willThrow).toThrow(
-        'cannot add a Component handler without providing a Component'
+        'cannot add a Component handler that is not a React.Component or Function'
       );
     });
 
@@ -230,6 +233,38 @@ describe('Provider integrates with React', () => {
       const compHandler = uut._components.get(Component);
       expect(compHandler.index.size).toBe(1);
       expect(compHandler.handlers.size).toBe(1);
+    });
+
+    it('should allow clearing a Component for an AC', () => {
+      // Assemble
+      const uut = new Provider(TAO);
+      const triggerData1 = { a: 1 };
+      const triggerData2 = { b: 2 };
+      uut.addComponentHandler(
+        { term: [TERM], action: ACTION, orient: ORIENT },
+        Component
+      );
+      uut.addComponentHandler({
+        term: ALT_TERM,
+        action: ACTION,
+        orient: ORIENT
+      });
+      // Act
+      TAO.setCtx({ t: TERM, a: ACTION, o: ORIENT }, [triggerData1]);
+      const actual1 = uut.current;
+      TAO.setCtx({ t: ALT_TERM, a: ACTION, o: ORIENT }, [null, triggerData2]);
+      const actual2 = uut.current;
+      expect(actual1).not.toMatchObject(actual2);
+      expect(actual1).toMatchObject({
+        ComponentHandler: Component,
+        tao: { t: TERM, a: ACTION, o: ORIENT },
+        props: { [TERM]: triggerData1 }
+      });
+      expect(actual2).toMatchObject({
+        ComponentHandler: null,
+        tao: { t: ALT_TERM, a: ACTION, o: ORIENT },
+        props: { [ACTION]: triggerData2 }
+      });
     });
 
     it('should use the defaultCtx to fill in missing parts of the AC when adding a Component', async () => {
@@ -356,6 +391,97 @@ describe('Provider integrates with React', () => {
         tao: ac.unwrapCtx(),
         props: {}
       });
+    });
+  });
+
+  describe('by allowing components to register as reactors', () => {
+    it('should have register and unregister methods for reactors', () => {
+      // Assemble
+      const uut = new Provider(TAO);
+      // Act
+      // Assert
+      expect(uut.registerReactor).toBeDefined();
+      expect(uut.registerReactor).toBeInstanceOf(Function);
+      expect(uut.unregisterReactor).toBeDefined();
+      expect(uut.unregisterReactor).toBeInstanceOf(Function);
+    });
+
+    it('should call a notify change function of a reactor on a hnadled AC', () => {
+      // Assemble
+      const uut = new Provider(TAO);
+      const triggerData = { a: 1 };
+      const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
+      uut.addComponentHandler(triggerAc.unwrapCtx(true), Component);
+      const onNotify = jest.fn().mockName('reactor notifier');
+      const reactor = createElement(Component);
+      // Act
+      uut.registerReactor(reactor, onNotify);
+      TAO.setAppCtx(triggerAc);
+      // Assert
+      expect(onNotify).toHaveBeenCalled();
+    });
+
+    it('should not break if a notifier is not passed when registering a reactor', () => {
+      // Assemble
+      const uut = new Provider(TAO);
+      const triggerData = { a: 1 };
+      const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
+      uut.addComponentHandler(triggerAc.unwrapCtx(true), Component);
+      const reactor = createElement(Component);
+      // Act
+      uut.registerReactor(reactor);
+      TAO.setAppCtx(triggerAc);
+      // Assert
+      expect(true).toBeTruthy();
+    });
+
+    it('should notify all reactors registered when an AC is hnadled', () => {
+      // Assemble
+      const uut = new Provider(TAO);
+      const triggerData = { a: 1 };
+      const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
+      uut.addComponentHandler(triggerAc.unwrapCtx(true), Component);
+      const onNotify1 = jest.fn().mockName('reactor notifier 1');
+      const onNotify2 = jest.fn().mockName('reactor notifier 2');
+      const onNotify3 = jest.fn().mockName('reactor notifier 3');
+      const reactor1 = createElement(Component);
+      const reactor2 = createElement(Component);
+      const reactor3 = createElement(Component);
+      // Act
+      uut.registerReactor(reactor1, onNotify1);
+      uut.registerReactor(reactor2, onNotify2);
+      uut.registerReactor(reactor3, onNotify3);
+      TAO.setAppCtx(triggerAc);
+      // Assert
+      expect(onNotify1).toHaveBeenCalled();
+      expect(onNotify2).toHaveBeenCalled();
+      expect(onNotify3).toHaveBeenCalled();
+    });
+
+    it('should not notify reactors that unregister when an AC is hnadled', () => {
+      // Assemble
+      const uut = new Provider(TAO);
+      const triggerData = { a: 1 };
+      const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
+      uut.addComponentHandler(triggerAc.unwrapCtx(true), Component);
+      const onNotify1 = jest.fn().mockName('reactor notifier 1');
+      const onNotifyUnregister = jest
+        .fn()
+        .mockName('reactor notifier unregistered');
+      const onNotify3 = jest.fn().mockName('reactor notifier 3');
+      const reactor1 = createElement(Component);
+      const reactorToUnregister = createElement(Component);
+      const reactor3 = createElement(Component);
+      uut.registerReactor(reactor1, onNotify1);
+      uut.registerReactor(reactorToUnregister, onNotifyUnregister);
+      uut.registerReactor(reactor3, onNotify3);
+      // Act
+      uut.unregisterReactor(reactorToUnregister);
+      TAO.setAppCtx(triggerAc);
+      // Assert
+      expect(onNotify1).toHaveBeenCalled();
+      expect(onNotifyUnregister).not.toHaveBeenCalled();
+      expect(onNotify3).toHaveBeenCalled();
     });
   });
 });

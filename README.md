@@ -32,7 +32,7 @@ This really needs to be filled out
   * [x] port `Reactor`
   * [x] unit tests for `Provider`
   * [ ] unit tests for `Reactor`
-  * [ ] enable `Provider` to unset current component using `null` as a handler for TAO ACs
+  * [x] enable `Provider` to unset current component using `null` as a handler for TAO ACs
   * [ ] `Reactor`+`Provider` combo implements `shouldComponentUpdate`
   * [ ] `Reactor` support multiple children?
 * [ ] complete `koa-tao` package
