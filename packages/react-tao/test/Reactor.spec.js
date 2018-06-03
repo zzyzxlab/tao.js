@@ -100,7 +100,7 @@ describe('Reactor exports a React Component for reacting to TAO App Contexts', (
     // expect(post1.type).toBe('TestComponentB');
   });
 
-  xit('should render a component set as a Handler for an AC', () => {
+  it('should render a component set as a Handler for an AC', () => {
     // Assemble
     const provider = new Provider(TAO);
     const triggerAc1 = new AppCtx(TERM, ACTION, ORIENT, [{ id: 1 }]);
@@ -121,8 +121,8 @@ describe('Reactor exports a React Component for reacting to TAO App Contexts', (
     console.log('pre.debug:', wrapper.debug());
     TAO.setAppCtx(triggerAc1);
     expect(provider.current).toBeDefined();
-    expect(provider.current.Component).toBeDefined();
-    expect(provider.current.Component).toBeInstanceOf(Function);
+    expect(provider.current.ComponentHandler).toBeDefined();
+    expect(provider.current.ComponentHandler).toBeInstanceOf(Function);
     console.log('post-setAppCtx.debug:', wrapper.debug());
     wrapper.update();
     console.log('post-update.debug:', wrapper.debug());

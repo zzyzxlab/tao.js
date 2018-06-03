@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, createElement } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import Provider from './Provider';
+
+const DUMMY_STATE = {};
 
 class Reactor extends Component {
   // static propTypes = {
@@ -15,19 +17,19 @@ class Reactor extends Component {
 
   componentWillMount() {
     const { provider } = this.props;
-    // provider.registerReactor(this);
+    provider.registerReactor(this, this.onNotifyChange.bind(this));
   }
 
   componentWillUnmount() {
     const { provider } = this.props;
-    // provider.unregisterReactor(this);
+    provider.unregisterReactor(this);
   }
 
   componentWillReceiveProps(nextProps) {
     const { provider } = this.props;
     if (provider !== nextProps.provider) {
-      // provider.unregisterReactor(this);
-      // nextProps.provider.registerReactor(this);
+      provider.unregisterReactor(this);
+      nextProps.provider.registerReactor(this, this.onNotifyChange.bind(this));
     }
   }
 
@@ -60,17 +62,26 @@ class Reactor extends Component {
   //   return false;
   // }
 
+  onNotifyChange() {
+    this.setState(DUMMY_STATE);
+  }
+
   render() {
     // NOTE: Currently swallows any children
     const { provider, children, ...props } = this.props;
     if (!provider.current) {
       return null;
     }
-    const { Component, tao, props: childProps } = provider.current;
-    if (!Component) {
+    const { ComponentHandler, tao, props: childProps } = provider.current;
+    if (!ComponentHandler) {
       return null;
     }
-    return <Component {...tao} {...props} {...childProps} />;
+    return createElement(ComponentHandler, {
+      ...tao,
+      ...props,
+      ...childProps
+    });
+    // return <ComponentHandler {...tao} {...props} {...childProps} />;
   }
 }
 

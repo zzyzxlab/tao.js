@@ -143,7 +143,7 @@ describe('Provider integrates with React', () => {
       // Assert
       expect(uut.current).not.toBeNull();
       expect(uut.current).toMatchObject({
-        Component,
+        ComponentHandler: Component,
         tao: triggerAc.unwrapCtx(),
         props: {
           [TERM]: triggerData
@@ -167,12 +167,12 @@ describe('Provider integrates with React', () => {
       const actual2 = uut.current;
       expect(actual1).not.toMatchObject(actual2);
       expect(actual1).toMatchObject({
-        Component,
+        ComponentHandler: Component,
         tao: { t: TERM, a: ACTION, o: ORIENT },
         props: { [TERM]: triggerData1 }
       });
       expect(actual2).toMatchObject({
-        Component,
+        ComponentHandler: Component,
         tao: { t: ALT_TERM, a: ACTION, o: ORIENT },
         props: { [ACTION]: triggerData2 }
       });
@@ -206,12 +206,12 @@ describe('Provider integrates with React', () => {
       expect(actual1).not.toBe(actual2);
       expect(actual1).not.toMatchObject(actual2);
       expect(actual1).toMatchObject({
-        Component,
+        ComponentHandler: Component,
         tao: ac1.unwrapCtx(),
         props: {}
       });
       expect(actual2).toMatchObject({
-        Component,
+        ComponentHandler: Component,
         tao: ac2.unwrapCtx(),
         props: {}
       });
@@ -243,7 +243,7 @@ describe('Provider integrates with React', () => {
       await TAO.setAppCtx(triggerAc);
       // Assert
       expect(uut.current).toMatchObject({
-        Component,
+        ComponentHandler: Component,
         tao: triggerAc.unwrapCtx(),
         props: {
           [triggerAc.t]: triggerData
@@ -268,12 +268,12 @@ describe('Provider integrates with React', () => {
       expect(actual1).not.toBe(actual2);
       expect(actual1).not.toMatchObject(actual2);
       expect(actual1).toMatchObject({
-        Component,
+        ComponentHandler: Component,
         tao: ac1.unwrapCtx(),
         props: defProps
       });
       expect(actual2).toMatchObject({
-        Component,
+        ComponentHandler: Component,
         tao: ac2.unwrapCtx(),
         props: {
           ...defProps,
@@ -352,7 +352,7 @@ describe('Provider integrates with React', () => {
       expect(uut._components).toMatchObject(expected);
       expect(actual).not.toBeNull();
       expect(actual).toMatchObject({
-        Component,
+        ComponentHandler: Component,
         tao: ac.unwrapCtx(),
         props: {}
       });
