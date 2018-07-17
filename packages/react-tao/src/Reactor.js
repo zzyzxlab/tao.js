@@ -1,14 +1,15 @@
-import React, { Component, createElement } from 'react';
-import ReactDOM from 'react-dom';
+import { Component, createElement } from 'react';
 import PropTypes from 'prop-types';
 import Provider from './Provider';
 
 const DUMMY_STATE = {};
 
 class Reactor extends Component {
-  // static propTypes = {
-  //   provider: PropTypes.instanceOf(Provider),
-  // }
+  static get propTypes() {
+    return {
+      provider: PropTypes.instanceOf(Provider).isRequired
+    };
+  }
 
   constructor(props) {
     super(props);
@@ -81,12 +82,7 @@ class Reactor extends Component {
       ...props,
       ...childProps
     });
-    // return <ComponentHandler {...tao} {...props} {...childProps} />;
   }
 }
-
-Reactor.propTypes = {
-  provider: PropTypes.instanceOf(Provider)
-};
 
 export default Reactor;
