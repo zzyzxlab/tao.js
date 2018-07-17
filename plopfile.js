@@ -45,6 +45,11 @@ const entry = plop => {
         type: 'add',
         path: 'packages/{{name}}/src/index.js',
         templateFile: '.plops/templates/package/index.js.hbs'
+      },
+      {
+        type: 'add',
+        path: 'packages/{{name}}/.babelrc',
+        templateFile: '.plops/templates/package/.babelrc.hbs'
       }
     ]
   });
