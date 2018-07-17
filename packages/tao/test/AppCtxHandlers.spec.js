@@ -339,7 +339,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
         .fn(() => {
           return new Promise(resolve =>
             setImmediate(() => {
-              console.log('async 2');
+              // console.log('async 2');
               resolve();
             })
           );
@@ -349,16 +349,16 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
         .fn(() => {
           return new Promise(resolve =>
             setTimeout(() => {
-              console.log('async 3');
+              // console.log('async 3');
               resolve();
             }, 1000)
           );
         })
         .mockName('handler_three');
       const inlineH = ({ t, a, o }, data) => {
-        console.log(
-          `-------- inline call with ['${t}', '${a}', '${o}'] ----------`
-        );
+        // console.log(
+        //   `-------- inline call with ['${t}', '${a}', '${o}'] ----------`
+        // );
       };
       uut.addInlineHandler(inlineH);
       uut.addAsyncHandler(handler1);
