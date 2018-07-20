@@ -11,28 +11,25 @@ class SpaceForm extends Component {
       },
       props.Space
     );
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleChange(event) {
-    // console.log('change event:', event);
+  handleChange = event => {
     const target = event.target;
     const val = target.type === 'checkbox' ? target.checked : target.value;
     const name = target.name;
     this.setState({
       [name]: val
     });
-  }
+  };
 
-  handleSubmit(event) {
+  handleSubmit = event => {
     const { a } = this.props;
     const Space = this.state;
     const isNew = a === 'New';
     const saveAction = isNew ? 'Add' : 'Update';
     TAO.setCtx({ t: 'Space', a: saveAction, o: 'Portal' }, { Space });
     event.preventDefault();
-  }
+  };
 
   render() {
     const { a } = this.props;
@@ -54,7 +51,11 @@ class SpaceForm extends Component {
           />
           <br />
           <label htmlFor="description">Description:</label>
-          <textarea value={Space.description} onChange={this.handleChange} />
+          <textarea
+            name="description"
+            value={Space.description}
+            onChange={this.handleChange}
+          />
           <br />
           <input type="submit" value="Save" />
         </form>

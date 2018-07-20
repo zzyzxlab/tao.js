@@ -21,7 +21,9 @@ const SpaceList = ({ Space }) => (
   <div>
     <h1>Current list of Spaces</h1>
     <h3>
-      <button>New</button>
+      <button onClick={e => TAO.setCtx({ t: 'Space', a: 'New', o: 'Portal' })}>
+        New
+      </button>
     </h3>
     <ul>
       <SpaceItems spaces={Space} />

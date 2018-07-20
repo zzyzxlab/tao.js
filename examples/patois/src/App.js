@@ -1,16 +1,7 @@
 import React, { Component } from 'react';
-import TAO from '@tao.js/core';
-import { Provider, Reactor } from '@tao.js/react';
 import logo from './logo.svg';
 import './App.css';
-// import SpaceList from './components/SpaceList';
 import Space from './components/Space';
-
-// const appProvider = new Provider(TAO);
-// appProvider.addComponentHandler(
-//   { term: 'Space', action: 'List', orient: 'Portal' },
-//   SpaceList
-// );
 
 class App extends Component {
   render() {
