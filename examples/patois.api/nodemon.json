@@ -1,0 +1,27 @@
+{
+  "restartable": "rs",
+  "ignore": [
+    ".git",
+    "node_modules",
+    "src/test",
+    "build",
+    ".test",
+    ".log",
+    ".csv"
+  ],
+  "verbose": true,
+  "execMap": {
+    "js": "babel-node"
+  },
+  "events": {
+    "exit": "echo \"exited process - via nodemon\"",
+    "crash": "echo \"crashed process - via nodemon\""
+  },
+  "watch": ["src/", ".env"],
+  "env": {
+    "NODE_ENV": "local",
+    "DEBUG": "",
+    "BABEL_DISABLE_CACHE": 1
+  },
+  "ext": "js json json5"
+}

@@ -1,0 +1,12 @@
+version: '3.6'
+services:
+  patois-db:
+    image: mongo:4.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - patoisdb-primary:/data
+
+volumes:
+  patoisdb-primary:
+    driver: local
