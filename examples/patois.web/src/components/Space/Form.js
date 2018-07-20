@@ -31,6 +31,12 @@ class SpaceForm extends Component {
     event.preventDefault();
   };
 
+  handleCancel = event => {
+    event.preventDefault();
+    const { Space: { _id } = {} } = this.props;
+    TAO.setCtx({ t: 'Space', a: 'Find', o: 'Portal' }, { Find: { _id } });
+  };
+
   render() {
     const { a } = this.props;
     const Space = this.state;
@@ -57,7 +63,11 @@ class SpaceForm extends Component {
             onChange={this.handleChange}
           />
           <br />
-          <input type="submit" value="Save" />
+          <input type="submit" value="Save" />&nbsp;<button
+            onClick={this.handleCancel}
+          >
+            Cancel
+          </button>
         </form>
       </div>
     );

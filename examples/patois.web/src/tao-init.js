@@ -1,18 +1,10 @@
 import TAO, { AppCtx } from '@tao.js/core';
+import axios from 'axios';
+import * as _ from './lib/lodash-slim';
 
-const SpacesList = {
-  '1': {
-    id: '1',
-    name: 'Goon Squad',
-    description: 'The goons who inspired this site'
-  },
-  '2': {
-    id: '2',
-    name: 'My Patoice',
-    description: 'Another inspiration for this place'
-  }
-};
-let lastSpaceId = 2;
+const restApi = axios.create({
+  baseURL: 'http://localhost:8080/api'
+});
 
 const AppTerm = {
   title: 'Patois - words for the way you talk'
@@ -40,18 +32,42 @@ TAO.addInlineHandler(appViewPortalCtx.unwrapCtx(), ({ o }) => {
   return new AppCtx('Space', 'Find', o);
 });
 
-TAO.addInlineHandler({ t: 'Space', a: 'Find' }, ({ o }) => {
-  // TODO: fetch from an API
-  return new AppCtx('Space', 'List', o, { Space: Object.values(SpacesList) });
+TAO.addInlineHandler({ t: 'Space', a: 'Find' }, async ({ o }, { Find }) => {
+  const apiPath =
+    _.isEmpty(Find) || !Find._id ? '/spaces' : `/spaces/${Find._id}`;
+  const { data } = await restApi.get(apiPath);
+
+  return new AppCtx('Space', Array.isArray(data) ? 'List' : 'Enter', o, {
+    Space: data
+  });
 });
 
-TAO.addInlineHandler({ t: 'Space', a: 'Update' }, (tao, { Space }) => {
-  SpacesList[Space.id] = Space;
+TAO.addInlineHandler({ t: 'Space', a: 'Update' }, async (tao, { Space }) => {
+  try {
+    const apiResponse = await restApi.put(`/spaces/${Space._id}`, Space);
+    return new AppCtx('Space', 'Enter', 'Portal', { Space: apiResponse.data });
+  } catch (apiErr) {
+    const Fail = {
+      on: 'Update',
+      status: apiErr.response.status,
+      message: apiErr.response.statusText
+    };
+    return new AppCtx('Space', 'Fail', 'Portal', { Space, Fail });
+  }
 });
 
-TAO.addInlineHandler({ t: 'Space', a: 'Add' }, (tao, { Space }) => {
-  Space.id = ++lastSpaceId;
-  SpacesList[Space.id] = Space;
+TAO.addInlineHandler({ t: 'Space', a: 'Add' }, async (tao, { Space }) => {
+  try {
+    const { data } = await restApi.post('/spaces', Space);
+    return new AppCtx('Space', 'Enter', 'Portal', { Space: data });
+  } catch (apiErr) {
+    const Fail = {
+      on: 'Add',
+      status: apiErr.response.status,
+      message: apiErr.response.statusText
+    };
+    return new AppCtx('Space', 'Fail', 'Portal', { Space, Fail });
+  }
 });
 
 TAO.addAsyncHandler(appEnterPortalCtx.unwrapCtx(), () => {

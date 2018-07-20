@@ -5,7 +5,7 @@ const SpaceItems = ({ spaces }) =>
   spaces.map(s => {
     const Space = s;
     return (
-      <li key={s.id}>
+      <li key={s._id}>
         <button
           onClick={e =>
             TAO.setCtx({ t: 'Space', a: 'Enter', o: 'Portal' }, { Space })

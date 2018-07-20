@@ -1,11 +1,13 @@
 {
-  "name": "patois",
+  "name": "patois.web",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "@babel/polyfill": "^7.0.0-beta.54",
     "@tao.js/core": "^0.1.0",
     "@tao.js/react": "^0.1.0",
+    "axios": "^0.18.0",
+    "lodash.isempty": "^4.4.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-scripts": "1.1.4"
