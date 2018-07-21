@@ -7,8 +7,8 @@ import mount from 'koa-mount';
 import Router from 'koa-trie-router';
 import IO from 'socket.io';
 import TAO, { AppCtx } from '@tao.js/core';
+import wireTaoJsToSocketIO from '@tao.js/socket.io';
 import { connect } from './data/mongodb';
-import * as _ from './lib/lodash-slim';
 import * as spaces from './lib/models/spaces';
 
 const { PORT } = process.env;
@@ -68,10 +68,6 @@ restRouter.del('/spaces/:id', async (ctx, next) => {
 
 app.use(mount('/api', restRouter.middleware()));
 
-const server = http.createServer(app.callback());
-const io = IO(server);
-const taoIo = io.of('/tao');
-
 TAO.addInterceptHandler({}, (tao, data) => {
   console.log('handling tao:', tao, data);
 });
@@ -129,32 +125,9 @@ const saveSpaceHandler = async (tao, { Space }) => {
 TAO.addInlineHandler({ t: 'Space', a: 'Update' }, saveSpaceHandler);
 TAO.addInlineHandler({ t: 'Space', a: 'Add' }, saveSpaceHandler);
 
-taoIo.on('connection', socket => {
-  console.log('connection made to `tao`');
-  let lastAC = null;
-  socket.on('setAC', ({ tao, data }) => {
-    const datum = _.merge({}, data, {
-      [tao.o]: {
-        _fromSocket: true
-      }
-    });
-    TAO.setCtx(tao, datum);
-  });
-
-  const socketHandler = (tao, data) => {
-    if (!data[tao.o] || !data[tao.o]._fromSocket) {
-      socket.emit('receiveAC', { tao, data });
-    }
-  };
-
-  TAO.addInlineHandler({}, socketHandler);
-
-  socket.on('disconnect', reason => {
-    if (reason === 'client') {
-      TAO.removeInlineHandler({}, socketHandler);
-    }
-  });
-});
+const server = http.createServer(app.callback());
+const io = IO(server);
+wireTaoJsToSocketIO(TAO, io);
 
 connectingToMongo.then(success => {
   if (!success) {

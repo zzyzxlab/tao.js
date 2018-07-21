@@ -1,32 +1,14 @@
 import TAO, { AppCtx } from '@tao.js/core';
+import initSocket from '@tao.js/socket.io';
 import axios from 'axios';
 import * as _ from './lib/lodash-slim';
 
-const socket = window.io('http://localhost:8080/tao');
-
-// const socketConnected = new Promise((resolve, reject) => {
-//   socket.on('connect', () => {
-//     resolve(true);
-//   });
-//   socket.on('connect_error', () => {
-
-//   })
-// })
-
-socket.on('receiveAC', ({ tao, data }) => {
-  const datum = _.merge({}, data, {
-    [tao.o]: {
-      _fromSocket: true
-    }
-  });
-  TAO.setCtx(tao, datum);
+const socket = initSocket(TAO, window.io, {
+  host: 'localhost:8080'
 });
-
-TAO.addAsyncHandler({}, (tao, data) => {
-  if (!data[tao.o] || !data[tao.o]._fromSocket) {
-    socket.emit('setAC', { tao, data });
-  }
-});
+if (socket) {
+  console.log('connected on socket');
+}
 
 const restApi = axios.create({
   baseURL: 'http://localhost:8080/api'

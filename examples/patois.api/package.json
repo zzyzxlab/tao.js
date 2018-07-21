@@ -15,6 +15,7 @@
   "dependencies": {
     "@koa/cors": "^2.2.2",
     "@tao.js/core": "^0.1.0",
+    "@tao.js/socket.io": "^0.1.0",
     "koa": "^2.5.2",
     "koa-bodyparser": "^4.2.1",
     "koa-mount": "^3.0.0",
