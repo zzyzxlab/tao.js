@@ -1,13 +1,20 @@
 {
-  "name": "@tao.js/socket-io",
+  "name": "@tao.js/socket.io",
   "version": "0.1.0",
   "description": "tao middleware for socket.io",
-  "main": "index.js",
+  "main": "build/index.js",
+  "files": ["build"],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:clean": "rimraf build",
+    "build:transpile": "babel src -d build --source-maps --copy-files",
+    "build": "npm run build:clean && npm run build:transpile"
   },
   "author": "",
   "license": "Apache-2.0",
+  "peerDependencies": {
+    "@tao.js/core": "^0.1.0"
+  },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.47",
     "@babel/core": "^7.0.0-beta.47",
