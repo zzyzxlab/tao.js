@@ -2,6 +2,32 @@ import TAO, { AppCtx } from '@tao.js/core';
 import axios from 'axios';
 import * as _ from './lib/lodash-slim';
 
+const socket = window.io('http://localhost:8080/tao');
+
+// const socketConnected = new Promise((resolve, reject) => {
+//   socket.on('connect', () => {
+//     resolve(true);
+//   });
+//   socket.on('connect_error', () => {
+
+//   })
+// })
+
+socket.on('receiveAC', ({ tao, data }) => {
+  const datum = _.merge({}, data, {
+    [tao.o]: {
+      _fromSocket: true
+    }
+  });
+  TAO.setCtx(tao, datum);
+});
+
+TAO.addAsyncHandler({}, (tao, data) => {
+  if (!data[tao.o] || !data[tao.o]._fromSocket) {
+    socket.emit('setAC', { tao, data });
+  }
+});
+
 const restApi = axios.create({
   baseURL: 'http://localhost:8080/api'
 });
@@ -32,37 +58,47 @@ TAO.addInlineHandler(appViewPortalCtx.unwrapCtx(), ({ o }) => {
   return new AppCtx('Space', 'Find', o);
 });
 
-TAO.addInlineHandler({ t: 'Space', a: 'Find' }, async ({ o }, { Find }) => {
-  const apiPath =
-    _.isEmpty(Find) || !Find._id ? '/spaces' : `/spaces/${Find._id}`;
-  const { data } = await restApi.get(apiPath);
+TAO.addInlineHandler(
+  { t: 'Space', a: 'Find_rest' },
+  async ({ o }, { Find_rest }) => {
+    const apiPath =
+      _.isEmpty(Find_rest) || !Find_rest._id
+        ? '/spaces'
+        : `/spaces/${Find_rest._id}`;
+    const { data } = await restApi.get(apiPath);
 
-  return new AppCtx('Space', Array.isArray(data) ? 'List' : 'Enter', o, {
-    Space: data
-  });
-});
-
-TAO.addInlineHandler({ t: 'Space', a: 'Update' }, async (tao, { Space }) => {
-  try {
-    const apiResponse = await restApi.put(`/spaces/${Space._id}`, Space);
-    return new AppCtx('Space', 'Enter', 'Portal', { Space: apiResponse.data });
-  } catch (apiErr) {
-    const Fail = {
-      on: 'Update',
-      status: apiErr.response.status,
-      message: apiErr.response.statusText
-    };
-    return new AppCtx('Space', 'Fail', 'Portal', { Space, Fail });
+    return new AppCtx('Space', Array.isArray(data) ? 'List' : 'Enter', o, {
+      Space: data
+    });
   }
-});
+);
 
-TAO.addInlineHandler({ t: 'Space', a: 'Add' }, async (tao, { Space }) => {
+TAO.addInlineHandler(
+  { t: 'Space', a: 'Update_rest' },
+  async (tao, { Space }) => {
+    try {
+      const apiResponse = await restApi.put(`/spaces/${Space._id}`, Space);
+      return new AppCtx('Space', 'Enter', 'Portal', {
+        Space: apiResponse.data
+      });
+    } catch (apiErr) {
+      const Fail = {
+        on: tao.a,
+        status: apiErr.response.status,
+        message: apiErr.response.statusText
+      };
+      return new AppCtx('Space', 'Fail', 'Portal', { Space, Fail });
+    }
+  }
+);
+
+TAO.addInlineHandler({ t: 'Space', a: 'Add_rest' }, async (tao, { Space }) => {
   try {
     const { data } = await restApi.post('/spaces', Space);
     return new AppCtx('Space', 'Enter', 'Portal', { Space: data });
   } catch (apiErr) {
     const Fail = {
-      on: 'Add',
+      on: tao.a,
       status: apiErr.response.status,
       message: apiErr.response.statusText
     };
@@ -103,5 +139,9 @@ TAO.addInlineHandler({ t: 'Session', a: 'Enter' }, ({ o }, { Session }) => {
   localStorage.setItem(SESSION_KEY, JSON.stringify(Session));
   // return new AppCtx('Session', 'Enter', 'Tracking', [Session, null, o]);
 });
+
+// async function getInitialCtx() {
+
+// }
 
 export default appEnterPortalCtx;

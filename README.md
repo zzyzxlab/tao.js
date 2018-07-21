@@ -33,8 +33,9 @@ This really needs to be filled out
   * [x] unit tests for `Reactor`
   * [x] enable `Provider` to unset current component using `null` as a handler for TAO ACs
 * [ ] complete `@tao.js/socket-io` package
-  * [ ] figure out how to ensure responses go to same requestor
+  * [x] figure out how to ensure responses go to same requestor
   * [ ] unit tests
+  * [x] integrate into `patois` example app
 * [ ] write phase 1 of `docs`
 * [ ] complete `@tao.js/koa` package
   * [ ] finish middleware design

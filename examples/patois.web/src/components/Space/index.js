@@ -13,20 +13,6 @@ TAO.addInlineHandler(
   }
 );
 
-// TAO.addInlineHandler(
-//   { t: 'Space', a: 'Update', o: 'Portal' },
-//   (tao, { Space }) => {
-//     return new AppCtx('Space', 'Enter', 'Portal', { Space });
-//   }
-// );
-
-// TAO.addInlineHandler(
-//   { t: 'Space', a: 'Add', o: 'Portal' },
-//   (tao, { Space }) => {
-//     return new AppCtx('Space', 'Enter', 'Portal', { Space });
-//   }
-// );
-
 const spaceProvider = new Provider(TAO);
 spaceProvider
   .setDefaultCtx({ term: 'Space', orient: 'Portal' })
