@@ -4,8 +4,8 @@
 
 * [Introduction](intro/README.md)
   * [Origin](intro/origin.md)
-  * [Goals](intro/goals.md)
   * [Core Concepts](intro/core-concepts.md)
+  * [Goals](intro/goals.md)
   * [Benefits](intro/benefits.md)
   * [Development Roadmap](intro/roadmap.md)
 * [Basics](basics/README.md)

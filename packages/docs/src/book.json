@@ -1,4 +1,7 @@
 {
     "root": "content",
-    "plugins": ["prism", "-highlight"]
+    "plugins": ["prism", "-highlight", "advanced-emoji"],
+    "pluginsConfig": {
+      "embedEmojis": true
+    }
 }
