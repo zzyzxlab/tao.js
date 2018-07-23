@@ -8,6 +8,7 @@ Upcoming and asking for volunteers to help with packages to integrate:
 
 * [Vue.js](https://vuejs.org)
 * [Angular.js](https://angularjs.org)
+* [Ember.js](https://emberjs.com/)
 * Other UI frameworks (please help)
 
 `tao.js` works seamlessly well with React given the philosophy of building
@@ -40,13 +41,14 @@ Part of the Application deals with `Space`s so it has the following directory:
 ```
 src/
 +- components/
-   - App.js
    +- Space/
       - index.js
       - ErrorMessage.js
       - Form.js
       - List.js
       - View.js
+- App.css
+- App.js
 ```
 
 ### Defining React `Component`s
@@ -55,7 +57,7 @@ The `Component` definitions for `ErrorMessage`, `Form`, `List` and `View` define
 React `Component`s (both functional and class) and are not _aware_ of nor dependent upon
 the `@tao.js/react` package.
 
-They _are_ making use of the [`TAO`](../api/core/tao.md) export from `@tao.js/core` in
+They _are_ making use of the TAO export from `@tao.js/core` in
 order to change the Application Context.
 
 #### `src/components/space/List.js`
@@ -233,13 +235,13 @@ export default SpaceRender;
 Our main `App` Component needs to then include the ability to view `Space`s so
 we define it like this:
 
-#### `src/components/App.js`
+#### `src/App.js`
 
 ```javascript
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Space from './Space';
+import Space from './components/Space';
 
 class App extends Component {
   render() {
