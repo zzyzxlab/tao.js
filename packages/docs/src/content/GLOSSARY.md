@@ -1,3 +1,6 @@
+## tao.js
+The core library used to build applications and systems adhering to the TAO concepts
+
 ## TAO
 the basic library as well as the AC passed around
 
