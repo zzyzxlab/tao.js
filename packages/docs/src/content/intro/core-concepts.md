@@ -6,7 +6,7 @@ using 3 Dimensions:
 **T**erm - the _thing_ in the context - conceptually a domain entity  
 **A**ction - the _operation_ being performed on the _thing_ in the context  
 **O**rient(ation) - the _perspective_ from which the User or Actor interacting with the system has
-during this _operation_ on this _thing_
+during this _operation_ on this _thing_ at this moment
 
 But before diving too deep into the TAO, there are a few preceding concepts that will help create
 a deeper understanding as to why it is defined the way it is before explaining what
@@ -122,13 +122,12 @@ to attach what is seen as an added dimension of data to the Orient(ation) for th
 
 ## Application Contexts (aka AppCons)
 
-As stated above, an AppCon or Event is defined across these three reference points (or as
-written above - dimensions):
+As stated at the top of this page, an AppCon or Event is defined across these three reference points (or as written above - dimensions):
 
 **T**erm - the _thing_ in the context - conceptually a domain entity  
 **A**ction - the _operation_ being performed on the _thing_ in the context  
 **O**rient(ation) - the _perspective_ from which the User or Actor interacting with the system has
-during this _operation_ on this _thing_
+during this _operation_ on this _thing_ at this moment
 
 A good analogy for the TAO is that of the grammatical parts to a sentence.
 
@@ -165,7 +164,9 @@ Orient(ation)s are the _Perspectives_ taken by the _Actor_ that is either intera
 the application or system of applications at the time of the AppCon.
 
 Orient(ation)s allow for an effective way for the system to act or react differently for the
-same Action operating on the same Term by describing a unique context.
+same Action operating on the same Term by describing a unique context.  This includes, but is
+not limited to, generating or retrieving different data or properties for the Term (and possibly
+also Action) based on this Orient(ation)
 
 From our sentence analogy, an Orient(ation) is the Subject or Actor that is acting out the verb
 on the object.
