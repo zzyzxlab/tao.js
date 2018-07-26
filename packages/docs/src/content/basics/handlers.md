@@ -52,6 +52,9 @@ or [data args to `AppCon` constructor](app-cons.md#create-an-appcon-with-data-an
 This behavior is specifically by design to allow for multiple ways of setting the data while
 providing a consistent and reliable API for creating your Handlers.
 
+`data` will be the same reference for all handlers called so take care not to manipulate the
+object your handler receives, rather make a new object if you want to make changes.
+
 ## Adding Handlers for AppCons
 
 The TAO provides 3 different types of Handlers which you can see in the [Advanced Section](../advanced/README.md).  For learning the Basics here, we will illustrate use with the most widely
@@ -73,7 +76,7 @@ passing the following 2 arguments:
 
 * `taople` - the taople your handler cares about, an `Object` which can take either short form
   `key`s (`{ t, a, o }`) or long form `key`s (`{ term, action, orient }`).
-* `handler` - the `Function` you want to be called when that taople is set on the TAO
+* `handler` - the `Function` you want to be called when an AppCon matching that taople is set on the TAO
 
 ```javascript
 TAO.addInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, (tao, data) => {
@@ -99,7 +102,7 @@ for the TAO as well as in other areas of your application.  It's up to you.
 ## Arrow Functions vs Other Functions
 
 To the TAO, the handler is a `Function` and it doesn't care what form that function came to it
-as.  We used an arrow function above to illustrate the most common case, but the following
+as.  We used an arrow function above to illustrate a common case, but the following
 are all equivalent and will achieve the same result when it comes to handling AppCons.
 
 If this is obvious to you and you needn't bother then skip ahead to [Async Function Handlers](#async-function-handlers) below.
@@ -154,7 +157,7 @@ TAO.addInlineHandler({ term: 'App', action: 'Enter', orient: 'Portal' }, functio
 
 ### Function as `class` member
 
-Here is an example of adding a method from an `Object` of type MyClass as a handler:
+Here is an example of adding a method from an `Object` of type `MyClass` as a handler:
 
 ```javascript
 class MyClass {
@@ -174,7 +177,7 @@ TAO.addInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, myObject.handleAppCo
 TAO.addInlineHandler({ term: 'App', action: 'Enter', orient: 'Portal' }, myObject.handleAppCon);
 ```
 
-Here is an example of adding a method from an `Object` of type MyClass that is bound in the
+Here is an example of adding a method from an `Object` of type `MyClass` that is bound in the
 constructor so the handler will have access to the `this` reference for the object:
 
 ```javascript
@@ -222,7 +225,7 @@ TAO.addInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, myObject.handleAppCo
 TAO.addInlineHandler({ term: 'App', action: 'Enter', orient: 'Portal' }, myObject.handleAppConWithThis);
 ```
 
-Here is adding a method from an `Object` of type MyClass as a handler:
+Here is adding a `static` method from `MyClass` as a handler:
 
 ```javascript
 class MyClass {
@@ -244,13 +247,15 @@ TAO.addInlineHandler({ term: 'App', action: 'Enter', orient: 'Portal' }, MyClass
 ## Async Function Handlers
 
 Because a lot of what is done in JavaScript relies on asynchronous operation, the TAO allows
-you to add `async` functions as handlers for Application Contexts.
+you to add `async` functions or functions that return a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+as handlers for Application Contexts.
 
 These will have different behavior depending on the Type of Handler you add, but in the Basic
-case outlined here, the TAO will `await` for your handler to fully complete (resolve or reject) before moving onto the next handler.
+case outlined here, the TAO will `await` for your handler to fully complete (resolve or reject)
+before moving onto the next handler.
 
-This also operates the same if your handler isn't declared
-`async` and just returns a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
+There is no difference in the way the TAO operates between an `async` function versus a fuction
+that just returns a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
 
 ## Removing Handlers
 
@@ -262,7 +267,7 @@ If you want to remove a handler from the TAO, you will need to keep a reference 
 that is accessible to the code that will remove it from the TAO.
 
 To remove a handler, make sure you are removing the handler using the same type that you used
-to add the handler function, using the corollary `removeXxxHandler` method to the `addXxxHandler`.
+to add the handler function, using the corollary `remove[Type]Handler` method to the `add[Type]Handler`.
 
 ```javascript
 const handleAppEnterPortal = (tao, data) => {

@@ -6,7 +6,7 @@ There are 3 basic topics to understand in order to get started building apps wit
   your application
 * [Handlers for AppCons](handlers.md) - how to add handlers to the TAO that are triggered when
   an Application Context is set
-* [Wildcard Handlers](wildcards.md) - how to utilize handlers for AppCons with Wildcards to capture
-  more Application Contexts than just individual Concretely defined AppCons
 * [Chaining AppCons](chaining.md) - how to chain Application Contexts to trigger AppCons from
   handlers
+* [Wildcard Handlers](wildcards.md) - how to utilize handlers for AppCons with Wildcards to capture
+  more Application Contexts than just individual Concretely defined AppCons
