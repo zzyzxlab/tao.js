@@ -4,14 +4,19 @@
 
 * [Introduction](intro/README.md)
   * [Origin](intro/origin.md)
+  * [Motivations](intro/motivations.md)
   * [Core Concepts](intro/core-concepts.md)
   * [Goals](intro/goals.md)
   * [Benefits](intro/benefits.md)
   * [Development Roadmap](intro/roadmap.md)
+  * [Presentations](intro/presentations/README.md)
+    * [JS Conf US 2018 - We're the same you and me](intro/presentations/jsconf-us-2018.md)
+    * [Proposal Drafts](intro/presentations/proposals.md)
 * [Basics](basics/README.md)
   * [Application Contexts (AppCons)](basics/app-cons.md)
   * [Handlers for AppCons](basics/handlers.md)
   * [Wildcard Handlers](basics/wildcards.md)
+  * [Chaining AppCons](basics/chaining.md)
 * [Advanced](advanced/README.md)
   * [Inline Handlers](advanced/inline-handlers.md)
   * [Async Handlers](advanced/async-handlers.md)
@@ -37,7 +42,6 @@
     * [Reactor](api/react/reactor.md)
   * [@tao.js/socket.io](api/socket-io/README.md)
     * [wireTaoJsToSocketIO](api/socket-io/wire-socket-io.md)
-
 
 * [Glossary](GLOSSARY.md)
 
