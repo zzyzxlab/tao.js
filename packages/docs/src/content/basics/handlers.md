@@ -1,7 +1,7 @@
 # Handlers for AppCons
 
-Now that we know what Application Contexts and AppCons are that set the state of our Application's
-State Machine, we use Handlers to let our app react to the transitions from one to the next.
+Now that we have a better understanding of defining Handlers for AppCons, we can look at how we
+actually add handlers to the TAO in code.
 
 ## Handlers are just Functions
 
@@ -14,7 +14,7 @@ function handlerForAppCon(tao, data) { … }
 
 When called, every handler will **always** receive just the following 2 arguments.
 
-### `tao` handler arg
+### `tao: object` handler arg
 
 The TAO will tell each handler which taople triggered the handler to be called.  The `tao` arg
 is an `Object` with the following properties:
@@ -29,7 +29,7 @@ useful for:
 * having the `key`s to access the `data` object's child data
 * allowing [Wilcard Handlers](wildcards.md) to know which taople triggered the handler to be called
 
-### `data` handler arg
+### `data: object` handler arg
 
 The TAO will pass the data used when the AppCon was triggered to all handlers that are registered
 to handle the taople.
@@ -74,9 +74,10 @@ const TAO = require('@tao.js/core');
 Handlers are added **directly** on the TAO by using one of the `add[Type]Handler(…)` methods and
 passing the following 2 arguments:
 
-* `taople` - the taople your handler cares about, an `Object` which can take either short form
-  `key`s (`{ t, a, o }`) or long form `key`s (`{ term, action, orient }`).
-* `handler` - the `Function` you want to be called when an AppCon matching that taople is set on the TAO
+* `taople: object` - the taople your handler cares about
+  * can take either short form `key`s (`{ t, a, o }`) or
+  * long form `key`s (`{ term, action, orient }`).
+* `handler: function` - function you want to be called when an AppCon matching the given taople is set on the TAO
 
 ```javascript
 TAO.addInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, (tao, data) => {
@@ -84,7 +85,7 @@ TAO.addInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, (tao, data) => {
 });
 // OR
 TAO.addInlineHandler({ term: 'App', action: 'Enter', orient: 'Portal' }, (tao, data) => {
-  console.log(`Look, Ma! We entered the App ${data.App.title}`);
+  console.log(`Look, Ma! We entered the App ${data[tao.t]title}`);
 });
 ```
 
@@ -94,10 +95,13 @@ The TAO only cares about the Return Value of a Handler in 2 cases which are desc
 detail in other sections:
 
 * an `AppCon` as the return value is used for [Chaining AppCons](chaining.md)
-* any truthy return value from an [Intercept Handler](../advanced/intercept-handlers.md)
+* an truthy or falsey return values from an [Intercept Handler](../advanced/intercept-handlers.md)
 
 All other return values are ignored so you can potentially use the same function as a handler
 for the TAO as well as in other areas of your application.  It's up to you.
+
+_**Special Note:** with Decorators on the [Roadmap](../intro/roadmap) we may allow automating
+the setting of return values into an `AppCon`._
 
 ## Arrow Functions vs Other Functions
 
@@ -251,19 +255,25 @@ you to add `async` functions or functions that return a [`Promise`](https://deve
 as handlers for Application Contexts.
 
 These will have different behavior depending on the Type of Handler you add, but in the Basic
-case outlined here, the TAO will `await` for your handler to fully complete (resolve or reject)
-before moving onto the next handler.
+case outlined here (using [Inline Handlers](../advanced/inline-handlers.md)), the TAO will
+`await` for your handler to fully complete (resolve or reject) before moving onto the next handler.
 
 There is no difference in the way the TAO operates between an `async` function versus a fuction
 that just returns a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
+
+## Handlers throwing Errors
+
+If the handler added to the TAO throws an `Error`, it will not be caught.  It's suggested
+that your handlers catch `Error`s and handle them by [setting the Application Context](setting-app-cons.md#setting-context)
+to something signaling the `Error` like using `action: 'Fail'`.
 
 ## Removing Handlers
 
 Because we can add new handlers at any point in the lifecycle of our app, the TAO allows for
 dynamic loading and unloading of handlers in response to any events, namely but not limited
-to Application Contexts.
+to Application Contexts or if used with [Code Splitting](https://webpack.js.org/guides/code-splitting/).
 
-If you want to remove a handler from the TAO, you will need to keep a reference to it somewhere
+If you want to remove a handler from the TAO, you will _**need to keep a reference**_ to it somewhere
 that is accessible to the code that will remove it from the TAO.
 
 To remove a handler, make sure you are removing the handler using the same type that you used
@@ -288,8 +298,39 @@ TAO.removeInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, handleAppEnterPor
 TAO.removeInlineHandler({ term: 'App', action: 'Enter', orient: 'Portal' }, handleAppEnterPortal);
 ```
 
+**Named Function Definitions** are [hoisted](https://developer.mozilla.org/en-US/docs/Glossary/Hoisting)
+so they can be defined inline and referenced elsewhere, e.g.:
+
+```javascript
+// add the handler
+TAO.addInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, function handleAppEnterPortal(tao, data) => {
+  console.log(`Look, Ma! We entered the App ${data.App.title}`);
+});
+
+…
+// Somwhere else
+
+// remove the handler
+TAO.removeInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, handleAppEnterPortal);
+```
+
 ### Missing Handler
 
 When attempting to remove a handler from the TAO, if either the handler is not registered for the
 taople you specify or the taople you specify doesn't have any handlers then the request is
 simply ignored.
+
+## The Decorators Spec
+
+It's expected soon the Decorators Spec will be approved and made part of JavaScript.  With that
+coming, it makes perfect sense to allow using decorators to wire up handlers for you, so expect
+this to come in the future [roadmap](../intro/roadmap.md).
+
+Several reasons why it's not implemented already:
+
+* Just trying to get this in people's hands to get feedback first - waiting for a decorators
+  implementation would have made it easier to adopt, but also take longer
+* React.js originally had an implementation of Decorators that they had to rip out once the
+  nascient spec was not approved to be added to the language.  I made the decision then not
+  to implement my React apps using Decorators and it paid off by not having to go back and
+  change my implementation, so it's easier to be patient here.

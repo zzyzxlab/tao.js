@@ -1,7 +1,11 @@
 {
-    "root": "content",
-    "plugins": ["prism", "-highlight", "advanced-emoji", "navigator"],
-    "pluginsConfig": {
-      "embedEmojis": true
+  "root": "content",
+  "plugins": ["prism", "-highlight", "advanced-emoji", "markdown-toc"],
+  "pluginsConfig": {
+    "embedEmojis": true,
+    "simple-page-toc": {
+      "maxDepth": 3,
+      "skipFirstH1": true
     }
+  }
 }
