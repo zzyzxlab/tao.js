@@ -306,9 +306,8 @@ so they can be defined inline and referenced elsewhere, e.g.:
 TAO.addInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, function handleAppEnterPortal(tao, data) => {
   console.log(`Look, Ma! We entered the App ${data.App.title}`);
 });
-
 …
-// Somwhere else
+// Somwhere in same file
 
 // remove the handler
 TAO.removeInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, handleAppEnterPortal);

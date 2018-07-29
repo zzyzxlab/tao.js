@@ -5,6 +5,22 @@
 - I know when to pet a cat and when to leave a cat alone
 - I am a really loud clapper
 
+# Theme
+
+**How it's being presented**
+Dune
+1981 File > Dune Books > Lawrence of Arabia
+
+tao.js
+Building Apps > Describing Apps > Origin Story
+
+**Chronological Evolution**
+Dune
+Lawrence of Arabia > Dune Books > 1981 Film
+
+tao.js
+Origin Story > Describing Apps > Building Apps
+
 # Paradigms
 
 Imperative:

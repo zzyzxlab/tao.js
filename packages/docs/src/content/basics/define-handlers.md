@@ -18,9 +18,9 @@ and non-technical members of the team.
 Going through this exercise will allow us to:
 
 * be structured in our thinking before we begin coding, allowing for...
-* better planning effort on what needs to be written  
+* better planning effort on what needs to be written
   AND
-* better visibility into what's missing  
+* better visibility into what's missing
   AND
 * ability to add more later and document it
 
@@ -40,40 +40,40 @@ communicating to the team what we expect the software to accomplish.
 From our earlier example, the intial Use Case of a User coming to the App, the AppCons we
 defined and the handlers that need to perform:
 
-||Term|Action|Orient|handler spec|
-|---|----|------|------|-----------|
-|Open App|`App`|`Enter`|`Portal`|trigger initial AC when the App starts executing on a User visit|
-|`=>`|`App`|`View`|`Portal`|get the Portal's containing View and render it|
-|`=>`|`Space`|`Find`|`Portal`|fetch all of the `Space`s from api|
-|`=>`|`Space`|`List`|`Portal`|show the `Space` List View in the Portal|
+|#||Term|Action|Orient||handler spec|
+|---|---|----|------|------|---|-----------|
+|0|Open App|`App`|`Enter`|`Portal`|`=>`|trigger initial AC when the App starts executing on a User visit|
+|1|`=>`|`App`|`View`|`Portal`|`=>`|get the Portal's containing View and render it|
+|2|`=>`|`Space`|`Find`|`Portal`|`=>`|fetch all of the `Space`s active from api|
+|3|`=>`|`Space`|`List`|`Portal`|`=>`|show the `Space` List View in the Portal|
 
 While heading towards a more detailed spec that a developer can start to code, it's still
 readable and understandable to non-technical members of the team, allowing for _**Agreement on
-what should take place**_ when a _User Enters the App_.
+what** should **take place**_ when a _User Enters the App_.
 
 ### Use Case: User Views Space
 
 Another example is a TAO-Path that provides the protocol for when a user views a Space:
 
-||Term|Action|Orient|handler spec|
-|---|----|------|------|-----------|
-|User selects Space|`Space`|`Enter`|`Portal`|AC signaling actor is entering an individual `Space`|
-|`=>`|`Space`|`View`|`Portal`|get the `Space` View and put it in the UI|
-|`=>`|`Space-Phrase`|`Find`|`Portal`|fetch all of the `Space-Phrase` relations from the api|
-|`=>`|`Space-Phrase`|`List`|`Portal`|show the list of `Phrase`s for a `Space` in the UI|
+|#||Term|Action|Orient||handler spec|
+|---|---|----|------|------|---|-----------|
+|0|User selects Space|`Space`|`Enter`|`Portal`|`=>`|AC signaling actor is entering an individual `Space`|
+|1|`=>`|`Space`|`View`|`Portal`|`=>`|get the `Space` View and put it in the UI|
+|2|`=>`|`Space-Phrase`|`Find`|`Portal`|`=>`|fetch all of the `Space-Phrase` relations from the api|
+|3|`=>`|`Space-Phrase`|`List`|`Portal`|`=>`|show the list of `Phrase`s for a `Space` in the UI|
 
 ### Use Case: User Edits Space
 
 A final example is a TAO-Path that represents when a user edits the details of a `Space`:
 
-||Term|Action|Orient|handler spec|
-|---|----|------|------|-----------|
-|User hits edit|`Space`|`Edit`|`Portal`|get the `Space` Edit form and put it in the UI|
-|User hits cancel|`Space`|`Enter`|`Portal`|go back to the [User Views Space](#use-case-user-views-space) TAO-Path|
-|User hits save|`Space`|`Update`|`Portal`|get the updated `Space` data and send it to the api|
-|`=>`|`Space`|`Store`|`Portal`|store the updated `Space`s data for later retrieval in the `Portal`|
-|`=>`|`Space`|`Store`|`Admin`|store the updated `Space`s data for later retrieval in the `Admin`|
-|`=>`|`Space`|`Enter`|`Portal`|go back to the [User Views Space](#use-case-user-views-space) TAO-Path|
+|#||Term|Action|Orient||handler spec|
+|---|---|----|------|------|---|-----------|
+|0|User hits edit|`Space`|`Edit`|`Portal`|`=>`|get the `Space` Edit form and put it in the UI|
+|1|User hits cancel|`Space`|`Enter`|`Portal`|`=>`|go back to the [User Views Space](#use-case-user-views-space) TAO-Path|
+|2|User hits save|`Space`|`Update`|`Portal`|`=>`|get the updated `Space` data and send it to the api|
+|3|`=>`|`Space`|`Store`|`Portal`|`=>`|store the updated `Space`'s data for later retrieval in the `Portal`|
+|4|`=>`|`Space`|`Store`|`Admin`|`=>`|store the updated `Space`'s data for later retrieval in the `Admin`|
+|5|`=>`|`Space`|`Enter`|`Portal`|`=>`|go back to the [User Views Space](#use-case-user-views-space) TAO-Path|
 
 ## TAO-Paths with Advanced Usage
 

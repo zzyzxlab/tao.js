@@ -71,18 +71,18 @@ in the Basics [Defining Handlers](../basics/define-handlers.md) guide:
 From our earlier example, the intial Use Case of a User coming to the App, the AppCons we
 defined and the handlers that need to perform:
 
-**TAO-Path: Bootstrap Home Page**
+#### TAO-Path: Bootstrap Home Page
 
-|#||Term|Action|Orient|handler spec|
-|---|---|----|------|------|-----------|
-|0|Open App|`App`|`Enter`|`Portal`|trigger initial AC when the App starts executing on a User visit|
-|1|`=>@`|`Session`|`Find`|`Portal`|find the current `Session` for the User|
-|2|`=>`|`App`|`View`|`Portal`|get the Portal's containing View and render it|
-|3|`=>`|`Space`|`Find`|`Portal`|fetch all of the `Space`s from api|
-|4|`=>`|`Space`|`List`|`Portal`|show the `Space` List View in the Portal|
+|#|trigger|Term|Action|Orient|mode|handler spec|
+|---|---|----|------|------|---|-----------|
+|0|Open App|`App`|`Enter`|`Portal`|`=>`|triggered initial AC when the App starts executing on a User visit<br/>chain forward|
+|1||`App`|`Enter`|`Portal`|`=>/`[^(a)]|kick off getting User's `Session` by chaining to [Bootstrap User Session](#bootstrap-session)|
+|2|`&=>`|`App`|`View`|`Portal`|`=>`|get the Portal's containing View and render it|
+|3|`&=>`|`Space`|`Find`|`Portal`|`=>`|fetch all of the `Space`s from api|
+|4|`&=>`|`Space`|`List`|`Portal`|`=>`|show the `Space` List View in the Portal|
 
-Notice the new taople (`{Session,Find,Portal}`) added to the table and new (`=>@`) trigger
-symbol.  The trigger symbol is a way to distinguish handling an AppCon asynchronously (`=>^`)
+Notice the new taople (`{Session,Find,Portal}`) added to the table and new (`=>/`) trigger
+symbol.  The trigger symbol is a way to distinguish handling an AppCon asynchronously (`=>/`)
 vs inline (`=>`).
 
 In the above table, we're stating that after the `{App,Enter,Portal}` AppCon, we want to both
@@ -92,20 +92,19 @@ inline View the Portal (`=>{App,View,Portal}`).
 Because Async Handlers create an out of band execution context, we separate the description
 into a new table below.
 
-**TAO-Path: Bootstrap User Session**
+#### TAO-Path: Bootstrap User Session {#bootstrap-session}
 
-|#||Term|Action|Orient|handler spec|
+|#|chain|Term|Action|Orient|mode|handler spec|
 |---|---|----|------|------|-----------|
-|0||`Session`|`Find`|`Portal`|find the current `Session` for the User|
-|1|`0\=>`|`Session`|`Enter`|`Portal`|if the `Session` **is found**, enter it|
-|2|`0\=>`|`Session`|`Create`|`Portal`|if the `Session` **isn't found**, create a new one|
-|3|`=>`|`Session`|`Enter`|`Portal`|after creating a `Session`, enter it|
+|0|<a id="fn_%28a%29">(a):</a>`=>`|`Session`|`Find`|`Portal`|`=>`|find the current `Session` for the User<br/>if the `Session` **isn't found**, create a new one [^1a]<br/>if the `Session` **is found**, enter it [^1b]|
+|1|<a id="fn_1a">1a:</a>`\=>`|`Session`|`Create`|`Portal`|`=>`|create a new `Session` then enter it [^1b]|
+|2|<a id="fn_1b">1b:</a>`\=>`|`Session`|`Enter`|`Portal`|`=>`|set the `Session` local to the App|
 
-Here we see new trigger symbols (`0\=>`) describing a situation where the App may enter
+Here we see new chain symbols ([^x]`=>`) describing a situation where the App may enter
 different Application Contexts depending on what the result of the previous handler is.
 
 In this example, the `{Session,Find,Portal}` may or may not find a User Session, in which
-case we want to communicate which AppCon to trigger depending on the outcome.
+case we want to communicate which AppCon is triggered depending on the outcome.
 
 **TAO-Path: Refined Bootstrap User Session**
 
@@ -114,11 +113,11 @@ as fire off Tracking code for the visit.
 
 |#|chain|Term|Action|Orient|mode|handler spec|
 |---|---|----|------|------|-----------|
-|0||`Session`|`Find`|`Portal`|`=>`|find the current `Session` for the User<br/>if the `Session` **isn't found**, create a new one [a]<br/>if the `Session` **is found**, enter it [b]|
-|1|`a\=>`|`Session`|`Create`|`Portal`|`=>`|create a new `Session` then enter it [b]|
-|2|`b\=>`|`Session`|`Enter`|`Portal`|`=>`|set the `Session` local to the App|
-|3||`Session`|`Enter`|`Portal`|`=>\_`|update analytics tracking with `Session` data|
-|4|`=>`|`User`|`Find`|`Portal`|`=>_/`|fetch the `User` in the `Session` from the api|
+|0|<a id="fn_(a_2)">(a_2):</a>`/=>`|`Session`|`Find`|`Portal`|`=>`|find the current `Session` for the User<br/>if the `Session` **isn't found**, create a new one[^2a]<br/>if the `Session` **is found**, enter it[^2b]|
+|1|<a id="fn_2a">2a:</a>`?=>`|`Session`|`Create`|`Portal`|`=>`|create a new `Session` then enter it[^2_b]|
+|2|<a id="fn_2b">`2b`</a>`?=>`|`Session`|`Enter`|`Portal`|`=>`|set the `Session` local to the App|
+|3||`Session`|`Enter`|`Portal`|`=>/`|update analytics tracking with `Session` data|
+|4|`+=>`|`User`|`Find`|`Portal`|`=>/`|fetch the `User` in the `Session` from the api|
 
 Which would then lead to its own TAO-Path for Getting the User which we want out of band
 from the Bootstrap User Session TAO-Path.
@@ -140,10 +139,15 @@ List of possible Async Handler describers.  Which one should we choose?
 |=>$|`=>$`|arrow dollar|
 |=>@|`=>@`|arrow at|
 |=>&|`=>&`|arrow amp|
+|=>&|`=>_`[^q]|arrow underscore|
 |=>\\_|`=>\_`|arrow up|
 |=>_/|`=>_/`|arrow down|
-|=>(*)|`=>(*)`|arrow parens star|
-|=>//|`=>//`|arrow slide up|
+|=>(*)|`=>(`[^q]`)`|arrow parens|
+|=>//|`=>/`[^q]`/`|arrow slide up|
+|=>//|`=>[`[^q]`]`|arrow slide up|
+|=>//|`=>/`[^(a_2)]|arrow slide up|
+|=>//|`=>[`[^q]|arrow slide up|
+|=>//|`=>{`[^q]`}`|arrow slide up|
 |=>\\\\|`=>\\`|arrow slide down|
 
 ## Adding Async Handlers to the TAO

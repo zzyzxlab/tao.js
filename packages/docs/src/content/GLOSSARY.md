@@ -4,6 +4,9 @@ The core library used to build applications and systems adhering to the TAO conc
 ## TAO-Path
 A set of AppCons creating a sequence describing a value protocol
 
+## TAO-Paths
+A set of AppCons creating a sequence describing a value protocol
+
 ## TAO
 the basic library as well as the AC passed around
 
