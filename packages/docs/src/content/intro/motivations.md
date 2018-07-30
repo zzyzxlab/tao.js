@@ -1,103 +1,190 @@
-# Motivations for tao.js
+# Motivations for & Goals of tao.js
 
-An App Building story
+So why do we need tao.js?  Don't we have libraries and frameworks that do this already?
 
-Apps are easy to build, hard to maintain and even harder to evolve.
+There are several motivations behind creating tao.js that originate from a need to
+describe software effectively for technical members (developers, QA, etc.) and non-technical
+members (product managers, designers, etc.) of teams alike.
 
-We develop various Architectures to make the latter 2 easier, while making the 1st harder
+This original need _led to_ the creation of the TAO and implemented in tao.js as a way to
+_build applications and systems_ which then presented an opportunity to achieve the original inspired intent of communicating a description of software through a simple grammar.
 
-…or we make the first 2 easier and the last one…almost unbearable.
+## Brief Origin Story
 
-We need a new _Way_ of building Apps that makes them:
+Very briefly, what initially started by using a 3-Dimensional Matrix to describe the needs
+of an Application Platform turned into a way to model an Application.  When combined with
+some other architectural models, this new model or _way_, aka the TAO, then materialized
+into a core architecture for writing Applications.
 
-1. Easy to build using things we already know
-1. Easy to understand and maintain
-1. Easy to _Evolve_ over time because we want it to continue to live and operate  
-  these are our creations of course
-1. Allow us to choose the frameworks we like using
+### Short Systems Engineering Theory of the TAO
 
-Ok, so let's get started.  How do we describe an App?
+With the realization that the TAO could be used to actually build the software it was being
+used to describe, it became apparent there was a lot of value in using a system that could
+be used to build software which had its design roots stemming from defining the software in
+the abstract or non-technical way.
 
-…well, that depends on what you mean by _describing_ an App?
+Breaking down the concept of Software Architecture to its basist core, it can be defined as:
 
-How about what is the basis of an App?
+> the set of answers to the questions posed by a Software Engineer when it comes time to
+> implement a feature of an Application or System
 
-Let's see…an App is…
+Using the TAO as an architecture thus means it's providing these answers when it comes time
+to build an Application and add features to it.
 
-* …a way of manipulating data to automate and derive value of a process
-* …a large state machine that moves from one state to the next guided by the influence of
-  system actors and business logic constraining those transitions
-* …something I hack on until others stop complaining about the bugs and then ask me to develop
-  more features for it because it doesn't :v: do what it's supposed to :v:
+This system, to be effective, should be ubiquitous and able to be leveraged to write
+all code required to implement the desired Application or System.  The ubiquity of JavaScript
+and its unique ability to run in any execution stack (specifically in clients and servers)
+made it the obvious choice for an initial implementation to both prove the theory of the
+system and its benefits.  Additionally, the choice of JavaScript allows leveraging the
+existing ecosystem to get enough people to try it to validate the proof.
 
-…mkay…
+Hence the birth of tao.js.  However, to be truly ubiquitous and provide the most value,
+we would eventually like to port the TAO to other languages and frameworks, and will
+graciously accept help in that regard.
 
-let's start with the first one…manipulating data
+## Motivations
 
-What can we do with _data_ in order to manipulate it?
+The origin and theory behind the TAO led to a set of 4 distinct motivations, each with their
+own set of goals:
 
-Well, there's the tried and true CRUD.  That works.  It's always been a thing and it's
-the basis for our REST APIs.
+1. [Build Apps in a Way that allows them to Evolve effectively](#evolve-apps)
+1. [Make it Easy to build Apps with good Architectural Foundations](#easy-architecture)
+1. [Codify Software Product Descriptions](#codify-product)
+1. [Empower Developers with Flexibility of Technology Choices](#empower-choice)
 
-Ok, let's step back and look at this CRUD thing, starting with C for Create:
+We'll step through each motivation here.
 
-So we want to Create something in our App.  Let's call it, "Thing."
-To describe this App's influence on Thing, we can say:
-> Create Thing
+### 1. Build Apps in a Way that allows them to Evolve effectively {#evolve-apps}
 
-No, not exactly.
+> It's the desire of all code to become legacy
+>
+> \- Wise Old Developer
 
-Why not?
+As developers and product managers, we want to build Applications that have a chance to evolve
+over time.
 
-Well, to really Create Thing, we need to:
+Primary to the TAO is a desire to build Applications in a highly Iterative fashion so that
+a core value is easy to create, and the App can evolve effectively in any direction as necessary
+without the unnecessary introduction of technical debt.
 
-1. Get an interaction from the System Actor (aka User) telling the App the User is ready to Create Thing
-1. Show the User a Form allowing to input the _data_ needed for Create Thing
-1. Validate the _data_ the User input to Create Thing
-1. Send the Thing data to an API so the API can facilitate Create Thing
-1. Check the User's Authorization to Create Thing in the API
-1. Derive all of the data required to Create Thing for the User in the Permanent Data Store (aka Database)
-1. Start a transaction in the Permanent Data Store
-1. Save the data to the Permanent Data Store
-1. Commit the transaction
+This comes with 2 Primary Goals:
 
-So "Create Thing" means all of that?
+1. Applications are **always** composable and decoupled
+1. Build Apps like Building on a Platform
+  2. Use a mechanism built-in for Extension Points that can expand over time
+  2. Any App built with the TAO can be injected with New Features during execution
+  2. Features unknown at the beginning of the life of an App are added the same as the First
+    Feature
 
-Pretty much…most of the time…plus some other stuff.
+### 2. Make it Easy to build Apps with good Architectural Foundations {#easy-architecture}
 
-Wait, like what!?
+After many decades of building software, our industry has devised different architectural
+patterns that are effective at decoupling implementations while providing scalability and
+performance.  The [Reactive Manifesto](https://www.reactivemanifesto.org) describes the
+goals of such an architecture with a prescription for _Reactive Systems_.
 
-Well, if there's a problem trying to save the data to the Permanent Data Store, then we have
-to roll back the transaction.
+Unfortunately, most projects don't begin by utilizing this architectural pattern because the
+overhaed of effort required to get started doesn't outweigh the immediate need to
+show some value to the customer to prove the need for the existence of the App.  And thus
+begins the never ending cycle of prototypes that become MVPs that morph into businesses
+that then require some eventual rewrite in order to scale the business.
 
-Seems…
+Using the TAO, we want it to be easy to begin building Reactive Systems from the start _without
+additional overhead_.  By achieving this we can avoid entirely or greatly reduce the
+introduction of technical debt without the added cost of time.
 
-Oh…and if User is an average User of the App, then she's going to Create Thing from her
-own perspective of the System.  But if we have Super Users like Admins who have their
-own Interface to interact with the App, when an Admin Creates Thing, we need to handle it
-differently.
+This creates several Goals for the TAO:
 
-Ok, I get it.  Creating is very complicated.
+1. Simplified Adoption of Reactive Message-driven Apps
+1. Business Logic code that can be executed anywhere in the System
+  * No distinction within the code that it executes on client, server, embedded, or in a
+    data pipeline
+1. Program by Contract with a Dynamic Interface Definition Language (IDL)
+1. Apps have Integration built-in
+1. System-wide Aspect-Oriented Programming (AOP)
+1. The Last Architecture you have to adopt with confidence
 
-You said it.
+### 3. Codify Software Product Descriptions {#codify-product}
 
-So if Create is complicated, let's try something easier in CRUD, like…R for Retrieve.
+The TAO was born out of a way to describe Software Requirements to Engineers that ensures
+all aspects of the desired system were taken into account when designing the User and
+System Interfaces.
 
-Sounds good.
+The most common source of poorly made Apps and development that takes longer than planned
+or expected is the ineffective description of the desired outcome in the form of Software
+Requirements.
 
-Back to our Thing, we can describe our App by saying:
-> Retrieve Thing
+We want the TAO to be a primary tool used for describing software as a Simplified
+Grammar to Codify the description of the desired Application in order to:
 
-Sure, if you want to miss something?
+* make Product Managers better by:
+  * giving them a device that is easy to learn
+  * getting them closer to the code elements of an App
+  * identify gaps in requirements before planning or implementation
+  * reduce the verbosity required by BDD
+* make Engineering Teams better by:
+  * be on the same page with Product Managers
+  * giving them a device to elicit requirements effectively
+  * communicating implementation decisions better
 
-Ok, now what?
+This leads to several Goals:
 
-To Retrieve Thing, we need to know a little more, like:
+1. Engineers, QA & Product Managers have a Shared Grammar making it easy to:
+  2. Have access to all aspects of a feature in planning before execution
+  2. Effectively discuss and debate implementation details during planning
+1. Provide a Meta-language for Product Description that embeds itself into the code
+1. Product Managers can create Artifacts that generate starting point boilerplate code
+1. Self-documenting code
 
-* Are you trying to render Thing in a UI?
-* For whom is the UI meant? Regular Users? Admins?
-* Are you trying to Report on Thing?
+### 4. Empower Developers with Flexibility of Technology Choices {#empower-choice}
 
-Ok, I get it…CRUD isn't exactly a good enough way to describe an App.
+Finally, there are a lot of frameworks in the eco-system that are designed to make
+Rapid Application Development (RAD) easy to adopt.  Generally these frameworks provide
+tooling support to add and make changes.  But these frameworks have several
+flaws:
 
-Let's try something else.
+* Locked into rigid development paradigms
+* Not built as Reactive Systems
+* Dumbing down of data store technologies to the lowest common denominator making the specific
+  choice indistinguishable from the others
+* Difficulty to upgrade and support major versions
+* Variance in the mechanism for extension points amongst frameworks tying the implementation
+  code to the framework
+
+The TAO provides a frameworkless framework approach.  The TAO's programming paradigm could
+itself be considered a framework, but motivation behind the TAO is to support and encourage
+the ability for developers to choose any technology or other framework they desire to
+implement their Apps while gaining all of the benefits of using the TAO.
+
+The Goals that come from this motivation are:
+
+1. A Framework that doesn't lock Developers into Technology Choices
+1. Provide powerful tooling to support and speed development
+1. Framework that encourages choosing the _right tool for the job_ by enhancing the
+  distinctions between technology choices
+1. Fully Configurable or Configuration by Convention, the choice is up to the Developer
+
+## Full Goal Matrix
+
+|||Goal|
+|---|---|---|
+|1.<td colspan="2"><strong>Motivation:</strong> <a href="#evolve-apps">Build Apps in a Way that allows them to Evolve effectively</a></td>
+||1.|Applications are **always** composable and decoupled|
+||2.|Build Apps like Building on a Platform|
+|2.<td colspan="2"><strong>Motivation:</strong> <a href="#easy-architecture">Make it Easy to build Apps with good Architectural Foundations</a></td>
+||1.|Simplified Adoption of Reactive Message-driven Apps|
+||2.|Business Logic code that can be executed anywhere in the System|
+||3.|Program by Contract with a Dynamic Interface Definition Language (IDL)|
+||4.|Apps have Integration built-in|
+||5.|System-wide Aspect-Oriented Programming (AOP)|
+||6.|The Last Architecture you have to adopt with confidence|
+|3.<td colspan="2"><strong>Motivation:</strong> <a href="#codify-product">Codify Software Product Descriptions</a></td>
+||1.|Engineers, QA & Product Managers have a Shared Grammar|
+||2.|Provide a Meta-language for Product Description that embeds itself into the code|
+||3.|Product Managers can create Artifacts that generate starting point boilerplate code|
+||4.|Self-documenting code|
+|4.<td colspan="2"><strong>Motivation:</strong> <a href="#empower-choice">Empower Developers with Flexibility of Technology Choices</a></td>
+||1.|A Framework that doesn't lock Developers into Technology Choices|
+||2.|Provide powerful tooling to support and speed development|
+||3.|Framework that encourages choosing the _right tool for the job_|
+||4.|Support Fully Configurable and Configuration by Convention|

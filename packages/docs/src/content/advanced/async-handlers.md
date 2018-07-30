@@ -1,5 +1,10 @@
 # Async Handlers
 
+Async Handlers provide us with the option of reacting to Application Contexts set on the TAO
+in a "tangential" asynchronous execution outside of the normal line.
+
+Generally, this is used for creating side effects of the Application Context.
+
 ## Async not `async`
 
 In the TAO, Async Handlers are not `async` handlers, which are functions added
@@ -199,7 +204,7 @@ the AppCon within the execution context for the Async Handler.  Because each
 individual Async Handler is executed within its own context, a whole new set of
 handlers of all types can be executed within this execution context.
 
-## Error Handling
+## Error Handling - All Errors are Swallowed
 
 Async Handlers differ from the other types in that because the TAO provides a new
 execution context for them, to ensure the TAO can guarantee any code cannot

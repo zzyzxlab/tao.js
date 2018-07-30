@@ -8,29 +8,33 @@ traditional Event-based handlers.
 ## Inline = Ordered
 
 Inline Handlers operate like standard Event listeners in other areas of JavaScript in that the
-handlers are guaranteed to be called in the order in which they were registered (added) to the
+handlers are _expected_ to be called in the order in which they were registered (added) to the
 TAO for a taople ("Event").
 
-This guarantee is modified when it comes to using [Wildcard Handlers](../basics/wildcards.md) because internally each taople is managing it's own set of handlers.  While all matching
+This _expectation is modified_ when it comes to using [Wildcard Handlers](../basics/wildcards.md)
+because internally each taople is managing it's own set of handlers.  While all matching
 Wildcard Handlers will be called along with all of the Concrete Handlers, they will be called in
 the order that the taoples themselves were added to the TAO, and the order per taople that each
 handler was added as this will be the traversal order used by the TAO.
 
+Ordering of Inline Handler execution is **not a guarantee** provided by the TAO, and the
+underlying implementation may change, causing any code written that **relies on this explanation**
+of ordering to be executed in a different order.
+
 Suffice to say, it's best not to rely on exact ordering for handlers in the TAO, even Inline
 Handlers, and write them as if they can be called at any point in the Set of Inline Handlers.
 
-If you do want guaranteed ordering, then meticulously track the order in which taoples are added
-to the TAO.
-
 ## Trying this again…Inline = Ordered?^?^? {#inline-order-guarantee}
 
-> So what is meant by "Inline = Ordered?"  
-> Good question.  
+> So what is meant by "Inline = Ordered?"
+>
+> Good question.
+>
 >    \- exchange with everyone who read the above section
 
-The reason behind the addition of the
-_other 2_ types or modes of handlers is to provide specific guarantees about when handlers
-will be called and how they will affect our Systems and Applications.
+The reason behind the addition of the _other 2_ types or modes of handlers is to provide
+specific guarantees about when handlers will be called and how they will affect our
+Systems and Applications.
 
 The _meaning_ behind "Inline = Ordered" is that **each Inline Handler will complete before the
 next is called.**  In other words, when adding 2 Inline Handlers to the TAO for the same
@@ -47,7 +51,7 @@ Example of ordering:
 TAO.addInlineHandler({ t: 'User', a: 'Find', o: 'Portal' }, async (tao, data) => {
   console.log('First Inline Handler in, so I will be called first');
   const users = await findUsersSomehow(data.Find);
-  return new AppCon('User', 'List', 'Portal', users);
+  return new AppCon('User', 'List', 'Portal', users); // <--- will execute before the TAO calls another handler
 });
 
 TAO.addInlineHandler({}, (tao, data) => {
@@ -88,6 +92,23 @@ This means that registering multiple Inline Handlers to react to an Application 
 returning `AppCon`s from more than one will operate as a **Fan Out** operation and **not a
 Sequential** set of setting Application Contexts on the TAO.
 
+## `async` Functions as Inline Handlers
+
+Because a lot of what is done in JavaScript relies on asynchronous operation, the TAO allows
+you to add `async` functions or functions that return a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+(both referred to as `async` functions) as Inline Handlers for Application Contexts.
+
+When we add an `async` function as an Inline Handler to the TAO, the TAO will
+`await` for our handler to fully complete (resolve or reject) before moving onto the next
+handler.
+
+This ensures that all Inline Handlers operate with the same [ordering guarantees](#inline--order-guarantee)
+outlined above regardless of whether the function needs to block on waiting for some other
+resource to complete.
+
+There is **no difference** in the way the TAO operates between an `async` function versus a fuction
+that just returns a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
+
 ## Error Handling
 
 As mentioned in the Basics guide about [Handlers throwing Errors](../basics/handlers.md#handlers-throwing-errors),
@@ -102,7 +123,7 @@ TAO.addInlineHandler({ t: 'User', a: 'Find', o: 'Portal' }, (tao, data) => {
 TAO.setCtx('User', 'Find', 'Portal'); // <---- will have uncaught Error
 ```
 
-## Downstream Errors are Swallowed
+### Downstream Errors are Swallowed
 
 **However,** when an Inline Handler chains by returning an `AppCon`, the inner call to setting
 the downstream Application Context using the chained `AppCon` will swallow any `Error`s that

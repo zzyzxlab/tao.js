@@ -1,9 +1,5 @@
 # Introduction to `tao.js`
 
-* [Origin](origin.md)
-* [Motivations](motivations.md)
-* [Core Concepts](core-concepts.md)
-* [Goals](goals.md)
-* [Benefits](benefits.md)
+* [Motivations & Goals of tao.js](motivations.md) - whay tao.js and for what purpose
+* [Basic Terminology](basic-terms.md) - some basic terminology used throughout the text
 * [Development Roadmap](roadmap.md)
-* [Presentations](presentations/README.md)

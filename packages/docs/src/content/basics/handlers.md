@@ -258,7 +258,7 @@ These will have different behavior depending on the Type of Handler you add, but
 case outlined here (using [Inline Handlers](../advanced/inline-handlers.md)), the TAO will
 `await` for your handler to fully complete (resolve or reject) before moving onto the next handler.
 
-There is no difference in the way the TAO operates between an `async` function versus a fuction
+There is **no difference** in the way the TAO operates between an `async` function versus a fuction
 that just returns a [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
 
 ## Handlers throwing Errors

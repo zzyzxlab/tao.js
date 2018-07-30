@@ -9,8 +9,10 @@ programs utilizing the TAO.
 
 ## Like Inline Handlers
 
-Intercept Handlers behave exactly like Inline Handlers with the difference that Intercept
-Handlers react to the **return value** of the function set as the Inline Handler.
+Intercept Handlers behave exactly like Inline Handlers, they are called one-by-one using
+the same [rules for ordering](inline-handlers.md#inline-order-guarantee) outlined there,
+with the difference that Intercept Handlers react to the **return value** of the function
+set as the Intercept Handler.
 
 The check against the return value of the Intercept Handler results in the following:
 
@@ -85,7 +87,7 @@ Adding Intercept Handlers to the TAO is similar to adding Inline and Async Handl
 going to call the, you guessed it, `addInterceptHandler` method instead:
 
 ```javascript
-// add Async Handler to trigger our out of band search for the User's Session by chaining
+// add Intercept Handler to validate Space data during an Update
 TAO.addInterceptHandler({ t: 'Space', a: 'Update', o: 'Portal' }, (tao, data) => {
   const validationErrors = isSpaceValid(data.Space, data.Update);
   if (validationErrors) {
@@ -94,6 +96,7 @@ TAO.addInterceptHandler({ t: 'Space', a: 'Update', o: 'Portal' }, (tao, data) =>
       Fail: {
         on: tao.a,
         Update: data.Update,
+        Errors: validationErrors
       }
     });
   }
@@ -105,10 +108,8 @@ function checkUserAuthorizedToUpdateSpace(tao, { Space, Portal }) {
   }
 }
 
-// add Async Handler to fetch a User when a Session is entered
+// add Intercept Handlers to verify the User is authorized to Edit/Update a Space
 TAO.addInterceptHandler({ t: 'Space', a: 'Edit', o: 'Portal' }, checkUserAuthorizedToUpdateSpace);
-
-// update tracking for user in external tracking system
 TAO.addInterceptHandler({ t: 'Space', a: 'Update', o: 'Portal' }, checkUserAuthorizedToUpdateSpace)
 ```
 
@@ -121,5 +122,40 @@ set thte context to that `AppCon`.
 Based on this, chaining with Intercept Handlers is very powerful in that it's the **only** way
 to intercept the proceeedings that gives the ability to signal the App to do something else.
 
+## `async` Functions as Intercept Handlers
+
+Just like with [Inline Handlers](inline-handlers.md#async-functions-as-inline-handlers),
+we can use `async` functions or functions that return a
+[`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+(both referred to as `async` functions) as an Intercept Handler.
+
+Also, just like with Inline Handlers, the TAO will `await` for our handler to fully complete
+(resolve or reject) before moving onto the next handler.
+
+This ensures that each Intercept Handler is called in order before the TAO moves to the
+next.  This will also have more impact when we learn about the [order of handlers](order-of-handlers.md).
+
 ## Error Handling
 
+As mentioned in the Basics guide about [Handlers throwing Errors](../basics/handlers.md#handlers-throwing-errors),
+**intial** Intercept Handlers that throw an `Error` will bubble the `Error` (not catch) to the
+caller that is setting the Application Context on the TAO, e.g.:
+
+```javascript
+TAO.addInterceptHandler({ t: 'Space', a: 'Edit', o: 'Portal' }, (tao, data) => {
+  throw new Error('I can\'t edit Spaces now! It\'s too soon.');
+});
+
+TAO.setCtx('Space', 'Edit', 'Portal'); // <---- will have uncaught Error
+```
+
+### Downstream Errors are Swallowed
+
+**However,** when an Intercept Handler chains by returning an `AppCon`, the inner call to setting
+the downstream Application Context using the chained `AppCon` will swallow any `Error`s that
+are raised.  This is provided by the TAO to ensure that downstream calls that may be
+unanticipated will not blow up your app, or stated otherwise, the TAO provides a guarantee
+of graceful degradation.
+
+This is a specific _design choice_ around a Functional Programming Principle to decouple
+knowledge and responsibility within Apps and Systems built using the TAO.

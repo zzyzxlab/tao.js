@@ -18,9 +18,9 @@ These Domain Entities translate directly to Terms of the TAO for the App along w
 
 ## Define your AppCons ahead of writing code
 
-From the [Goals of tao.js](../intro/goals.md) we want to use the language of the TAO to describe
-our application as a set of code-translatable requirements that can be understood by technical
-and non-technical members of the team.
+From the [Goals of tao.js](../intro/motivations.md) we want to use the language of the TAO to
+describe our application as a set of code-translatable requirements that can be understood by
+technical and non-technical members of the team.
 
 It is best to start from this place by describing your application as a series of taoples
 representing possible states and transitions from one to the next to generate a protocol chain
