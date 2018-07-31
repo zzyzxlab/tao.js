@@ -1,7 +1,11 @@
 # Using with [React.js](https://reactjs.org)
 
+It's assumed you have read and are familiar with the [Basics](../basics/README.md) guide.
+If not, then please go back and read through that before trying to learn how to use tao.js
+with React.
+
 While `tao.js` itself is client-agnostic, we provide packages to make it
-seemlessly to work with client UI libraries and frameworks.
+seemlessly work with client UI libraries and frameworks.
 
 To start we only have an implementation for [React.js](https://reactjs.org).
 Upcoming and asking for volunteers to help with packages to integrate:
@@ -14,17 +18,17 @@ Upcoming and asking for volunteers to help with packages to integrate:
 `tao.js` works seamlessly well with React given the philosophy of building
 reactive applications at the heart of building applications with `tao.js`.
 
-To work with React, make sure to install the `@tao.js/react` package:
+To work with React, we make sure to install the `@tao.js/react` package:
 ```sh
-npm install --save @tao.js/react
+npm install --save @tao.js/core @tao.js/react
 ```
 _`@tao.js/core` is listed as a `peerDependency` for the react package so you
 must install that as well or the package won't work._
 
-There are 2 items you will import and work with to integrate `tao.js` within your
+There are 2 items we will import and work with to integrate `tao.js` within our
 React UI:
 
-* [Provider](client-react/provider.md) - a `class` that turns your React `Component`s into
+* [Provider](client-react/provider.md) - a `class` that turns our React `Component`s into
   [Handlers for AppCons](../basics/handlers.md)
 * [Reactor](client-react/reactor.md) - a React `Component` that uses a `Provider` to react to
   [AppCons](../basics/app-cons.md) in order to render your React `Component`s into the UI
@@ -32,7 +36,8 @@ React UI:
 ## Example
 
 Here's a simple example of using a `Provider` and `Reactor` to control display of `Component`s
-in the UI.
+in the UI.  We'll use the same [Example Application](../basics/defining-app-cons.md#example-application)
+to illustrate integrating React here.
 
 ### Example Directory Structure
 
@@ -54,35 +59,32 @@ src/
 ### Defining React `Component`s
 
 The `Component` definitions for `ErrorMessage`, `Form`, `List` and `View` define basic
-React `Component`s (both functional and class) and are not _aware_ of nor dependent upon
+React `Component`s (both functional and class) and are _**not aware**_ of _**nor dependent upon**_
 the `@tao.js/react` package.
 
 They _are_ making use of the TAO export from `@tao.js/core` in
-order to change the Application Context.
+order to set the Application Context.
 
 #### `src/components/space/List.js`
 
-Here is an example functional `Component`:
+Here is an example of functional `Component`s:
 
 ```javascript
 import React from 'react';
 import TAO from '@tao.js/core';
 
 const SpaceItems = ({ spaces }) =>
-  spaces.map(s => {
-    const Space = s;
-    return (
-      <li key={s._id}>
-        <button
-          onClick={e =>
-            TAO.setCtx({ t: 'Space', a: 'Enter', o: 'Portal' }, { Space })
-          }
-        >
-          {s.name}
-        </button>
-      </li>
-    );
-  });
+  spaces.map(s => (
+    <li key={s.id}>
+      <button
+        onClick={e =>
+          TAO.setCtx({ t: 'Space', a: 'Enter', o: 'Portal' }, { Space: s })
+        }
+      >
+        {s.name}
+      </button>
+    </li>
+  ));
 
 const SpaceList = ({ Space }) => (
   <div>
@@ -132,18 +134,20 @@ class SpaceForm extends Component {
   };
 
   handleSubmit = event => {
-    const { a } = this.props;
-    const Space = this.state;
+    event.preventDefault();
+    const { a, Space:origSpace } = this.props;
+    const updatedSpace = this.state;
     const isNew = a === 'New';
     const saveAction = isNew ? 'Add' : 'Update';
-    TAO.setCtx({ t: 'Space', a: saveAction, o: 'Portal' }, { Space });
-    event.preventDefault();
+    // TAO.setCtx will use positional args to set the AppCtx data
+    TAO.setCtx({ t: 'Space', a: saveAction, o: 'Portal' }, origSpace, updatedSpace);
   };
 
   handleCancel = event => {
     event.preventDefault();
-    const { Space: { _id } = {} } = this.props;
-    TAO.setCtx({ t: 'Space', a: 'Find', o: 'Portal' }, { Find: { _id } });
+    const { Space: { id } = {} } = this.props;
+    // if tao.a == 'New' then id == undefined
+    TAO.setCtx({ t: 'Space', a: 'Find', o: 'Portal' }, { Find: { id } });
   };
 
   render() {
@@ -203,6 +207,7 @@ import View from './View';
 import Form from './Form';
 import ErrorMessage from './ErrorMessage';
 
+// chain entering a Space with showing the View
 TAO.addInlineHandler(
   { t: 'Space', a: 'Enter', o: 'Portal' },
   (tao, { Space }) => {
@@ -218,16 +223,16 @@ spaceProvider
   .addComponentHandler({ action: ['New', 'Edit'] }, Form);
 
 const messageProvider = new Provider(TAO);
-messageProvider.addComponentHandler({ action: 'Fail' }, ErrorMessage);
+messageProvider.addComponentHandler({ term: 'Space', action: 'Fail' }, ErrorMessage);
 
-const SpaceRender = () => (
+const SpaceContainer = () => (
   <div>
     <Reactor key="spaceMessages" provider={messageProvider} />
     <Reactor key="spaceComponents" provider={spaceProvider} />
   </div>
 );
 
-export default SpaceRender;
+export default SpaceContainer;
 ```
 
 ### Including Space Components in the App
@@ -241,7 +246,8 @@ we define it like this:
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Space from './components/Space';
+// import the SpaceContainer
+import SpaceContainer from './components/Space';
 
 class App extends Component {
   render() {
@@ -251,7 +257,7 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
-        <Space />
+        <SpaceContainer />
       </div>
     );
   }
@@ -266,3 +272,8 @@ which is exporting a Reactor `Component` that it embeds in the main UI.
 The `Reactor`'s `Provider` will react to AppCon changes and tell the `Reactor` which
 `Component` to render or none if the AppCon doesn't call for one.
 
+## More Details
+
+Now that we have an overall understanding of how to integrate tao.js into our
+React Apps, we can follow the [Provider](provider.md) and [Reactor](reactor.md)
+guides to learn more about them individually.

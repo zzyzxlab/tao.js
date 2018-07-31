@@ -4,16 +4,16 @@ At its core, an Application is a set of [State Machine](https://en.wikipedia.org
 consisting of various _States_, _Transitions_ from state to state, and _Rules_ and _Logic_ that
 constrain the transitions between states.
 
-## the TAO uses Abstract States represented by 3-Dimensional Tuples
+## Abstract States represented by 3-Dimensional Tuples {#3d-tuples}
 
 tao.js expresses the Abstract States of an Application to represent distinct Application Contexts
 through the use of 3-Dimensional tuples.  These tuples are referred to as taoples because of their
-distinct structure and are defined with 3 specific aspects:
+distinct structure defined by 3 specific aspects:
 
 **T**erm - the _thing_ in the context - conceptually usually a domain entity  
 **A**ction - the _operation_ being performed on the _thing_ in the context  
-**O**rient(ation) - the _perspective_ from which the User or Actor interacting with the system has
-during this _operation_ on this _thing_ at this moment  
+**O**rient(ation) - the _perspective_ of the interaction with the system at
+the moment of this _operation_ on this _thing_  
 
 Taoples are formally defined in description and in code using distinct `String`s for each aspect
 making up a member of the _Set_.  
@@ -40,3 +40,14 @@ the given Context, but don't limit your thinking to attaching all individual App
 Terms alone.  Distinct Actions can also be expressed with the Action's data, e.g. `Find` could contain either an individual `id` used to fetch the given Object representing the Term or a set of search criteria to get a list of Objects representing the Term.  The same goes for Orient(ation)s
 which it's often helpful to attach authorization, session or other data that distinguishes
 individual Actual States of a given Orient(ation).
+
+## The "State" of an App is Complex
+
+The _"State"_ of an Appplication at any point is a complex combination of many varying factors.
+
+The TAO captures this by breaking down individual portions of the _State_ into constituent
+Application Contexts which:
+
+* make it easier to reason about the _State_ of an App
+* allow rich interactions as reactions to the transitions of _State_ reflecting the true
+  representation of an App explicitly

@@ -1,30 +1,134 @@
+# Glossary of Terminology
+
+These are referenced throughout the guide and highlighted allowing mouse over views of
+the definitions as well as links to these definitions.  Because the index is "dumb" so to
+speak, there are repeated definitions with particular ordering so they render properly.
+
 ## tao.js
-The core library used to build applications and systems adhering to the TAO concepts
+
+implementation of the TAO in JavaScript, including the core library as well as additional
+packages to ease implementation of onboarding with other frameworks
 
 ## TAO-Path
+
 A set of AppCons creating a sequence describing a value protocol
 
 ## TAO-Paths
+
 A set of AppCons creating a sequence describing a value protocol
 
 ## TAO
-the basic library as well as the AC passed around
+
+the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.
+
+For more see the [Motivations behind Why](intro/motivations.md) or the
+[Intro: Basic Terminology](intro/basic-terms.md)
 
 ## Term
-The what? of a TAO
+
+the _thing_ in the TAO's Application Context - conceptually usually a domain entity
+
+For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
 
 ## Action
-The active part of a TAO
+
+the _operation_ being performed on the _thing_ in the TAO's Application Context
+
+For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
 
 ## Orient(ion)
-The perspective the TAO is provided
+
+the _perspective_ of the interaction with the system at the moment of this _operation_
+on this _thing_ in the TAO's Application Context
+
+For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
 
 ## Orientation
-The perspective the TAO is provided
+
+the _perspective_ of the interaction with the system at the moment of this _operation_
+on this _thing_ in the TAO's Application Context
+
+For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
 
 ## Orient
-The perspective the TAO is provided
 
-## Application Context (aka AppCon)
-A specific TAO reflecting the context of an application at the specific time it is set
+the _perspective_ of the interaction with the system at the moment of this _operation_
+on this _thing_ in the TAO's Application Context
 
+For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
+
+## Application Context
+
+Representation of a _State_ the System is transitioning to at a given point in time
+described by a taople with attached associated data.
+
+For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
+
+## Application Contexts
+
+Representation of a _State_ the System is transitioning to at a given point in time
+described by a taople with attached associated data.
+
+For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
+
+## taople
+
+play on the word _tuple_ to specifically describe a _tuple_ with 3 distinct members
+of *T*erm, *A*ction and *O*rient(ation).
+
+For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
+
+## taoples
+
+play on the word _tuple_ to specifically describe a _tuple_ with 3 distinct members
+of *T*erm, *A*ction and *O*rient(ation)
+
+For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
+
+## AppCon
+
+An Application Context represented in code and coded to within a TAO-based System.
+
+For more see [Intro: Basic Terminology](intro/basic-terms.md#appcons-are-actual-states).
+
+## AppCons
+
+An Application Context represented in code and coded to within a TAO-based System.
+
+For more see [Intro: Basic Terminology](intro/basic-terms.md#appcons-are-actual-states).
+
+## Inline Handler
+
+A handler added to the TAO for the Inline Phase of execution of the TAO.
+
+Inline handlers are the most common type of handler, used to provide basic handling of
+Application Context transitions.
+
+See more in the [Advanced: Inline Handlers](advanced/inline-handlers.md) guide.
+
+## Async Handler
+
+A handler added to the TAO for the Async Phase of execution of the TAO.
+
+Async handlers are used to provide _out of band_ reactions on Application Context
+transitions.
+
+See more in the [Advanced: Async Handlers](advanced/async-handlers.md) guide.
+
+## Intercept Handler
+
+A handler added to the TAO for the Intercept Phase of execution of the TAO.
+
+Intercept handlers are used to provide guard constraints on Application Context
+transitions.
+
+See more in the [Advanced: Intercept Handlers](advanced/intercept-handlers.md) guide.
+
+## handler
+
+A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.
+
+See more in the Basics Guide to [Defining Handlers](basics/defineg-handlers.md) and
+[Adding Handlers](basics/handlers.md).

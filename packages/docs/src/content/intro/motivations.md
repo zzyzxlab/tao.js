@@ -19,7 +19,7 @@ into a core architecture for writing Applications.
 ### Short Systems Engineering Theory of the TAO
 
 With the realization that the TAO could be used to actually build the software it was being
-used to describe, it became apparent there was a lot of value in using a system that could
+used to describe, it became apparent there was a lot of value in a system that could
 be used to build software which had its design roots stemming from defining the software in
 the abstract or non-technical way.
 
@@ -31,7 +31,7 @@ Breaking down the concept of Software Architecture to its basist core, it can be
 Using the TAO as an architecture thus means it's providing these answers when it comes time
 to build an Application and add features to it.
 
-This system, to be effective, should be ubiquitous and able to be leveraged to write
+This system, to be effective, should be ubiquitous and have the capacity to write
 all code required to implement the desired Application or System.  The ubiquity of JavaScript
 and its unique ability to run in any execution stack (specifically in clients and servers)
 made it the obvious choice for an initial implementation to both prove the theory of the
@@ -84,8 +84,8 @@ performance.  The [Reactive Manifesto](https://www.reactivemanifesto.org) descri
 goals of such an architecture with a prescription for _Reactive Systems_.
 
 Unfortunately, most projects don't begin by utilizing this architectural pattern because the
-overhaed of effort required to get started doesn't outweigh the immediate need to
-show some value to the customer to prove the need for the existence of the App.  And thus
+overhead of effort required to get started doesn't outweigh the immediate need to
+show some value for a customer to _prove the need for the existence of the App_.  And thus
 begins the never ending cycle of prototypes that become MVPs that morph into businesses
 that then require some eventual rewrite in order to scale the business.
 
@@ -97,8 +97,8 @@ This creates several Goals for the TAO:
 
 1. Simplified Adoption of Reactive Message-driven Apps
 1. Business Logic code that can be executed anywhere in the System
-  * No distinction within the code that it executes on client, server, embedded, or in a
-    data pipeline
+  * No distinction enforced by the framework within the code that it executes on client,
+    server, embedded, or in a data pipeline
 1. Program by Contract with a Dynamic Interface Definition Language (IDL)
 1. Apps have Integration built-in
 1. System-wide Aspect-Oriented Programming (AOP)
@@ -110,9 +110,13 @@ The TAO was born out of a way to describe Software Requirements to Engineers tha
 all aspects of the desired system were taken into account when designing the User and
 System Interfaces.
 
-The most common source of poorly made Apps and development that takes longer than planned
-or expected is the ineffective description of the desired outcome in the form of Software
-Requirements.
+The most common complaints about Engineering Teams are:
+
+* the app is poorly made and doesn't meet our requirements
+* they're taking too long to build it
+
+The primary source of these 2 complaints is ineffective descriptions of the desired outcome
+in the form of Software Requirements.
 
 We want the TAO to be a primary tool used for describing software as a Simplified
 Grammar to Codify the description of the desired Application in order to:
@@ -123,16 +127,16 @@ Grammar to Codify the description of the desired Application in order to:
   * identify gaps in requirements before planning or implementation
   * reduce the verbosity required by BDD
 * make Engineering Teams better by:
-  * be on the same page with Product Managers
+  * being on the same page with Product Managers
   * giving them a device to elicit requirements effectively
-  * communicating implementation decisions better
+  * communicating relevant implementation decisions better
 
 This leads to several Goals:
 
 1. Engineers, QA & Product Managers have a Shared Grammar making it easy to:
   2. Have access to all aspects of a feature in planning before execution
   2. Effectively discuss and debate implementation details during planning
-1. Provide a Meta-language for Product Description that embeds itself into the code
+1. Provide a Meta-language for Product Description that embeds itself into the code (_Traceability_)
 1. Product Managers can create Artifacts that generate starting point boilerplate code
 1. Self-documenting code
 
@@ -143,11 +147,14 @@ Rapid Application Development (RAD) easy to adopt.  Generally these frameworks p
 tooling support to add and make changes.  But these frameworks have several
 flaws:
 
-* Locked into rigid development paradigms
-* Not built as Reactive Systems
+* Locked into rigid development paradigms unable to evolve with the pace of modern technology
+  systems and patterns
+* Not built as Reactive Systems that scale across Micro-service architectures or no discrete
+  way to integrate Message-oriented data flows
 * Dumbing down of data store technologies to the lowest common denominator making the specific
   choice indistinguishable from the others
-* Difficulty to upgrade and support major versions
+* Difficulty to upgrade and support major versions without a responsibility from the maintainers
+  because it's _"Open Source"_ (buyer beware)
 * Variance in the mechanism for extension points amongst frameworks tying the implementation
   code to the framework
 
@@ -161,7 +168,7 @@ The Goals that come from this motivation are:
 1. A Framework that doesn't lock Developers into Technology Choices
 1. Provide powerful tooling to support and speed development
 1. Framework that encourages choosing the _right tool for the job_ by enhancing the
-  distinctions between technology choices
+  distinctions between technology choices and allowing them to live side-by-side seamlessly
 1. Fully Configurable or Configuration by Convention, the choice is up to the Developer
 
 ## Full Goal Matrix
