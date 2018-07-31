@@ -26,14 +26,17 @@ This really needs to be filled out
     * [x] removing async handler unit tests
     * [x] removing intercept handler unit tests
     * [x] using `asPromiseHook`
+  * [ ] refactor intercept handler to `await` like inline handler calls do to match guarantee provided in docs
 * [x] complete initial `@tao.js/react` package
   * [x] port `Provider`
   * [x] port `Reactor`
   * [x] unit tests for `Provider`
   * [x] unit tests for `Reactor`
   * [x] enable `Provider` to unset current component using `null` as a handler for TAO ACs
+  * [ ] refactor `Provider` to be `Adapter`
 * [ ] complete `@tao.js/socket-io` package
   * [x] figure out how to ensure responses go to same requestor
+  * [ ] implement using new `Kernel` / socket
   * [ ] unit tests
   * [x] integrate into `patois` example app
 * [ ] write phase 1 of `docs`

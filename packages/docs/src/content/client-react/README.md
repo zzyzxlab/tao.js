@@ -28,14 +28,14 @@ must install that as well or the package won't work._
 There are 2 items we will import and work with to integrate `tao.js` within our
 React UI:
 
-* [Provider](client-react/provider.md) - a `class` that turns our React `Component`s into
+* [Adapter](adapter.md) - a `class` that turns our React `Component`s into
   [Handlers for AppCons](../basics/handlers.md)
-* [Reactor](client-react/reactor.md) - a React `Component` that uses a `Provider` to react to
+* [Reactor](reactor.md) - a React `Component` that uses a `Adapter` to react to
   [AppCons](../basics/app-cons.md) in order to render your React `Component`s into the UI
 
 ## Example
 
-Here's a simple example of using a `Provider` and `Reactor` to control display of `Component`s
+Here's a simple example of using a `Adapter` and `Reactor` to control display of `Component`s
 in the UI.  We'll use the same [Example Application](../basics/defining-app-cons.md#example-application)
 to illustrate integrating React here.
 
@@ -192,16 +192,16 @@ export default SpaceForm;
 
 ### Wiring up `Component`s as Handlers
 
-We then use a Provider to wire up the Space `Component`s as Handlers for AppCons
+We then use a Adapter to wire up the Space `Component`s as Handlers for AppCons
 generated through the course of interacting with the application, and expose a
-Reactor that will embed the Components provided by the Provider into the React UI.
+Reactor that will embed the Components provided by the Adapter into the React UI.
 
 #### `src/components/space/index.js`
 
 ```javascript
 import React from 'react';
 import TAO, { AppCtx } from '@tao.js/core';
-import { Provider, Reactor } from '@tao.js/react';
+import { Adapter, Reactor } from '@tao.js/react';
 import List from './List';
 import View from './View';
 import Form from './Form';
@@ -215,20 +215,20 @@ TAO.addInlineHandler(
   }
 );
 
-const spaceProvider = new Provider(TAO);
-spaceProvider
+const spaceAdapter = new Adapter(TAO);
+spaceAdapter
   .setDefaultCtx({ term: 'Space', orient: 'Portal' })
   .addComponentHandler({ action: 'List' }, List)
   .addComponentHandler({ action: 'View' }, View)
   .addComponentHandler({ action: ['New', 'Edit'] }, Form);
 
-const messageProvider = new Provider(TAO);
-messageProvider.addComponentHandler({ term: 'Space', action: 'Fail' }, ErrorMessage);
+const messageAdapter = new Adapter(TAO);
+messageAdapter.addComponentHandler({ term: 'Space', action: 'Fail' }, ErrorMessage);
 
 const SpaceContainer = () => (
   <div>
-    <Reactor key="spaceMessages" provider={messageProvider} />
-    <Reactor key="spaceComponents" provider={spaceProvider} />
+    <Reactor key="spaceMessages" adapter={messageAdapter} />
+    <Reactor key="spaceComponents" adapter={spaceAdapter} />
   </div>
 );
 
@@ -269,11 +269,11 @@ export default App;
 Above you will see that `App.js` imports the `default` export of the `./Space` directory,
 which is exporting a Reactor `Component` that it embeds in the main UI.
 
-The `Reactor`'s `Provider` will react to AppCon changes and tell the `Reactor` which
+The `Reactor`'s `Adapter` will react to AppCon changes and tell the `Reactor` which
 `Component` to render or none if the AppCon doesn't call for one.
 
 ## More Details
 
 Now that we have an overall understanding of how to integrate tao.js into our
-React Apps, we can follow the [Provider](provider.md) and [Reactor](reactor.md)
+React Apps, we can follow the [Adapter](adapter.md) and [Reactor](reactor.md)
 guides to learn more about them individually.

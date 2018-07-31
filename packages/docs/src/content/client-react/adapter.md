@@ -11,7 +11,8 @@ that we can use to manage context for our `Component`s in our React Apps.
 
 The relationship between the `Adapter` and [`Reactor`](reactor.md) is very similar to the Context
 API components in that just like the `Provider` is providing values for the `Consumer` to consume
-and use, the `Adapter` is providing React `Component`s for the `Reactor` to render into the UI.
+and use, the `Adapter` is providing React `Component`s for the `Reactor` to render into the UI.  You
+could say that `Adapter` and `Reactor` are the _yin_ & _yang_ ☯ of `@tao.js/react` (couldn't resist).
 
 One of the stark differences to notice however is that the `Adapter` itself is **not** a
 `Component`, but it does _provide_ it's attached `Component`s to the `Reactor`.
@@ -251,3 +252,20 @@ adapter.addComponentHandler({ t: 'Space', a: ['New', 'Edit'], o: 'Portal' }, For
 
 TAO.setCtx({ t: 'Space', a: 'New', o: 'Portal' }); // <-- Reactor will render Form in UI with merged tao & data props + successCtx prop set above
 ```
+
+### Addtional `props` specific to handler
+
+Because we assign the additional `props` when adding the `Component` handler, the `props` assignment
+we are making are particular to when that ComponentHandler is called.
+
+We have 3 options to make them more general and not have to repeat them:
+
+* Add `Component` handlers with [matrixed taoples](#matrixed-taoples)
+* Use [default context](#default-context)
+* Use the [`Reactor`'s additional `props`](reactor.md#additional-props) which only count for children
+  rendered by that `Reactor` and **will not** be assigned for all `Component` handlers of our
+  `Adapter` when more than one `Reactor` is used with the `Adapter`
+
+_**Special Note:** it should be rather easy to add a `defaultProps` feature to `Adapter` allowing
+this to have another option.  If that seems a need, we can do it._
+
