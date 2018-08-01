@@ -1,0 +1,931 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Setting AppCons · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-prism/prism.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-advanced-emoji/emoji-website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="define-handlers.html" />
+    
+    
+    <link rel="prev" href="defining-app-cons.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    README
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../intro/">
+            
+                <a href="../intro/">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="../intro/motivations.html">
+            
+                <a href="../intro/motivations.html">
+            
+                    
+                    Motivations & Goals of tao.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="../intro/basic-terms.html">
+            
+                <a href="../intro/basic-terms.html">
+            
+                    
+                    Basic Terminology
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="../intro/roadmap.html">
+            
+                <a href="../intro/roadmap.html">
+            
+                    
+                    Development Roadmap
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Basics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="defining-app-cons.html">
+            
+                <a href="defining-app-cons.html">
+            
+                    
+                    Defining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.3.2" data-path="setting-app-cons.html">
+            
+                <a href="setting-app-cons.html">
+            
+                    
+                    Setting AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="define-handlers.html">
+            
+                <a href="define-handlers.html">
+            
+                    
+                    Defining Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.4" data-path="handlers.html">
+            
+                <a href="handlers.html">
+            
+                    
+                    Add Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="chaining.html">
+            
+                <a href="chaining.html">
+            
+                    
+                    Chaining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.6" data-path="wildcards.html">
+            
+                <a href="wildcards.html">
+            
+                    
+                    Wildcard Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../advanced/">
+            
+                <a href="../advanced/">
+            
+                    
+                    Advanced
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../advanced/inline-handlers.html">
+            
+                <a href="../advanced/inline-handlers.html">
+            
+                    
+                    Inline Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../advanced/async-handlers.html">
+            
+                <a href="../advanced/async-handlers.html">
+            
+                    
+                    Async Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../advanced/intercept-handlers.html">
+            
+                <a href="../advanced/intercept-handlers.html">
+            
+                    
+                    Intercept Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../advanced/order-of-handlers.html">
+            
+                <a href="../advanced/order-of-handlers.html">
+            
+                    
+                    Order of Operations
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.5" data-path="../advanced/promise-hook.html">
+            
+                <a href="../advanced/promise-hook.html">
+            
+                    
+                    Promise Hook
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.6" data-path="../advanced/kernels.html">
+            
+                <a href="../advanced/kernels.html">
+            
+                    
+                    Instantiating Kernels
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../client-react/">
+            
+                <a href="../client-react/">
+            
+                    
+                    Using with React.js
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../client-react/adapter.html">
+            
+                <a href="../client-react/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="../client-react/reactor.html">
+            
+                <a href="../client-react/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../server-side/">
+            
+                <a href="../server-side/">
+            
+                    
+                    Using Server-side
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.6.1" data-path="../server-side/socket-io.html">
+            
+                <a href="../server-side/socket-io.html">
+            
+                    
+                    Socket.io
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2" data-path="../server-side/koa.html">
+            
+                <a href="../server-side/koa.html">
+            
+                    
+                    Koa Middleware
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.3" data-path="../server-side/connect.html">
+            
+                <a href="../server-side/connect.html">
+            
+                    
+                    Connect/Express Middlware
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../api/">
+            
+                <a href="../api/">
+            
+                    
+                    API Reference
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.1" data-path="../api/core/">
+            
+                <a href="../api/core/">
+            
+                    
+                    @tao.js/core
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.1.1" data-path="../api/core/tao.html">
+            
+                <a href="../api/core/tao.html">
+            
+                    
+                    TAO
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.2" data-path="../api/core/kernel.html">
+            
+                <a href="../api/core/kernel.html">
+            
+                    
+                    Kernel
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.3" data-path="../api/core/appcon.html">
+            
+                <a href="../api/core/appcon.html">
+            
+                    
+                    AppCon
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.2" data-path="../api/react/">
+            
+                <a href="../api/react/">
+            
+                    
+                    @tao.js/react
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.2.1" data-path="../api/react/adapter.md">
+            
+                <span>
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.2.2" data-path="../api/react/reactor.html">
+            
+                <a href="../api/react/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.3" data-path="../api/socket-io/">
+            
+                <a href="../api/socket-io/">
+            
+                    
+                    @tao.js/socket.io
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.3.1" data-path="../api/socket-io/wire-socket-io.html">
+            
+                <a href="../api/socket-io/wire-socket-io.html">
+            
+                    
+                    wireTaoJsToSocketIO
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="../GLOSSARY.html">
+            
+                <a href="../GLOSSARY.html">
+            
+                    
+                    Glossary
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" >
+            
+                <a target="_blank" href="https://zyzzyxlab.github.io/tao.js/coverage/index.html">
+            
+                    
+                    Coverage
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Setting AppCons</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="setting-application-contexts-appcons">Setting Application Contexts (AppCons)</h1>
+<h2 id="using-appcons-in-your-application">Using AppCons in your Application</h2>
+<p>To use <code>AppCon</code>s in your application, you must first import the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> into the file that will
+<em>signal</em> a change in <a href="../GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Context</a>:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">import</span> <span class="token constant">TAO</span> <span class="token keyword">from</span> <span class="token string">&apos;@tao.js/core&apos;</span><span class="token punctuation">;</span>
+</code></pre>
+<p>OR</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> <span class="token constant">TAO</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">&apos;@tao.js/core&apos;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h2 id="setting-context">Setting Context</h2>
+<p>Signal a change in <a href="../GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Context</a> by using the <code>setCtx</code> method on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setCtx</span><span class="token punctuation">(</span><span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// OR</span>
+<span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setCtx</span><span class="token punctuation">(</span><span class="token punctuation">{</span> term<span class="token punctuation">:</span> <span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> action<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> orient<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h2 id="include-data-when-setting-context">Include Data when Setting Context</h2>
+<p>You can also pass along data as the 2nd argument to the <code>setCtx</code> method on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>.</p>
+<p>Data can be included in several different forms.</p>
+<h3 id="1-as-an-object-with-properties-of-the-same-names-as-the-taople">1. as an <code>Object</code> with properties of the same names as the taople</h3>
+<pre class="language-"><code class="lang-javascript"><span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setCtx</span><span class="token punctuation">(</span><span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  App<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    title<span class="token punctuation">:</span> <span class="token string">&apos;Patois - words for the way you talk&apos;</span><span class="token punctuation">,</span>
+    url<span class="token punctuation">:</span> <span class="token string">&apos;https://pato.is&apos;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  Enter<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  Portal<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><em><strong>Special Note:</strong> not all properties from the <a href="../GLOSSARY.html#taople" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation).">taople</a> are required, the inclusion of
+<code>Enter</code> and <code>Portal</code> are illustrative here</em></p>
+<h3 id="2-as-an-object-with-properties-named-t-or-term-a-or-action-andor-o-or-orient">2. as an <code>Object</code> with properties named <code>t</code> or <code>term</code>, <code>a</code> or <code>action</code>, and/or <code>o</code> or <code>orient</code>:</h3>
+<pre class="language-"><code class="lang-javascript"><span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setCtx</span><span class="token punctuation">(</span><span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  t<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    title<span class="token punctuation">:</span> <span class="token string">&apos;Patois - words for the way you talk&apos;</span><span class="token punctuation">,</span>
+    url<span class="token punctuation">:</span> <span class="token string">&apos;https://pato.is&apos;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  a<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  o<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// OR</span>
+<span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setCtx</span><span class="token punctuation">(</span><span class="token punctuation">{</span> term<span class="token punctuation">:</span> <span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> action<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> orient<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  term<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    title<span class="token punctuation">:</span> <span class="token string">&apos;Patois - words for the way you talk&apos;</span><span class="token punctuation">,</span>
+    url<span class="token punctuation">:</span> <span class="token string">&apos;https://pato.is&apos;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  action<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  orient<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>This form can be useful when the setting of the context is more dynamic and the keys
+aren&apos;t necessarily known ahead of time.  Additionally, the forms can be mixed if you want.</p>
+<p><em><strong>Special Note:</strong> no matter how the data is passed in, when we look at <a href="handlers.html">handlers</a>
+the data sent to the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> will <strong>always</strong> be consistent in the form from the first option
+as properties using the names identified by the <a href="../GLOSSARY.html#taople" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation).">taople</a></em></p>
+<h3 id="3-as-an-array-ordered-as-term-action-orient">3. as an <code>Array</code> ordered as <code>[term, action, orient]</code></h3>
+<pre class="language-"><code class="lang-javascript"><span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setCtx</span><span class="token punctuation">(</span><span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    title<span class="token punctuation">:</span> <span class="token string">&apos;Patois - words for the way you talk&apos;</span><span class="token punctuation">,</span>
+    url<span class="token punctuation">:</span> <span class="token string">&apos;https://pato.is&apos;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><em><strong>Special Note:</strong> not all properties from the <a href="../GLOSSARY.html#taople" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation).">taople</a> are required, the inclusion of
+all 3 entries is illustrative here</em></p>
+<h2 id="create-an-appcon-and-set-context">Create an <code>AppCon</code> and set Context</h2>
+<p>The <code>@tao.js/core</code> package also exports a class called <code>AppCon</code> that allows you to
+instantiate instances of <code>AppCon</code>s to then pass to the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> using <code>setAppCtx</code>.</p>
+<p>First, ensure you are importing it where you plan to use it:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">import</span> <span class="token constant">TAO</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> AppCon <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">&apos;@tao.js/core&apos;</span><span class="token punctuation">;</span>
+</code></pre>
+<p>OR</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> <span class="token constant">TAO</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> AppCon <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">&apos;@tao.js/core&apos;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Next instantiate an <code>AppCon</code> and set it using <code>setAppCtx</code>:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> appEnterPortal <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AppCon</span><span class="token punctuation">(</span><span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Portal&apos;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+&#x2026;
+<span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setAppCtx</span><span class="token punctuation">(</span>appEnterPortal<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h2 id="create-an-appcon-with-data-and-set-context">Create an <code>AppCon</code> with data and set Context</h2>
+<p>Instantiating <code>AppCon</code>s with data is very similar to <a href="#include-data-when-setting-context">passing data directly</a>
+to the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>&apos;s <code>setCtx</code> method by using the arguments <strong>after</strong> the first 3 args.</p>
+<p>Like <code>setCtx</code>, the <code>AppCon</code> constructor offers several options.</p>
+<h3 id="1-as-a-single-object-with-properties-of-the-same-names-as-the-taople">1. as a single <code>Object</code> with properties of the same names as the taople</h3>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> appEnterPortal <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AppCon</span><span class="token punctuation">(</span><span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Portal&apos;</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  App<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    title<span class="token punctuation">:</span> <span class="token string">&apos;Patois - words for the way you talk&apos;</span><span class="token punctuation">,</span>
+    url<span class="token punctuation">:</span> <span class="token string">&apos;https://pato.is&apos;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  Enter<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  Portal<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+&#x2026;
+<span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setAppCtx</span><span class="token punctuation">(</span>appEnterPortal<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="2-as-a-single-object-with-properties-named-t-or-term-a-or-action-andor-o-or-orient">2. as a single <code>Object</code> with properties named <code>t</code> or <code>term</code>, <code>a</code> or <code>action</code>, and/or <code>o</code> or <code>orient</code></h3>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> appEnterPortal <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AppCon</span><span class="token punctuation">(</span><span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Portal&apos;</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  t<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    title<span class="token punctuation">:</span> <span class="token string">&apos;Patois - words for the way you talk&apos;</span><span class="token punctuation">,</span>
+    url<span class="token punctuation">:</span> <span class="token string">&apos;https://pato.is&apos;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  a<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  o<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// OR</span>
+<span class="token keyword">const</span> appEnterPortal <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AppCon</span><span class="token punctuation">(</span><span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Portal&apos;</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  term<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    title<span class="token punctuation">:</span> <span class="token string">&apos;Patois - words for the way you talk&apos;</span><span class="token punctuation">,</span>
+    url<span class="token punctuation">:</span> <span class="token string">&apos;https://pato.is&apos;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  action<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  orient<span class="token punctuation">:</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+&#x2026;
+<span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setAppCtx</span><span class="token punctuation">(</span>appEnterPortal<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="3-as-an-array-ordered-as-term-action-orient">3. as an <code>Array</code> ordered as <code>[term, action, orient]</code></h3>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> appEnterPortal <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AppCon</span><span class="token punctuation">(</span><span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Portal&apos;</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    title<span class="token punctuation">:</span> <span class="token string">&apos;Patois - words for the way you talk&apos;</span><span class="token punctuation">,</span>
+    url<span class="token punctuation">:</span> <span class="token string">&apos;https://pato.is&apos;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+&#x2026;
+<span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setAppCtx</span><span class="token punctuation">(</span>appEnterPortal<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><em><strong>Special Note:</strong> not all properties from the <a href="../GLOSSARY.html#taople" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation).">taople</a> are required, the inclusion of
+all 3 entries is illustrative here</em></p>
+<h3 id="4-as-a-set-of-up-to-3-args-in-series-ordered-as-term-action-orient">4. as a set of up to 3 args in series ordered as <code>term</code>, <code>action</code>, <code>orient</code></h3>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> appEnterPortal <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AppCon</span><span class="token punctuation">(</span><span class="token string">&apos;App&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Portal&apos;</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> title<span class="token punctuation">:</span> <span class="token string">&apos;Patois - &#x2026;&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> &#x2026; <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+&#x2026;
+<span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setAppCtx</span><span class="token punctuation">(</span>appEnterPortal<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p><strong>This Example</strong> illustrates that data can be set for an <code>AppCon</code> that is not necessarily
+itself an <code>Object</code> in the case of setting the <code>Enter</code> <a href="../GLOSSARY.html#action" class="glossary-term" title="the operation being performed on the thing in the TAO&apos;s Application Context">Action</a> data to a <code>Date</code> value, and this is possible for any of the other forms of setting data above, not
+just this form.</p>
+<h2 id="appcon-instantiation-has-more-to-offer"><code>AppCon</code> instantiation has more to offer</h2>
+<p>You can also export <code>AppCon</code>s to be imported and used elswehwere in your app.</p>
+<p><code>AppCon</code> instantiation will also come in to play when we look at <a href="chaining.html">Chaining AppCons</a>.</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="defining-app-cons.html" class="navigation navigation-prev " aria-label="Previous page: Defining AppCons">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="define-handlers.html" class="navigation navigation-next " aria-label="Next page: Defining Handlers">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Setting AppCons","level":"1.3.2","depth":2,"next":{"title":"Defining Handlers","level":"1.3.3","depth":2,"path":"basics/define-handlers.md","ref":"basics/define-handlers.md","articles":[]},"previous":{"title":"Defining AppCons","level":"1.3.1","depth":2,"path":"basics/defining-app-cons.md","ref":"basics/defining-app-cons.md","articles":[]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"basics/setting-app-cons.md","mtime":"2018-07-27T15:06:16.461Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-08-01T21:11:41.307Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

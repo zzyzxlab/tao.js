@@ -1,0 +1,921 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Defining AppCons · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-prism/prism.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-advanced-emoji/emoji-website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="setting-app-cons.html" />
+    
+    
+    <link rel="prev" href="./" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    README
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../intro/">
+            
+                <a href="../intro/">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="../intro/motivations.html">
+            
+                <a href="../intro/motivations.html">
+            
+                    
+                    Motivations & Goals of tao.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="../intro/basic-terms.html">
+            
+                <a href="../intro/basic-terms.html">
+            
+                    
+                    Basic Terminology
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="../intro/roadmap.html">
+            
+                <a href="../intro/roadmap.html">
+            
+                    
+                    Development Roadmap
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Basics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter active" data-level="1.3.1" data-path="defining-app-cons.html">
+            
+                <a href="defining-app-cons.html">
+            
+                    
+                    Defining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="setting-app-cons.html">
+            
+                <a href="setting-app-cons.html">
+            
+                    
+                    Setting AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="define-handlers.html">
+            
+                <a href="define-handlers.html">
+            
+                    
+                    Defining Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.4" data-path="handlers.html">
+            
+                <a href="handlers.html">
+            
+                    
+                    Add Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="chaining.html">
+            
+                <a href="chaining.html">
+            
+                    
+                    Chaining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.6" data-path="wildcards.html">
+            
+                <a href="wildcards.html">
+            
+                    
+                    Wildcard Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../advanced/">
+            
+                <a href="../advanced/">
+            
+                    
+                    Advanced
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../advanced/inline-handlers.html">
+            
+                <a href="../advanced/inline-handlers.html">
+            
+                    
+                    Inline Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../advanced/async-handlers.html">
+            
+                <a href="../advanced/async-handlers.html">
+            
+                    
+                    Async Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../advanced/intercept-handlers.html">
+            
+                <a href="../advanced/intercept-handlers.html">
+            
+                    
+                    Intercept Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../advanced/order-of-handlers.html">
+            
+                <a href="../advanced/order-of-handlers.html">
+            
+                    
+                    Order of Operations
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.5" data-path="../advanced/promise-hook.html">
+            
+                <a href="../advanced/promise-hook.html">
+            
+                    
+                    Promise Hook
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.6" data-path="../advanced/kernels.html">
+            
+                <a href="../advanced/kernels.html">
+            
+                    
+                    Instantiating Kernels
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../client-react/">
+            
+                <a href="../client-react/">
+            
+                    
+                    Using with React.js
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../client-react/adapter.html">
+            
+                <a href="../client-react/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="../client-react/reactor.html">
+            
+                <a href="../client-react/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../server-side/">
+            
+                <a href="../server-side/">
+            
+                    
+                    Using Server-side
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.6.1" data-path="../server-side/socket-io.html">
+            
+                <a href="../server-side/socket-io.html">
+            
+                    
+                    Socket.io
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2" data-path="../server-side/koa.html">
+            
+                <a href="../server-side/koa.html">
+            
+                    
+                    Koa Middleware
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.3" data-path="../server-side/connect.html">
+            
+                <a href="../server-side/connect.html">
+            
+                    
+                    Connect/Express Middlware
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../api/">
+            
+                <a href="../api/">
+            
+                    
+                    API Reference
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.1" data-path="../api/core/">
+            
+                <a href="../api/core/">
+            
+                    
+                    @tao.js/core
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.1.1" data-path="../api/core/tao.html">
+            
+                <a href="../api/core/tao.html">
+            
+                    
+                    TAO
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.2" data-path="../api/core/kernel.html">
+            
+                <a href="../api/core/kernel.html">
+            
+                    
+                    Kernel
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.3" data-path="../api/core/appcon.html">
+            
+                <a href="../api/core/appcon.html">
+            
+                    
+                    AppCon
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.2" data-path="../api/react/">
+            
+                <a href="../api/react/">
+            
+                    
+                    @tao.js/react
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.2.1" data-path="../api/react/adapter.md">
+            
+                <span>
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.2.2" data-path="../api/react/reactor.html">
+            
+                <a href="../api/react/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.3" data-path="../api/socket-io/">
+            
+                <a href="../api/socket-io/">
+            
+                    
+                    @tao.js/socket.io
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.3.1" data-path="../api/socket-io/wire-socket-io.html">
+            
+                <a href="../api/socket-io/wire-socket-io.html">
+            
+                    
+                    wireTaoJsToSocketIO
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="../GLOSSARY.html">
+            
+                <a href="../GLOSSARY.html">
+            
+                    
+                    Glossary
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" >
+            
+                <a target="_blank" href="https://zyzzyxlab.github.io/tao.js/coverage/index.html">
+            
+                    
+                    Coverage
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Defining AppCons</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="defining-application-contexts-for-your-app">Defining Application Contexts for your App</h1>
+<h2 id="example-application">Example Application</h2>
+<p>Before moving ahead, it&apos;s important to describe the application most often used in examples throughout this book which is that of an individualized
+version of Urban Dictionary.  This App has a Domain Model starting with:</p>
+<ul>
+<li><code>Space</code>s that create an individual dictionary of</li>
+<li><code>Phrase</code>s that are the words or groups of words + definitions of them</li>
+<li><code>User</code>s that can be invited to a <code>Space</code> and create <code>Phrase</code>s in that <code>Space</code></li>
+<li><code>Session</code>s capturing when each <code>User</code> is interacting with the App</li>
+<li>and the <code>App</code> itself</li>
+</ul>
+<p>These Domain Entities translate directly to Terms of the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> for the App along with the relationships:</p>
+<ul>
+<li><code>Space-Phrase</code> since a <code>Phrase</code> can be shared and exist in more than one <code>Space</code></li>
+<li><code>Space-User</code> since <code>User</code>s can create or be invited to join more than one <code>Space</code></li>
+</ul>
+<h2 id="define-your-appcons-ahead-of-writing-code">Define your AppCons ahead of writing code</h2>
+<p>From the <a href="../intro/motivations.html">Goals of tao.js</a> we want to use the language of the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> to
+describe our application as a set of code-translatable requirements that can be understood by
+technical and non-technical members of the team.</p>
+<p>It is best to start from this place by describing your application as a series of <a href="../GLOSSARY.html#taoples" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation)">taoples</a>
+representing possible states and transitions from one to the next to generate a protocol chain
+that describes the interaction an Actor has with your App.</p>
+<h2 id="example-appcon-descriptions">Example AppCon descriptions</h2>
+<p>It&apos;s much easier to whiteboard this or draw it on a piece of paper, but for documentations sake
+(and future <a href="../intro/roadmap.html">roadmap</a> consideration) we&apos;re going to provide an example in
+markdown.</p>
+<h3 id="example-initial-appcons-descriptions">Example Initial AppCons descriptions</h3>
+<p>A good place to start is the intial Use Case of a User coming to the App and the
+<a href="../GLOSSARY.html#appcons" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCons</a> that we expect to encounter:</p>
+<table>
+<thead>
+<tr>
+<th><a href="../GLOSSARY.html#term" class="glossary-term" title="the thing in the TAO&apos;s Application Context - conceptually usually a domain entity">Term</a></th>
+<th><a href="../GLOSSARY.html#action" class="glossary-term" title="the operation being performed on the thing in the TAO&apos;s Application Context">Action</a></th>
+<th><a href="../GLOSSARY.html#orient" class="glossary-term" title="the perspective of the interaction with the system at the moment of this operation
+on this thing in the TAO&apos;s Application Context">Orient</a></th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>App</code></td>
+<td><code>Enter</code></td>
+<td><code>Portal</code></td>
+<td>initial <a href="../GLOSSARY.html#taople" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation).">taople</a> that sets the App in motion (this can be anything you want)</td>
+</tr>
+<tr>
+<td><code>App</code></td>
+<td><code>View</code></td>
+<td><code>Portal</code></td>
+<td>user views the App&apos;s Portal</td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td><code>Find</code></td>
+<td><code>Portal</code></td>
+<td>find all of the <code>Space</code>s defined</td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td><code>List</code></td>
+<td><code>Portal</code></td>
+<td>render the list of <code>Space</code>s for the User</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-space-details-descriptions">Example Space Details descriptions</h3>
+<p>Another example is <a href="../GLOSSARY.html#appcons" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCons</a> that represent contexts when a user views a Space:</p>
+<table>
+<thead>
+<tr>
+<th><a href="../GLOSSARY.html#term" class="glossary-term" title="the thing in the TAO&apos;s Application Context - conceptually usually a domain entity">Term</a></th>
+<th><a href="../GLOSSARY.html#action" class="glossary-term" title="the operation being performed on the thing in the TAO&apos;s Application Context">Action</a></th>
+<th><a href="../GLOSSARY.html#orient" class="glossary-term" title="the perspective of the interaction with the system at the moment of this operation
+on this thing in the TAO&apos;s Application Context">Orient</a></th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Space</code></td>
+<td><code>Enter</code></td>
+<td><code>Portal</code></td>
+<td><a href="../GLOSSARY.html#taople" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation).">taople</a> signaling actor is entering an individual <code>Space</code></td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td><code>View</code></td>
+<td><code>Portal</code></td>
+<td><code>Space</code> details View in App&apos;s Portal</td>
+</tr>
+<tr>
+<td><code>Space-Phrase</code></td>
+<td><code>Find</code></td>
+<td><code>Portal</code></td>
+<td>find all of the <code>Space-Phrase</code> relations defined</td>
+</tr>
+<tr>
+<td><code>Space-Phrase</code></td>
+<td><code>List</code></td>
+<td><code>Portal</code></td>
+<td>show the list of <code>Phrase</code>s for a <code>Space</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-space-edit-descriptions">Example Space Edit descriptions</h3>
+<table>
+<thead>
+<tr>
+<th><a href="../GLOSSARY.html#term" class="glossary-term" title="the thing in the TAO&apos;s Application Context - conceptually usually a domain entity">Term</a></th>
+<th><a href="../GLOSSARY.html#action" class="glossary-term" title="the operation being performed on the thing in the TAO&apos;s Application Context">Action</a></th>
+<th><a href="../GLOSSARY.html#orient" class="glossary-term" title="the perspective of the interaction with the system at the moment of this operation
+on this thing in the TAO&apos;s Application Context">Orient</a></th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Space</code></td>
+<td><code>Edit</code></td>
+<td><code>Portal</code></td>
+<td><a href="../GLOSSARY.html#taople" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation).">taople</a> signaling actor wants to edit a <code>Space</code></td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td><code>Update</code></td>
+<td><code>Portal</code></td>
+<td>actor updated the <code>Space</code>&apos;s data</td>
+</tr>
+<tr>
+<td><code>Space</code></td>
+<td><code>Store</code></td>
+<td><code>Portal</code></td>
+<td>store the <code>Space</code>s data for later retrieval</td>
+</tr>
+</tbody>
+</table>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="./" class="navigation navigation-prev " aria-label="Previous page: Basics">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="setting-app-cons.html" class="navigation navigation-next " aria-label="Next page: Setting AppCons">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Defining AppCons","level":"1.3.1","depth":2,"next":{"title":"Setting AppCons","level":"1.3.2","depth":2,"path":"basics/setting-app-cons.md","ref":"basics/setting-app-cons.md","articles":[]},"previous":{"title":"Basics","level":"1.3","depth":1,"path":"basics/README.md","ref":"basics/README.md","articles":[{"title":"Defining AppCons","level":"1.3.1","depth":2,"path":"basics/defining-app-cons.md","ref":"basics/defining-app-cons.md","articles":[]},{"title":"Setting AppCons","level":"1.3.2","depth":2,"path":"basics/setting-app-cons.md","ref":"basics/setting-app-cons.md","articles":[]},{"title":"Defining Handlers","level":"1.3.3","depth":2,"path":"basics/define-handlers.md","ref":"basics/define-handlers.md","articles":[]},{"title":"Add Handlers","level":"1.3.4","depth":2,"path":"basics/handlers.md","ref":"basics/handlers.md","articles":[]},{"title":"Chaining AppCons","level":"1.3.5","depth":2,"path":"basics/chaining.md","ref":"basics/chaining.md","articles":[]},{"title":"Wildcard Handlers","level":"1.3.6","depth":2,"path":"basics/wildcards.md","ref":"basics/wildcards.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"basics/defining-app-cons.md","mtime":"2018-07-30T08:08:56.461Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-08-01T21:11:41.307Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

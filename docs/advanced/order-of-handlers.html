@@ -1,0 +1,903 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Order of Operations · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.2">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-prism/prism.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-advanced-emoji/emoji-website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="promise-hook.html" />
+    
+    
+    <link rel="prev" href="intercept-handlers.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    README
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../intro/">
+            
+                <a href="../intro/">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="../intro/motivations.html">
+            
+                <a href="../intro/motivations.html">
+            
+                    
+                    Motivations & Goals of tao.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="../intro/basic-terms.html">
+            
+                <a href="../intro/basic-terms.html">
+            
+                    
+                    Basic Terminology
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="../intro/roadmap.html">
+            
+                <a href="../intro/roadmap.html">
+            
+                    
+                    Development Roadmap
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../basics/">
+            
+                <a href="../basics/">
+            
+                    
+                    Basics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="../basics/defining-app-cons.html">
+            
+                <a href="../basics/defining-app-cons.html">
+            
+                    
+                    Defining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="../basics/setting-app-cons.html">
+            
+                <a href="../basics/setting-app-cons.html">
+            
+                    
+                    Setting AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="../basics/define-handlers.html">
+            
+                <a href="../basics/define-handlers.html">
+            
+                    
+                    Defining Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.4" data-path="../basics/handlers.html">
+            
+                <a href="../basics/handlers.html">
+            
+                    
+                    Add Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="../basics/chaining.html">
+            
+                <a href="../basics/chaining.html">
+            
+                    
+                    Chaining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.6" data-path="../basics/wildcards.html">
+            
+                <a href="../basics/wildcards.html">
+            
+                    
+                    Wildcard Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Advanced
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="inline-handlers.html">
+            
+                <a href="inline-handlers.html">
+            
+                    
+                    Inline Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="async-handlers.html">
+            
+                <a href="async-handlers.html">
+            
+                    
+                    Async Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="intercept-handlers.html">
+            
+                <a href="intercept-handlers.html">
+            
+                    
+                    Intercept Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.4.4" data-path="order-of-handlers.html">
+            
+                <a href="order-of-handlers.html">
+            
+                    
+                    Order of Operations
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.5" data-path="promise-hook.html">
+            
+                <a href="promise-hook.html">
+            
+                    
+                    Promise Hook
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.6" data-path="kernels.html">
+            
+                <a href="kernels.html">
+            
+                    
+                    Instantiating Kernels
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../client-react/">
+            
+                <a href="../client-react/">
+            
+                    
+                    Using with React.js
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../client-react/adapter.html">
+            
+                <a href="../client-react/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="../client-react/reactor.html">
+            
+                <a href="../client-react/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../server-side/">
+            
+                <a href="../server-side/">
+            
+                    
+                    Using Server-side
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.6.1" data-path="../server-side/socket-io.html">
+            
+                <a href="../server-side/socket-io.html">
+            
+                    
+                    Socket.io
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2" data-path="../server-side/koa.html">
+            
+                <a href="../server-side/koa.html">
+            
+                    
+                    Koa Middleware
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.3" data-path="../server-side/connect.html">
+            
+                <a href="../server-side/connect.html">
+            
+                    
+                    Connect/Express Middlware
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../api/">
+            
+                <a href="../api/">
+            
+                    
+                    API Reference
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.1" data-path="../api/core/">
+            
+                <a href="../api/core/">
+            
+                    
+                    @tao.js/core
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.1.1" data-path="../api/core/tao.html">
+            
+                <a href="../api/core/tao.html">
+            
+                    
+                    TAO
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.2" data-path="../api/core/kernel.html">
+            
+                <a href="../api/core/kernel.html">
+            
+                    
+                    Kernel
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.3" data-path="../api/core/appcon.html">
+            
+                <a href="../api/core/appcon.html">
+            
+                    
+                    AppCon
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.2" data-path="../api/react/">
+            
+                <a href="../api/react/">
+            
+                    
+                    @tao.js/react
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.2.1" data-path="../api/react/adapter.md">
+            
+                <span>
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.2.2" data-path="../api/react/reactor.html">
+            
+                <a href="../api/react/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.3" data-path="../api/socket-io/">
+            
+                <a href="../api/socket-io/">
+            
+                    
+                    @tao.js/socket.io
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.3.1" data-path="../api/socket-io/wire-socket-io.html">
+            
+                <a href="../api/socket-io/wire-socket-io.html">
+            
+                    
+                    wireTaoJsToSocketIO
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="../GLOSSARY.html">
+            
+                <a href="../GLOSSARY.html">
+            
+                    
+                    Glossary
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" >
+            
+                <a target="_blank" href="https://zyzzyxlab.github.io/tao.js/coverage/index.html">
+            
+                    
+                    Coverage
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Order of Operations</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="order-of-operations">Order of Operations</h1>
+<p>The <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> gives us 3 ways to handle <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Contexts</a> using <a href="intercept-handlers.html">Intercept</a>,
+<a href="async-handlers.html">Async</a> and <a href="inline-handlers.html">Inline</a> Handlers.</p>
+<p>These 3 modes were chosen specifically to provide us with enough power to handle any case
+as well as flexibility to keep our code decoupled.</p>
+<p>Now that we understand what the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> guarantees about each individual type of <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>, to fully
+grasp how to utilize the 3 to their best, we want to understand the guarantees the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> provides
+for how they all work together in the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>.</p>
+<h2 id="intercept--async--inline">Intercept &gt; Async &gt; Inline</h2>
+<p>Put simply, when an <a href="../GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Context</a> is set on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>, it will call all of the registered
+handlers in the following precedence:</p>
+<ol>
+<li><strong>Intercept Handlers</strong> - all called before calling&#x2026;</li>
+<li><strong>Async Handlers</strong> - all called before calling&#x2026;</li>
+<li><strong>Inline Handlers</strong> - all called before setting all <code>AppCon</code>s chained <em><strong>from Inline Handlers</strong></em></li>
+</ol>
+<p>In this context &quot;all called&quot; translates to all handlers of a given type (Intercept, Async, or
+Inline), no matter if the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> was added to a Concrete or Wildcard that matches the
+<a href="../GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Context</a> that was set on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>.</p>
+<p>In essence, what the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> is doing is:</p>
+<blockquote>
+<p>First run a special set of handlers (Intercept) that can prevent both other handlers from
+being called as well as the execution of downstream <a href="../GLOSSARY.html#tao-paths" class="glossary-term" title="A set of AppCons creating a sequence describing a value protocol">TAO-Paths</a> in the form of chaining
+to get the interrupt logic out of the way.  Once the App has made it passed these checks,
+kick off <strong>all <em>out-of-band</em></strong> operations before running all of the normal operations used
+to implement the desired effect of setting the <a href="../GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Context</a>.</p>
+</blockquote>
+<p>In other words, Intercept Handlers <em><strong>are</strong></em> Inline Handlers with 2 differences, they run
+first <strong>and</strong> they have the power to stop execution.  Inline Handlers cannot prevent any other
+handlers from being called.  We have our special Inline Handlers as Intercept Handlers run
+first in order to provide guards that test the constraints of the App before making a
+state transition.</p>
+<p>The Async Handlers are called in the middle (after constraint checks but before regular)
+so that we don&apos;t block the <em>desired side effects</em> of our transition by the normal flow
+of execution of the regular (Inline) handlers.</p>
+<p>A further breakdown of the order of precedence (or operations) is that when the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> is told
+that our App has entered a specific <a href="../GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Context</a>, it gives our App code:</p>
+<ol>
+<li>first, a way to prevent any further activity</li>
+<li>second, a way to kick off important operations that we want to occur without blocking</li>
+<li>finally, a way of executing the specific behavior we want to occur for this Application
+Context</li>
+</ol>
+<h2 id="only-guaranteed-ordering-by-the-tao">ONLY Guaranteed Ordering by the TAO</h2>
+<p><strong>This</strong> <img align="absmiddle" alt=":point_up_2:" class="emoji" src="../gitbook/gitbook-plugin-advanced-emoji/emojis/point_up_2.png" title=":point_up_2:"> represents the <strong>ONLY</strong> ordering guarantee provided by the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>.</p>
+<p>This is very important as it was specifically designed this way.  Ordering amongst handlers
+of the same type (or mode) <strong>should not be relied upon</strong> as handlers can be added and
+removed dynamically throughout the course of our Apps executing.</p>
+<p>To rely on order guarantees in our Apps, we use this stated ordering guarantee from the
+<a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> and design/build our Apps to:</p>
+<ul>
+<li>use the 3 different <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> types to ensure ordered execution on a single Application
+Context</li>
+<li>use different <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Contexts</a> with chaining to ensure ordered execution of the
+desired flow of operations</li>
+</ul>
+<h2 id="further-uses-of-intercept-handlers">Further Uses of Intercept Handlers</h2>
+<p>Because the <strong>only way</strong> to guarantee a <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> will be called first (or in the first group)
+is to add it to the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> as an <a href="../GLOSSARY.html#intercept-handler" class="glossary-term" title="A handler added to the TAO for the Intercept Phase of execution of the TAO.">Intercept Handler</a>, we will use these often for utility beyond
+simply constraint checks.</p>
+<p>An example is logging all <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Contexts</a> set on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> during development.  As a
+tool, we can simply add a Wildcard <a href="../GLOSSARY.html#intercept-handler" class="glossary-term" title="A handler added to the TAO for the Intercept Phase of execution of the TAO.">Intercept Handler</a> like this when bootstrapping our
+App:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">addInterceptHandler</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token template-string"><span class="token string">`context set as {</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>tao<span class="token punctuation">.</span>t<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">,</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>tao<span class="token punctuation">.</span>a<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">,</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>tao<span class="token punctuation">.</span>o<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">} with data:`</span></span><span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Because this <a href="../GLOSSARY.html#intercept-handler" class="glossary-term" title="A handler added to the TAO for the Intercept Phase of execution of the TAO.">Intercept Handler</a> returns nothing, it won&apos;t have any downstream affect
+on the execution of other handlers for all <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Contexts</a> apart from the effect
+of logging to the console for each one.</p>
+<p>In this way, Intercept Handlers provide a <strong>dual purpose</strong> on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>:</p>
+<ol>
+<li>Provide checks and guards (main intent)</li>
+<li>Allow injecting guarantee first execution for a <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a></li>
+</ol>
+<h2 id="inline-handlers-are-the-bread--butter">Inline Handlers are the Bread &amp; Butter</h2>
+<p>That being said, Inline Handlers represent the bulk of what you want to be adding to
+the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>.  Most applications can be written with a very linear flow of operations which
+is what Inline Handlers were designed to tackle.</p>
+<p>If you find yourself relying on Intercept Handlers to guarantee the order of operations,
+first ask:</p>
+<blockquote>
+<p><strong>Would it be better to split the <a href="../GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Context</a> into more than one, and use
+chaining to order the operations?</strong></p>
+</blockquote>
+<p>This is what chaining was designed to accomplish, and why <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>-based Apps are built
+with finer granularity of <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Contexts</a> to represent states within an App
+than what most expect coming from other programming paradigms.</p>
+<p>When it comes to Async Handlers, it&apos;s recommended to reserve their use to sets of
+operations which you want out of band from the expected flow in order to provide either:</p>
+<ul>
+<li>a better User experience&#x2026;<br>or</li>
+<li>better performance&#x2026;<br>&#x2026;on</li>
+<li>an operation that isn&apos;t critical to the expected outcome of the specific Application
+Context.</li>
+</ul>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="intercept-handlers.html" class="navigation navigation-prev " aria-label="Previous page: Intercept Handlers">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="promise-hook.html" class="navigation navigation-next " aria-label="Next page: Promise Hook">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Order of Operations","level":"1.4.4","depth":2,"next":{"title":"Promise Hook","level":"1.4.5","depth":2,"path":"advanced/promise-hook.md","ref":"advanced/promise-hook.md","articles":[]},"previous":{"title":"Intercept Handlers","level":"1.4.3","depth":2,"path":"advanced/intercept-handlers.md","ref":"advanced/intercept-handlers.md","articles":[]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"advanced/order-of-handlers.md","mtime":"2018-07-29T18:50:35.944Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-08-01T21:11:41.307Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+
