@@ -62,6 +62,23 @@ rules.
 |5|`=>`|`Space`|`Store`|`Portal`|`=>`|store the updated `Space`'s data in cache for later retrieval in the `Portal`|
 |6|`=>`|`Space`|`Enter`|`Portal`<td colspan="2">go back to the <a href="#use-case-user-views-space">User Views Space</a> TAO-Path</td>
 
+Notice the duplicated taople (`{Space,Update,Portal}`) which now has 2 handlers, an Intercept
+Handler denoted by the (`=>?!`[^a] ) and the Inline Handler (`=>`) it had before.  The
+Intercept Handler mode symbol is a way to denote that it presents a choice (`?`) to halt (`!`)
+further progression down the TAO-Path chain (and even to the next handler on the same AppCon) and
+set the direction to a different AppCon ( [^a] ).
+
+The logic of the choice being made by the Intercept Handler is detailed in the _handler spec_.
+The new AppCon the Intercept Handler sets on the TAO is further down in the table identified
+by the reference anchor `a:` and surrounded by an interrupted chain trigger (`\`<a name="ref">{ref}:</a>`=>`).  This symbol is used to denote that while normally a chain falls through to the next
+row in the table (`=>`), this one is outside this flow (`\=>`).
+
+In the above table, we're stating that when the `{Space,Update,Portal}` AppCon is set, we want to
+first intercept the proceedings and check the validity of the data according some rules and
+constraints, and if this check fails, divert to a different Application Context.  Otherwise, if
+the check passes, continue to the next handler on `{Space,Update,Portal}` (in this case our Inline
+Handler which continues the TAO-Path chain).
+
 ### Use Case: Refined User Edits Space
 
 We also want to ensure the User who makes the edits has the authorization to
