@@ -71,8 +71,8 @@ A final example is a TAO-Path that represents when a user edits the details of a
 |0|User hits edit|`Space`|`Edit`|`Portal`|`=>`|get the `Space` Edit form and put it in the UI|
 |1|User hits cancel|`Space`|`Enter`|`Portal`|`=>`|go back to the [User Views Space](#use-case-user-views-space) TAO-Path|
 |2|User hits save|`Space`|`Update`|`Portal`|`=>`|get the updated `Space` data and send it to the api|
-|3|`=>`|`Space`|`Store`|`Portal`|`=>`|store the updated `Space`'s data for later retrieval in the `Portal`|
-|4|`=>`|`Space`|`Store`|`Admin`|`=>`|store the updated `Space`'s data for later retrieval in the `Admin`|
+|3|`=>`|`Space`|`Store`|`Admin`|`=>`|store the updated `Space`'s data for later retrieval in the `Admin`|
+|4|`=>`|`Space`|`Store`|`Portal`|`=>`|store the updated `Space`'s data for later retrieval in the `Portal`|
 |5|`=>`|`Space`|`Enter`|`Portal`|`=>`|go back to the [User Views Space](#use-case-user-views-space) TAO-Path|
 
 ## TAO-Paths with Advanced Usage
