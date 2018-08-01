@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "new way of programming",
   "main": "build/index.js",
-  "files": ["build"],
+  "files": [
+    "build"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:clean": "rimraf build",
@@ -13,11 +15,10 @@
   "author": "eudaimos",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.47",
-    "@babel/core": "^7.0.0-beta.47",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.47",
-    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.47",
-    "@babel/preset-env": "^7.0.0-beta.47",
+    "@babel/cli": "7.0.0-beta.55",
     "rimraf": "^2.6.2"
+  },
+  "dependencies": {
+    "@babel/runtime": "7.0.0-beta.55"
   }
 }

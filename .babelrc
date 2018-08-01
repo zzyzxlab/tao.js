@@ -4,6 +4,9 @@
     "@babel/preset-react"
   ],
   "plugins": [
+    ["@babel/plugin-transform-runtime", {
+      "useBuiltIns": true
+    }],
     "@babel/plugin-transform-modules-commonjs",
     "@babel/plugin-proposal-object-rest-spread"
   ],

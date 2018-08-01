@@ -1,4 +1,3 @@
-import '@babel/polyfill';
 import TAO from '@tao.js/core';
 import React from 'react';
 import ReactDOM from 'react-dom';

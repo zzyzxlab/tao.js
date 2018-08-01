@@ -12,22 +12,22 @@
   "description": "",
   "scripts": {
     "build": "lerna run build --ignore=docs --ignore=patois*",
-    "test": "BABEL_ENV=test npm run build && jest --coverage",
+    "clean:build": "lerna exec --ignore=docs --ignore=patois* -- rimraf build",
+    "test": "npm run build && jest",
+    "test:coverage": "BABEL_ENV=test npm run build && jest --coverage",
     "test:coverage:view": "open packages/docs/src/content/coverage/index.html",
     "test:watch": "jest --watch",
     "lint:packages": "eslint packages/*/src",
-    "docs:clean":
-      "ls docs | grep -v \"CNAME\" | awk '{print \"docs/\"$1}' | xargs rimraf",
+    "docs:clean": "ls docs | grep -v \"CNAME\" | awk '{print \"docs/\"$1}' | xargs rimraf",
     "docs:build": "lerna run make --scope=docs",
     "docs:edit": "$(cd packages/docs && npm run book:edit)",
     "docs:publish": "npm run docs:clean && cp -a packages/docs/dist/ docs",
-    "docs:make": "npm test && npm run docs:build && npm run docs:publish",
+    "docs:make": "npm run test:coverage && npm run docs:build && npm run docs:publish",
     "docs:open": "open docs/index.html",
-    "chore:dependencies:packages":
-      "lerna exec --concurrency=1 --scope=@tao.js/* -- npm update --dev",
-    "chore:dependencies:root": "npm update --dev",
-    "chore:dependencies":
-      "npm run chore:dependencies:packages && npm run chore:dependencies:root && lerna bootstrap --hoist"
+    "chore:clean": "lerna clean --ignore=docs --ignore=patois* && rimraf ./node_modules && npm install && lerna bootstrap --hoist",
+    "chore:dependencies:packages": "lerna exec --concurrency=1 --scope=@tao.js/* -- npm update --dev --save",
+    "chore:dependencies:root": "npm update --dev --save",
+    "chore:dependencies": "lerna clean --ignore=docs --ignore=patois* && npm run chore:dependencies:root && npm run chore:dependencies:packages && lerna bootstrap --hoist"
   },
   "config": {
     "commitizen": {
@@ -57,53 +57,64 @@
       "!packages/*/test/**"
     ],
     "testRegex": "./(packages|examples)/[^/]+/test/.+\\.m?js$",
-    "coverageReporters": ["html"],
+    "coverageReporters": [
+      "html"
+    ],
     "coverageDirectory": "packages/docs/src/content/coverage",
-    "coveragePathIgnorePatterns": ["/node_modules/", "example.js"],
-    "setupFiles": ["<rootDir>/config/jest.js"],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "example.js"
+    ],
+    "setupFiles": [
+      "<rootDir>/config/jest.js"
+    ],
     "setupTestFrameworkScriptFile": "<rootDir>/config/setup.js",
     "transformIgnorePatterns": [
       "/node_modules/",
       "<rootDir>/(packages|examples)/[^/]+/build/"
     ],
-    "snapshotSerializers": ["enzyme-to-json/serializer"],
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
     "testURL": "http://localhost",
     "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
-        "<rootDir>/config/__mocks__/fileMock.js",
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/config/__mocks__/fileMock.js",
       "\\.(css|less)$": "identity-obj-proxy"
     }
   },
   "dependencies": {},
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.47",
-    "@babel/core": "^7.0.0-beta.47",
-    "@babel/node": "^7.0.0-beta.47",
-    "@babel/preset-env": "^7.0.0-beta.47",
-    "@babel/preset-react": "^7.0.0-beta.47",
+    "@babel/cli": "7.0.0-beta.55",
+    "@babel/core": "7.0.0-beta.55",
+    "@babel/node": "7.0.0-beta.55",
+    "@babel/plugin-proposal-object-rest-spread": "7.0.0-beta.55",
+    "@babel/plugin-transform-modules-commonjs": "7.0.0-beta.55",
+    "@babel/plugin-transform-runtime": "7.0.0-beta.55",
+    "@babel/preset-env": "7.0.0-beta.55",
+    "@babel/preset-react": "7.0.0-beta.55",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^7.2.3",
-    "babel-jest": "^23.4.0",
+    "babel-jest": "^23.4.2",
     "babel-plugin-istanbul": "^4.1.6",
-    "commitizen": "^2.9.6",
+    "commitizen": "^2.10.1",
     "cz-lerna-changelog": "^1.2.1",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
-    "enzyme-to-json": "^3.3.3",
+    "enzyme-to-json": "^3.3.4",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-babel": "^4.1.2",
-    "eslint-plugin-prettier": "^2.6.0",
+    "eslint-plugin-prettier": "^2.6.2",
     "husky": "^0.15.0-rc.13",
-    "jest": "^23.4.1",
-    "jest-enzyme": "^6.0.0",
+    "jest": "^23.4.2",
+    "jest-enzyme": "^6.0.2",
     "lerna": "^2.11.0",
-    "lint-staged": "^7.1.0",
+    "lint-staged": "^7.2.0",
     "plop": "^2.0.0",
-    "prettier": "^1.12.1",
-    "react": "^16.3.2",
-    "react-dom": "^16.3.2",
-    "react-test-renderer": "^16.3.2",
+    "prettier": "^1.14.0",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "react-test-renderer": "^16.4.2",
     "regenerator-runtime": "^0.11.1",
     "rimraf": "^2.6.2"
   }

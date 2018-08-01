@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "set of components to use tao with React",
   "main": "build/index.js",
-  "files": ["build"],
+  "files": [
+    "build"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:clean": "rimraf build",
@@ -18,17 +20,12 @@
     "react": "^16.3.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.47",
-    "@babel/core": "^7.0.0-beta.47",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.47",
-    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.47",
-    "@babel/preset-env": "^7.0.0-beta.47",
-    "@babel/preset-react": "^7.0.0-beta.47",
+    "@babel/cli": "7.0.0-beta.55",
     "@tao.js/core": "^0.1.0",
     "prop-types": "^15.6.1",
-    "react": "^16.3.2",
-    "react-dom": "^16.3.2",
-    "react-test-renderer": "^16.3.2",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "react-test-renderer": "^16.4.2",
     "rimraf": "^2.6.2"
   },
   "dependencies": {

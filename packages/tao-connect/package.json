@@ -1,8 +1,7 @@
 {
   "name": "@tao.js/connect",
   "version": "0.1.0",
-  "description":
-    "connect middleware to hook tao into express or other connect compliant framework",
+  "description": "connect middleware to hook tao into express or other connect compliant framework",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,11 +9,7 @@
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.47",
-    "@babel/core": "^7.0.0-beta.47",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.47",
-    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.47",
-    "@babel/preset-env": "^7.0.0-beta.47",
+    "@babel/cli": "7.0.0-beta.55",
     "@tao.js/core": "^0.1.0",
     "rimraf": "^2.6.2"
   }

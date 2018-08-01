@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "tao middleware for socket.io",
   "main": "build/index.js",
-  "files": ["build"],
+  "files": [
+    "build"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:clean": "rimraf build",
@@ -16,11 +18,7 @@
     "@tao.js/core": "^0.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.47",
-    "@babel/core": "^7.0.0-beta.47",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.47",
-    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.47",
-    "@babel/preset-env": "^7.0.0-beta.47",
+    "@babel/cli": "7.0.0-beta.55",
     "@tao.js/core": "^0.1.0",
     "rimraf": "^2.6.2"
   }
