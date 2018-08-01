@@ -5,18 +5,14 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:clean": "rimraf dist",
-    "build": "babel src --source-maps --out-dir dist",
-    "make": "npm run build:clean && npm run build"
+    "build:clean": "rimraf build",
+    "build:transpile": "babel src -d build --source-maps --copy-files",
+    "build": "npm run build:clean && npm run build:transpile"
   },
   "author": "{{author}}",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.42",
-    "@babel/core": "^7.0.0-beta.42",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.42",
-    "@babel/plugin-transform-modules-commonjs": "^7.0.0-beta.42",
-    "@babel/preset-env": "^7.0.0-beta.42",
+    "@babel/cli": "7.0.0-beta.55",
     "rimraf": "^2.6.2"
   }
 }
