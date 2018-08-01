@@ -10,11 +10,11 @@ const cleanInput = ({ term, action, orient }) => {
   return incoming;
 };
 
-const wrappedHandler = (ComponentHandler = null, props, _provider) => (
+const wrappedHandler = (ComponentHandler = null, props, _adapter) => (
   tao,
   data
 ) => {
-  _provider._current = {
+  _adapter._current = {
     ComponentHandler,
     tao,
     props: {
@@ -22,10 +22,10 @@ const wrappedHandler = (ComponentHandler = null, props, _provider) => (
       ...data
     }
   };
-  _provider._reactors.forEach(notify => notify());
+  _adapter._reactors.forEach(notify => notify());
 };
 
-class Provider {
+class Adapter {
   constructor(TAO) {
     this._tao = TAO;
     this._current = null;
@@ -135,4 +135,4 @@ class Provider {
   }
 }
 
-export default Provider;
+export default Adapter;

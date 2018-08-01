@@ -1,6 +1,6 @@
 import React from 'react';
 import TAO, { AppCtx } from '@tao.js/core';
-import { Provider, Reactor } from '@tao.js/react';
+import { Adapter, Reactor } from '@tao.js/react';
 import List from './List';
 import View from './View';
 import Form from './Form';
@@ -13,21 +13,21 @@ TAO.addInlineHandler(
   }
 );
 
-const spaceProvider = new Provider(TAO);
-spaceProvider
+const spaceAdapter = new Adapter(TAO);
+spaceAdapter
   .setDefaultCtx({ term: 'Space', orient: 'Portal' })
   .addComponentHandler({ action: 'List' }, List)
   .addComponentHandler({ action: 'View' }, View)
   .addComponentHandler({ action: ['New', 'Edit'] }, Form);
 
-const messageProvider = new Provider(TAO);
-messageProvider.addComponentHandler({ action: 'Fail' }, ErrorMessage);
+const messageAdapter = new Adapter(TAO);
+messageAdapter.addComponentHandler({ action: 'Fail' }, ErrorMessage);
 
-const SpaceRender = () => (
+const SpaceContainer = () => (
   <div>
-    <Reactor key="spaceMessages" provider={messageProvider} />
-    <Reactor key="spaceComponents" provider={spaceProvider} />
+    <Reactor key="spaceMessages" adapter={messageAdapter} />
+    <Reactor key="spaceComponents" adapter={spaceAdapter} />
   </div>
 );
 
-export default SpaceRender;
+export default SpaceContainer;

@@ -1,36 +1,36 @@
 import { Component, createElement } from 'react';
 import PropTypes from 'prop-types';
-import Provider from './Provider';
+import Adapter from './Adapter';
 
 const DUMMY_STATE = {};
 
 class Reactor extends Component {
   static get propTypes() {
     return {
-      provider: PropTypes.instanceOf(Provider).isRequired
+      adapter: PropTypes.instanceOf(Adapter).isRequired
     };
   }
 
   constructor(props) {
     super(props);
-    // this._provider = provider;
+    // this._adapter = adapter;
   }
 
   componentWillMount() {
-    const { provider } = this.props;
-    provider.registerReactor(this, this.onNotifyChange.bind(this));
+    const { adapter } = this.props;
+    adapter.registerReactor(this, this.onNotifyChange.bind(this));
   }
 
   componentWillUnmount() {
-    const { provider } = this.props;
-    provider.unregisterReactor(this);
+    const { adapter } = this.props;
+    adapter.unregisterReactor(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    const { provider } = this.props;
-    if (provider !== nextProps.provider) {
-      provider.unregisterReactor(this);
-      nextProps.provider.registerReactor(this, this.onNotifyChange.bind(this));
+    const { adapter } = this.props;
+    if (adapter !== nextProps.adapter) {
+      adapter.unregisterReactor(this);
+      nextProps.adapter.registerReactor(this, this.onNotifyChange.bind(this));
     }
   }
 
@@ -38,24 +38,24 @@ class Reactor extends Component {
     return true;
   }
   //   // TODO: Implement this properly
-  //   // CURRENTLY: this.props.provider already has the changes after a TAO Handler
-  //   const { provider, children, ...props } = this.props;
-  //   if (provider !== nextProps.provider) {
+  //   // CURRENTLY: this.props.adapter already has the changes after a TAO Handler
+  //   const { adapter, children, ...props } = this.props;
+  //   if (adapter !== nextProps.adapter) {
   //     return true;
   //   }
   //   if (
-  //     (provider.current == null && nextProps.provider.current != null) ||
-  //     (provider.current != null && nextProps.provider.current == null)
+  //     (adapter.current == null && nextProps.adapter.current != null) ||
+  //     (adapter.current != null && nextProps.adapter.current == null)
   //   ) {
   //     return true;
   //   }
-  //   if (provider.current == null && nextProps.provider.current == null) {
+  //   if (adapter.current == null && nextProps.adapter.current == null) {
   //     return false;
   //   }
   //   // TODO: if the term, action, orient or any other props change for the same
   //   //  Component, if this returns `false` will React still call render on the
   //   //  Component
-  //   if (provider.current.Component !== nextProps.provider.current.Component) {
+  //   if (adapter.current.Component !== nextProps.adapter.current.Component) {
   //     return true;
   //   }
   //   // TODO: figure out if need to perform props equality check
@@ -69,11 +69,11 @@ class Reactor extends Component {
 
   render() {
     // NOTE: Currently swallows any children
-    const { provider, children, ...props } = this.props;
-    if (!provider.current) {
+    const { adapter, children, ...props } = this.props;
+    if (!adapter.current) {
       return null;
     }
-    const { ComponentHandler, tao, props: childProps } = provider.current;
+    const { ComponentHandler, tao, props: childProps } = adapter.current;
     if (!ComponentHandler) {
       return null;
     }

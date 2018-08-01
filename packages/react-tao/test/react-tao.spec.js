@@ -1,11 +1,11 @@
 import { Component } from 'react';
-import { Provider, Reactor } from '../build';
+import { Adapter, Reactor } from '../build';
 
 describe('@tao.js/react exports convenience tools to use tao.js with React', () => {
-  it('should export a Provider constructor', () => {
-    expect(Provider).toBeDefined();
-    expect(new Provider()).toBeInstanceOf(Provider);
-    expect(new Provider()).not.toBeInstanceOf(Function);
+  it('should export an Adapter constructor', () => {
+    expect(Adapter).toBeDefined();
+    expect(new Adapter()).toBeInstanceOf(Adapter);
+    expect(new Adapter()).not.toBeInstanceOf(Function);
   });
 
   it('should export a Reactor Component', () => {

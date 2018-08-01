@@ -1,7 +1,7 @@
 import { Component, createElement } from 'react';
 import { AppCtx } from '@tao.js/core';
 import Kernel from '@tao.js/core/build/Kernel';
-import Provider from '../build/Provider';
+import Adapter from '../build/Adapter';
 
 const TERM = 'colleague';
 const ACTION = 'hug';
@@ -22,18 +22,18 @@ function clearTAO() {
 beforeEach(initTAO);
 afterEach(clearTAO);
 
-describe('Provider exports a class', () => {
+describe('Adapter exports a class', () => {
   it('should provide a constructor that takes a TAO as argument', () => {
     // Assemble
     // Act
     // Assert
-    expect(Provider).toBeDefined();
-    expect(new Provider(TAO)).toBeInstanceOf(Provider);
+    expect(Adapter).toBeDefined();
+    expect(new Adapter(TAO)).toBeInstanceOf(Adapter);
   });
 
   it('should provide a defaultCtx getter to retrieve the default AC', () => {
     // Assemble
-    const uut = new Provider(TAO);
+    const uut = new Adapter(TAO);
     // Act
     // Assert
     expect(uut.defaultCtx).toBeDefined();
@@ -42,7 +42,7 @@ describe('Provider exports a class', () => {
 
   it('should provide a defaultCtx setter which will set the defaults for ACs', () => {
     // Assemble
-    const uut = new Provider(TAO);
+    const uut = new Adapter(TAO);
     // Act
     uut.defaultCtx = { term: TERM };
     // Assert
@@ -51,7 +51,7 @@ describe('Provider exports a class', () => {
 
   it('should not allow return from defaultCtx getter to update the default AC', () => {
     // Assemble
-    const uut = new Provider(TAO);
+    const uut = new Adapter(TAO);
     // Act
     uut.defaultCtx = { term: TERM };
     const defCtx = uut.defaultCtx;
@@ -63,7 +63,7 @@ describe('Provider exports a class', () => {
 
   it('should allow defaultCtx to be unset', () => {
     // Assemble
-    const uut = new Provider(TAO);
+    const uut = new Adapter(TAO);
     uut.defaultCtx = { term: TERM };
     // Act
     uut.defaultCtx = undefined;
@@ -74,7 +74,7 @@ describe('Provider exports a class', () => {
 
   it('should provide a chainable setDefaultCtx to set AC defaults to reduce verbosity', () => {
     // Assemble
-    const uut = new Provider(TAO);
+    const uut = new Adapter(TAO);
     const defCtx = { term: TERM, action: ACTION };
     // Act
     const returned = uut.setDefaultCtx(defCtx);
@@ -87,7 +87,7 @@ describe('Provider exports a class', () => {
 
   it('should allow setDefaultCtx to unset the defaults', () => {
     // Assemble
-    const uut = new Provider(TAO);
+    const uut = new Adapter(TAO);
     uut.defaultCtx = { term: TERM };
     // Act
     uut.setDefaultCtx();
@@ -98,7 +98,7 @@ describe('Provider exports a class', () => {
 
   it('should provide a `current` getter to retrieve the current Component context - initially null', () => {
     // Assemble
-    const uut = new Provider(TAO);
+    const uut = new Adapter(TAO);
     // Act
     // Assert
     expect(uut.current).toBeDefined();
@@ -106,11 +106,11 @@ describe('Provider exports a class', () => {
   });
 });
 
-describe('Provider integrates with React', () => {
+describe('Adapter integrates with React', () => {
   describe('by allowing to add Components as AC Handlers', () => {
     it('should provide an addComponentHandler chainable function', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const ac = new AppCtx(TERM, ACTION, ORIENT);
       // Act
       // Assert
@@ -121,7 +121,7 @@ describe('Provider integrates with React', () => {
 
     it('should throw an Error when trying to add handler for something other than a React.Component', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       // Act
       const willThrow = () =>
         uut.addComponentHandler(
@@ -136,7 +136,7 @@ describe('Provider integrates with React', () => {
 
     it('should update the `current` value using the Component when a matching AC is triggered', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const triggerData = { a: 1 };
       const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
       uut.addComponentHandler(triggerAc.unwrapCtx(true), Component);
@@ -156,7 +156,7 @@ describe('Provider integrates with React', () => {
 
     it('should add the same Component to multiple ACs', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const triggerData1 = { a: 1 };
       const triggerData2 = { b: 2 };
       // Act
@@ -183,7 +183,7 @@ describe('Provider integrates with React', () => {
 
     it('should not add Component when AC is not provided', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       // Act
       uut
         .addComponentHandler({}, Component)
@@ -194,7 +194,7 @@ describe('Provider integrates with React', () => {
 
     it('should allow adding the same Component more than once', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const ac1 = new AppCtx(TERM, ACTION, ORIENT);
       const ac2 = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
       // Act
@@ -222,7 +222,7 @@ describe('Provider integrates with React', () => {
 
     it('should not add the same Component to the same AC more than once', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const ac = new AppCtx(TERM, ACTION, ORIENT);
       // Act
       uut
@@ -237,7 +237,7 @@ describe('Provider integrates with React', () => {
 
     it('should allow clearing a Component for an AC', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const triggerData1 = { a: 1 };
       const triggerData2 = { b: 2 };
       uut.addComponentHandler(
@@ -269,7 +269,7 @@ describe('Provider integrates with React', () => {
 
     it('should use the defaultCtx to fill in missing parts of the AC when adding a Component', async () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const triggerData = { a: 1 };
       const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
       // Act
@@ -288,7 +288,7 @@ describe('Provider integrates with React', () => {
 
     it('should allow defining default props passed to the Component', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const defProps = { one: 1, two: 2 };
       const acData = { a: 1 };
       const ac1 = new AppCtx(TERM, ACTION, ORIENT);
@@ -321,7 +321,7 @@ describe('Provider integrates with React', () => {
   describe('can also remove Components from handling ACs', () => {
     it('should provide a removeComponentHandler chainable function', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const ac = new AppCtx(TERM, ACTION, ORIENT);
       // Act
       // Assert
@@ -334,7 +334,7 @@ describe('Provider integrates with React', () => {
 
     it('should remove a Component from handling an AC', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const ac = new AppCtx(TERM, ACTION, ORIENT);
       uut.addComponentHandler(ac.unwrapCtx(true), Component);
       // Act
@@ -350,7 +350,7 @@ describe('Provider integrates with React', () => {
 
     it('should remove a Component entirely (all ACs)', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       // Act
       uut.addComponentHandler(
         {
@@ -372,7 +372,7 @@ describe('Provider integrates with React', () => {
 
     it('should not remove a Component handler for an AC that it was not added for', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const ac = new AppCtx(TERM, ACTION, ORIENT);
       uut.addComponentHandler(ac.unwrapCtx(true), Component);
       const expected = new Map(uut._components);
@@ -397,7 +397,7 @@ describe('Provider integrates with React', () => {
   describe('by allowing components to register as reactors', () => {
     it('should have register and unregister methods for reactors', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       // Act
       // Assert
       expect(uut.registerReactor).toBeDefined();
@@ -408,7 +408,7 @@ describe('Provider integrates with React', () => {
 
     it('should call a notify change function of a reactor on a hnadled AC', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const triggerData = { a: 1 };
       const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
       uut.addComponentHandler(triggerAc.unwrapCtx(true), Component);
@@ -423,7 +423,7 @@ describe('Provider integrates with React', () => {
 
     it('should not break if a notifier is not passed when registering a reactor', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const triggerData = { a: 1 };
       const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
       uut.addComponentHandler(triggerAc.unwrapCtx(true), Component);
@@ -437,7 +437,7 @@ describe('Provider integrates with React', () => {
 
     it('should notify all reactors registered when an AC is hnadled', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const triggerData = { a: 1 };
       const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
       uut.addComponentHandler(triggerAc.unwrapCtx(true), Component);
@@ -460,7 +460,7 @@ describe('Provider integrates with React', () => {
 
     it('should not notify reactors that unregister when an AC is hnadled', () => {
       // Assemble
-      const uut = new Provider(TAO);
+      const uut = new Adapter(TAO);
       const triggerData = { a: 1 };
       const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
       uut.addComponentHandler(triggerAc.unwrapCtx(true), Component);

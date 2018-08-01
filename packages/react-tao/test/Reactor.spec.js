@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { mount } from 'enzyme';
 import { AppCtx } from '@tao.js/core';
 import Kernel from '@tao.js/core/build/Kernel';
-import Provider from '../build/Provider';
+import Adapter from '../build/Adapter';
 import Reactor from '../build/Reactor';
 // import { wrap } from 'module';
 
@@ -44,10 +44,10 @@ describe('Reactor exports a React Component for reacting to TAO App Contexts', (
     expect(new Reactor()).toBeInstanceOf(Component);
   });
 
-  it('should require one property called `provider` that must be a Provider', () => {
+  it('should require one property called `adapter` that must be a Adapter', () => {
     // Assemble
-    const provider = new Provider(TAO);
-    const notAProvider = 'call me maybe';
+    const adapter = new Adapter(TAO);
+    const notAAdapter = 'call me maybe';
     const originalConsoleError = console.error;
     const mockConsoleError = (console.error = jest
       .fn()
@@ -57,33 +57,33 @@ describe('Reactor exports a React Component for reacting to TAO App Contexts', (
       .mockName('mock console.error'));
 
     // Act
-    const goodWrapper = mount(<Reactor provider={provider} />);
-    const missingProviderThrows = () => mount(<Reactor />);
-    const nonProviderThrows = () => mount(<Reactor provider={notAProvider} />);
+    const goodWrapper = mount(<Reactor adapter={adapter} />);
+    const missingAdapterThrows = () => mount(<Reactor />);
+    const nonAdapterThrows = () => mount(<Reactor adapter={notAAdapter} />);
 
     // Assert
-    expect(goodWrapper.prop('provider')).toBe(provider);
-    expect(missingProviderThrows).toThrow();
+    expect(goodWrapper.prop('adapter')).toBe(adapter);
+    expect(missingAdapterThrows).toThrow();
     expect(mockConsoleError).toHaveBeenNthCalledWith(
       1,
-      'Warning: Failed prop type: The prop `provider` is marked as required in `Reactor`, but its value is `undefined`.\n    in Reactor'
+      'Warning: Failed prop type: The prop `adapter` is marked as required in `Reactor`, but its value is `undefined`.\n    in Reactor'
     );
     mockConsoleError.mockClear();
-    expect(nonProviderThrows).toThrow();
+    expect(nonAdapterThrows).toThrow();
     expect(mockConsoleError).toHaveBeenNthCalledWith(
       1,
-      'Warning: Failed prop type: Invalid prop `provider` of type `String` supplied to `Reactor`, expected instance of `Provider`.\n    in Reactor'
+      'Warning: Failed prop type: Invalid prop `adapter` of type `String` supplied to `Reactor`, expected instance of `Adapter`.\n    in Reactor'
     );
     console.error = originalConsoleError;
   });
 
-  it('should register for changes with the Provider when mounted', () => {
+  it('should register for changes with the Adapter when mounted', () => {
     // Assemble
-    const provider = new Provider(TAO);
-    const registerMock = jest.spyOn(provider, 'registerReactor');
+    const adapter = new Adapter(TAO);
+    const registerMock = jest.spyOn(adapter, 'registerReactor');
 
     // Act
-    const wrapper = mount(<Reactor provider={provider} />);
+    const wrapper = mount(<Reactor adapter={adapter} />);
 
     // Assert
     expect(registerMock).toHaveBeenCalledTimes(1);
@@ -93,11 +93,11 @@ describe('Reactor exports a React Component for reacting to TAO App Contexts', (
     );
   });
 
-  it('should unregister from the Provider when unmounting', () => {
+  it('should unregister from the Adapter when unmounting', () => {
     // Assemble
-    const provider = new Provider(TAO);
-    const unregisterMock = jest.spyOn(provider, 'unregisterReactor');
-    const wrapper = mount(<Reactor provider={provider} />);
+    const adapter = new Adapter(TAO);
+    const unregisterMock = jest.spyOn(adapter, 'unregisterReactor');
+    const wrapper = mount(<Reactor adapter={adapter} />);
     const wrapperInstance = wrapper.instance();
 
     // Act
@@ -110,43 +110,43 @@ describe('Reactor exports a React Component for reacting to TAO App Contexts', (
 
   it('should not render a component without an AC being triggered', () => {
     // Assemble
-    const provider = new Provider(TAO);
+    const adapter = new Adapter(TAO);
 
     // Act
-    const wrapper = mount(<Reactor provider={provider} />);
+    const wrapper = mount(<Reactor adapter={adapter} />);
     // console.log('wrapper.find:', wrapper.find('Reactor').debug());
     // console.log('wrapper.render:', wrapper.render());
 
     // Assert
     expect(wrapper.instance()).toBeInstanceOf(Reactor);
     expect(wrapper.find('Reactor')).toBeEmptyRender();
-    expect(wrapper.prop('provider')).toBe(provider);
+    expect(wrapper.prop('adapter')).toBe(adapter);
   });
 
   it('should render a component set as a Handler for an AC', () => {
     // Assemble
-    const provider = new Provider(TAO);
+    const adapter = new Adapter(TAO);
     const triggerAc1 = new AppCtx(TERM, ACTION, ORIENT, [{ id: 1 }]);
     const triggerAc2 = new AppCtx(TERM, ALT_ACTION, ORIENT, {
       a: { name: 'doooood' }
     });
-    provider.addComponentHandler(triggerAc1.unwrapCtx(true), TestComponentA);
-    provider.addComponentHandler(triggerAc2.unwrapCtx(true), TestComponentB, {
+    adapter.addComponentHandler(triggerAc1.unwrapCtx(true), TestComponentA);
+    adapter.addComponentHandler(triggerAc2.unwrapCtx(true), TestComponentB, {
       css: 'hey'
     });
-    // const reactor = <Reactor provider={provider} />;
+    // const reactor = <Reactor adapter={adapter} />;
 
     // Act
-    const wrapper = mount(<Reactor provider={provider} />);
+    const wrapper = mount(<Reactor adapter={adapter} />);
     expect(wrapper.find('Reactor')).toBeEmptyRender();
-    expect(wrapper.prop('provider')).toBe(provider);
-    expect(provider.current).toBeDefined();
-    expect(provider.current).toBeNull();
+    expect(wrapper.prop('adapter')).toBe(adapter);
+    expect(adapter.current).toBeDefined();
+    expect(adapter.current).toBeNull();
     // console.log('pre.debug:', wrapper.debug());
     TAO.setAppCtx(triggerAc1);
-    expect(provider.current).toBeDefined();
-    expect(provider.current.ComponentHandler).toBeDefined();
-    expect(provider.current.ComponentHandler).toBeInstanceOf(Function);
+    expect(adapter.current).toBeDefined();
+    expect(adapter.current.ComponentHandler).toBeDefined();
+    expect(adapter.current.ComponentHandler).toBeInstanceOf(Function);
     // console.log('post-setAppCtx.debug:', wrapper.debug());
     wrapper.update();
     // console.log('post-update.debug:', wrapper.debug());
@@ -177,17 +177,17 @@ describe('Reactor exports a React Component for reacting to TAO App Contexts', (
 
   it('should render empty if AC triggered with no (null) ComponentHandler', () => {
     // Assemble
-    const provider = new Provider(TAO);
+    const adapter = new Adapter(TAO);
     const componentAAppCtx = new AppCtx(TERM, ACTION, ORIENT, [{ id: 1 }]);
     const missingComponentAppCtx = new AppCtx(TERM, ALT_ACTION, ORIENT);
-    provider.addComponentHandler(
+    adapter.addComponentHandler(
       componentAAppCtx.unwrapCtx(true),
       TestComponentA
     );
-    provider.addComponentHandler(missingComponentAppCtx.unwrapCtx(true));
+    adapter.addComponentHandler(missingComponentAppCtx.unwrapCtx(true));
 
     // Act
-    const wrapper = mount(<Reactor provider={provider} />);
+    const wrapper = mount(<Reactor adapter={adapter} />);
     TAO.setAppCtx(componentAAppCtx);
     wrapper.update();
     expect(wrapper.children().length).toBe(1);
@@ -201,21 +201,21 @@ describe('Reactor exports a React Component for reacting to TAO App Contexts', (
 
     // Assert
     expect(wrapper.find('Reactor')).toBeEmptyRender();
-    expect(wrapper.prop('provider')).toBe(provider);
+    expect(wrapper.prop('adapter')).toBe(adapter);
   });
 });
 
-describe("Reactor Component's provider can be swapped using props changes", () => {
-  it('should unregister and register if Provider is changed', () => {
+describe("Reactor Component's adapter can be swapped using props changes", () => {
+  it('should unregister and register if Adapter is changed', () => {
     // Assemble
-    const provider1 = new Provider(TAO);
-    const provider2 = new Provider(TAO);
-    const unregisterMock = jest.spyOn(provider1, 'unregisterReactor');
-    const registerMock = jest.spyOn(provider2, 'registerReactor');
-    const wrapper = mount(<Reactor provider={provider1} />);
+    const adapter1 = new Adapter(TAO);
+    const adapter2 = new Adapter(TAO);
+    const unregisterMock = jest.spyOn(adapter1, 'unregisterReactor');
+    const registerMock = jest.spyOn(adapter2, 'registerReactor');
+    const wrapper = mount(<Reactor adapter={adapter1} />);
 
     // Act
-    wrapper.setProps({ provider: provider2 });
+    wrapper.setProps({ adapter: adapter2 });
 
     // Assert
     expect(unregisterMock).toHaveBeenCalledTimes(1);
@@ -227,40 +227,40 @@ describe("Reactor Component's provider can be swapped using props changes", () =
     );
   });
 
-  it('should ignore changes from the old Provider', () => {
+  it('should ignore changes from the old Adapter', () => {
     // Assemble
-    const provider1 = new Provider(TAO);
-    const provider2 = new Provider(TAO);
+    const adapter1 = new Adapter(TAO);
+    const adapter2 = new Adapter(TAO);
     const triggerAc1 = new AppCtx(TERM, ACTION, ORIENT, [{ id: 1 }]);
-    provider1.addComponentHandler(triggerAc1.unwrapCtx(true), TestComponentA);
-    const wrapper = mount(<Reactor provider={provider1} />);
+    adapter1.addComponentHandler(triggerAc1.unwrapCtx(true), TestComponentA);
+    const wrapper = mount(<Reactor adapter={adapter1} />);
 
     // Act
-    wrapper.setProps({ provider: provider2 });
+    wrapper.setProps({ adapter: adapter2 });
     TAO.setAppCtx(triggerAc1);
     wrapper.update();
 
     // Assert
     expect(wrapper.find('Reactor')).toBeEmptyRender();
-    expect(wrapper.prop('provider')).toBe(provider2);
-    expect(provider2.current).toBeDefined();
-    expect(provider2.current).toBeNull();
+    expect(wrapper.prop('adapter')).toBe(adapter2);
+    expect(adapter2.current).toBeDefined();
+    expect(adapter2.current).toBeNull();
   });
 
-  it('should react to changes from the new Provider', () => {
+  it('should react to changes from the new Adapter', () => {
     // Assemble
-    const provider1 = new Provider(TAO);
-    const provider2 = new Provider(TAO);
+    const adapter1 = new Adapter(TAO);
+    const adapter2 = new Adapter(TAO);
     const triggerAc2 = new AppCtx(TERM, ALT_ACTION, ORIENT, {
       a: { name: 'doooood' }
     });
-    provider2.addComponentHandler(triggerAc2.unwrapCtx(true), TestComponentB, {
+    adapter2.addComponentHandler(triggerAc2.unwrapCtx(true), TestComponentB, {
       css: 'hey'
     });
-    const wrapper = mount(<Reactor provider={provider1} />);
+    const wrapper = mount(<Reactor adapter={adapter1} />);
 
     // Act
-    wrapper.setProps({ provider: provider2 });
+    wrapper.setProps({ adapter: adapter2 });
     TAO.setAppCtx(triggerAc2);
     wrapper.update();
 
@@ -276,25 +276,25 @@ describe("Reactor Component's provider can be swapped using props changes", () =
     );
   });
 
-  it('should react to changes if setting Provider to same previously set Provider', () => {
+  it('should react to changes if setting Adapter to same previously set Adapter', () => {
     // Assemble
-    const provider = new Provider(TAO);
-    const unregisterMock = jest.spyOn(provider, 'unregisterReactor');
-    const registerMock = jest.spyOn(provider, 'registerReactor');
+    const adapter = new Adapter(TAO);
+    const unregisterMock = jest.spyOn(adapter, 'unregisterReactor');
+    const registerMock = jest.spyOn(adapter, 'registerReactor');
     const triggerAc1 = new AppCtx(TERM, ACTION, ORIENT, [{ id: 1 }]);
     const triggerAc2 = new AppCtx(TERM, ALT_ACTION, ORIENT, {
       a: { name: 'doooood' }
     });
-    provider.addComponentHandler(triggerAc1.unwrapCtx(true), TestComponentA);
-    provider.addComponentHandler(triggerAc2.unwrapCtx(true), TestComponentB, {
+    adapter.addComponentHandler(triggerAc1.unwrapCtx(true), TestComponentA);
+    adapter.addComponentHandler(triggerAc2.unwrapCtx(true), TestComponentB, {
       css: 'hey'
     });
-    const wrapper = mount(<Reactor provider={provider} />);
+    const wrapper = mount(<Reactor adapter={adapter} />);
 
     // Act
     TAO.setAppCtx(triggerAc1);
     wrapper.update();
-    wrapper.setProps({ provider: provider });
+    wrapper.setProps({ adapter: adapter });
     TAO.setAppCtx(triggerAc2);
     wrapper.update();
 
