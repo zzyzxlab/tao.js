@@ -124,7 +124,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
      */
     for (let interceptH of this.interceptHandlers) {
       // using the decorator pattern to call these?
-      let intercepted = interceptH({ t, a, o }, data);
+      let intercepted = await interceptH({ t, a, o }, data);
       if (!intercepted) {
         continue;
       }

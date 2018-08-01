@@ -726,6 +726,40 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(setAppCtx).not.toBeCalled();
       expect(inlineHandler).toBeCalled();
     });
+
+    it('should not call asyncHander if handler returns truthy value', async () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const nextAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
+      const handler = jest.fn().mockReturnValue(nextAc);
+      const asyncHandler = jest.fn().mockName('asyncHandler');
+      const setAppCtx = jest.fn().mockName('setAppCtx');
+      uut.addInterceptHandler(handler);
+      uut.addAsyncHandler(asyncHandler);
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      // Act
+      await uut.handleAppCon(matchAc, setAppCtx);
+      // Assert
+      // expect(setAppCtx).toBeCalledWith(nextAc);
+      expect(asyncHandler).not.toBeCalled();
+    });
+
+    it('should not call subsequent interceptHander if handler returns truthy value', async () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const nextAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
+      const handler = jest.fn().mockReturnValue(nextAc);
+      const interceptHandler = jest.fn().mockName('interceptHandler');
+      const setAppCtx = jest.fn().mockName('setAppCtx');
+      uut.addInterceptHandler(handler);
+      uut.addInterceptHandler(interceptHandler);
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      // Act
+      await uut.handleAppCon(matchAc, setAppCtx);
+      // Assert
+      // expect(setAppCtx).toBeCalledWith(nextAc);
+      expect(interceptHandler).not.toBeCalled();
+    });
   });
 });
 
