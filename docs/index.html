@@ -700,28 +700,92 @@
 <li>Leverage that language to build the software</li>
 <li>Build software with the intent that it will evolve</li>
 </ol>
-<p>Go to <a href="intro/">Introduction</a> section for more</p>
 <h2 id="what-is-taojs">What is tao.js?</h2>
+<p>Literally at the core, <code>@tao.js/core</code> is a simple package to use in <em>any</em> App we build to
+create Reactive Apps that espouse the principles outlined in the <a href="https://www.reactivemanifesto.org/" target="_blank">Reactive Manifesto</a>
+by implementing what&apos;s called the <a href="GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> in JavaScript.</p>
+<p>The whole thing is designed around generating <em>3-Dimensional Events</em> in the form of a tuple
+with a specific shape that follows the acronym from its namesake (<em>T.A.O.</em>):</p>
+<p><strong>T</strong>erm - the <em>thing</em> in the context - conceptually usually a domain entity<br><strong>A</strong>ction - the <em>operation</em> being performed on the <em>thing</em> in the context<br><strong>O</strong>rient(ation) - the <em>perspective</em> of the interaction with the system at
+the moment of this <em>operation</em> on this <em>thing</em>  </p>
+<p>These are affectionately called <a href="GLOSSARY.html#taoples" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation)">taoples</a> describing specific tuples with this <img align="absmiddle" alt=":point_up:" class="emoji" src="gitbook/gitbook-plugin-advanced-emoji/emojis/point_up.png" title=":point_up:">
+specific shape and appearing in this order.</p>
+<p>Examples are:</p>
+<ul>
+<li><code>{App,Enter,Admin}</code></li>
+<li><code>{User,Track,Portal}</code></li>
+<li><code>{Project,Create,Portal}</code></li>
+<li><code>{Task,Store,Reporting}</code></li>
+</ul>
+<p>These Events or Messages are defined in this way to be flexible enough to capture any
+<a href="GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Context</a> that can occur in any App while being closed enough so as not to
+be infinitely diverse.</p>
+<p>From there, we use the <code>TAO</code> export of the package to add our listeners, known as
+handlers in <a href="GLOSSARY.html#taojs" class="glossary-term" title="implementation of the TAO in JavaScript, including the core library as well as additional
+packages to ease implementation of onboarding with other frameworks">tao.js</a>, like this:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">import</span> <span class="token constant">TAO</span> <span class="token keyword">from</span> <span class="token string">&apos;@tao.js/core&apos;</span><span class="token punctuation">;</span>
+
+<span class="token comment">// add a handler</span>
+<span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">addInlineHandler</span><span class="token punctuation">(</span><span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;Kids&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Camp&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token comment">// handler implements a reaction to the specific AppCon (Event)</span>
+  <span class="token comment">// - excerpted from: https://www.youtube.com/watch?v=Ub7MkK-a0hU</span>
+  <span class="token function">alert</span><span class="token punctuation">(</span><span class="token template-string"><span class="token string">`Hi, kids! Welcome to Camp Krusty&#x2026;&lt;laughs&gt;&#x2026;I&apos;ll see you in a few weeks.
+  Until then I&apos;ve turned things over to my bestest buddy in the whole wide world,
+  </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>data<span class="token punctuation">.</span>Camp<span class="token punctuation">.</span>director<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">. I want you to treat </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>data<span class="token punctuation">.</span>Camp<span class="token punctuation">.</span>director<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string"> with the same
+  respect you would treat me. Now here&apos;s </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>data<span class="token punctuation">.</span>Camp<span class="token punctuation">.</span>director<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// set the AppCon passing relevant data</span>
+<span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">setCtx</span><span class="token punctuation">(</span><span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;Kids&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Camp&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  Camp<span class="token punctuation">:</span> <span class="token punctuation">{</span> name<span class="token punctuation">:</span> <span class="token string">&apos;Camp Krusty&apos;</span><span class="token punctuation">,</span> director<span class="token punctuation">:</span> <span class="token string">&apos;Mr. Black&apos;</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>So there you have it.  On the surface it&apos;s very simple and easy to use.  Add handlers for
+<a href="GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Contexts</a> (<a href="GLOSSARY.html#appcons" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCons</a>) in the form of <a href="GLOSSARY.html#taoples" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation)">taoples</a> and JavaScript functions with
+2 arguments (the <a href="GLOSSARY.html#taople" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation).">taople</a> as <code>tao</code> and the particular <code>data</code> for this occurrence).  Next we
+set those <a href="GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Contexts</a> at the right time in the App to create the reactions.</p>
+<p>With this simplicity comes a lot of power in the form of creating Apps that are:</p>
+<ul>
+<li>decoupled</li>
+<li>flexible</li>
+<li>designed to easily evolve</li>
+<li>easy to integrate</li>
+<li>horizontally scalable</li>
+<li>common Event-driven system across client &amp; server</li>
+<li>common Message format for all environments</li>
+</ul>
+<p>Give it a try and then read the guide that follows to learn more about all of the various
+capabilities you get by the way the library was defined.</p>
+<h2 id="theres-more">There&apos;s more</h2>
 <p><a href="GLOSSARY.html#taojs" class="glossary-term" title="implementation of the TAO in JavaScript, including the core library as well as additional
-packages to ease implementation of onboarding with other frameworks">tao.js</a> is a JavaScript library of packages built to implement the <a href="GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
-representation of State and implementing the System using handlers that react to them.">TAO</a> in JavaScript and
-make it easy to integrate with other popular JavaScript frameworks for building Apps.</p>
-<h2 id="fine-dont-answer-what-is-the-tao-then">Fine, don&apos;t answer. What is the TAO then?</h2>
+packages to ease implementation of onboarding with other frameworks">tao.js</a> encompasses a full JavaScript library of packages built to implement the <a href="GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> in
+JavaScript including making it easy to integrate with other popular JavaScript frameworks
+for building Apps.</p>
+<p>All packages are published under the <code>@tao.js</code> namespace and available from the
+<a href="https://github.com/zzyzxlab/tao.js" target="_blank">monorepo on Github</a>.</p>
+<p>Currently there are packages to integrate with:</p>
+<ul>
+<li>React.js - <a href="https://github.com/zzyzxlab/tao.js/packages/react-tao" target="_blank">@tao.js/react</a></li>
+<li>Socket.io - <a href="https://github.com/zzyzxlab/tao.js/packages/tao-socket-io" target="_blank">@tao.js/socket.io</a></li>
+<li>and more to come&#x2026;</li>
+</ul>
+<h2 id="tell-me-more-about-this-tao-thingy">Tell me more about this TAO thingy</h2>
 <p>The <a href="GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
 representation of State and implementing the System using handlers that react to them.">TAO</a> is a programming paradigm designed around splitting up any System or Application
 into very granular constituent parts organized to respond to a common message format,
-a 3-dimensional tuple, aka a triple, with a very specific set of 3 attributes that
-can be used to describe <em>any</em> <a href="GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
-described by a taople with attached associated data.">Application Context</a> of a System or Application.  These
-are affectionately referred to as &quot;<a href="GLOSSARY.html#taoples" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
-of Term, Action and Orient(ation)">taoples</a>&quot; because of their form as not being
-generalized tuples (or generalized triples).</p>
-<p>The attributes of a <a href="GLOSSARY.html#taople" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
-of Term, Action and Orient(ation).">taople</a> follow the acronym of the <a href="GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
-representation of State and implementing the System using handlers that react to them.">TAO</a> (or T.A.O.) to make it easy
-to remember:</p>
-<p><strong>T</strong>erm - the <em>thing</em> in the context - conceptually usually a domain entity<br><strong>A</strong>ction - the <em>operation</em> being performed on the <em>thing</em> in the context<br><strong>O</strong>rient(ation) - the <em>perspective</em> of the interaction with the system at
-the moment of this <em>operation</em> on this <em>thing</em>  </p>
+a 3-dimensional tuple (<a href="GLOSSARY.html#taople" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
+of Term, Action and Orient(ation).">taople</a>) with a very specific set of 3 attributes that
+can be used to describe <em>any</em> context which can occur within the System or Application
+(known here as <a href="GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Context</a>).</p>
 <p>Describing a System or Application as a <em>Set of <a href="GLOSSARY.html#taoples" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
 of Term, Action and Orient(ation)">taoples</a></em> has the specific intent of making
 it easy to communicate in non-technical terms what the software <em>should</em> or <em>intends</em> to do.</p>
@@ -729,13 +793,16 @@ it easy to communicate in non-technical terms what the software <em>should</em> 
 generating and passing these messages to functions known as handlers that perform the
 value added activities of the program.</p>
 <p>Leveraging the <a href="GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
-when an Application Context that matches is set on the TAO.">handler</a> as the unit of execution allows the software to built to run in
+when an Application Context that matches is set on the TAO.">handler</a> as the unit of execution allows the software built to run in
 any execution environment.</p>
 <h2 id="power-of-a-common-form-of-event--message">Power of a Common Form of Event &amp; Message</h2>
 <p>By making all events and messages follow a common format, there is no longer any need
 to negotiate particular interfaces between the various layers or parts of a System or
 Application, thus making it a simplified programming paradigm to accept and encourage
 best practices in building software.</p>
+<p>The downstream beauty of this is the meta-data provided by all of these Events is easy
+to siphon off to reporting and any other use for the data without additional effort
+in the generation.</p>
 
                                 
                                 </section>
@@ -775,7 +842,7 @@ best practices in building software.</p>
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"README","level":"1.1","depth":1,"next":{"title":"Introduction","level":"1.2","depth":1,"path":"intro/README.md","ref":"intro/README.md","articles":[{"title":"Motivations & Goals of tao.js","level":"1.2.1","depth":2,"path":"intro/motivations.md","ref":"intro/motivations.md","articles":[]},{"title":"Basic Terminology","level":"1.2.2","depth":2,"path":"intro/basic-terms.md","ref":"intro/basic-terms.md","articles":[]},{"title":"Development Roadmap","level":"1.2.3","depth":2,"path":"intro/roadmap.md","ref":"intro/roadmap.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"README.md","mtime":"2018-08-02T00:41:18.606Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-08-02T00:47:12.640Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"README","level":"1.1","depth":1,"next":{"title":"Introduction","level":"1.2","depth":1,"path":"intro/README.md","ref":"intro/README.md","articles":[{"title":"Motivations & Goals of tao.js","level":"1.2.1","depth":2,"path":"intro/motivations.md","ref":"intro/motivations.md","articles":[]},{"title":"Basic Terminology","level":"1.2.2","depth":2,"path":"intro/basic-terms.md","ref":"intro/basic-terms.md","articles":[]},{"title":"Development Roadmap","level":"1.2.3","depth":2,"path":"intro/roadmap.md","ref":"intro/roadmap.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"README.md","mtime":"2018-08-02T07:26:54.490Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-08-02T07:30:00.680Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>
