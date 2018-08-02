@@ -43,10 +43,17 @@ describe('Adapter exports a class', () => {
   it('should provide a defaultCtx setter which will set the defaults for ACs', () => {
     // Assemble
     const uut = new Adapter(TAO);
+    const ctx1 = { term: TERM };
+    const ctx2 = { t: ALT_TERM, a: ACTION };
+    const expected2 = { term: ALT_TERM, action: ACTION };
     // Act
-    uut.defaultCtx = { term: TERM };
+    uut.defaultCtx = ctx1;
     // Assert
-    expect(uut.defaultCtx).toMatchObject({ term: TERM });
+    expect(uut.defaultCtx).toMatchObject(ctx1);
+    // Act
+    uut.defaultCtx = ctx2;
+    // Assert
+    expect(uut.defaultCtx).toMatchObject(expected2);
   });
 
   it('should not allow return from defaultCtx getter to update the default AC', () => {
@@ -75,14 +82,21 @@ describe('Adapter exports a class', () => {
   it('should provide a chainable setDefaultCtx to set AC defaults to reduce verbosity', () => {
     // Assemble
     const uut = new Adapter(TAO);
-    const defCtx = { term: TERM, action: ACTION };
+    const defCtx1 = { term: TERM, action: ACTION };
+    const defCtx2 = { a: ALT_ACTION, o: ALT_ORIENT };
+    const expected2 = { action: ALT_ACTION, orient: ALT_ORIENT };
     // Act
-    const returned = uut.setDefaultCtx(defCtx);
+    const returned1 = uut.setDefaultCtx(defCtx1);
+    const actual1 = uut.defaultCtx;
+    const returned2 = uut.setDefaultCtx(defCtx2);
+    const actual2 = uut.defaultCtx;
     // Assert
     expect(uut.setDefaultCtx).toBeDefined();
     expect(uut.setDefaultCtx).toBeInstanceOf(Function);
-    expect(returned).toBe(uut);
-    expect(uut.defaultCtx).toMatchObject(defCtx);
+    expect(returned1).toBe(uut);
+    expect(returned2).toBe(uut);
+    expect(actual1).toMatchObject(defCtx1);
+    expect(actual2).toMatchObject(expected2);
   });
 
   it('should allow setDefaultCtx to unset the defaults', () => {
@@ -161,7 +175,7 @@ describe('Adapter integrates with React', () => {
       const triggerData2 = { b: 2 };
       // Act
       uut.addComponentHandler(
-        { term: [TERM, ALT_TERM], action: [ACTION], orient: ORIENT },
+        { t: [TERM, ALT_TERM], a: [ACTION], o: ORIENT },
         Component
       );
       TAO.setCtx({ t: TERM, a: ACTION, o: ORIENT }, [triggerData1]);
@@ -200,7 +214,7 @@ describe('Adapter integrates with React', () => {
       // Act
       uut
         .addComponentHandler(ac1.unwrapCtx(true), Component)
-        .addComponentHandler(ac2.unwrapCtx(true), Component);
+        .addComponentHandler(ac2.unwrapCtx(), Component);
       TAO.setAppCtx(ac1);
       const actual1 = uut.current;
       TAO.setAppCtx(ac2);
@@ -226,7 +240,7 @@ describe('Adapter integrates with React', () => {
       const ac = new AppCtx(TERM, ACTION, ORIENT);
       // Act
       uut
-        .addComponentHandler(ac.unwrapCtx(true), Component)
+        .addComponentHandler(ac.unwrapCtx(), Component)
         .addComponentHandler(ac.unwrapCtx(true), Component);
       // Assert
       expect(Array.from(uut._components.keys())).toContain(Component);
@@ -274,7 +288,7 @@ describe('Adapter integrates with React', () => {
       const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
       // Act
       uut.defaultCtx = { term: TERM, orient: ORIENT };
-      uut.addComponentHandler({ action: ACTION }, Component);
+      uut.addComponentHandler({ a: ACTION }, Component);
       await TAO.setAppCtx(triggerAc);
       // Assert
       expect(uut.current).toMatchObject({
@@ -338,7 +352,7 @@ describe('Adapter integrates with React', () => {
       const ac = new AppCtx(TERM, ACTION, ORIENT);
       uut.addComponentHandler(ac.unwrapCtx(true), Component);
       // Act
-      uut.removeComponentHandler(ac.unwrapCtx(true), Component);
+      uut.removeComponentHandler(ac.unwrapCtx(), Component);
       TAO.setAppCtx(ac);
       const actual = uut.current;
       // Assert
@@ -463,7 +477,7 @@ describe('Adapter integrates with React', () => {
       const uut = new Adapter(TAO);
       const triggerData = { a: 1 };
       const triggerAc = new AppCtx(TERM, ACTION, ORIENT, [triggerData]);
-      uut.addComponentHandler(triggerAc.unwrapCtx(true), Component);
+      uut.addComponentHandler(triggerAc.unwrapCtx(), Component);
       const onNotify1 = jest.fn().mockName('reactor notifier 1');
       const onNotifyUnregister = jest
         .fn()

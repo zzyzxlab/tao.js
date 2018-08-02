@@ -8,7 +8,8 @@
     "book:clean": "rimraf dist",
     "book:build": "gitbook build ./src ./dist",
     "book:edit": "gitbook serve ./src",
-    "make": "npm run book:clean && npm run book:prep && npm run book:build"
+    "make": "npm run book:clean && npm run book:prep && npm run book:build",
+    "coverage": "cp -a src/content/coverage/. src/_book/coverage/ && cp -a src/_book/coverage/. dist/coverage/"
   },
   "author": "eudaimos",
   "license": "Apache-2.0",
