@@ -42,4 +42,4 @@
 
 ---
 
-* [Coverage](https://zyzzyxlab.github.io/tao.js/coverage/index.html)
+* [Coverage](https://zzyzxlab.github.io/tao.js/coverage/index.html)
