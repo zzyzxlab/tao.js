@@ -4,7 +4,7 @@
 
 ## Further Reading
 
-[Docs at zyzzyxlab.github.io/tao.js](https://zyzzyxlab.github.io/tao.js)
+[Docs at zzyzxlab.github.io/tao.js/](https://zzyzxlab.github.io/tao.js/)
 
 [What is `tao.js`?](blog post)
 
