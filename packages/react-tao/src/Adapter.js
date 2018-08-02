@@ -4,6 +4,14 @@ import { AppCtx } from '@tao.js/core';
 
 const noop = () => {};
 
+function normalizeAC({ t, term, a, action, o, orient }) {
+  return {
+    term: term || t,
+    action: action || a,
+    orient: orient || o
+  };
+}
+
 const cleanInput = ({ term, action, orient }) => {
   const incoming = { term, action, orient };
   Object.keys(incoming).forEach(k => incoming[k] == null && delete incoming[k]);
@@ -42,16 +50,20 @@ class Adapter {
     return { ...this._default };
   }
 
-  set defaultCtx({ term, action, orient } = {}) {
-    this._default = cleanInput({ term, action, orient });
+  set defaultCtx({ t, term, a, action, o, orient } = {}) {
+    this._default = cleanInput(normalizeAC({ t, term, a, action, o, orient }));
   }
 
-  setDefaultCtx({ term, action, orient } = {}) {
-    this.defaultCtx = { term, action, orient };
+  setDefaultCtx({ t, term, a, action, o, orient } = {}) {
+    this.defaultCtx = { t, term, a, action, o, orient };
     return this;
   }
 
-  addComponentHandler({ term, action, orient } = {}, ComponentHandler, props) {
+  addComponentHandler(
+    { t, term, a, action, o, orient } = {},
+    ComponentHandler,
+    props
+  ) {
     if (
       ComponentHandler &&
       !(
@@ -63,7 +75,7 @@ class Adapter {
         'cannot add a Component handler that is not a React.Component or Function'
       );
     }
-    const tao = cleanInput({ term, action, orient });
+    const tao = cleanInput(normalizeAC({ t, term, a, action, o, orient }));
     const ctx = Object.assign(this.defaultCtx, tao);
     const permutations = cartesian(ctx);
     if (!permutations.length) {
@@ -93,12 +105,16 @@ class Adapter {
     return this;
   }
 
-  removeComponentHandler({ term, action, orient } = {}, ComponentHandler) {
+  removeComponentHandler(
+    { t, term, a, action, o, orient } = {},
+    ComponentHandler
+  ) {
     if (!this._components.has(ComponentHandler)) {
       return this;
     }
     const componentHandlers = this._components.get(ComponentHandler);
-    if (!term && !action && !orient) {
+    const tao = cleanInput(normalizeAC({ t, term, a, action, o, orient }));
+    if (!tao.term && !tao.action && !tao.orient) {
       // remove all handlers
       for (let [ac, handler] of componentHandlers.handlers) {
         this._tao.removeInlineHandler(ac.unwrapCtx(), handler);
@@ -106,7 +122,7 @@ class Adapter {
       this._components.delete(ComponentHandler);
       return this;
     }
-    const ctx = Object.assign(this.defaultCtx, { term, action, orient });
+    const ctx = Object.assign(this.defaultCtx, tao);
     const permutations = cartesian(ctx);
     permutations.forEach(({ term: t, action: a, orient: o }) => {
       const acKey = AppCtx.getKey(t, a, o);
