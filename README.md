@@ -34,13 +34,25 @@ This really needs to be filled out
   - [x] unit tests for `Reactor`
   - [x] enable `Provider` to unset current component using `null` as a handler for TAO ACs
   - [x] refactor `Provider` to be `Adapter`
-  - [ ] make taople definition on `Adapter.addComponentHandler` #2 method consistent with `@tao.js/core`
+  - [x] make taople definition on `Adapter.addComponentHandler` #2 method consistent with `@tao.js/core`
 - [ ] complete `@tao.js/socket-io` package
   - [x] figure out how to ensure responses go to same requestor
-  - [ ] implement using new `Kernel` / socket
+  - [x] implement using new `Kernel` / socket
   - [ ] unit tests
   - [x] integrate into `patois` example app
-- [ ] write phase 1 of `docs`
+  - [ ] handle file uploads
+- [x] write phase 1 of `docs`
+- [ ] complete `@tao.js/router` package
+  - [ ] update location from AppCons
+  - [ ] initialize route config
+  - [ ] dynamically add routes
+  - [ ] dynamically remove routes
+  - [ ] get AppCon from incoming route
+  - [ ] integrate into `patois` example app
+  - [ ] update `docs` with `@tao.js/router`
+- [ ] complete `@tao.js/react-router` package
+  - [ ] implement `Link` component to set context
+  - [ ] update `docs` with `@tao.js/react-router` routing
 - [ ] complete `@tao.js/koa` package
   - [ ] finish middleware design
   - [ ] figure out how to ensure responses go to same requestor
@@ -50,11 +62,6 @@ This really needs to be filled out
   - [ ] update `docs` with `@tao.js/connect`
 - [ ] complete `@tao.js/path` package
   - [ ] update `docs` with `@tao.js/path`
-- [ ] complete `@tao.js/router` package
-  - [ ] update `docs` with `@tao.js/router`
-- [ ] complete `@tao.js/react-router` package
-  - [ ] implement `Link` component
-  - [ ] update `docs` with `@tao.js/react-router` routing
 - [ ] complete `@tao.js/mesh` package
   - [ ] update `docs` with `@tao.js/mesh`
 - [ ] complete `@tao.js/feature` package
