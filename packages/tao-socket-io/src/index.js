@@ -1,7 +1,4 @@
-// import TAO from '@tao.js/core';
 import { Kernel } from '@tao.js/core';
-
-function noop() {}
 
 const DEFAULT_NAMESPACE = 'tao';
 const SOURCE_PROP = '__$source$__';
@@ -39,35 +36,27 @@ function decorateSocket(TAO, socket, forwardACs) {
     TAO.addAsyncHandler({}, socketHandler);
   }
 
-  const disconnectCallbacks = [];
-  const registerDisconnectCallback = !IS_SERVER
-    ? noop
-    : cb => {
-        console.log('adding disconnect cb');
-        disconnectCallbacks.push(cb);
-      };
-
   if (IS_SERVER) {
     socket.on('disconnect', reason => {
-      console.log('disconnecting socket w reason:', reason);
-      // if (reason === 'client') {
       TAO.removeInlineHandler({}, socketHandler);
-      console.log('disconnectCallbacks.length:', disconnectCallbacks.length);
-      if (disconnectCallbacks.length) {
-        console.log('cycling thru disconnect callbacks');
-        disconnectCallbacks.forEach(cb => cb());
-      }
-      // }
     });
   }
-  return registerDisconnectCallback;
 }
 
 const ioMiddleware = (TAO, onConnect, disconnect) => (socket, next) => {
-  const onDisconnect = decorateSocket(TAO, socket, !!onConnect);
+  decorateSocket(TAO, socket, !!onConnect);
   if (onConnect) {
-    onConnect(TAO, onDisconnect);
-    onDisconnect(disconnect);
+    const onDisconnect = onConnect(TAO, onDisconnect);
+    if (onDisconnect || disconnect) {
+      socket.on('disconnect', reason => {
+        if (typeof onDisconnect === 'function') {
+          onDisconnect(reason);
+        }
+        if (typeof disconnect === 'function') {
+          disconnect();
+        }
+      });
+    }
   }
 
   if (next && typeof next === 'function') {

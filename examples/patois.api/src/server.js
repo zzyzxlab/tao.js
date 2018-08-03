@@ -72,35 +72,80 @@ TAO.addInterceptHandler({}, (tao, data) => {
   console.log('handling tao:', tao, data);
 });
 
-TAO.addInlineHandler(
-  { t: 'Space', a: 'Find', o: 'Portal' },
-  async (tao, { Find }) => {
-    try {
-      const data = await (!Find || !Find._id
-        ? spaces.findSpaces()
-        : spaces.getSpace(Find._id));
-      return new AppCtx(
-        'Space',
-        Array.isArray(data) ? 'List' : 'Enter',
-        tao.o,
-        {
-          Space: data
-        }
-      );
-    } catch (apiErr) {
-      console.error('Failed to retrieve Space:', apiErr);
-      return new AppCtx('Space', 'Fail', tao.o, {
-        Fail: {
-          on: tao.a,
-          message: apiErr.message,
-          Find
-        }
-      });
-    }
-  }
-);
+const spaceCounters = {};
 
-const saveSpaceHandler = async (tao, { Space }) => {
+TAO.addAsyncHandler({ t: 'Space', a: 'Enter', o: 'Portal' }, (tao, data) => {
+  return new AppCtx('Space', 'Enter', 'Track', data);
+}).addInlineHandler({ t: 'Space', a: 'Enter', o: 'Track' }, (tao, data) => {
+  const { Space } = data;
+  if (!Space || !Space._id) {
+    return;
+  }
+  if (!spaceCounters[Space._id]) {
+    spaceCounters[Space._id] = 0;
+  }
+  spaceCounters[Space._id]++;
+  return new AppCtx(
+    'Space',
+    'Tracked',
+    'Portal',
+    { _id: Space._id },
+    spaceCounters[Space._id]
+  );
+});
+
+function initClientTAO(clientTAO) {
+  clientTAO.addInlineHandler(
+    { t: 'Space', a: 'Find', o: 'Portal' },
+    async (tao, { Find }) => {
+      try {
+        const data = await (!Find || !Find._id
+          ? spaces.findSpaces()
+          : spaces.getSpace(Find._id));
+        return new AppCtx(
+          'Space',
+          Array.isArray(data) ? 'List' : 'Enter',
+          tao.o,
+          {
+            Space: data
+          }
+        );
+      } catch (apiErr) {
+        console.error('Failed to retrieve Space:', apiErr);
+        return new AppCtx('Space', 'Fail', tao.o, {
+          Fail: {
+            on: tao.a,
+            message: apiErr.message,
+            Find
+          }
+        });
+      }
+    }
+  );
+
+  clientTAO.addInlineHandler({ t: 'Space', a: 'Update' }, saveSpaceHandler);
+  clientTAO.addInlineHandler({ t: 'Space', a: 'Add' }, saveSpaceHandler);
+
+  const forwardSpaceTracked = (tao, data) => {
+    clientTAO.setCtx(tao, data);
+  };
+
+  // forward the AppCon to the client
+  TAO.addInlineHandler(
+    { t: 'Space', a: 'Tracked', o: 'Portal' },
+    forwardSpaceTracked
+  );
+
+  return () => {
+    console.log('disconnected client - removing TAO handler');
+    TAO.removeInlineHandler(
+      { t: 'Space', a: 'Tracked', o: 'Portal' },
+      forwardSpaceTracked
+    );
+  };
+}
+
+async function saveSpaceHandler(tao, { Space }) {
   let failMessage = '';
   try {
     const save = await (tao.a === 'Update'
@@ -120,14 +165,13 @@ const saveSpaceHandler = async (tao, { Space }) => {
       message: failMessage
     }
   });
-};
-
-TAO.addInlineHandler({ t: 'Space', a: 'Update' }, saveSpaceHandler);
-TAO.addInlineHandler({ t: 'Space', a: 'Add' }, saveSpaceHandler);
+}
 
 const server = http.createServer(app.callback());
 const io = IO(server);
-wireTaoJsToSocketIO(TAO, io);
+wireTaoJsToSocketIO(TAO, io, {
+  onConnect: initClientTAO
+});
 
 connectingToMongo.then(success => {
   if (!success) {
