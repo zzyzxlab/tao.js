@@ -756,6 +756,12 @@ Node.js Apps, we can then:</p>
 <span class="token function">taoSocketIO</span><span class="token punctuation">(</span><span class="token constant">TAO</span><span class="token punctuation">,</span> io<span class="token punctuation">,</span> <span class="token punctuation">{</span>
   onConnect<span class="token punctuation">:</span> <span class="token punctuation">(</span>clientTAO<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
     <span class="token comment">// add handlers for individual client</span>
+    &#x2026;
+    <span class="token comment">// optionally return cleanup function on disconnect</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token comment">// clean up resources when socket is disconnected</span>
+      &#x2026;
+    <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
@@ -765,6 +771,12 @@ Node.js Apps, we can then:</p>
 <span class="token function">taoSocketIO</span><span class="token punctuation">(</span><span class="token constant">TAO</span><span class="token punctuation">,</span> io<span class="token punctuation">,</span> <span class="token punctuation">{</span>
   onConnect<span class="token punctuation">:</span> <span class="token punctuation">(</span>clientTAO<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
     <span class="token comment">// add handlers for individual client</span>
+    &#x2026;
+    <span class="token comment">// optionally return cleanup function on disconnect</span>
+    <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token comment">// clean up resources when socket is disconnected</span>
+      &#x2026;
+    <span class="token punctuation">}</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
@@ -777,7 +789,9 @@ constructed <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core
 representation of State and implementing the System using handlers that react to them.">TAO</a> Kernel separate from the default global <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
 representation of State and implementing the System using handlers that react to them.">TAO</a>.  This is important in allowing us to
 handle and chain <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
-described by a taople with attached associated data.">Application Contexts</a> separately for each client.</p>
+described by a taople with attached associated data.">Application Contexts</a> separately for each client.  <em>Optionally</em> the <code>onConnect</code>
+function can itself return a function that will be called when the socket is disconnected in order
+to clean up resources set up <em>within</em> the <code>onConnect</code> function.</p>
 <p>The global <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
 representation of State and implementing the System using handlers that react to them.">TAO</a> passed into the <code>wireTaoJsToSocketIO</code> function will also have <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
 described by a taople with attached associated data.">Application Contexts</a>
@@ -842,6 +856,9 @@ for each client that connects.  Ignored on the client.<ul>
 described by a taople with attached associated data.">Application Contexts</a> are not shared across all clients
 connected to our server for all <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
 described by a taople with attached associated data.">Application Contexts</a></li>
+<li><code>return: function</code> <em>(optional)</em> - optionally the function passed in as the <code>onConnect</code> option
+can return a function that will be called when the socket is disconnected (there is a
+<a href="https://socket.io/docs/server-api/#Event-%E2%80%98disconnect%E2%80%99" target="_blank"><code>&apos;disconnect&apos;</code> event</a>)</li>
 <li>depending on your use case, this is not required.  If <code>onConnect</code> is not included, then a separate <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
 representation of State and implementing the System using handlers that react to them.">TAO</a> Kernel is not created for each client</li>
 </ul>
@@ -936,7 +953,7 @@ when an Application Context that matches is set on the TAO.">handler</a> spec</t
 <p>If we implemented the above using the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
 representation of State and implementing the System using handlers that react to them.">TAO</a> on the server, we would likely have handlers on the
 server that are called on the <a href="../GLOSSARY.html#taoples" class="glossary-term" title="play on the word tuple to specifically describe a tuple with 3 distinct members
-of Term, Action and Orient(ation)">taoples</a>:</p>
+of Term, Action and Orient(ation)">taoples</a> as follows:</p>
 <table>
 <thead>
 <tr>
@@ -1000,17 +1017,18 @@ described by a taople with attached associated data.">Application Context</a>.</
 described by a taople with attached associated data.">Application Context</a> to <code>{Space,Enter,Portal}</code>
 for all of them.  While this would seem normal to the initiator client, this would be very
 strange for all other clients.</p>
-<h3 id="using-a-tao-kernal-per-client">Using a TAO Kernal per Client</h3>
+<h3 id="using-a-tao-kernel-per-client">Using a TAO Kernel per Client</h3>
 <p>When the callback <code>onConnect</code> is called, it is due to the <code>&apos;connect&apos;</code> event on our Socket.io
 <code>Server</code>.  This can happen any time and for the same Socket.io <code>Client</code> over and over.</p>
 <p>Because of this, anytime a Socket.io <code>Client</code> disconnects, <code>@tao.js/socket.io</code> will attempt to
 remove the client&apos;s specific <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
-representation of State and implementing the System using handlers that react to them.">TAO</a> Kernel as well as remove all handlers associated with that
-client&apos;s <code>Socket</code> from the global <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
-representation of State and implementing the System using handlers that react to them.">TAO</a>.  This prevents leaks and also provides a simpler model
-for working with clients that can connect and disconnect at any time with no guarantees of
-reconnecting.</p>
-<p>This allows us to program our <code>onConnect</code> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+representation of State and implementing the System using handlers that react to them.">TAO</a> Kernel.  The <code>onConnect</code> function we provide can also return
+a <code>Function</code> that <code>@tao.js/socket.io</code> will use to clean up when the socket disconnects.</p>
+<p>This interface allows us to prevent memory leaks and calling functions on sockets or <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> Kernels
+that no longer exist in a simpler model to work with clients that can connect and disconnect at
+any time with no guarantees of reconnecting.</p>
+<p>Thus the interface allows us to program our <code>onConnect</code> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
 when an Application Context that matches is set on the TAO.">handler</a> as if it&apos;s the first time every time.</p>
 <h3 id="tao-path-with-tao-kernel-per-client">TAO-Path with TAO Kernel per Client</h3>
 <p>Let&apos;s extend our example from above into code for when we use the <code>onConnect</code> method to implement
@@ -1061,6 +1079,15 @@ the desired behavior:</p>
 <p>In the above, we are only handling the <a href="../GLOSSARY.html#tao-path" class="glossary-term" title="A set of AppCons creating a sequence describing a value protocol">TAO-Path</a> on the server for the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
 representation of State and implementing the System using handlers that react to them.">TAO</a> Kernel that is mirroring
 the client for us, and no other clients will be affected by the interaction.</p>
+<h3 id="onconnect-return-value"><code>onConnect</code> Return Value</h3>
+<p>As mentioned <a href="#connecting-the-tao-on-the-server">above</a> <a href="#options-to-wiretaojstosocketio">several</a> <a href="#using-a-tao-kernel-per-client">times</a>,
+we can <strong>return a <code>Function</code></strong> from our <code>onConnect</code> function.  This function will be <strong>called</strong> by
+<code>@tao.js/socket.io</code> on the server when our client <code>Socket</code> disconnects (there is a
+<a href="https://socket.io/docs/server-api/#Event-%E2%80%98disconnect%E2%80%99" target="_blank"><code>&apos;disconnect&apos;</code> event</a>).</p>
+<p>The purpose of this function is to give us the opportunity to <strong>clean up any resources</strong> we are using
+for the specific client socket connection.</p>
+<p>We&apos;ll see an example of it below when using the global <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> to send <a href="../GLOSSARY.html#appcons" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCons</a> <a href="#sending-back-updated-counts">back to the client</a>.</p>
 <h3 id="what-about-global-tao">What about global TAO?</h3>
 <p>Now that we understand how to implement client-specific handlers for <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
 described by a taople with attached associated data.">Application Contexts</a>, what is
@@ -1179,9 +1206,12 @@ update the counter.</p>
 on this thing in the TAO&apos;s Application Context">Orient</a>(ation)
 we might use for our <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
 described by a taople with attached associated data.">Application Contexts</a>.</em></p>
+<h4 id="sending-back-updated-counts">Sending back updated counts</h4>
 <p>Now, we can use this to feed back to all of our clients the current view count by making a few
 more changes:</p>
 <pre class="language-"><code class="lang-javascript"><span class="token comment">// on the SERVER</span>
+<span class="token keyword">const</span> spaceCounters <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
 <span class="token constant">TAO</span>
   <span class="token punctuation">.</span><span class="token function">addAsyncHandler</span><span class="token punctuation">(</span><span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;Space&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
     <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">AppCtx</span><span class="token punctuation">(</span><span class="token string">&apos;Space&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Track&apos;</span><span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1194,6 +1224,33 @@ more changes:</p>
     spaceCounters<span class="token punctuation">[</span>Space<span class="token punctuation">.</span>id<span class="token punctuation">]</span><span class="token operator">++</span><span class="token punctuation">;</span>
     <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">AppCtx</span><span class="token punctuation">(</span><span class="token string">&apos;Space&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Tracked&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Portal&apos;</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> id<span class="token punctuation">:</span> Space<span class="token punctuation">.</span>id <span class="token punctuation">}</span><span class="token punctuation">,</span> spaceCounters<span class="token punctuation">[</span>Space<span class="token punctuation">.</span>id<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+&#x2026;
+
+<span class="token keyword">const</span> io <span class="token operator">=</span> <span class="token constant">IO</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">taoSocketIO</span><span class="token punctuation">(</span><span class="token constant">TAO</span><span class="token punctuation">,</span> io<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  onConnect<span class="token punctuation">:</span> <span class="token punctuation">(</span>clientTAO<span class="token punctuation">,</span> onDisconnect<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token comment">// keep reference to handler we will need to remove</span>
+  <span class="token keyword">const</span> <span class="token function-variable function">forwardSpaceTracked</span> <span class="token operator">=</span> <span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    clientTAO<span class="token punctuation">.</span><span class="token function">setCtx</span><span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// forward the AppCon to the client</span>
+  <span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">addInlineHandler</span><span class="token punctuation">(</span>
+    <span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;Space&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Tracked&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    forwardSpaceTracked
+  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// return function used for cleanup when socket is disconnected</span>
+  <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">&apos;disconnected client - removing TAO handler&apos;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// remove the handler so we don&apos;t call clientTAO.setCtx after it&apos;s been disconnected</span>
+    <span class="token constant">TAO</span><span class="token punctuation">.</span><span class="token function">removeInlineHandler</span><span class="token punctuation">(</span>
+      <span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;Space&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Tracked&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      forwardSpaceTracked
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  &#x2026;
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <pre class="language-"><code class="lang-javascript"><span class="token comment">// on the CLIENT</span>
 <span class="token constant">TAO</span>
@@ -1253,7 +1310,7 @@ stored in the database.  This will require a little bit of thought that I don&ap
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Socket.io","level":"1.6.1","depth":2,"next":{"title":"Koa Middleware","level":"1.6.2","depth":2,"path":"server-side/koa.md","ref":"server-side/koa.md","articles":[]},"previous":{"title":"Using Server-side","level":"1.6","depth":1,"path":"server-side/README.md","ref":"server-side/README.md","articles":[{"title":"Socket.io","level":"1.6.1","depth":2,"path":"server-side/socket-io.md","ref":"server-side/socket-io.md","articles":[]},{"title":"Koa Middleware","level":"1.6.2","depth":2,"path":"server-side/koa.md","ref":"server-side/koa.md","articles":[]},{"title":"Connect/Express Middlware","level":"1.6.3","depth":2,"path":"server-side/connect.md","ref":"server-side/connect.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"server-side/socket-io.md","mtime":"2018-08-01T00:12:44.597Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-08-02T20:26:53.298Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Socket.io","level":"1.6.1","depth":2,"next":{"title":"Koa Middleware","level":"1.6.2","depth":2,"path":"server-side/koa.md","ref":"server-side/koa.md","articles":[]},"previous":{"title":"Using Server-side","level":"1.6","depth":1,"path":"server-side/README.md","ref":"server-side/README.md","articles":[{"title":"Socket.io","level":"1.6.1","depth":2,"path":"server-side/socket-io.md","ref":"server-side/socket-io.md","articles":[]},{"title":"Koa Middleware","level":"1.6.2","depth":2,"path":"server-side/koa.md","ref":"server-side/koa.md","articles":[]},{"title":"Connect/Express Middlware","level":"1.6.3","depth":2,"path":"server-side/connect.md","ref":"server-side/connect.md","articles":[]}]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"server-side/socket-io.md","mtime":"2018-08-03T18:37:49.060Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2018-08-03T18:41:14.213Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

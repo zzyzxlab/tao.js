@@ -74,6 +74,12 @@ const io = IO();
 taoSocketIO(TAO, io, {
   onConnect: (clientTAO) => {
     // add handlers for individual client
+    …
+    // optionally return cleanup function on disconnect
+    return () => {
+      // clean up resources when socket is disconnected
+      …
+    }
   }
 });
 ```
@@ -84,6 +90,12 @@ const io = IO(server);
 taoSocketIO(TAO, io, {
   onConnect: (clientTAO) => {
     // add handlers for individual client
+    …
+    // optionally return cleanup function on disconnect
+    return () => {
+      // clean up resources when socket is disconnected
+      …
+    }
   }
 });
 ```
@@ -94,7 +106,9 @@ on the `Server` and adding middleware to it that will proxy Socket.io events to 
 In order to keep each client separate from the others, the `wireTaoJsToSocketIO` function accepts
 as part of its options in the third argument an `onConnect` callback that will receive a newly
 constructed TAO Kernel separate from the default global TAO.  This is important in allowing us to
-handle and chain Application Contexts separately for each client.
+handle and chain Application Contexts separately for each client.  _Optionally_ the `onConnect`
+function can itself return a function that will be called when the socket is disconnected in order
+to clean up resources set up _within_ the `onConnect` function.
 
 The global TAO passed into the `wireTaoJsToSocketIO` function will also have Application Contexts
 proxied to it from the client, and we can use these to react to them in a global way on the Server.
@@ -162,6 +176,9 @@ These options are:
   for each client that connects.  Ignored on the client.
   * this is important to ensure handlers for Application Contexts are not shared across all clients
     connected to our server for all Application Contexts
+  * `return: function` _(optional)_ - optionally the function passed in as the `onConnect` option
+    can return a function that will be called when the socket is disconnected (there is a
+    [`'disconnect'` event](https://socket.io/docs/server-api/#Event-%E2%80%98disconnect%E2%80%99))
   * depending on your use case, this is not required.  If `onConnect` is not included, then a separate TAO Kernel is not created for each client
 * `host: string` _(client only)_ - by default, Socket.io will connect to the same server that served
   the client App that is executing in the browser (using the page's origin url).  `host` allows us
@@ -195,7 +212,7 @@ A TAO-Path that represents when a user edits the details of a `Space`:
 ### TAO-Path without TAO Kernel per Client
 
 If we implemented the above using the TAO on the server, we would likely have handlers on the
-server that are called on the taoples:
+server that are called on the taoples as follows:
 
 |#||Term|Action|Orient||handler spec|
 |---|---|----|------|------|---|-----------|
@@ -214,18 +231,20 @@ This would get proxied to all clients and set the Application Context to `{Space
 for all of them.  While this would seem normal to the initiator client, this would be very
 strange for all other clients.
 
-### Using a TAO Kernal per Client
+### Using a TAO Kernel per Client
 
 When the callback `onConnect` is called, it is due to the `'connect'` event on our Socket.io
 `Server`.  This can happen any time and for the same Socket.io `Client` over and over.
 
 Because of this, anytime a Socket.io `Client` disconnects, `@tao.js/socket.io` will attempt to
-remove the client's specific TAO Kernel as well as remove all handlers associated with that
-client's `Socket` from the global TAO.  This prevents leaks and also provides a simpler model
-for working with clients that can connect and disconnect at any time with no guarantees of
-reconnecting.
+remove the client's specific TAO Kernel.  The `onConnect` function we provide can also return
+a `Function` that `@tao.js/socket.io` will use to clean up when the socket disconnects.
 
-This allows us to program our `onConnect` handler as if it's the first time every time.
+This interface allows us to prevent memory leaks and calling functions on sockets or TAO Kernels
+that no longer exist in a simpler model to work with clients that can connect and disconnect at
+any time with no guarantees of reconnecting.
+
+Thus the interface allows us to program our `onConnect` handler as if it's the first time every time.
 
 ### TAO-Path with TAO Kernel per Client
 
@@ -279,6 +298,18 @@ taoSocketIO(TAO, io, {
 
 In the above, we are only handling the TAO-Path on the server for the TAO Kernel that is mirroring
 the client for us, and no other clients will be affected by the interaction.
+
+### `onConnect` Return Value
+
+As mentioned [above](#connecting-the-tao-on-the-server) [several](#options-to-wiretaojstosocketio) [times](#using-a-tao-kernel-per-client),
+we can **return a `Function`** from our `onConnect` function.  This function will be **called** by
+`@tao.js/socket.io` on the server when our client `Socket` disconnects (there is a
+[`'disconnect'` event](https://socket.io/docs/server-api/#Event-%E2%80%98disconnect%E2%80%99)).
+
+The purpose of this function is to give us the opportunity to **clean up any resources** we are using
+for the specific client socket connection.
+
+We'll see an example of it below when using the global TAO to send AppCons [back to the client](#sending-back-updated-counts).
 
 ### What about global TAO?
 
@@ -339,11 +370,15 @@ _Optionally, the counter increment could have simply been within the server-side
 `{Space,Enter,Portal}`, but we took the opportunity to illustrate an alternative Orient(ation)
 we might use for our Application Contexts._
 
+#### Sending back updated counts
+
 Now, we can use this to feed back to all of our clients the current view count by making a few
 more changes:
 
 ```javascript
 // on the SERVER
+const spaceCounters = {};
+
 TAO
   .addAsyncHandler({ t: 'Space', a: 'Enter', o: 'Portal' }, (tao, data) => {
     return new AppCtx('Space', 'Enter', 'Track', data);
@@ -356,6 +391,33 @@ TAO
     spaceCounters[Space.id]++;
     return new AppCtx('Space', 'Tracked', 'Portal', { id: Space.id }, spaceCounters[Space.id]);
   });
+…
+
+const io = IO();
+taoSocketIO(TAO, io, {
+  onConnect: (clientTAO, onDisconnect) => {
+  // keep reference to handler we will need to remove
+  const forwardSpaceTracked = (tao, data) => {
+    clientTAO.setCtx(tao, data);
+  };
+
+  // forward the AppCon to the client
+  TAO.addInlineHandler(
+    { t: 'Space', a: 'Tracked', o: 'Portal' },
+    forwardSpaceTracked
+  );
+
+  // return function used for cleanup when socket is disconnected
+  return () => {
+    console.log('disconnected client - removing TAO handler');
+    // remove the handler so we don't call clientTAO.setCtx after it's been disconnected
+    TAO.removeInlineHandler(
+      { t: 'Space', a: 'Tracked', o: 'Portal' },
+      forwardSpaceTracked
+    );
+  };
+  …
+});
 ```
 
 ```javascript
