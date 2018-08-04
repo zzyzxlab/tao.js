@@ -8,8 +8,16 @@ const EMIT_EVENT = IS_SERVER ? 0 : 1;
 const ON_EVENT = IS_SERVER ? 1 : 0;
 const EVENTS = ['fromServer', 'fromClient'];
 
+const socketHandler = socket => (tao, data) => {
+  if (!data[tao.o] || data[tao.o][SOURCE_PROP] !== SOCKET_SOURCE) {
+    // console.log(`sending to socket[${socket.id}]:`, tao);
+    socket.emit(EVENTS[EMIT_EVENT], { tao, data });
+  }
+};
+
 function decorateSocket(TAO, socket, forwardACs) {
   socket.on(EVENTS[ON_EVENT], ({ tao, data }) => {
+    // console.log(`socket[${socket.id}] received event:`, tao);
     if (!forwardACs) {
       TAO.setCtx(tao, data);
       return;
@@ -22,42 +30,33 @@ function decorateSocket(TAO, socket, forwardACs) {
     TAO.setCtx(tao, datum);
   });
 
-  const socketHandler = (tao, data) => {
-    if (!data[tao.o] || data[tao.o][SOURCE_PROP] !== SOCKET_SOURCE) {
-      socket.emit(EVENTS[EMIT_EVENT], { tao, data });
-    }
-  };
-
   if (IS_SERVER) {
     if (forwardACs) {
-      TAO.addInlineHandler({}, socketHandler);
+      const handler = socketHandler(socket);
+      TAO.addInlineHandler({}, handler);
+      socket.on('disconnect', () => {
+        TAO.removeInlineHandler({}, handler);
+      });
     }
   } else {
-    TAO.addAsyncHandler({}, socketHandler);
-  }
-
-  if (IS_SERVER) {
-    socket.on('disconnect', reason => {
-      TAO.removeInlineHandler({}, socketHandler);
-    });
+    TAO.addAsyncHandler({}, socketHandler(socket));
   }
 }
 
-const ioMiddleware = (TAO, onConnect, disconnect) => (socket, next) => {
-  decorateSocket(TAO, socket, !!onConnect);
-  if (onConnect) {
-    const onDisconnect = onConnect(TAO, onDisconnect);
-    if (onDisconnect || disconnect) {
-      socket.on('disconnect', reason => {
-        if (typeof onDisconnect === 'function') {
-          onDisconnect(reason);
-        }
-        if (typeof disconnect === 'function') {
-          disconnect();
-        }
-      });
-    }
+const ioMiddleware = (TAO, onConnect) => (socket, next) => {
+  if (onConnect && typeof onConnect === 'function') {
+    let clientTAO = new Kernel();
+    decorateSocket(clientTAO, socket, true);
+    let onDisconnect = onConnect(clientTAO, socket.id);
+    socket.on('disconnect', reason => {
+      if (typeof onDisconnect === 'function') {
+        onDisconnect(reason);
+      }
+      clientTAO = null;
+      onDisconnect = null;
+    });
   }
+  decorateSocket(TAO, socket);
 
   if (next && typeof next === 'function') {
     return next();
@@ -77,15 +76,9 @@ export default function wireTaoJsToSocketIO(TAO, io, opts = {}) {
     const { onConnect } = opts;
     if (io && typeof io.of === 'function') {
       const namespacedEngine = io.of(`/${ns}`);
-      if (onConnect && typeof onConnect === 'function') {
-        let clientTAO = new Kernel();
-        namespacedEngine.use(
-          ioMiddleware(clientTAO, onConnect, () => (clientTAO = null))
-        );
-      }
-      namespacedEngine.use(ioMiddleware(TAO));
+      namespacedEngine.use(ioMiddleware(TAO, onConnect));
     } else {
-      return ioMiddleware(TAO);
+      return ioMiddleware(TAO, onConnect);
     }
   }
 }

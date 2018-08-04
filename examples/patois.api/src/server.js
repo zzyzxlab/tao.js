@@ -94,7 +94,11 @@ TAO.addAsyncHandler({ t: 'Space', a: 'Enter', o: 'Portal' }, (tao, data) => {
   );
 });
 
-function initClientTAO(clientTAO) {
+function initClientTAO(clientTAO, id) {
+  clientTAO.addInterceptHandler({}, (tao, data) => {
+    console.log(`clientTAO[${id}].handling:`, tao);
+  });
+
   clientTAO.addInlineHandler(
     { t: 'Space', a: 'Find', o: 'Portal' },
     async (tao, { Find }) => {
