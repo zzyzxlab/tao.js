@@ -1,0 +1,21 @@
+{
+  "name": "@tao.js/router",
+  "version": "0.1.0",
+  "description": "connects url routing with the TAO",
+  "main": "build/index.js",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:clean": "rimraf build",
+    "build:transpile": "babel src -d build --source-maps --copy-files",
+    "build": "npm run build:clean && npm run build:transpile"
+  },
+  "author": "eudaimos",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@babel/cli": "7.0.0-beta.55",
+    "rimraf": "^2.6.2"
+  }
+}
