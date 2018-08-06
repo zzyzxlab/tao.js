@@ -38,18 +38,23 @@ const entry = plop => {
     actions: [
       {
         type: 'add',
-        path: 'packages/{{name}}/package.json',
+        path: 'packages/tao-{{kebabCase name}}/package.json',
         templateFile: '.plops/templates/package/package.json.hbs'
       },
       {
         type: 'add',
-        path: 'packages/{{name}}/src/index.js',
+        path: 'packages/tao-{{kebabCase name}}/src/index.js',
         templateFile: '.plops/templates/package/index.js.hbs'
       },
       {
         type: 'add',
-        path: 'packages/{{name}}/.babelrc',
+        path: 'packages/tao-{{kebabCase name}}/.babelrc',
         templateFile: '.plops/templates/package/.babelrc.hbs'
+      },
+      {
+        type: 'add',
+        path: 'packages/tao-{{kebabCase name}}/test/index.spec.js',
+        templateFile: '.plops/templates/package/index.spec.js.hbs'
       }
     ]
   });

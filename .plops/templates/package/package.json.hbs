@@ -1,8 +1,11 @@
 {
-  "name": "@tao.js/{{name}}",
+  "name": "@tao.js/{{kebabCase name}}",
   "version": "0.1.0",
   "description": "{{description}}",
-  "main": "dist/index.js",
+  "main": "build/index.js",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:clean": "rimraf build",
