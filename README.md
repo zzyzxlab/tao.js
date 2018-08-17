@@ -12,6 +12,45 @@
 
 This really needs to be filled out
 
+## Getting started with this repo
+
+The repo is designed to use `nvm` and `npm`/`npx` so that nothing is expected to be installed globally.
+Additionally, to run the examples you should have Docker installed locally as well.
+
+In the root of the repo:
+
+```sh
+$ nvm install
+$ npm install
+$ npx lerna bootstrap --hoist
+```
+
+### Running example site and api
+
+The Example work are the folders inside the [`examples`] directory. To run them:
+
+```sh
+# in repo root dir
+$ docker-compose up -d
+# once db is running
+$ cd examples/patois.api
+$ npm start
+$ cd ../patois.web
+$ yarn start
+```
+
+## Contributing - REALLY IMPORTANT INSTRUCTIONS
+
+This project uses `commitizen` and `lerna` + some githooks for `prettier` and `jest` to run.
+
+When you have made some changes and staged them **do not** use `git commit` but instead use:
+
+```sh
+$ npx git cz
+```
+
+Which will start `commitizen` for you to generate the commit message in the desired conventional changelog format.
+
 ## To Dos
 
 - [x] bootstrapping
