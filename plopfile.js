@@ -43,6 +43,11 @@ const entry = plop => {
       },
       {
         type: 'add',
+        path: 'packages/tao-{{kebabCase name}}/.gitignore',
+        templateFile: '.plops/templates/package/.gitignore.hbs'
+      },
+      {
+        type: 'add',
         path: 'packages/tao-{{kebabCase name}}/src/index.js',
         templateFile: '.plops/templates/package/index.js.hbs'
       },
