@@ -1,3 +1,3 @@
-const what = {};
+import router from './Router';
 
-export default what;
+export default router;

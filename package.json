@@ -55,7 +55,7 @@
       "!**/node_modules/**",
       "!**/docs/**",
       "!config/**/*.js",
-      "!packages/*/build/**",
+      "!packages/*/lib/**",
       "!packages/*/test/**"
     ],
     "testRegex": "./(packages|examples)/[^/]+/test/.+\\.m?js$",
@@ -73,7 +73,7 @@
     "setupTestFrameworkScriptFile": "<rootDir>/config/setup.js",
     "transformIgnorePatterns": [
       "/node_modules/",
-      "<rootDir>/(packages|examples)/[^/]+/build/"
+      "<rootDir>/(packages|examples)/[^/]+/lib/"
     ],
     "snapshotSerializers": [
       "enzyme-to-json/serializer"

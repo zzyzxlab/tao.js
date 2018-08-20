@@ -3,9 +3,9 @@ import React, { Component } from 'react';
 // import TestRenderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import { AppCtx } from '@tao.js/core';
-import Kernel from '@tao.js/core/build/Kernel';
-import Adapter from '../build/Adapter';
-import Reactor from '../build/Reactor';
+import Kernel from '@tao.js/core/lib/Kernel';
+import Adapter from '../lib/Adapter';
+import Reactor from '../lib/Reactor';
 // import { wrap } from 'module';
 
 const TERM = 'colleague';

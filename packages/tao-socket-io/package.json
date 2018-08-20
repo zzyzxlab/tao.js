@@ -2,14 +2,14 @@
   "name": "@tao.js/socket.io",
   "version": "0.1.0",
   "description": "tao middleware for socket.io",
-  "main": "build/index.js",
+  "main": "lib/index.js",
   "files": [
-    "build"
+    "lib"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:clean": "rimraf build",
-    "build:transpile": "babel src -d build --source-maps --copy-files",
+    "build:clean": "rimraf lib",
+    "build:transpile": "babel src -d lib --source-maps --copy-files",
     "build": "npm run build:clean && npm run build:transpile"
   },
   "author": "",
