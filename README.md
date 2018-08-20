@@ -8,6 +8,20 @@
 
 [What is `tao.js`?](blog post)
 
+## Unicode Characters
+
+| char | code   | symbol    |
+| ---- | ------ | --------- |
+| ☯    | U+262F | yin-yang  |
+| ☰    | U+2630 | heaven    |
+| ☱    | U+2631 | lake      |
+| ☲    | U+2632 | fire      |
+| ☳    | U+2633 | thunder   |
+| ☴    | U+2634 | wind/wood |
+| ☵    | U+2635 | water     |
+| ☶    | U+2636 | mountain  |
+| ☷    | U+2637 | earth     |
+
 ## More to come
 
 This really needs to be filled out

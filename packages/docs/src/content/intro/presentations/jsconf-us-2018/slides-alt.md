@@ -21,6 +21,7 @@
    * MORE HERE
 1. Let's evolve our example app - 10 mins
    * logging
+   * caching
    * routing
    * router as a Feature
 1. Ask for help - 1 min
@@ -28,19 +29,16 @@
    * here's what's to come
    * looking for help in all areas of the project
 
-# Alternative
-
-1. Describe the TAO
-2. Show it to them
-3. Explain the Genesis
-4. Explaing the benefits
-5. Show them more
-6. Say what's next
-7. Ask for help
-
 # Describe the TAO
 
 Let's start with a new _way_ of programming called the TAO.
+
+☰☱☲☳☴☵☶☷ these are the trigrams of the Bagua - you'll recognize them
+
+The TAO is a prescriptive message format using a trigram to define a
+specific Application Context also could be considered an Event
+
+☯
 
 ## Message Format
 
