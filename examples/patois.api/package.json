@@ -2,6 +2,7 @@
   "name": "patois.api",
   "version": "1.0.0",
   "description": "api used for the patois application",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
