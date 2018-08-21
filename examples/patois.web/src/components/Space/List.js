@@ -8,7 +8,7 @@ const SpaceItems = ({ spaces }) =>
       <li key={s._id}>
         <button
           onClick={e =>
-            TAO.setCtx({ t: 'Space', a: 'Enter', o: 'Portal' }, { Space })
+            TAO.setCtx({ t: 'Space', a: 'Find', o: 'Portal' }, { Find: Space })
           }
         >
           {s.name}

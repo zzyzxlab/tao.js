@@ -9,11 +9,16 @@ import IO from 'socket.io';
 import TAO, { AppCtx } from '@tao.js/core';
 import wireTaoJsToSocketIO from '@tao.js/socket.io';
 import { connect } from './data/mongodb';
+import * as redis from './data/redis';
+// import { init } from './data/redis';
 import * as spaces from './lib/models/spaces';
+import * as spaceCache from './lib/models/space-cache';
+import { toASCII } from 'punycode';
 
 const { PORT } = process.env;
 
 const connectingToMongo = connect();
+const connectingToRedis = redis.init();
 
 const app = new Koa();
 app.use(cors());
@@ -72,6 +77,11 @@ TAO.addInterceptHandler({}, (tao, data) => {
   console.log('handling tao:', tao, data);
 });
 
+TAO.addAsyncHandler({ a: 'Stored' }, async (tao, data) => {
+  const id = data[tao.t]._id;
+  await redis.setItem(tao.t, id, data[tao.t]);
+});
+
 const spaceCounters = {};
 
 TAO.addAsyncHandler({ t: 'Space', a: 'Enter', o: 'Portal' }, (tao, data) => {
@@ -127,8 +137,30 @@ function initClientTAO(clientTAO, id) {
     }
   );
 
+  clientTAO.addInterceptHandler(
+    { t: 'Space', a: 'Find', o: 'Portal' },
+    async (tao, data) => {
+      if (!data.Find || !data.Find._id) {
+        // don't check cache
+        return;
+      }
+      const Space = await redis.getItem(tao.t, data.Find._id);
+      if (!Space || !Space._id) {
+        // cache miss
+        console.log('CACHE MISS! on:', data.Find._id);
+        return;
+      }
+      // use the cache hit to go to the next AppCtx in the protocol chain
+      console.log('CACHE HIT on:', Space._id);
+      return new AppCtx('Space', 'Enter', 'Portal', Space);
+    }
+  );
+
   clientTAO.addInlineHandler({ t: 'Space', a: 'Update' }, saveSpaceHandler);
   clientTAO.addInlineHandler({ t: 'Space', a: 'Add' }, saveSpaceHandler);
+  clientTAO.addInlineHandler({ t: 'Space', a: 'Stored' }, (tao, data) => {
+    return new AppCtx('Space', 'Enter', tao.o, { Space: data.Space });
+  });
 
   const forwardSpaceTracked = (tao, data) => {
     clientTAO.setCtx(tao, data);
@@ -156,7 +188,10 @@ async function saveSpaceHandler(tao, { Space }) {
       ? spaces.updateSpace(Space._id, Space)
       : spaces.addSpace(Space));
     if (save.success) {
-      return new AppCtx('Space', 'Enter', tao.o, { Space: save.space });
+      // return new AppCtx('Space', 'Enter', tao.o, { Space: save.space });
+      const ac = new AppCtx('Space', 'Stored', tao.o, { Space: save.space });
+      TAO.setAppCtx(ac);
+      return ac;
     }
     failMessage = 'Not Successful';
   } catch (apiErr) {
@@ -177,12 +212,22 @@ wireTaoJsToSocketIO(TAO, io, {
   onConnect: initClientTAO
 });
 
-connectingToMongo.then(success => {
-  if (!success) {
-    console.error('Unable to connect to mongo - exiting');
+connectingToMongo
+  .then(success => {
+    if (!success) {
+      console.error('Unable to connect to mongo - exiting');
+      process.exit(1);
+      return;
+    }
+    console.info('connected to mongodb');
+    return connectingToRedis;
+  })
+  .then(() => {
+    console.info('connected to redis');
+    server.listen(PORT);
+    console.log('LISTENING ON PORT:', PORT);
+  })
+  .catch(err => {
+    console.error('Error trying to set up', err);
     process.exit(1);
-    return;
-  }
-  server.listen(PORT);
-  console.log('LISTENING ON PORT:', PORT);
-});
+  });

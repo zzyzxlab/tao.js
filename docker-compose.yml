@@ -6,7 +6,18 @@ services:
       - "27017:27017"
     volumes:
       - patoisdb-primary:/data
+  patois-cache:
+    image: redis:4.0-alpine
+    command: redis-server --appendonly yes
+    ports:
+      - 6379:6379
+    volumes:
+      - patois-redis:/data
+    sysctls:
+      net.core.somaxconn: 511
 
 volumes:
   patoisdb-primary:
+    driver: local
+  patois-redis:
     driver: local
