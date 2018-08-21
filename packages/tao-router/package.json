@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/router",
-  "version": "0.1.0",
+  "version": "0.5.0",
   "description": "connects url routing with the TAO",
   "private": true,
   "main": "lib/index.js",

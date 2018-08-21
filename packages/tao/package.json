@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/core",
-  "version": "0.1.0",
+  "version": "0.5.0",
   "description": "Core implementation of the TAO ☯ programming paradigm designed to embrace entropy inherent in application and system development using a simple set of building blocks",
   "homepage": "https://zzyzxlab.github.io/tao.js/",
   "bugs": {
