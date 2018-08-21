@@ -1,7 +1,12 @@
 {
   "name": "@tao.js/core",
   "version": "0.1.0",
-  "description": "new way of programming",
+  "description": "Core implementation of the TAO ☯ programming paradigm designed to embrace entropy inherent in application and system development using a simple set of building blocks",
+  "homepage": "https://zzyzxlab.github.io/tao.js/",
+  "bugs": {
+    "url": "https://github.com/zzyzxlab/tao.js/issues?q=is%3Aissue+is%3Aopen+label%3A\"pkg%3A+core\""
+  },
+  "repository": "github:zzyzxlab/tao.js",
   "main": "lib/index.js",
   "files": [
     "lib"
@@ -14,6 +19,9 @@
   },
   "author": "eudaimos",
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@babel/cli": "7.0.0-beta.55",
     "rimraf": "^2.6.2"

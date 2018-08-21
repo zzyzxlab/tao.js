@@ -6,8 +6,6 @@
 
 [Docs at zzyzxlab.github.io/tao.js/](https://zzyzxlab.github.io/tao.js/)
 
-[What is `tao.js`?](blog post)
-
 ## Unicode Characters
 
 | char | code   | symbol    |

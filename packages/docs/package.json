@@ -2,6 +2,7 @@
   "name": "docs",
   "version": "0.1.0",
   "description": "documentation for tao.js projects",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "book:prep": "gitbook install ./src",

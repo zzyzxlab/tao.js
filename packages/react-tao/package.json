@@ -1,7 +1,12 @@
 {
   "name": "@tao.js/react",
   "version": "0.1.0",
-  "description": "set of components to use tao with React",
+  "description": "Adapter to use tao.js with React",
+  "homepage": "https://zzyzxlab.github.io/tao.js/",
+  "bugs": {
+    "url": "https://github.com/zzyzxlab/tao.js/issues?q=is%3Aissue+is%3Aopen+label%3A\"pkg%3A+react\""
+  },
+  "repository": "github:zzyzxlab/tao.js",
   "main": "lib/index.js",
   "files": [
     "lib"
@@ -14,6 +19,9 @@
   },
   "author": "eudaimos",
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "@tao.js/core": "^0.1.0",
     "prop-types": "^15.6.1",

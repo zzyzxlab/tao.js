@@ -1,7 +1,12 @@
 {
   "name": "@tao.js/socket.io",
   "version": "0.1.0",
-  "description": "tao middleware for socket.io",
+  "description": "tao.js middleware for socket.io",
+  "homepage": "https://zzyzxlab.github.io/tao.js/",
+  "bugs": {
+    "url": "https://github.com/zzyzxlab/tao.js/issues?q=is%3Aissue+is%3Aopen+label%3A\"pkg%3A+socket.io\""
+  },
+  "repository": "github:zzyzxlab/tao.js",
   "main": "lib/index.js",
   "files": [
     "lib"
@@ -12,8 +17,11 @@
     "build:transpile": "babel src -d lib --source-maps --copy-files",
     "build": "npm run build:clean && npm run build:transpile"
   },
-  "author": "",
+  "author": "eudaimos",
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "@tao.js/core": "^0.1.0"
   },
