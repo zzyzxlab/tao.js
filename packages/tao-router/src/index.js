@@ -1,3 +1,5 @@
 import router from './Router';
 
-export default router;
+export default function init(...args) {
+  new router(...args);
+}
