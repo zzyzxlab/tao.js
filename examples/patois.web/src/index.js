@@ -5,7 +5,7 @@ import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import initialAppCtx from './tao-init';
-import Router from '@tao.js/router';
+import Router, { route } from '@tao.js/router';
 
 Router(TAO, {
   initAc: initialAppCtx
@@ -13,10 +13,17 @@ Router(TAO, {
 
 TAO.addInlineHandler({ t: 'Router', a: 'Init', o: 'Portal' }, () => {
   return new AppCtx('Routes', 'Configure', 'Portal', {
-    Routes: ['/', '/space'],
-    Configure: [
-      { Add: new AppCtx('Space', 'List') },
-      { Add: new AppCtx('Space', 'View') }
+    // Routes: ['/', '/space'],
+    // Configure: [
+    Routes: [
+      { Route: '/', Add: new AppCtx('Space', 'List') },
+      {
+        Route: {
+          path: route`/${'t'}/${'term._id'}`,
+          lowerCase: true
+        },
+        Add: new AppCtx('', 'View')
+      }
     ]
   });
   // return new AppCtx('Route', 'Add', 'Portal', {

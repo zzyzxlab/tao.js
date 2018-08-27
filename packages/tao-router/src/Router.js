@@ -2,8 +2,21 @@ import createHistory from 'history/createBrowserHistory';
 import { AppCtx } from '@tao.js/core';
 
 function locationHandler(history, route) {
-  return () => {
-    history.push(route.path || route);
+  return (tao, data) => {
+    let routeValue = route.path || route;
+    if (typeof routeValue === 'function') {
+      routeValue = routeValue({
+        ...tao,
+        ...data,
+        term: data[tao.t],
+        action: data[tao.a],
+        orient: data[tao.o]
+      });
+    }
+    if (route.lowerCase) {
+      routeValue = routeValue.toLowerCase();
+    }
+    history.push(routeValue);
   };
 }
 
@@ -22,7 +35,7 @@ export default class Router {
     this.setupEvents = this.setupEvents.bind(this);
     this.historyChange = this.historyChange.bind(this);
     this.getPathFrom = this.getPathFrom.bind(this);
-    this.getAcFrom = this.getAcFrom.bind(this);
+    this.getAcsFrom = this.getAcsFrom.bind(this);
     this._routes = new Map();
     this.setupEvents(
       TAO,
@@ -39,37 +52,35 @@ export default class Router {
       return new AppCtx('Router', 'Init', tao.o);
     });
     TAO.addInlineHandler(
-      { t: 'Routes', a: 'Configure', o: orient },
+      { t: 'Routes', a: 'Configure', o: orient || '' },
       (tao, { Routes, Configure }) => {
         const routes = Array.isArray(Routes) ? Routes : [Routes];
-        routes.forEach((r, i) => {
-          const config = Configure[i];
-          if (config.Add) {
-            TAO.setCtx({ t: 'Route', a: 'Add', o: tao.o }, [r, config.Add]);
+        // routes.forEach((r, i) => {
+        //   const config = Configure[i];
+        routes.forEach(({ Route, Add, Remove, Match, Unmatch }) => {
+          if (Add) {
+            TAO.setCtx({ t: 'Route', a: 'Add', o: tao.o }, [Route, Add]);
           }
-          if (config.Remove) {
-            TAO.setCtx({ t: 'Route', a: 'Remove', o: tao.o }, [
-              r,
-              config.Remove
-            ]);
+          if (Remove) {
+            TAO.setCtx({ t: 'Route', a: 'Remove', o: tao.o }, [Route, Remove]);
           }
-          if (config.Match) {
-            TAO.setCtx({ t: 'Route', a: 'Match', o: tao.o }, [r, config.Match]);
+          if (Match) {
+            TAO.setCtx({ t: 'Route', a: 'Match', o: tao.o }, [Route, Match]);
           }
-          if (config.Unmatch) {
+          if (Unmatch) {
             TAO.setCtx({ t: 'Route', a: 'Unmatch', o: tao.o }, [
-              r,
-              config.Unmatch
+              Route,
+              Unmatch
             ]);
           }
         });
       }
     );
     TAO.addInlineHandler(
-      { t: 'Route', a: 'Add', o: orient },
+      { t: 'Route', a: 'Add', o: orient || '' },
       (tao, { Route, Add }) => {
         // add Route to the Router's configuration
-        console.log(`adding to Route ${Route}:`, Add);
+        console.log(`adding to Route:`, Route, Add);
         const routeHandler = locationHandler(history, Route);
         const trigram = wrapAc(Add);
         this._routes.set(trigram.key, routeHandler);
@@ -77,7 +88,7 @@ export default class Router {
       }
     );
     TAO.addInlineHandler(
-      { t: 'Route', a: 'Remove', o: orient },
+      { t: 'Route', a: 'Remove', o: orient || '' },
       (tao, { Route, Remove }) => {
         // remove Route from the Router's configuration
         console.log(`removing from Route ${Route}:`, Remove);
@@ -102,12 +113,17 @@ export default class Router {
     //   }
     // });
     if (incomingAc) {
-      TAO.addInlineHandler(incomingAc, () => {
-        const loc = this._history.location;
-        const ac = this.getAcFrom(loc);
-        if (ac != null) {
-          TAO.setAppCtx(ac);
-        }
+      const incoming = Array.isArray(incomingAc) ? incomingAc : [incomingAc];
+      incoming.forEach(inAc => {
+        TAO.addInlineHandler(incomingAc, (tao, data) => {
+          const loc = this._history.location;
+          const acs = this.getAcsFrom(loc, tao, data);
+          acs.forEach(appCtx => {
+            if (appCtx != null) {
+              TAO.setAppCtx(appCtx);
+            }
+          });
+        });
       });
     }
   } //;
@@ -122,8 +138,8 @@ export default class Router {
     return tao.t === 'Space' ? '/space' : '';
   } //;
 
-  getAcFrom /*= */(location) /* =>*/ {
-    return;
+  getAcsFrom /*= */(location, tao, data) /* =>*/ {
+    return [];
   } //;
 
   historyChange /*= */(location, action) /* =>*/ {
