@@ -22,6 +22,9 @@
   },
   "dependencies": {
     "get-value": "^3.0.1",
-    "history": "^4.7.2"
+    "history": "^4.7.2",
+    "path-to-regexp": "^2.4.0",
+    "routington": "^1.0.3",
+    "url-pattern": "^1.0.3"
   }
 }

@@ -1,27 +1,35 @@
 import createHistory from 'history/createBrowserHistory';
 import { AppCtx } from '@tao.js/core';
 
-function locationHandler(history, route) {
-  return (tao, data) => {
-    let routeValue = route.path || route;
-    if (typeof routeValue === 'function') {
-      routeValue = routeValue({
-        ...tao,
-        ...data,
-        term: data[tao.t],
-        action: data[tao.a],
-        orient: data[tao.o]
-      });
-    }
-    if (route.lowerCase) {
-      routeValue = routeValue.toLowerCase();
-    }
-    history.push(routeValue);
-  };
-}
+import makeRouteHandler from './routeHandler';
+
+// function taopleToPathData(tao, data) {
+//   return {
+//     ...tao,
+//     ...data,
+//     term: data[tao.t],
+//     action: data[tao.a],
+//     orient: data[tao.o]
+//   };
+// }
+
+// function locationHandler(history, route) {
+//   return (tao, data) => {
+//     let routeValue = route.path || route;
+//     if (typeof routeValue === 'function') {
+//       routeValue = routeValue(taopleToPathData(tao, data));
+//     }
+//     if (route.lowerCase) {
+//       routeValue = routeValue.toLowerCase();
+//     }
+//     history.push(routeValue);
+//   };
+// }
 
 function wrapAc(ac) {
-  return ac instanceof AppCtx ? ac : new AppCtx(ac.t, ac.a, ac.o);
+  return ac instanceof AppCtx
+    ? ac
+    : new AppCtx(ac.t || ac.term, ac.a || ac.action, ac.o || ac.orient);
 }
 
 export default class Router {
@@ -81,9 +89,14 @@ export default class Router {
       (tao, { Route, Add }) => {
         // add Route to the Router's configuration
         console.log(`adding to Route:`, Route, Add);
-        const routeHandler = locationHandler(history, Route);
+        const routeHandler = makeRouteHandler(history, Route);
         const trigram = wrapAc(Add);
+        const oldHandler = this._routes.get(trigram.key);
+        if (oldHandler) {
+          TAO.removeAsyncHandler(trigram.unwrapCtx(), oldHandler);
+        }
         this._routes.set(trigram.key, routeHandler);
+        console.log('route.add::trigram.unwrapCtx():', trigram.unwrapCtx());
         TAO.addAsyncHandler(trigram.unwrapCtx(), routeHandler);
       }
     );
