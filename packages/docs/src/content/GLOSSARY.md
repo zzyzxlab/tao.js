@@ -27,7 +27,7 @@ For more see the [Motivations behind Why](intro/motivations.md) or the
 
 ## Term
 
-the _thing_ in the TAO's Application Context - conceptually usually a domain entity
+the _thing_ or _subject_ in the TAO's Application Context - conceptually usually a domain entity but not limited to only domain entities
 
 For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
 

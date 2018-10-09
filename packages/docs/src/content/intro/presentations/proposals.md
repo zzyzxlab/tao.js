@@ -1,5 +1,9 @@
 # Proposal Drafts for presentations
 
+## Stop Abstraction Layers
+
+I need to abstract the REST API from my web app…WTF!
+
 ## Talk Proposal 1
 
 **Name:** Jeff Hoffer
