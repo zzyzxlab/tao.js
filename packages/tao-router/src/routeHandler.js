@@ -1,4 +1,5 @@
 import pathToRegexp from 'path-to-regexp';
+import get from 'get-value';
 
 const PATH_VAR_RE = /(\{([\w|\.]+)(\(.+\))?\})/m;
 const DOT_REPLACER = '__0__';
@@ -100,14 +101,41 @@ function pathFlattenData(tao, data) {
   return pathData;
 }
 
+function pathDataGet(tao, data, deconstructedPath) {
+  const allData = {
+    ...tao,
+    ...data,
+    term: data[tao.t],
+    action: data[tao.a],
+    orient: data[tao.o]
+  };
+  console.log('pathDataGet::allData:', allData);
+  return deconstructedPath.reduce((pathData, item) => {
+    if (!item.match) {
+      console.log('!item.match:', item);
+      return pathData;
+    }
+    const getDataFrom = item.match[2];
+    const needData = get(allData, getDataFrom);
+    console.log('pathDataGet:', { getDataFrom, needData });
+    if (needData == null) {
+      return pathData;
+    }
+    pathData[item.use.substring(1)] = needData;
+    return pathData;
+  }, {});
+}
+
 function makeRouteHandler(history, route) {
   let pathString = route.path || route;
   const deconstructedPath = deconstructPath(pathString);
   const usablePath = convertPath(deconstructedPath);
   const toPath = pathToRegexp.compile(usablePath);
   return (tao, data) => {
-    console.log('routeHandler:', { tao, data });
-    const pathData = pathFlattenData(tao, data);
+    console.log('routeHandler::called with', { tao, data });
+    // const pathData = pathFlattenData(tao, data);
+    const pathData = pathDataGet(tao, data, deconstructedPath);
+    console.log('routeHandler::pathData', pathData);
     let routeValue = toPath(pathData);
     if (route.lowerCase) {
       routeValue = routeValue.toLowerCase();
