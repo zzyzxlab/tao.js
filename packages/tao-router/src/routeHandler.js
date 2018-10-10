@@ -1,6 +1,8 @@
 import pathToRegexp from 'path-to-regexp';
 import get from 'get-value';
 
+import { AppCtx } from '@tao.js/core';
+
 const PATH_VAR_RE = /(\{([\w|\.]+)(\(.+\))?\})/m;
 const DOT_REPLACER = '__0__';
 
@@ -141,6 +143,10 @@ function makeRouteHandler(history, route) {
       routeValue = routeValue.toLowerCase();
     }
     history.push(routeValue);
+    return new AppCtx('Route', 'Set', tao.o, {
+      Route: route,
+      Set: routeValue
+    });
   };
 }
 
