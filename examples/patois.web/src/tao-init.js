@@ -19,6 +19,8 @@ const AppTerm = {
 };
 const SESSION_KEY = 'patois.Session';
 
+const appInitPortalCtx = new AppCtx('App', 'Init', 'Portal');
+
 const appEnterPortalCtx = new AppCtx('App', 'Enter', 'Portal', [AppTerm]);
 
 const appViewPortalCtx = new AppCtx('App', 'View', 'Portal', [AppTerm]);
@@ -36,9 +38,9 @@ TAO.addInlineHandler(appEnterPortalCtx.unwrapCtx(), (tao, { App }) => {
   return appViewPortalCtx;
 });
 
-TAO.addInlineHandler(appViewPortalCtx.unwrapCtx(), ({ o }) => {
-  return new AppCtx('Space', 'Find', o);
-});
+// TAO.addInlineHandler(appViewPortalCtx.unwrapCtx(), ({ o }) => {
+//   return new AppCtx('Space', 'Find', o);
+// });
 
 TAO.addInlineHandler(
   { t: 'Space', a: 'Find_rest' },
@@ -126,4 +128,7 @@ TAO.addInlineHandler({ t: 'Session', a: 'Enter' }, ({ o }, { Session }) => {
 
 // }
 
-export default appEnterPortalCtx;
+export default appInitPortalCtx;
+
+export { appEnterPortalCtx as enterAc };
+export { appViewPortalCtx as initialRoute };

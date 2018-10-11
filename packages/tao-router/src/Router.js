@@ -18,6 +18,43 @@ function wrapAc(ac) {
     : new AppCtx(ac.t || ac.term, ac.a || ac.action, ac.o || ac.orient);
 }
 
+function reactToRoute(TAO, match) {
+  console.log('Router::reacting to route');
+  let { t, a, o, ...data } = match.node.deconstruction.reduce(
+    (pathData, pathItem) => {
+      if (!pathItem.match) {
+        return pathData;
+      }
+      const dataPath = pathItem.match[2];
+      const pathParam = pathItem.use.substring(1);
+      let paramData = match.param[pathParam];
+      if (paramData) {
+        set(pathData, dataPath, paramData);
+      } else if (typeof get(match.node.defaultData, dataPath) !== 'undefined') {
+        set(pathData, dataPath, get(match.node.defaultData, dataPath));
+      }
+      return pathData;
+    },
+    {}
+  );
+  console.log('will set:', { t, a, o }, data);
+  if (match.node.lowerCase) {
+    t = t ? capitalize(t) : t;
+    a = a ? capitalize(a) : a;
+    o = o ? capitalize(o) : o;
+  }
+  match.node.attached.forEach(trigram => {
+    const ac = new AppCtx(
+      trigram.t || trigram.term || t,
+      trigram.a || trigram.action || a,
+      trigram.o || trigram.orient || o,
+      data
+    );
+    console.log('AppCtx:', ac);
+    TAO.setAppCtx(ac);
+  });
+}
+
 export default class Router {
   constructor(TAO, history, opts) {
     this._tao = TAO;
@@ -37,12 +74,25 @@ export default class Router {
       this._history,
       opts.initAc,
       opts.incomingAc,
+      opts.defaultRoute,
       opts.orient
     );
   }
 
-  setupEvents /*= */(TAO, history, initAc, incomingAc, orient) /* =>*/ {
+  setupEvents /*= */(
+    TAO,
+    history,
+    initAc,
+    incomingAc,
+    defaultRoute,
+    orient
+  ) /* =>*/ {
     this._unlistenHistory = history.listen(this.historyChange);
+    const incoming = !incomingAc
+      ? []
+      : (Array.isArray(incomingAc) ? incomingAc : [incomingAc]).map(ac =>
+          wrapAc(ac)
+        );
     TAO.addAsyncHandler(initAc, (tao, data) => {
       return new AppCtx('Router', 'Init', tao.o);
     });
@@ -72,6 +122,7 @@ export default class Router {
             TAO.setCtx({ t: 'Route', a: 'Detach', o: tao.o }, [Route, Detach]);
           }
         });
+        return incoming[0];
       }
     );
     TAO.addInlineHandler(
@@ -142,17 +193,29 @@ export default class Router {
     //     this._history.push(updatePath);
     //   }
     // });
-    if (incomingAc) {
-      const incoming = Array.isArray(incomingAc) ? incomingAc : [incomingAc];
+    if (incoming.length) {
       incoming.forEach(inAc => {
-        TAO.addInlineHandler(incomingAc, (tao, data) => {
-          const loc = this._history.location;
-          const acs = this.getAcsFrom(loc, tao, data);
-          acs.forEach(appCtx => {
-            if (appCtx != null) {
-              TAO.setAppCtx(appCtx);
-            }
-          });
+        TAO.addInlineHandler(inAc, (tao, data) => {
+          console.log('Router::incoming AC handler:', { tao, data });
+          let match = this._router.match(this._history.location.pathname);
+          if (!match && defaultRoute) {
+            match = this._router.match(defaultRoute);
+            console.log(
+              'Router::no match::match from default route "%s"',
+              defaultRoute,
+              match
+            );
+          }
+          if (match) {
+            reactToRoute(this._tao, match);
+          }
+          // const loc = this._history.location;
+          // const acs = this.getAcsFrom(loc, tao, data);
+          // acs.forEach(appCtx => {
+          //   if (appCtx != null) {
+          //     TAO.setAppCtx(appCtx);
+          //   }
+          // });
         });
       });
     }
@@ -178,41 +241,7 @@ export default class Router {
     const match = this._router.match(location.pathname);
     console.log('matched:', match);
     if (CHANGE_ACTION_SIGNAL === action && match) {
-      let { t, a, o, ...data } = match.node.deconstruction.reduce(
-        (pathData, pathItem) => {
-          if (!pathItem.match) {
-            return pathData;
-          }
-          const dataPath = pathItem.match[2];
-          const pathParam = pathItem.use.substring(1);
-          let paramData = match.param[pathParam];
-          if (paramData) {
-            set(pathData, dataPath, paramData);
-          } else if (
-            typeof get(match.node.defaultData, dataPath) !== 'undefined'
-          ) {
-            set(pathData, dataPath, get(match.node.defaultData, dataPath));
-          }
-          return pathData;
-        },
-        {}
-      );
-      console.log('will set:', { t, a, o }, data);
-      if (match.node.lowerCase) {
-        t = t ? capitalize(t) : t;
-        a = a ? capitalize(a) : a;
-        o = o ? capitalize(o) : o;
-      }
-      match.node.attached.forEach(trigram => {
-        const ac = new AppCtx(
-          trigram.t || trigram.term || t,
-          trigram.a || trigram.action || a,
-          trigram.o || trigram.orient || o,
-          data
-        );
-        console.log('AppCtx:', ac);
-        this._tao.setAppCtx(ac);
-      });
+      reactToRoute(this._tao, match);
     }
   } //;
 }

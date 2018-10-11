@@ -4,17 +4,17 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import initialAppCtx from './tao-init';
+import initialAppCtx, { enterAc, initialRoute } from './tao-init';
 import Router from '@tao.js/router';
 
 Router(TAO, {
-  initAc: initialAppCtx
+  initAc: initialAppCtx,
+  incomingAc: enterAc, // initialRoute,
+  defaultRoute: '/'
 });
 
 TAO.addInlineHandler({ t: 'Router', a: 'Init', o: 'Portal' }, () => {
   return new AppCtx('Routes', 'Configure', 'Portal', {
-    // Routes: ['/', '/space'],
-    // Configure: [
     Routes: [
       {
         Route: '/',
@@ -24,7 +24,6 @@ TAO.addInlineHandler({ t: 'Router', a: 'Init', o: 'Portal' }, () => {
       {
         Route: {
           path: '/{t}/{term._id}',
-          // path: route`/${'t'}/${'term._id'}`,
           lowerCase: true
         },
         Add: { action: 'View' }
@@ -38,10 +37,6 @@ TAO.addInlineHandler({ t: 'Router', a: 'Init', o: 'Portal' }, () => {
       }
     ]
   });
-  // return new AppCtx('Route', 'Add', 'Portal', {
-  //   Route: '/space',
-  //   Add: new AppCtx('Space', 'View')
-  // });
 });
 
 TAO.setAppCtx(initialAppCtx);
