@@ -16,7 +16,7 @@ const ISM_MAP = {
 // 1. a function that turns taople into a path to push onto history
 // 2. a function that receives a url and converts it to a taople to set onto the TAO
 
-function deconstructPath(origPath) {
+export function deconstructPath(origPath) {
   return origPath.split('/').map((p, i) => {
     const match = PATH_VAR_RE.exec(p);
     return {
@@ -37,7 +37,7 @@ function deconstructPath(origPath) {
 }
 
 // convert path to usable path for path-to-regexp
-function convertPath(deconstruction) {
+export function convertPath(deconstruction) {
   return deconstruction.map(p => p.use).join('/');
 }
 
@@ -142,11 +142,13 @@ function makeRouteHandler(history, route) {
     if (route.lowerCase) {
       routeValue = routeValue.toLowerCase();
     }
-    history.push(routeValue);
-    return new AppCtx('Route', 'Set', tao.o, {
-      Route: route,
-      Set: routeValue
-    });
+    if (history.location.pathname !== routeValue) {
+      history.push(routeValue);
+      return new AppCtx('Route', 'Set', tao.o, {
+        Route: route,
+        Set: routeValue
+      });
+    }
   };
 }
 

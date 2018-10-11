@@ -16,7 +16,11 @@ TAO.addInlineHandler({ t: 'Router', a: 'Init', o: 'Portal' }, () => {
     // Routes: ['/', '/space'],
     // Configure: [
     Routes: [
-      { Route: '/', Add: { term: 'Space', action: 'List' } },
+      {
+        Route: '/',
+        Add: { term: 'Space', action: 'List' },
+        Attach: { term: 'Space', action: 'Find' }
+      },
       {
         Route: {
           path: '/{t}/{term._id}',
@@ -24,6 +28,13 @@ TAO.addInlineHandler({ t: 'Router', a: 'Init', o: 'Portal' }, () => {
           lowerCase: true
         },
         Add: { action: 'View' }
+      },
+      {
+        Route: {
+          path: '/{t}/{action._id}',
+          lowerCase: true
+        },
+        Attach: { action: 'Find' }
       }
     ]
   });
