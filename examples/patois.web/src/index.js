@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import initialAppCtx, { enterAc, initialRoute } from './tao-init';
+import initialAppCtx, { enterAc /*, initialRoute*/ } from './tao-init';
 import Router from '@tao.js/router';
 
 Router(TAO, {
@@ -26,7 +26,10 @@ TAO.addInlineHandler({ t: 'Router', a: 'Init', o: 'Portal' }, () => {
           path: '/{t}/{term._id}',
           lowerCase: true
         },
-        Add: { action: 'View' }
+        Add: {
+          tao: { action: 'View' },
+          ignore: { term: 'App' }
+        }
       },
       {
         Route: {

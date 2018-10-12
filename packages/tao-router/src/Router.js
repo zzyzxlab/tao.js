@@ -18,6 +18,27 @@ function wrapAc(ac) {
     : new AppCtx(ac.t || ac.term, ac.a || ac.action, ac.o || ac.orient);
 }
 
+function wrapIgnore(handler, ignore) {
+  if (!ignore) {
+    return handler;
+  }
+  const ignoreACs = (Array.isArray(ignore) ? ignore : [ignore]).map(iac =>
+    wrapAc(iac)
+  );
+  return (tao, data) => {
+    const matchedIgnore = ignoreACs.some(ignoreAc => {
+      // TODO: add AppCtxRoot.isMatch(otherAc) to core API
+      const matchTerm = ignoreAc.isTermWild || ignoreAc.t === tao.t;
+      const matchAction = ignoreAc.isActionWild || ignoreAc.a === tao.a;
+      const matchOrient = ignoreAc.isOrientWild || ignoreAc.o === tao.o;
+      return matchTerm && matchAction && matchOrient;
+    });
+    if (!matchedIgnore) {
+      return handler(tao, data);
+    }
+  };
+}
+
 function reactToRoute(TAO, match) {
   console.log('Router::reacting to route');
   let { t, a, o, ...data } = match.node.deconstruction.reduce(
@@ -131,14 +152,16 @@ export default class Router {
         // add Route to the Router's configuration
         console.log(`adding to Route:`, Route, Add);
         const routeHandler = makeRouteHandler(history, Route);
-        const trigram = wrapAc(Add);
+        const trigram = wrapAc(Add.tao || Add);
         const oldHandler = this._routes.get(trigram.key);
         if (oldHandler) {
           TAO.removeAsyncHandler(trigram.unwrapCtx(), oldHandler);
         }
-        this._routes.set(trigram.key, routeHandler);
+        const handler = wrapIgnore(routeHandler, Add.ignore);
+        this._routes.set(trigram.key, handler);
         console.log('route.add::trigram.unwrapCtx():', trigram.unwrapCtx());
-        TAO.addAsyncHandler(trigram.unwrapCtx(), routeHandler);
+        TAO.addAsyncHandler(trigram.unwrapCtx(), handler);
+        console.log('current TAO:', TAO);
       }
     );
     TAO.addInlineHandler(
