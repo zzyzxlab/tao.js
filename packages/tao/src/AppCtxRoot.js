@@ -1,5 +1,9 @@
 import { WILDCARD } from './constants';
 
+function isPartWild(val) {
+  return !val || WILDCARD === val;
+}
+
 export default class AppCtxRoot {
   constructor(term, action, orient) {
     this._term = term || WILDCARD;
@@ -24,7 +28,7 @@ export default class AppCtxRoot {
   }
 
   static getKey(term, action, orient) {
-    return `${term}|${action}|${orient}`;
+    return `${term || WILDCARD}|${action || WILDCARD}|${orient || WILDCARD}`;
   }
 
   // static isWildcard({ term = WILDCARD, action = WILDCARD, orient = WILDCARD } = {}) {
@@ -50,16 +54,40 @@ export default class AppCtxRoot {
     return !AppCtxRoot.isWildcard(ac);
   }
 
+  // TODO: write TESTS for this
+  static isMatch(ac, trigram, exact = false) {
+    if (!(ac instanceof AppCtxRoot)) {
+      ac = new AppCtxRoot(
+        ac.t || ac.term,
+        ac.a || ac.action,
+        ac.o || ac.orient
+      );
+    }
+    if (ac.key === AppCtxRoot.getKey(trigram.t, trigram.a, trigram.o)) {
+      return true;
+    }
+    if (exact) {
+      return false;
+    }
+    const matchTerm =
+      ac.isTermWild || isPartWild(trigram.t) || ac.t === trigram.t;
+    const matchAction =
+      ac.isActionWild || isPartWild(trigram.a) || ac.a === trigram.a;
+    const matchOrient =
+      ac.isOrientWild || isPartWild(trigram.o) || ac.o === trigram.o;
+    return matchTerm && matchAction && matchOrient;
+  }
+
   get isTermWild() {
-    return this._term === WILDCARD || !this._term.length;
+    return isPartWild(this._term);
   }
 
   get isActionWild() {
-    return this._action === WILDCARD || !this._action.length;
+    return isPartWild(this._action);
   }
 
   get isOrientWild() {
-    return this._orient === WILDCARD || !this._orient.length;
+    return isPartWild(this._orient);
   }
 
   get isWildcard() {
@@ -68,5 +96,9 @@ export default class AppCtxRoot {
 
   get isConcrete() {
     return !this.isWildcard;
+  }
+
+  isMatch(trigram, exact = false) {
+    return AppCtxRoot.isMatch(this, trigram, exact);
   }
 }
