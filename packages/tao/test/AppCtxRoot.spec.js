@@ -5,6 +5,10 @@ const TERM = 'colleague';
 const ACTION = 'hug';
 const ORIENT = 'justfriends';
 
+const ALT_TERM = 'dude';
+const ALT_ACTION = 'fistbump';
+const ALT_ORIENT = 'bros';
+
 describe('AppCtxRoot exports a class', () => {
   it('should be defined', () => {
     // Assemble
@@ -244,5 +248,290 @@ describe('AppCtxRoot defines static methods for checking TAO values', () => {
     expect(AppCtxRoot.isConcrete(concreteAC1)).toBe(true);
     expect(AppCtxRoot.isConcrete(concreteAC2)).toBe(true);
     expect(AppCtxRoot.isConcrete(concreteAC3)).toBe(true);
+  });
+});
+
+describe('AppCtxRoot defines methods to allow library writers to test matching', () => {
+  describe('using a static isMatch method', () => {
+    it('should match the same trigram', () => {
+      // Assemble
+      const ac1 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      const ac2 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      // Act
+      const match12 = AppCtxRoot.isMatch(ac1, ac2);
+      const match21 = AppCtxRoot.isMatch(ac2, ac1);
+      // Assert
+      expect(match12).toBe(true);
+      expect(match21).toBe(true);
+    });
+
+    it('should not match trigrams that differ on any attribute', () => {
+      // Assemble
+      const ac1 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      const ac2 = new AppCtxRoot(ALT_TERM, ACTION, ORIENT);
+      const ac3 = new AppCtxRoot(TERM, ALT_ACTION, ORIENT);
+      const ac4 = new AppCtxRoot(TERM, ACTION, ALT_ORIENT);
+      // Act
+      const matched12 = AppCtxRoot.isMatch(ac1, ac2);
+      const matched13 = AppCtxRoot.isMatch(ac1, ac3);
+      const matched14 = AppCtxRoot.isMatch(ac1, ac4);
+      const matched21 = AppCtxRoot.isMatch(ac2, ac1);
+      const matched31 = AppCtxRoot.isMatch(ac3, ac1);
+      const matched41 = AppCtxRoot.isMatch(ac4, ac1);
+      // Assert
+      expect(matched12).toBe(false);
+      expect(matched13).toBe(false);
+      expect(matched14).toBe(false);
+      expect(matched21).toBe(false);
+      expect(matched31).toBe(false);
+      expect(matched41).toBe(false);
+    });
+
+    it('should match trigrams that differ on wildcard attributes', () => {
+      // Assemble
+      const ac1 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      const ac2 = new AppCtxRoot('', ACTION, ORIENT);
+      const ac3 = new AppCtxRoot(TERM, null, ORIENT);
+      const ac4 = new AppCtxRoot(TERM, ACTION, WILDCARD);
+      // Act
+      const matched12 = AppCtxRoot.isMatch(ac1, ac2);
+      const matched13 = AppCtxRoot.isMatch(ac1, ac3);
+      const matched14 = AppCtxRoot.isMatch(ac1, ac4);
+      const matched21 = AppCtxRoot.isMatch(ac2, ac1);
+      const matched31 = AppCtxRoot.isMatch(ac3, ac1);
+      const matched41 = AppCtxRoot.isMatch(ac4, ac1);
+      // Assert
+      expect(matched12).toBe(true);
+      expect(matched13).toBe(true);
+      expect(matched14).toBe(true);
+      expect(matched21).toBe(true);
+      expect(matched31).toBe(true);
+      expect(matched41).toBe(true);
+    });
+
+    it('should work the same if second trigram is not an instance of AppCtxRoot', () => {
+      // Assemble
+      const ac1 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      const ac2 = { t: TERM, a: ACTION, o: ORIENT };
+      const ac3 = { t: ALT_TERM, a: ACTION, o: ORIENT };
+      const ac4 = { t: TERM, a: ALT_ACTION, o: ORIENT };
+      const ac5 = { t: TERM, a: ACTION, o: ALT_ORIENT };
+      const ac6 = { a: ACTION, o: ORIENT };
+      const ac7 = { t: TERM, a: '', o: ORIENT };
+      const ac8 = { t: TERM, a: ACTION };
+      // Act
+      const match12 = AppCtxRoot.isMatch(ac1, ac2);
+      const match21 = AppCtxRoot.isMatch(ac2, ac1);
+      const notMatch13 = AppCtxRoot.isMatch(ac1, ac3);
+      const notMatch14 = AppCtxRoot.isMatch(ac1, ac4);
+      const notMatch15 = AppCtxRoot.isMatch(ac1, ac5);
+      const match16 = AppCtxRoot.isMatch(ac1, ac6);
+      const match17 = AppCtxRoot.isMatch(ac1, ac7);
+      const match18 = AppCtxRoot.isMatch(ac1, ac8);
+      // Assert
+      expect(match12).toBe(true);
+      expect(match21).toBe(true);
+      expect(notMatch13).toBe(false);
+      expect(notMatch14).toBe(false);
+      expect(notMatch15).toBe(false);
+      expect(match16).toBe(true);
+      expect(match17).toBe(true);
+      expect(match18).toBe(true);
+    });
+
+    it('should work the same if both trigrams are not instances of AppCtxRoot', () => {
+      // Assemble
+      const ac1 = { t: TERM, a: ACTION, o: ORIENT };
+      const ac2 = { t: TERM, a: ACTION, o: ORIENT };
+      const ac3 = { t: ALT_TERM, a: ACTION, o: ORIENT };
+      const ac4 = { t: TERM, a: ALT_ACTION, o: ORIENT };
+      const ac5 = { t: TERM, a: ACTION, o: ALT_ORIENT };
+      const ac6 = { a: ACTION, o: ORIENT };
+      const ac7 = { t: TERM, a: '', o: ORIENT };
+      const ac8 = { t: TERM, a: ACTION };
+      // Act
+      const match12 = AppCtxRoot.isMatch(ac1, ac2);
+      const match21 = AppCtxRoot.isMatch(ac2, ac1);
+      const notMatch13 = AppCtxRoot.isMatch(ac1, ac3);
+      const notMatch14 = AppCtxRoot.isMatch(ac1, ac4);
+      const notMatch15 = AppCtxRoot.isMatch(ac1, ac5);
+      const notMatch31 = AppCtxRoot.isMatch(ac3, ac1);
+      const notMatch41 = AppCtxRoot.isMatch(ac4, ac1);
+      const notMatch51 = AppCtxRoot.isMatch(ac5, ac1);
+      const match16 = AppCtxRoot.isMatch(ac1, ac6);
+      const match17 = AppCtxRoot.isMatch(ac1, ac7);
+      const match18 = AppCtxRoot.isMatch(ac1, ac8);
+      const match61 = AppCtxRoot.isMatch(ac6, ac1);
+      const match71 = AppCtxRoot.isMatch(ac7, ac1);
+      const match81 = AppCtxRoot.isMatch(ac8, ac1);
+      // Assert
+      expect(match12).toBe(true);
+      expect(match21).toBe(true);
+      expect(notMatch13).toBe(false);
+      expect(notMatch14).toBe(false);
+      expect(notMatch15).toBe(false);
+      expect(notMatch31).toBe(false);
+      expect(notMatch41).toBe(false);
+      expect(notMatch51).toBe(false);
+      expect(match16).toBe(true);
+      expect(match17).toBe(true);
+      expect(match18).toBe(true);
+      expect(match61).toBe(true);
+      expect(match71).toBe(true);
+      expect(match81).toBe(true);
+    });
+  });
+
+  describe('using a static isMatch method with `exact` parameter', () => {
+    it('should match the same trigram', () => {
+      // Assemble
+      const ac1 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      const ac2 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      // Act
+      const match12 = AppCtxRoot.isMatch(ac1, ac2, true);
+      const match21 = AppCtxRoot.isMatch(ac2, ac1, true);
+      // Assert
+      expect(match12).toBe(true);
+      expect(match21).toBe(true);
+    });
+
+    it('should not match trigrams that differ on any attribute', () => {
+      // Assemble
+      const ac1 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      const ac2 = new AppCtxRoot(ALT_TERM, ACTION, ORIENT);
+      const ac3 = new AppCtxRoot(TERM, ALT_ACTION, ORIENT);
+      const ac4 = new AppCtxRoot(TERM, ACTION, ALT_ORIENT);
+      // Act
+      const matched12 = AppCtxRoot.isMatch(ac1, ac2, true);
+      const matched13 = AppCtxRoot.isMatch(ac1, ac3, true);
+      const matched14 = AppCtxRoot.isMatch(ac1, ac4, true);
+      const matched21 = AppCtxRoot.isMatch(ac2, ac1, true);
+      const matched31 = AppCtxRoot.isMatch(ac3, ac1, true);
+      const matched41 = AppCtxRoot.isMatch(ac4, ac1, true);
+      // Assert
+      expect(matched12).toBe(false);
+      expect(matched13).toBe(false);
+      expect(matched14).toBe(false);
+      expect(matched21).toBe(false);
+      expect(matched31).toBe(false);
+      expect(matched41).toBe(false);
+    });
+
+    it('should NOT match trigrams that differ on wildcard attributes', () => {
+      // Assemble
+      const ac1 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      const ac2 = new AppCtxRoot('', ACTION, ORIENT);
+      const ac3 = new AppCtxRoot(TERM, null, ORIENT);
+      const ac4 = new AppCtxRoot(TERM, ACTION, WILDCARD);
+      // Act
+      const matched12 = AppCtxRoot.isMatch(ac1, ac2, true);
+      const matched13 = AppCtxRoot.isMatch(ac1, ac3, true);
+      const matched14 = AppCtxRoot.isMatch(ac1, ac4, true);
+      const matched21 = AppCtxRoot.isMatch(ac2, ac1, true);
+      const matched31 = AppCtxRoot.isMatch(ac3, ac1, true);
+      const matched41 = AppCtxRoot.isMatch(ac4, ac1, true);
+      // Assert
+      expect(matched12).toBe(false);
+      expect(matched13).toBe(false);
+      expect(matched14).toBe(false);
+      expect(matched21).toBe(false);
+      expect(matched31).toBe(false);
+      expect(matched41).toBe(false);
+    });
+
+    it('should work the same if second trigram is not an instance of AppCtxRoot', () => {
+      // Assemble
+      const ac1 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      const ac2 = { t: TERM, a: ACTION, o: ORIENT };
+      const ac3 = { t: ALT_TERM, a: ACTION, o: ORIENT };
+      const ac4 = { t: TERM, a: ALT_ACTION, o: ORIENT };
+      const ac5 = { t: TERM, a: ACTION, o: ALT_ORIENT };
+      const ac6 = { a: ACTION, o: ORIENT };
+      const ac7 = { t: TERM, a: '', o: ORIENT };
+      const ac8 = { t: TERM, a: ACTION };
+      // Act
+      const match12 = AppCtxRoot.isMatch(ac1, ac2, true);
+      const match21 = AppCtxRoot.isMatch(ac2, ac1, true);
+      const notMatch13 = AppCtxRoot.isMatch(ac1, ac3, true);
+      const notMatch14 = AppCtxRoot.isMatch(ac1, ac4, true);
+      const notMatch15 = AppCtxRoot.isMatch(ac1, ac5, true);
+      const notMatch16 = AppCtxRoot.isMatch(ac1, ac6, true);
+      const notMatch17 = AppCtxRoot.isMatch(ac1, ac7, true);
+      const notMatch18 = AppCtxRoot.isMatch(ac1, ac8, true);
+      // Assert
+      expect(match12).toBe(true);
+      expect(match21).toBe(true);
+      expect(notMatch13).toBe(false);
+      expect(notMatch14).toBe(false);
+      expect(notMatch15).toBe(false);
+      expect(notMatch16).toBe(false);
+      expect(notMatch17).toBe(false);
+      expect(notMatch18).toBe(false);
+    });
+
+    it('should work the same if both trigrams are not instances of AppCtxRoot', () => {
+      // Assemble
+      const ac1 = { t: TERM, a: ACTION, o: ORIENT };
+      const ac2 = { t: TERM, a: ACTION, o: ORIENT };
+      const ac3 = { t: ALT_TERM, a: ACTION, o: ORIENT };
+      const ac4 = { t: TERM, a: ALT_ACTION, o: ORIENT };
+      const ac5 = { t: TERM, a: ACTION, o: ALT_ORIENT };
+      const ac6 = { a: ACTION, o: ORIENT };
+      const ac7 = { t: TERM, a: '', o: ORIENT };
+      const ac8 = { t: TERM, a: ACTION };
+      // Act
+      const match12 = AppCtxRoot.isMatch(ac1, ac2, true);
+      const match21 = AppCtxRoot.isMatch(ac2, ac1, true);
+      const notMatch13 = AppCtxRoot.isMatch(ac1, ac3, true);
+      const notMatch14 = AppCtxRoot.isMatch(ac1, ac4, true);
+      const notMatch15 = AppCtxRoot.isMatch(ac1, ac5, true);
+      const notMatch31 = AppCtxRoot.isMatch(ac3, ac1, true);
+      const notMatch41 = AppCtxRoot.isMatch(ac4, ac1, true);
+      const notMatch51 = AppCtxRoot.isMatch(ac5, ac1, true);
+      const noMatch16 = AppCtxRoot.isMatch(ac1, ac6, true);
+      const noMatch17 = AppCtxRoot.isMatch(ac1, ac7, true);
+      const noMatch18 = AppCtxRoot.isMatch(ac1, ac8, true);
+      const noMatch61 = AppCtxRoot.isMatch(ac6, ac1, true);
+      const noMatch71 = AppCtxRoot.isMatch(ac7, ac1, true);
+      const noMatch81 = AppCtxRoot.isMatch(ac8, ac1, true);
+      // Assert
+      expect(match12).toBe(true);
+      expect(match21).toBe(true);
+      expect(notMatch13).toBe(false);
+      expect(notMatch14).toBe(false);
+      expect(notMatch15).toBe(false);
+      expect(notMatch31).toBe(false);
+      expect(notMatch41).toBe(false);
+      expect(notMatch51).toBe(false);
+      expect(noMatch16).toBe(false);
+      expect(noMatch17).toBe(false);
+      expect(noMatch18).toBe(false);
+      expect(noMatch61).toBe(false);
+      expect(noMatch71).toBe(false);
+      expect(noMatch81).toBe(false);
+    });
+  });
+
+  describe('using an instance isMatch method that delegates to the static version', () => {
+    it('should call static isMatch with itself as the first arg', () => {
+      // Assemble
+      const ac1 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      const ac2 = new AppCtxRoot(TERM, ACTION, ORIENT);
+      const ac3 = { t: TERM, a: ACTION, o: ORIENT };
+      const staticSpy = jest.spyOn(AppCtxRoot, 'isMatch');
+      // Act
+      ac1.isMatch(ac2);
+      ac1.isMatch(ac2, true);
+      ac1.isMatch(ac3);
+      ac1.isMatch(ac3, true);
+      // Assert
+      expect(staticSpy).toHaveBeenCalledTimes(4);
+      expect(staticSpy).toHaveBeenNthCalledWith(1, ac1, ac2, false);
+      expect(staticSpy).toHaveBeenNthCalledWith(2, ac1, ac2, true);
+      expect(staticSpy).toHaveBeenNthCalledWith(3, ac1, ac3, false);
+      expect(staticSpy).toHaveBeenNthCalledWith(4, ac1, ac3, true);
+      // restore
+      staticSpy.mockRestore();
+    });
   });
 });
