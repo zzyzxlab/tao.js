@@ -36,7 +36,10 @@ TAO.addInlineHandler({ t: 'Router', a: 'Init', o: 'Portal' }, () => {
           path: '/{t}/{action._id}',
           lowerCase: true
         },
-        Attach: { action: 'Find' }
+        Attach: {
+          tao: { action: 'Find' },
+          data: { o: 'Admin' }
+        }
       }
     ]
   });

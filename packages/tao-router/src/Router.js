@@ -9,6 +9,9 @@ import makeRouteHandler, { deconstructPath, convertPath } from './routeHandler';
 const CHANGE_ACTION_SIGNAL = 'POP';
 
 function capitalize(str) {
+  if (!str || typeof str !== 'string') {
+    return str;
+  }
   return `${str.substring(0, 1).toUpperCase()}${str.substring(1)}`;
 }
 
@@ -26,13 +29,7 @@ function wrapIgnore(handler, ignore) {
     wrapAc(iac)
   );
   return (tao, data) => {
-    const matchedIgnore = ignoreACs.some(ignoreAc => {
-      // TODO: add AppCtxRoot.isMatch(otherAc) to core API
-      const matchTerm = ignoreAc.isTermWild || ignoreAc.t === tao.t;
-      const matchAction = ignoreAc.isActionWild || ignoreAc.a === tao.a;
-      const matchOrient = ignoreAc.isOrientWild || ignoreAc.o === tao.o;
-      return matchTerm && matchAction && matchOrient;
-    });
+    const matchedIgnore = ignoreACs.some(ignoreAc => ignoreAc.isMatch(tao));
     if (!matchedIgnore) {
       return handler(tao, data);
     }
@@ -41,37 +38,65 @@ function wrapIgnore(handler, ignore) {
 
 function reactToRoute(TAO, match) {
   console.log('Router::reacting to route');
-  let { t, a, o, ...data } = match.node.deconstruction.reduce(
-    (pathData, pathItem) => {
-      if (!pathItem.match) {
-        return pathData;
-      }
-      const dataPath = pathItem.match[2];
-      const pathParam = pathItem.use.substring(1);
-      let paramData = match.param[pathParam];
-      if (paramData) {
-        set(pathData, dataPath, paramData);
-      } else if (typeof get(match.node.defaultData, dataPath) !== 'undefined') {
-        set(pathData, dataPath, get(match.node.defaultData, dataPath));
-      }
+  const pathMatched = match.node.deconstruction.reduce((pathData, pathItem) => {
+    if (!pathItem.match) {
       return pathData;
-    },
-    {}
-  );
-  console.log('will set:', { t, a, o }, data);
+    }
+    const dataPath = pathItem.match[2];
+    const pathParam = pathItem.use.substring(1);
+    let paramData = match.param[pathParam];
+    if (paramData) {
+      set(pathData, dataPath, paramData);
+    }
+    return pathData;
+  }, {});
   if (match.node.lowerCase) {
-    t = t ? capitalize(t) : t;
-    a = a ? capitalize(a) : a;
-    o = o ? capitalize(o) : o;
+    pathMatched.t = capitalize(pathMatched.t);
+    pathMatched.a = capitalize(pathMatched.a);
+    pathMatched.o = capitalize(pathMatched.o);
   }
+  console.log('reactToRoute::node.defaultData:', match.node.defaultData);
   match.node.attached.forEach(trigram => {
+    const defaultData = match.node.defaultData
+      ? match.node.defaultData.get(trigram.key)
+      : null;
+    console.log('trigram::defaultData:', defaultData);
+    const acParts = !defaultData
+      ? pathMatched
+      : match.node.deconstruction.reduce(
+          (allData, pathItem) => {
+            if (!pathItem.match) {
+              return allData;
+            }
+            const dataPath = pathItem.match[2];
+            const defaultDataItem = get(defaultData, dataPath);
+            if (
+              typeof defaultDataItem !== 'undefined' &&
+              typeof get(allData, dataPath) === 'undefined'
+            ) {
+              set(allData, dataPath, defaultDataItem);
+            }
+            return allData;
+          },
+          { ...pathMatched }
+        );
+    console.log(
+      'reactToRoute::trigram:',
+      trigram,
+      'pathMatched:',
+      pathMatched,
+      'acParts:',
+      acParts
+    );
+    const { t, a, o, ...data } = acParts;
     const ac = new AppCtx(
-      trigram.t || trigram.term || t,
-      trigram.a || trigram.action || a,
-      trigram.o || trigram.orient || o,
+      trigram.isTermWild ? t : trigram.t,
+      trigram.isActionWild ? a : trigram.a,
+      trigram.isOrientWild ? o : trigram.o,
       data
     );
-    console.log('AppCtx:', ac);
+
+    TAO.setCtx({ t: 'Route', a: 'Match', o: ac.o }, [match.node.route, ac]);
     TAO.setAppCtx(ac);
   });
 }
@@ -114,7 +139,7 @@ export default class Router {
       : (Array.isArray(incomingAc) ? incomingAc : [incomingAc]).map(ac =>
           wrapAc(ac)
         );
-    TAO.addAsyncHandler(initAc, (tao, data) => {
+    TAO.addInlineHandler(initAc, (tao, data) => {
       return new AppCtx('Router', 'Init', tao.o);
     });
     TAO.addInlineHandler(
@@ -161,7 +186,6 @@ export default class Router {
         this._routes.set(trigram.key, handler);
         console.log('route.add::trigram.unwrapCtx():', trigram.unwrapCtx());
         TAO.addAsyncHandler(trigram.unwrapCtx(), handler);
-        console.log('current TAO:', TAO);
       }
     );
     TAO.addInlineHandler(
@@ -183,18 +207,20 @@ export default class Router {
       (tao, { Route, Attach }) => {
         // attach Trigram to an incoming route
         console.log('Going to Attach Route:', { Route, Attach });
-        const deconstruction = deconstructPath(Route.path || Route);
+        const routeToUse = Route.path || Route;
+        const deconstruction = deconstructPath(routeToUse);
         const convertedPath = convertPath(deconstruction);
         const node = this._router.define(convertedPath)[0];
+        node.route = routeToUse;
         node.lowerCase = Route.lowerCase;
         node.deconstruction = deconstruction;
         node.attached = node.attached || [];
-        const attachTo = { o: tao.o, ...(Attach.tao || Attach) };
+        // const attachTo = wrapAc({ o: tao.o, ...(Attach.tao || Attach) });
+        const attachTo = wrapAc(Attach.tao || Attach);
         node.attached.push(attachTo);
         node.defaultData = node.defaultData || new Map();
         if (Attach.tao) {
-          const trigram = wrapAc(attachTo);
-          node.defaultData.set(trigram.key, Attach.data || {});
+          node.defaultData.set(attachTo.key, Attach.data || {});
         }
       }
     );
@@ -203,6 +229,20 @@ export default class Router {
       (tao, { Route, Detach }) => {
         // detach Trigram from an incoming route
         console.log('Going to Detach Route:', { Route, Detach });
+        const routeToUse = Route.path || Route;
+        const deconstruction = deconstructPath(routeToUse);
+        const convertedPath = convertPath(deconstruction);
+        const node = this._router.define(convertedPath)[0];
+        if (node.attached && node.attached.length) {
+          // const attachTo = wrapAc({ o: tao.o, ...(Attach.tao || Attach) });
+          const attachTo = wrapAc(Attach.tao || Attach);
+          node.attached = node.attached.filter(
+            trigram => !trigram.isMatch(attachTo, true)
+          );
+          if (node.defaultData && node.defaultData.has(attachTo.key)) {
+            node.defaultData.delete(attachTo.key);
+          }
+        }
       }
     );
     // TAO.addAsyncHandler({}, (tao, data) => {
@@ -262,7 +302,6 @@ export default class Router {
     // match the new location to our route tree to find Trigrams and fire ACs from path data
     console.log('history change:', { location, action });
     const match = this._router.match(location.pathname);
-    console.log('matched:', match);
     if (CHANGE_ACTION_SIGNAL === action && match) {
       reactToRoute(this._tao, match);
     }
