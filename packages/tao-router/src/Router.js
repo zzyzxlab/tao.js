@@ -36,6 +36,17 @@ function wrapIgnore(handler, ignore) {
   };
 }
 
+function mergeData(pathData, defaultData, parentPath) {
+  Object.entries(defaultData).forEach(([key, val]) => {
+    const dataPath = parentPath ? `${parentPath}.${key}` : key;
+    if (typeof get(pathData, dataPath) === 'undefined') {
+      set(pathData, dataPath, val);
+    } else if (typeof val === 'object' && !Array.isArray(val)) {
+      mergeData(pathData, val, dataPath);
+    }
+  });
+}
+
 function reactToRoute(TAO, match) {
   console.log('Router::reacting to route');
   const pathMatched = match.node.deconstruction.reduce((pathData, pathItem) => {
@@ -60,34 +71,10 @@ function reactToRoute(TAO, match) {
     const defaultData = match.node.defaultData
       ? match.node.defaultData.get(trigram.key)
       : null;
-    console.log('trigram::defaultData:', defaultData);
-    const acParts = !defaultData
-      ? pathMatched
-      : match.node.deconstruction.reduce(
-          (allData, pathItem) => {
-            if (!pathItem.match) {
-              return allData;
-            }
-            const dataPath = pathItem.match[2];
-            const defaultDataItem = get(defaultData, dataPath);
-            if (
-              typeof defaultDataItem !== 'undefined' &&
-              typeof get(allData, dataPath) === 'undefined'
-            ) {
-              set(allData, dataPath, defaultDataItem);
-            }
-            return allData;
-          },
-          { ...pathMatched }
-        );
-    console.log(
-      'reactToRoute::trigram:',
-      trigram,
-      'pathMatched:',
-      pathMatched,
-      'acParts:',
-      acParts
-    );
+    let acParts = pathMatched;
+    if (defaultData) {
+      mergeData(acParts, defaultData);
+    }
     const { t, a, o, ...data } = acParts;
     const ac = new AppCtx(
       trigram.isTermWild ? t : trigram.t,
