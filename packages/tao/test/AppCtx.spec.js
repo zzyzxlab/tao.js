@@ -350,7 +350,7 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
         TERM,
         ACTION,
         ORIENT,
-        null,
+        undefined,
         undefined,
         expectedOrientData
       );
@@ -373,7 +373,7 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
         TERM,
         ACTION,
         ORIENT,
-        null,
+        undefined,
         undefined,
         expectedOrientData
       );
@@ -420,6 +420,86 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       );
       // Assert
       expect(actual).toEqualOn(expected);
+    });
+  });
+
+  describe('AppCtx can receive primitive values for data parameters', () => {
+    it('should allow primitive values for data', () => {
+      // Assemble
+      const expectedTermData = 12345;
+      const expectedActionData = 'thing';
+      const expectedOrientData = Date();
+      const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
+      const expected = {
+        ...expectedTao,
+        data: {
+          [TERM]: expectedTermData,
+          [ACTION]: expectedActionData,
+          [ORIENT]: expectedOrientData
+        }
+      };
+      // Act
+      const actualFromArray = new AppCtx(TERM, ACTION, ORIENT, [
+        expectedTermData,
+        expectedActionData,
+        expectedOrientData
+      ]);
+      const actualFromObject = new AppCtx(TERM, ACTION, ORIENT, {
+        t: expectedTermData,
+        action: expectedActionData,
+        [ORIENT]: expectedOrientData
+      });
+      const actualFromArgs = new AppCtx(
+        TERM,
+        ACTION,
+        ORIENT,
+        expectedTermData,
+        expectedActionData,
+        expectedOrientData
+      );
+      // Assert
+      expect(actualFromArray).toEqualOn(expected);
+      expect(actualFromObject).toEqualOn(expected);
+      expect(actualFromArgs).toEqualOn(expected);
+    });
+
+    it('should allow falsey primitive values besides undefined for data', () => {
+      // Assemble
+      const expectedTermData = 0;
+      const expectedActionData = '';
+      const expectedOrientData = null;
+      const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
+      const expected = {
+        ...expectedTao,
+        data: {
+          [TERM]: expectedTermData,
+          [ACTION]: expectedActionData,
+          [ORIENT]: expectedOrientData
+        }
+      };
+      // Act
+      const actualFromArray = new AppCtx(TERM, ACTION, ORIENT, [
+        expectedTermData,
+        expectedActionData,
+        expectedOrientData
+      ]);
+      const actualFromObject = new AppCtx(TERM, ACTION, ORIENT, {
+        t: expectedTermData,
+        action: expectedActionData,
+        [ORIENT]: expectedOrientData
+      });
+      const actualFromArgs = new AppCtx(
+        TERM,
+        ACTION,
+        ORIENT,
+        expectedTermData,
+        expectedActionData,
+        expectedOrientData
+      );
+      // Assert
+      expect(actualFromArray).toEqualOn(expected);
+      expect(actualFromObject).toEqualOn(expected);
+      expect(actualFromArgs).toEqualOn(expected);
     });
   });
 });
