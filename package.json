@@ -1,6 +1,6 @@
 {
   "name": "tao.js",
-  "version": "0.1.0",
+  "version": "0.6.0",
   "main": "index.js",
   "private": true,
   "directories": {
@@ -29,7 +29,9 @@
     "chore:clean": "lerna clean --ignore=docs --ignore=patois* && rimraf ./node_modules && npm install && lerna bootstrap --hoist",
     "chore:dependencies:packages": "lerna exec --concurrency=1 --scope=@tao.js/* -- npm update --dev --save",
     "chore:dependencies:root": "npm update --dev --save",
-    "chore:dependencies": "lerna clean --ignore=docs --ignore=patois* && npm run chore:dependencies:root && npm run chore:dependencies:packages && lerna bootstrap --hoist"
+    "chore:dependencies": "lerna clean --ignore=docs --ignore=patois* && npm run chore:dependencies:root && npm run chore:dependencies:packages && lerna bootstrap --hoist",
+    "chore:changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+    "chore:publish": "lerna publish"
   },
   "config": {
     "commitizen": {

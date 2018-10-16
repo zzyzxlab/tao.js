@@ -2,6 +2,9 @@
 
 `tao` represents a new _way_ of programming
 
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
+
 ## Further Reading
 
 [Docs at zzyzxlab.github.io/tao.js/](https://zzyzxlab.github.io/tao.js/)
@@ -94,13 +97,15 @@ Which will start `commitizen` for you to generate the commit message in the desi
   - [ ] handle file uploads
 - [x] write phase 1 of `docs`
 - [ ] complete `@tao.js/router` package
-  - [ ] update location from AppCons
-  - [ ] initialize route config
-  - [ ] dynamically add routes
-  - [ ] dynamically remove routes
-  - [ ] get AppCon from incoming route
-  - [ ] integrate into `patois` example app
+  - [x] update location from AppCons
+  - [x] initialize route config
+  - [x] dynamically add routes
+  - [x] dynamically remove routes
+  - [x] get AppCon from incoming route
+  - [x] integrate into `patois` example app
   - [ ] update `docs` with `@tao.js/router`
+  - [ ] unit tests
+  - [ ] implement query string handling
 - [ ] complete `@tao.js/react-router` package
   - [ ] implement `Link` component to set context
   - [ ] update `docs` with `@tao.js/react-router` routing

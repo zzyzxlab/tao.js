@@ -1,6 +1,22 @@
-<a name="0.1.0"></a>
+<a name="0.6.0"></a>
 
-# 0.1.0 (2018-08-21)
+# [0.6.0](https://github.com/zzyzxlab/tao.js/compare/v0.5.0...v0.6.0) (2018-10-16)
+
+### Bug Fixes
+
+- **AppCtx:** allow falsey values to be set for AppCtx data - testing undefined instead of falsey ([75188dc](https://github.com/zzyzxlab/tao.js/commit/75188dc))
+
+### Features
+
+- **AppCtxRoot:** provide isMatch for library authors to test matching between 2 trigrams ([f2d6b20](https://github.com/zzyzxlab/tao.js/commit/f2d6b20))
+- **router:** api update for Router - set ctx to {Route,Set,tao.o} in routeHandler ([cabca5d](https://github.com/zzyzxlab/tao.js/commit/cabca5d))
+- **router:** implemented Attach to attach trigrams to routes ([e7fab08](https://github.com/zzyzxlab/tao.js/commit/e7fab08))
+- **router:** working route change from set context ([8ecf235](https://github.com/zzyzxlab/tao.js/commit/8ecf235))
+- **Router:** working default data for Attach ([353f2f5](https://github.com/zzyzxlab/tao.js/commit/353f2f5))
+
+<a name="0.5.0"></a>
+
+# [0.5.0](https://github.com/zzyzxlab/tao.js/compare/d59cadf...v0.5.0) (2018-08-21)
 
 ### Bug Fixes
 
