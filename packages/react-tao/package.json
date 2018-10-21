@@ -2,17 +2,13 @@
   "name": "@tao.js/react",
   "version": "0.6.0",
   "description": "Adapter to use tao.js with React",
-  "homepage": "https://zzyzxlab.github.io/tao.js/",
-  "bugs": {
-    "url": "https://github.com/zzyzxlab/tao.js/issues?q=is%3Aissue+is%3Aopen+label%3A\"pkg%3A+react\""
-  },
-  "repository": "github:zzyzxlab/tao.js",
+  "homepage": "https://tao.js.org/",
+  "repository": "https://github.com/zzyzxlab/tao.js/tree/master/packages/react-tao",
   "main": "lib/index.js",
   "files": [
     "lib"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build:clean": "rimraf lib",
     "build:transpile": "babel src -d lib --source-maps --copy-files",
     "build": "npm run build:clean && npm run build:transpile"
