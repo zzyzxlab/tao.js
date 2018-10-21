@@ -27,6 +27,7 @@
   * [Socket.io](server-side/socket-io.md)
   * [Koa Middleware](server-side/koa.md)
   * [Connect/Express Middlware](server-side/connect.md)
+* [URL Handling wtih @tao.js/router](router/README.md)
 * [API Reference](api/README.md)
   * [@tao.js/core](api/core/README.md)
     * [TAO](api/core/tao.md)

@@ -1,86 +1,20 @@
-# tao-router
+# @tao.js/router
 
-## node console testing
+> connects url routing with tao.js
+
+See the tao.js website [URL Handling wtih @tao.js/router](https://tao.js.org/router/) for more information about tao.js or the [issues](https://github.com/zzyzxlab/tao.js/issues?q=is%3Aissue+is%3Aopen+label%3A"pkg%3A+router")
+associated with this package.
+
+## Install
+
+Using npm:
 
 ```sh
-> let re = /\{([\w|\.]+)}/gm
-undefined
-> re
-/\{([\w|\.]+)}/gm
-> let path = /{t}/path/{term.id}/{action.go}/
-let path = /{t}/path/{term.id}/{action.go}/
-           ^
+npm install --save @tao.js/router
+```
 
-SyntaxError: Invalid regular expression flags
+or using yarn:
 
-> let url = '/{t}/path/{term.id}/{action.go}/
-let url = '/{t}/path/{term.id}/{action.go}/
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-SyntaxError: Invalid or unexpected token
-
-> let earl = '/{t}/path/{term.id}/{action.go}/'
-undefined
-> earl
-'/{t}/path/{term.id}/{action.go}/'
-> re.match(earl)
-TypeError: re.match is not a function
-> re.test(earl)
-true
-> re.exec(earl)
-[ '{term.id}',
-  'term.id',
-  index: 10,
-  input: '/{t}/path/{term.id}/{action.go}/' ]
-> re = /\({([\w|\.]+)})*/gm
-SyntaxError: Invalid regular expression: /\({([\w|\.]+)})*/: Unmatched ')'
-> re = /\({([\w|\.]+)\})*/gm
-SyntaxError: Invalid regular expression: /\({([\w|\.]+)\})*/: Unmatched ')'
-> re = /(\{([\w|\.]+)\})*/gm
-/(\{([\w|\.]+)\})*/gm
-> re.exec(earl)
-[ '',
-  undefined,
-  undefined,
-  index: 0,
-  input: '/{t}/path/{term.id}/{action.go}/' ]
-> re = /(\{([\w|\.]+)\})*/gm
-/(\{([\w|\.]+)\})*/gm
-> re.exec(earl)
-[ '',
-  undefined,
-  undefined,
-  index: 0,
-  input: '/{t}/path/{term.id}/{action.go}/' ]
-> earl.match(re)
-[ '',
-  '{t}',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '',
-  '{term.id}',
-  '',
-  '{action.go}',
-  '',
-  '' ]
-> earl.split('/')
-[ '', '{t}', 'path', '{term.id}', '{action.go}', '' ]
-> earl.match(/\//g).length
-5
-> earl.match(/\//g).length + earl.split('/')
-'5,{t},path,{term.id},{action.go},'
-> earl.match(/\//g).length + earl.split('/').length
-11
-> earl.match(re).length
-13
-> re = /(\{([\w|\.]+)\})/gm
-/(\{([\w|\.]+)\})/gm
-> earl.match(re)
-[ '{t}', '{term.id}', '{action.go}' ]
->
-(To exit, press ^C again or type .exit)
->
+```sh
+yarn add @tao.js/router
 ```

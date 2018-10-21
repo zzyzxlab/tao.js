@@ -1,13 +1,14 @@
 {
   "name": "@tao.js/router",
   "version": "0.6.0",
-  "description": "connects url routing with the TAO",
+  "description": "connects url routing with tao.js",
+  "homepage": "https://tao.js.org/",
+  "repository": "https://github.com/zzyzxlab/tao.js/tree/master/packages/tao-router",
   "main": "lib/index.js",
   "files": [
     "lib"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build:clean": "rimraf lib",
     "build:transpile": "babel src -d lib --source-maps --copy-files",
     "build": "npm run build:clean && npm run build:transpile"
