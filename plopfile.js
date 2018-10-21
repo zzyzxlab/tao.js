@@ -58,6 +58,11 @@ const entry = plop => {
       },
       {
         type: 'add',
+        path: 'packages/tao-{{kebabCase name}}/README.md',
+        templateFile: '.plops/templates/package/README.md.hbs'
+      },
+      {
+        type: 'add',
         path: 'packages/tao-{{kebabCase name}}/test/index.spec.js',
         templateFile: '.plops/templates/package/index.spec.js.hbs'
       }
