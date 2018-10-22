@@ -138,15 +138,9 @@ export default class Router {
         routes.forEach(({ Route, Add, Remove, Attach, Detach }) => {
           if (Add) {
             TAO.setCtx({ t: 'Route', a: 'Add', o: tao.o }, [Route, Add]);
-            if (Add.attach) {
-              Attach = Add;
-            }
           }
           if (Remove) {
             TAO.setCtx({ t: 'Route', a: 'Remove', o: tao.o }, [Route, Remove]);
-            if (Remove.detach) {
-              Detach = Remove;
-            }
           }
           if (Attach) {
             TAO.setCtx({ t: 'Route', a: 'Attach', o: tao.o }, [Route, Attach]);
@@ -173,6 +167,9 @@ export default class Router {
         this._routes.set(trigram.key, handler);
         console.log('route.add::trigram.unwrapCtx():', trigram.unwrapCtx());
         TAO.addAsyncHandler(trigram.unwrapCtx(), handler);
+        if (Add.attach) {
+          return new AppCtx('Route', 'Attach', tao.o, Route, Add);
+        }
       }
     );
     TAO.addInlineHandler(
@@ -187,6 +184,9 @@ export default class Router {
         }
         TAO.removeAsyncHandler(trigram.unwrapCtx(), routeHandler);
         this._routes.delete(trigram.key);
+        if (Remove.detach) {
+          return new AppCtx('Route', 'Detach', tao.o, Route, Remove);
+        }
       }
     );
     TAO.addInlineHandler(
