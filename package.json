@@ -1,6 +1,6 @@
 {
   "name": "tao.js",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "main": "index.js",
   "private": true,
   "directories": {
@@ -31,7 +31,7 @@
     "chore:dependencies:packages": "lerna exec --concurrency=1 --scope=@tao.js/* -- npm update --dev --save",
     "chore:dependencies:root": "npm update --dev --save",
     "chore:dependencies": "lerna clean --ignore=docs --ignore=patois* && npm run chore:dependencies:root && npm run chore:dependencies:packages && lerna bootstrap --hoist",
-    "chore:changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+    "chore:changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "chore:publish": "lerna publish"
   },
   "config": {
