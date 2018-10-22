@@ -1,12 +1,12 @@
 {
   "name": "patois.web",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "private": true,
   "dependencies": {
-    "@tao.js/core": "^0.6.1",
-    "@tao.js/react": "^0.6.1",
-    "@tao.js/router": "^0.6.1",
-    "@tao.js/socket.io": "^0.6.1",
+    "@tao.js/core": "^0.6.2",
+    "@tao.js/react": "^0.6.2",
+    "@tao.js/router": "^0.6.2",
+    "@tao.js/socket.io": "^0.6.2",
     "axios": "^0.18.0",
     "lodash.isempty": "^4.4.0",
     "lodash.merge": "^4.6.1",

@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/koa",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "middleware to hook tao into koa server",
   "private": true,
   "main": "index.js",
@@ -11,7 +11,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@babel/cli": "7.0.0-beta.55",
-    "@tao.js/core": "^0.6.1",
+    "@tao.js/core": "^0.6.2",
     "rimraf": "^2.6.2"
   }
 }
