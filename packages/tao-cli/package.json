@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/cli",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "cli to interact with tao generation",
   "private": true,
   "main": "index.js",
@@ -11,7 +11,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@babel/cli": "7.0.0-beta.55",
-    "@tao.js/core": "^0.6.0",
+    "@tao.js/core": "^0.6.1",
     "rimraf": "^2.6.2"
   }
 }

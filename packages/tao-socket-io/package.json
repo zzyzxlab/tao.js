@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/socket.io",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "socket.io middleware to use tao.js",
   "homepage": "https://tao.js.org/",
   "repository": "https://github.com/zzyzxlab/tao.js/tree/master/packages/tao-socket-io",
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@babel/cli": "7.0.0-beta.55",
-    "@tao.js/core": "^0.6.0",
+    "@tao.js/core": "^0.6.1",
     "rimraf": "^2.6.2"
   }
 }
