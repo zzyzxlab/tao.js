@@ -30,4 +30,23 @@ const SpaceContainer = () => (
   </div>
 );
 
+// const AltSpaceContainer = () => {
+//   <BaseHandler term="Space" orient="Portal">
+//     <RenderHandler action="Fail" hideAction={['Find', 'Add', 'Update']}>
+//       {(tao, data) => <ErrorMessage {...tao} {...data} />}
+//     </RenderHandler>
+//     <SwitchHandler>
+//       <RenderHandler action="List">
+//         {(tao, data) => <List Space={data.Space} />}
+//       </RenderHandler>
+//       <RenderHandler action="View">
+//         {(tao, data) => <View Space={data.Space} />}
+//       </RenderHandler>
+//       <RenderHandler action={['New', 'Edit']}>
+//         {(tao, data) => <Form Space={data.Space} />}
+//       </RenderHandler>
+//     </SwitchHandler>
+//   </BaseHandler>;
+// };
+
 export default SpaceContainer;
