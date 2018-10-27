@@ -1,11 +1,43 @@
-import React, { createContext } from 'react';
+import React, { Component, createContext } from 'react';
 import TAO from '@tao.js/core';
 
-const Context = createContext({ TAO, data: new Map() });
+const defaultGlobalDataContexts = new Map();
+
+const makeDataContextFunctions = dataCtxMap => {
+  return {
+    setDataContext(key, ctx) {
+      dataCtxMap.set(key, ctx);
+    },
+    getDataContext(key) {
+      return dataCtxMap.get(key);
+    },
+    removeDataContext(key) {
+      dataCtxMap.delete(key);
+    }
+  };
+};
+
+const Context = createContext({
+  TAO,
+  ...makeDataContextFunctions(defaultGlobalDataContexts)
+});
 
 export { Context };
 
-export default function Provider({ TAO, children }) {
-  const data = new Map();
-  return <Context.Provider value={{ TAO, data }}>{children}</Context.Provider>;
+export default class Provider extends Component {
+  constructor(props) {
+    super(props);
+    this._dataContexts = new Map();
+    this.state = makeDataContextFunctions(this._dataContexts);
+  }
+
+  render() {
+    const { TAO } = this.props;
+    const dataContextFunctions = this.state;
+    return (
+      <Context.Provider value={{ TAO, ...dataContextFunctions }}>
+        {children}
+      </Context.Provider>
+    );
+  }
 }
