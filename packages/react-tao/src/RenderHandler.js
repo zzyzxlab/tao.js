@@ -1,5 +1,7 @@
-import React, { Component } from 'react';
+import React, { Fragment, Component } from 'react';
+import PropTypes from 'prop-types';
 import { Context } from './Provider';
+import cartesian from 'cartesian';
 
 function recursiveContextGenerator(
   ctxList,
@@ -43,6 +45,13 @@ function recursiveContextGenerator(
 export default class RenderHandler extends Component {
   static contextType = Context;
 
+  static propTypes = {
+    term: PropTypes.any,
+    action: PropTypes.any,
+    orient: PropTypes.any,
+    children: PropTypes.func.isRequired
+  };
+
   constructor(props) {
     super(props);
     let { shouldRender } = props;
@@ -51,15 +60,27 @@ export default class RenderHandler extends Component {
   }
 
   componentWillMount() {
+    console.log('RenderHandler::props:', this.props);
     const { term, action, orient } = this.props;
+    console.log('RenderHandler::context:', this.context);
     const { TAO } = this.context;
-    TAO.addInlineHandler({ term, action, orient }, this.handleRender);
+    const permutations = cartesian({ term, action, orient });
+    if (permutations.length) {
+      permutations.forEach(({ term, action, orient }) =>
+        TAO.addInlineHandler({ term, action, orient }, this.handleRender)
+      );
+    }
   }
 
   componentWillUnmount() {
     const { term, action, orient } = this.props;
     const { TAO } = this.context;
-    TAO.removeInlineHandler({ term, action, orient }, this.handleRender);
+    const permutations = cartesian({ term, action, orient });
+    if (permutations.length) {
+      permutations.forEach(({ term, action, orient }) =>
+        TAO.removeInlineHandler({ term, action, orient }, this.handleRender)
+      );
+    }
   }
 
   handleRender = (tao, data) => {
@@ -73,6 +94,9 @@ export default class RenderHandler extends Component {
 
     if (!shouldRender) {
       return null;
+    }
+    if (!context) {
+      return <Fragment>{children(tao, data)}</Fragment>;
     }
     const ctxList = Array.isArray(context) ? context : [context];
     return recursiveContextGenerator(

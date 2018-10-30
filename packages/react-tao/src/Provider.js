@@ -32,7 +32,7 @@ export default class Provider extends Component {
   }
 
   render() {
-    const { TAO } = this.props;
+    const { TAO, children } = this.props;
     const dataContextFunctions = this.state;
     return (
       <Context.Provider value={{ TAO, ...dataContextFunctions }}>

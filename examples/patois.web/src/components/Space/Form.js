@@ -63,11 +63,9 @@ class SpaceForm extends Component {
             onChange={this.handleChange}
           />
           <br />
-          <input type="submit" value="Save" />&nbsp;<button
-            onClick={this.handleCancel}
-          >
-            Cancel
-          </button>
+          <input type="submit" value="Save" />
+          &nbsp;
+          <button onClick={this.handleCancel}>Cancel</button>
         </form>
       </div>
     );
