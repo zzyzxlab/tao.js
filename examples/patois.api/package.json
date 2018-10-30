@@ -28,7 +28,7 @@
     "socket.io": "^2.1.1"
   },
   "devDependencies": {
-    "@babel/node": "7.0.0-beta.55",
+    "@babel/node": "7.0.0",
     "better-npm-run": "^0.1.0",
     "nodemon": "^1.18.3"
   }

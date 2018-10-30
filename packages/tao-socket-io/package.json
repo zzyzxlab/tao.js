@@ -19,10 +19,10 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@tao.js/core": "^0.1.0"
+    "@tao.js/core": "^0.6.2"
   },
   "devDependencies": {
-    "@babel/cli": "7.0.0-beta.55",
+    "@babel/cli": "7.1.2",
     "@tao.js/core": "^0.6.2",
     "rimraf": "^2.6.2"
   }
