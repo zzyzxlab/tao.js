@@ -91,13 +91,32 @@ Which will start `commitizen` for you to generate the commit message in the desi
     - [x] using `asPromiseHook`
   - [x] refactor intercept handler to `await` like inline handler calls do to match guarantee provided in docs
 - [x] complete initial `@tao.js/react` package
-  - [x] port `Provider`
+  - [x] port `Adapter`
   - [x] port `Reactor`
-  - [x] unit tests for `Provider`
+  - [x] unit tests for `Adapter`
   - [x] unit tests for `Reactor`
-  - [x] enable `Provider` to unset current component using `null` as a handler for TAO ACs
-  - [x] refactor `Provider` to be `Adapter`
+  - [x] enable `Adapter` to unset current component using `null` as a handler for TAO ACs
   - [x] make taople definition on `Adapter.addComponentHandler` #2 method consistent with `@tao.js/core`
+- [ ] update to `@tao.js/react`
+  - **goal:** provide more idiomatic & declarative React components to use with tao.js (keep the old stuff)
+  - [x] implement `Provider` that creates a Context used by the rest of the new React Components - supplies TAO Kernel to Consumers
+  - [x] implement `RenderHandler` with child as function to render anything based on triggered handler
+  - [x] implement `SwitchHandler` that works like `Reactor` to choose which direct child `RenderHandler`s to display
+        based on signaled ACs - turns off/removes `RenderHandler`s like `Adapter` unlike standalone `RenderHandler`
+  - [x] implement `DataHandler` that supplies data as a `React.Provider` to `RenderHandler` consumers below
+        from data passed into it's `handler`
+  - [ ] implement dynamic props (aka if props change after mounting) for `Provider`
+  - [ ] implement dynamic props (aka if props change after mounting) for `RenderHandler`
+  - [ ] implement dynamic props (aka if props change after mounting) for `SwitchHandler`
+  - [ ] implement dynamic props (aka if props change after mounting) for `DataHandler`
+  - [ ] unit tests for `Provider`
+  - [ ] unit tests for `RenderHandler`
+  - [ ] unit tests for `SwitchHandler`
+  - [ ] unit tests for `DataHandler`
+  - [ ] docs for `Provider`
+  - [ ] docs for `RenderHandler`
+  - [ ] docs for `SwitchHandler`
+  - [ ] docs for `DataHandler`
 - [ ] complete `@tao.js/socket-io` package
   - [x] figure out how to ensure responses go to same requestor
   - [x] implement using new `Kernel` / socket
