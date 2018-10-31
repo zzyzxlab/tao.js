@@ -2,21 +2,7 @@ import cartesian from 'cartesian';
 import { Component } from 'react';
 import { AppCtx } from '@tao.js/core';
 
-const noop = () => {};
-
-function normalizeAC({ t, term, a, action, o, orient }) {
-  return {
-    term: term || t,
-    action: action || a,
-    orient: orient || o
-  };
-}
-
-const cleanInput = ({ term, action, orient }) => {
-  const incoming = { term, action, orient };
-  Object.keys(incoming).forEach(k => incoming[k] == null && delete incoming[k]);
-  return incoming;
-};
+import { noop, normalizeAC, cleanInput } from './helpers';
 
 const wrappedHandler = (ComponentHandler = null, props, _adapter) => (
   tao,
