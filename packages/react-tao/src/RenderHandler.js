@@ -38,7 +38,7 @@ function recursiveContextGenerator(
     <context.Consumer name={`${ctxName}.Consumer`}>
       {ctxData => {
         ctxDataArgs.push(ctxData);
-        return children(toa, data, ...ctxDataArgs);
+        return children(tao, data, ...ctxDataArgs);
       }}
     </context.Consumer>
   );

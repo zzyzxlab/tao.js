@@ -27,7 +27,9 @@ export default class DataHandler extends Component {
 
   handleData = (tao, data) => {
     const { handler } = this.props;
-    const dataUpdate = handler ? handler(tao, data, this.setState) : data;
+    const dataUpdate = handler
+      ? handler(tao, data, data => this.setState(data))
+      : data;
     if (dataUpdate instanceof AppCtx) {
       return dataUpdate;
     }

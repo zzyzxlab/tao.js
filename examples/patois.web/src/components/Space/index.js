@@ -1,6 +1,12 @@
 import React, { Fragment } from 'react';
 import TAO, { AppCtx } from '@tao.js/core';
-import { Adapter, Reactor, SwitchHandler, RenderHandler } from '@tao.js/react';
+import {
+  Adapter,
+  Reactor,
+  DataHandler,
+  SwitchHandler,
+  RenderHandler
+} from '@tao.js/react';
 import List from './List';
 import View from './View';
 import Form from './Form';
@@ -33,13 +39,20 @@ const SpaceContainer = () => (
 export default SpaceContainer;
 
 const SpaceAltContainer = () => (
-  <Fragment>
+  <DataHandler
+    name="spaceList"
+    term="Space"
+    action="List"
+    orient="Portal"
+    default={() => ({ list: [] })}
+    handler={(tao, data, set) => ({ list: data.Space })}
+  >
     <RenderHandler term="Space" action="Fail">
       {(tao, data) => <ErrorMessage Space={data.Space} Fail={data.Fail} />}
     </RenderHandler>
     <SwitchHandler term="Space" orient="Portal">
-      <RenderHandler action="List">
-        {(tao, data) => <List Space={data.Space} />}
+      <RenderHandler context="spaceList" action="List">
+        {(tao, data, spaceList) => <List Space={spaceList.list} />}
       </RenderHandler>
       <RenderHandler action="View">
         {(tao, data) => <View Space={data.Space} />}
@@ -56,7 +69,7 @@ const SpaceAltContainer = () => (
         {(tao, data) => <View Space={data.Space} />}
       </RenderHandler>
     </SwitchHandler>
-  </Fragment>
+  </DataHandler>
 );
 
 export { SpaceAltContainer };
