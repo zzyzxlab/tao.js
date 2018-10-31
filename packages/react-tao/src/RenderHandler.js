@@ -1,7 +1,9 @@
 import React, { Fragment, Component } from 'react';
 import PropTypes from 'prop-types';
-import { Context } from './Provider';
 import cartesian from 'cartesian';
+
+import { normalizeAC, cleanInput } from './helpers';
+import { Context } from './Provider';
 
 function recursiveContextGenerator(
   ctxList,
@@ -61,10 +63,10 @@ export default class RenderHandler extends Component {
 
   componentWillMount() {
     console.log('RenderHandler::props:', this.props);
-    const { term, action, orient } = this.props;
+    const trigram = cleanInput(normalizeAC(this.props));
     console.log('RenderHandler::context:', this.context);
     const { TAO } = this.context;
-    const permutations = cartesian({ term, action, orient });
+    const permutations = cartesian(trigram);
     if (permutations.length) {
       permutations.forEach(({ term, action, orient }) =>
         TAO.addInlineHandler({ term, action, orient }, this.handleRender)
@@ -73,9 +75,9 @@ export default class RenderHandler extends Component {
   }
 
   componentWillUnmount() {
-    const { term, action, orient } = this.props;
+    const trigram = cleanInput(normalizeAC(this.props));
     const { TAO } = this.context;
-    const permutations = cartesian({ term, action, orient });
+    const permutations = cartesian(trigram);
     if (permutations.length) {
       permutations.forEach(({ term, action, orient }) =>
         TAO.removeInlineHandler({ term, action, orient }, this.handleRender)

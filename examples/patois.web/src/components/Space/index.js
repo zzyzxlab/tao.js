@@ -44,6 +44,9 @@ const SpaceAltContainer = () => (
       <RenderHandler action="View">
         {(tao, data) => <View Space={data.Space} />}
       </RenderHandler>
+      <RenderHandler action="Edit">
+        {() => <div>You must save for changes to take effect.</div>}
+      </RenderHandler>
       <RenderHandler action={['New', 'Edit']}>
         {(tao, data) => <Form Space={data.Space} a={tao.a} />}
       </RenderHandler>
