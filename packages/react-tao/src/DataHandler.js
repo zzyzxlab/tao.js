@@ -1,5 +1,7 @@
 import React, { Component, createContext } from 'react';
 import { AppCtx } from '@tao.js/core';
+
+import { normalizeAC, cleanInput } from './helpers';
 import { Context } from './Provider';
 
 export default class DataHandler extends Component {
@@ -12,17 +14,17 @@ export default class DataHandler extends Component {
   }
 
   componentWillMount() {
-    const { term, action, orient, name } = this.props;
+    const trigram = cleanInput(normalizeAC(this.props));
     const { TAO, setDataContext } = this.context;
     setDataContext(name, this.ChildContext);
-    TAO.addInlineHandler({ term, action, orient }, this.handleData);
+    TAO.addInlineHandler(trigram, this.handleData);
   }
 
   componentWillUnmount() {
-    const { term, action, orient, name } = this.props;
+    const trigram = cleanInput(normalizeAC(this.props));
     const { TAO, removeDataContext } = this.context;
     removeDataContext(name);
-    TAO.removeInlineHandler({ term, action, orient }, this.handleData);
+    TAO.removeInlineHandler(trigram, this.handleData);
   }
 
   handleData = (tao, data) => {
