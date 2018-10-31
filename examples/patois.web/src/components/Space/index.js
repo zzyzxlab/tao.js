@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import TAO, { AppCtx } from '@tao.js/core';
 import {
   Adapter,
@@ -47,9 +47,6 @@ const SpaceAltContainer = () => (
     default={() => ({ list: [] })}
     handler={(tao, data, set) => ({ list: data.Space })}
   >
-    <RenderHandler term="Space" action="Fail">
-      {(tao, data) => <ErrorMessage Space={data.Space} Fail={data.Fail} />}
-    </RenderHandler>
     <SwitchHandler term="Space" orient="Portal">
       <RenderHandler context="spaceList" action="List">
         {(tao, data, spaceList) => <List Space={spaceList.list} />}

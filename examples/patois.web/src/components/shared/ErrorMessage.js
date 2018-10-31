@@ -29,13 +29,19 @@ class SpaceErrorMessage extends React.Component {
 
   errorMessage(props) {
     const {
-      Space: { name = '' },
+      messageToDisplay,
       Fail: { on = '', message = '' }
     } = props;
     if (!on) {
       return '';
     }
-    return `Failed to ${on} Space ${name} with '${message}'`;
+    if (typeof messageToDisplay === 'string') {
+      return messageToDisplay;
+    }
+    if (typeof messageToDisplay === 'function') {
+      return messageToDisplay(on, message);
+    }
+    return `Failed to ${on} with '${message}'`;
   }
 
   render() {
