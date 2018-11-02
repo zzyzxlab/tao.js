@@ -5,7 +5,8 @@ import {
   Reactor,
   DataHandler,
   SwitchHandler,
-  RenderHandler
+  RenderHandler,
+  withContext
 } from '@tao.js/react';
 import List from './List';
 import View from './View';
@@ -38,35 +39,46 @@ const SpaceContainer = () => (
 
 export default SpaceContainer;
 
-const SpaceAltContainer = () => (
-  <DataHandler
-    name="spaceList"
-    term="Space"
-    action="List"
-    orient="Portal"
-    default={() => ({ list: [] })}
-    handler={(tao, data, set) => ({ list: data.Space })}
-  >
-    <SwitchHandler term="Space" orient="Portal">
-      <RenderHandler context="spaceList" action="List">
+// const SpaceAltContainer_ = ({ data: spaceList }) => (
+const SpaceAltContainer = props => (
+  // <DataHandler
+  //   name="spaceList"
+  //   term="Space"
+  //   action="List"
+  //   orient="Portal"
+  //   default={() => ({ list: [] })}
+  //   handler={(tao, data, set) => ({ list: data.Space })}
+  // >
+  <SwitchHandler term="Space" orient="Portal">
+    {/* <RenderHandler context="spaceList" action="List">
         {(tao, data, spaceList) => <List Space={spaceList.list} />}
-      </RenderHandler>
-      <RenderHandler action="View">
-        {(tao, data) => <View Space={data.Space} />}
-      </RenderHandler>
-      <RenderHandler action="Edit">
-        {() => <div>You must save for changes to take effect.</div>}
-      </RenderHandler>
-      <RenderHandler action={['New', 'Edit']}>
-        {(tao, data) => <Form Space={data.Space} a={tao.a} />}
-      </RenderHandler>
-      some random text
-      <div>some more text</div>
-      <RenderHandler action="View">
-        {(tao, data) => <View Space={data.Space} />}
-      </RenderHandler>
-    </SwitchHandler>
-  </DataHandler>
+      </RenderHandler> */}
+    <RenderHandler action="List">
+      {/* (tao, data) => <List Space={spaceList.list} /> */}
+      {(tao, data) => <List />}
+    </RenderHandler>
+    <RenderHandler action="View">
+      {(tao, data) => <View Space={data.Space} />}
+    </RenderHandler>
+    <RenderHandler action="Edit">
+      {() => <div>You must save for changes to take effect.</div>}
+    </RenderHandler>
+    <RenderHandler action={['New', 'Edit']}>
+      {(tao, data) => <Form Space={data.Space} a={tao.a} />}
+    </RenderHandler>
+    some random text
+    <div>some more text</div>
+    <RenderHandler action="View">
+      {(tao, data) => <View Space={data.Space} />}
+    </RenderHandler>
+  </SwitchHandler>
+  // </DataHandler>
 );
+
+// const SpaceAltContainer = withContext(
+//   { t: 'Space', a: 'List' },
+//   (tao, data, set) => ({ list: data.Space }),
+//   () => ({ list: [] })
+// )(SpaceAltContainer_);
 
 export { SpaceAltContainer };

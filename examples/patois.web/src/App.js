@@ -25,7 +25,7 @@ class App extends Component {
               />
             )}
           </RenderHandler>
-          <SpaceAltContainer />
+          <SpaceAltContainer anotherProp="pass it down" />
         </div>
       </Provider>
     );

@@ -68,16 +68,21 @@ export default class SwitchHandler extends Component {
     console.log('chosenList:', chosenList);
     chosenList.add(child);
     this.setState({ chosenList });
+    console.log('SwitchHandler::handleSwitch::set state with:', this.state);
   };
 
   render() {
+    console.log('SwitchHandler::render::state:', this.state);
     const { term, action, orient, children } = this.props;
     const { chosenList } = this.state;
     return React.Children.map(children, child => {
       if (!React.isValidElement(child) || child.type !== RenderHandler) {
+        console.log('SwitchHandler::render:returning child');
         return child;
       }
+      console.log('SwitchHandler::render:testing child');
       if (chosenList.has(child)) {
+        console.log('SwitchHandler::render:cloning child');
         return React.cloneElement(child, {
           term,
           action,

@@ -1,5 +1,16 @@
 import React from 'react';
 import TAO from '@tao.js/core';
+import { withContext } from '@tao.js/react';
+// const TAOContext = React.createContext(TAO);
+
+// const Link = props => {
+//   const { t, a, o, data } = props;
+//   return (
+//     <TAOContext.Consumer>
+//       {Kernel => }
+//     </TAOContext.Consumer>
+//   )
+// }
 
 const SpaceItems = ({ spaces }) =>
   spaces.map(s => {
@@ -17,7 +28,7 @@ const SpaceItems = ({ spaces }) =>
     );
   });
 
-const SpaceList = ({ Space }) => (
+const SpaceList = ({ data: Space }) => (
   <div>
     <h1>Current list of Spaces</h1>
     <h3>
@@ -26,9 +37,13 @@ const SpaceList = ({ Space }) => (
       </button>
     </h3>
     <ul>
-      <SpaceItems spaces={Space} />
+      <SpaceItems spaces={Space.list} />
     </ul>
   </div>
 );
 
-export default SpaceList;
+export default withContext(
+  { t: 'Space', a: 'List' },
+  (tao, data, set) => ({ list: data.Space }),
+  () => ({ list: [] })
+)(SpaceList);
