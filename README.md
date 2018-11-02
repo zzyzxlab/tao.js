@@ -105,18 +105,26 @@ Which will start `commitizen` for you to generate the commit message in the desi
         based on signaled ACs - turns off/removes `RenderHandler`s like `Adapter` unlike standalone `RenderHandler`
   - [x] implement `DataHandler` that supplies data as a `React.Provider` to `RenderHandler` consumers below
         from data passed into it's `handler`
+  - [x] refactor `DataHandler` logic for its context into `createContextHandler` for reuse and expose for public use
+  - [x] implement `withContext` HOC
   - [ ] implement dynamic props (aka if props change after mounting) for `Provider`
+  - [ ] implement dynamic props (aka if props change after mounting) for `createContextHandler`
+  - [ ] implement dynamic props (aka if props change after mounting) for `DataHandler`
+  - [ ] implement dynamic props (aka if props change after mounting) for `withContext`
   - [ ] implement dynamic props (aka if props change after mounting) for `RenderHandler`
   - [ ] implement dynamic props (aka if props change after mounting) for `SwitchHandler`
-  - [ ] implement dynamic props (aka if props change after mounting) for `DataHandler`
   - [ ] unit tests for `Provider`
+  - [ ] unit tests for `createContextHandler`
+  - [ ] unit tests for `DataHandler`
+  - [ ] unit tests for `withContext`
   - [ ] unit tests for `RenderHandler`
   - [ ] unit tests for `SwitchHandler`
-  - [ ] unit tests for `DataHandler`
   - [ ] docs for `Provider`
+  - [ ] docs for `createContextHandler`
+  - [ ] docs for `DataHandler`
+  - [ ] docs for `withContext`
   - [ ] docs for `RenderHandler`
   - [ ] docs for `SwitchHandler`
-  - [ ] docs for `DataHandler`
 - [ ] complete `@tao.js/socket-io` package
   - [x] figure out how to ensure responses go to same requestor
   - [x] implement using new `Kernel` / socket
