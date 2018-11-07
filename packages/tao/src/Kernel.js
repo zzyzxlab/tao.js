@@ -220,10 +220,14 @@ export default class Kernel {
   asPromiseHook({ resolveOn = [], rejectOn = [] }, timeoutMs = 0) {
     const resolvers = isIterable(resolveOn)
       ? resolveOn
-      : resolveOn ? [resolveOn] : [];
+      : resolveOn
+      ? [resolveOn]
+      : [];
     const rejectors = isIterable(rejectOn)
       ? rejectOn
-      : rejectOn ? [rejectOn] : [];
+      : rejectOn
+      ? [rejectOn]
+      : [];
     if (
       !resolvers.length &&
       !resolvers.size &&

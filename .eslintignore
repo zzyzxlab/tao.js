@@ -1,0 +1,6 @@
+.plops
+.vscode
+coverage
+docs
+node_modules
+packages/docs/src/_book
