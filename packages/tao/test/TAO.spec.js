@@ -1,5 +1,5 @@
-import Kernel from '../lib/Kernel';
-import TAO, { AppCtx } from '../lib';
+import Kernel from '../src/Kernel';
+import TAO, { AppCtx } from '../src';
 
 describe('TAO is a new way of programming', () => {
   it('should exist', () => {

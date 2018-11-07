@@ -1,4 +1,4 @@
-import { isIterable, concatIterables } from '../lib/utils';
+import { isIterable, concatIterables } from '../src/utils';
 
 describe('isIterable tests whether a value can be iterated as a collection', () => {
   it('should return false for null', () => {

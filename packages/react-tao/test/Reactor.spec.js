@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 // import ReactDOM from 'react-dom';
 // import TestRenderer from 'react-test-renderer';
 import { mount } from 'enzyme';
-import { AppCtx, Kernel } from '@tao.js/core';
-import Adapter from '../lib/Adapter';
-import Reactor from '../lib/Reactor';
+import { AppCtx, Kernel } from '../../tao/src';
+// import { AppCtx, Kernel } from '@tao.js/core';
+import Adapter from '../src/Adapter';
+import Reactor from '../src/Reactor';
 // import { wrap } from 'module';
 
 const TERM = 'colleague';
