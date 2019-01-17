@@ -6,7 +6,7 @@ import { normalizeAC, cleanInput } from './helpers';
 import { Context } from './Provider';
 
 export default function createContextHandler(tao, handler, defaultValue) {
-  if (typeof handler !== 'function') {
+  if (handler != null && typeof handler !== 'function') {
     throw new Error('createContextHandler `handler` must be a function');
   }
   const WrappingContext = React.createContext(defaultValue);
