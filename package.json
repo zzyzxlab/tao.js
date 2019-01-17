@@ -123,6 +123,7 @@
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
     "react-test-renderer": "^16.6.0",
+    "react-testing-library": "^5.4.4",
     "regenerator-runtime": "^0.12.1",
     "rimraf": "^2.6.2"
   }
