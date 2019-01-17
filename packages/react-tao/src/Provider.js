@@ -1,5 +1,6 @@
 import React, { Component, createContext } from 'react';
-import TAO from '@tao.js/core';
+import PropTypes from 'prop-types';
+import TAO, { Kernel } from '@tao.js/core';
 
 const defaultGlobalDataContexts = new Map();
 
@@ -25,6 +26,10 @@ const Context = createContext({
 export { Context };
 
 export default class Provider extends Component {
+  static propTypes = {
+    TAO: PropTypes.instanceOf(Kernel).isRequired
+  };
+
   constructor(props) {
     super(props);
     this._dataContexts = new Map();
