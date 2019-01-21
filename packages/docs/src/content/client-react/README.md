@@ -321,10 +321,10 @@ other `Component` handlers from the `@tao.js/react` package) will compute a cart
 of all possible Trigrams from the Trigram prop values provided and add itself as a
 handler for each of them.
 
-### Improved Rendering with `SwitchHandler`
+### Improved Control with `SwitchHandler`
 
-`RenderHandler`s behave just like normal TAO handlers reacting to an AppCon but they do not
-react to other AppCons to which they are not configured to handle.  In React terms, this
+`RenderHandler` components behave just like a normal TAO handler reacting to an AppCon but they
+do not react to other AppCons to which they are not configured to handle.  In React terms, this
 translates to adding their children to the render tree once their configured AppCon has been
 encountered in the TAO, but not controlling removal.  This means the `SpaceContainer` we
 defined above will progressively show each of our `Space` components as users interact with
@@ -428,13 +428,19 @@ export default withContext(
 ```
 
 The `withContext` HOC wraps our `Welcome` component to provide the `User` data when it
-is encountered during a `{User,Enter,Portal}` AppCon.  The return value of the handler
-passed in as the 2nd arg to `withContext` is used to determine the shape of the `data`
-prop that `withContext` will pass to the `Welcome` component.
-The 3rd arg to `withContext` is used to set the default value of the `data` prop before
-any AppCons are encountered.
+is encountered during a `{User,Enter,Portal}` AppCon.
 
-Now our global header or App copmonent can import the default export from `src/components/shared/welcome.js`
+The first arg to `withContext` defines the Trigram that our handler will be looking for.
+
+The second arg to `withContext` is the TAO handler that will be called when the matching
+AppCon is set on the TAO with a variation from a standard TAO handler: you can return a
+value that will be used to determine the shape of the `data` prop that `withContext`
+will pass to the `Welcome` component.
+
+The third optional arg to `withContext` is used to set the default value of the `data`
+prop before any AppCons are encountered.
+
+Now our global header or App component can import the default export from `src/components/shared/welcome.js`
 and embed it in the page within a `Provider` and it'll just work like any other React `Component`.
 
 #### `src/App.js` with Welcome
@@ -455,7 +461,6 @@ class App extends Component {
         <div className="App">
           <header className="App-header">
             <img src={logo} className="App-logo" alt="logo" />
-            <h1 className="App-title">Welcome to Mypos</h1>
             <Welcome />
           </header>
           <SpaceContainer />
@@ -570,17 +575,3 @@ the order in which they're listed in the prop value).
 Finally, in the [function as a child](https://reactjs.org/docs/render-props.html#using-props-other-than-render) prop of the
 `RenderHandler` we capture the `spaceTypes` arg and pass it to the `Form` component as the value of
 the `types` prop.
-
-### Using `DataConsumer`s for easy consumption of shared stata
-
-Above we saw how a `RenderHandler` can use the `context` prop to get access to the shared state
-a `DataHandler` will add to the data context created by a `Provider`.
-
-If we want to consume this shared state without being dependent upon a `RenderHandler` to be
-rendered only when a specific or set of AppCons are encountered in the TAO, we can use the
-`DataConsumer` component to get the data and pass it down to its children using the same
-[function as a child](https://reactjs.org/docs/render-props.html#using-props-other-than-render)
-pattern but without the TAO handler part.
-
-For example, let's assume that only paid users can view the details of a Space.
-
