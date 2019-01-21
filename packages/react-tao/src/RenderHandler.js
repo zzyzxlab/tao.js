@@ -51,6 +51,10 @@ export default class RenderHandler extends Component {
     term: PropTypes.any,
     action: PropTypes.any,
     orient: PropTypes.any,
+    context: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string)
+    ]),
     children: PropTypes.func.isRequired
   };
 
@@ -86,6 +90,7 @@ export default class RenderHandler extends Component {
   }
 
   handleRender = (tao, data) => {
+    // TODO: allow shouldRender prop be a function called
     this.setState({ tao, data, shouldRender: true });
   };
 
