@@ -86,6 +86,27 @@ of *T*erm, *A*ction and *O*rient(ation)
 
 For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
 
+## trigram prop
+
+in the `@tao.js/react` package, one of the set of 3 props used to represent a TAO trigram for a
+context, either the "term", "action" or "orient" prop which can be set on a `Component` from the
+package
+
+## trigram props
+
+in the `@tao.js/react` package, the set of 3 props used to represent a TAO trigram for a context;
+the props are "term", "action" and "orient" which can be set on a `Component` from the package
+
+## trigram
+
+literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the **t**erm, **a**ction and **o**rient(ation)
+
+## trigrams
+
+literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the **t**erm, **a**ction and **o**rient(ation)
+
 ## AppCon
 
 An Application Context represented in code and coded to within a TAO-based System.
