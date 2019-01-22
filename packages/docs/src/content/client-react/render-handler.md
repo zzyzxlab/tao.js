@@ -3,7 +3,7 @@
 The main React `Component` used to integrate the TAO with our React app is the `RenderHandler`.
 
 _(all of the description below assumes a single `Provider` at the root of our React App)_
-_(please see the [`Provider`](provider.md) doc page for more about advanced usage)_
+_(please see the [`Provider`](provider.md#advanced-usage) doc page for more about advanced usage)_
 
 The `RenderHandler` _is a_ React `Component` **and a** TAO handler attached to listen for AppCons
 matching its configured Trigram.
@@ -45,7 +45,7 @@ wildcard will match any).  This is done using an `Array` of values for the prop,
 <RencerHandler term={['User', 'Role']} action={['New', 'Edit']} orient="Portal">
 ```
 
-When a Trigram prop on a RenderHandler has more than one value, the `RenderHandler` will calculate
+When a Trigram prop on a `RenderHandler` has more than one value, the `RenderHandler` will calculate
 the cartesian product to determine all of the Trigrams to which the handler should be attached.
 
 Using the above example code, that `RenderHandler` would attach a handler to the following Trigrams
