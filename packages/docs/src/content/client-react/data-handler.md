@@ -96,6 +96,9 @@ all of the particulars and behaviors.
   </DataHandler>
 ```
 
+The `handler` prop function will also be called with [`set` and `current` args](with-context.md#third-set-and-fourth-current-args-to-handler)
+just like the `withContext` handler function.
+
 There is only a single difference between the `DataHandler` `handler` prop and the `withContext`
 handler function:
 
