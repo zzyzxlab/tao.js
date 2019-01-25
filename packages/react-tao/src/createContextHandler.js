@@ -5,6 +5,15 @@ import { AppCtx } from '@tao.js/core';
 import { normalizeAC, cleanInput } from './helpers';
 import { Context } from './Provider';
 
+function cleanState(previousState, newState) {
+  return Object.keys(previousState)
+    .concat(Object.keys(newState))
+    .reduce((rv, key) => {
+      rv[key] = newState[key];
+      return rv;
+    }, {});
+}
+
 export default function createContextHandler(tao, handler, defaultValue) {
   if (handler != null && typeof handler !== 'function') {
     throw new Error('createContextHandler `handler` must be a function');
@@ -40,15 +49,25 @@ export default function createContextHandler(tao, handler, defaultValue) {
     }
 
     contextHandler = (tao, data) => {
+      let usedSet = false;
+      const current = this.state;
       const dataUpdate = handler
-        ? handler(tao, data, data => this.setState(data))
+        ? handler(
+            tao,
+            data,
+            data => {
+              const update = cleanState(current, data);
+              this.setState(update);
+              usedSet = true;
+            },
+            current
+          )
         : data;
       if (dataUpdate instanceof AppCtx) {
         return dataUpdate;
       }
-      if (dataUpdate != null) {
-        const newState = Object.assign({}, this.state, dataUpdate);
-        this.setState(newState);
+      if (!usedSet && dataUpdate != null) {
+        this.setState(dataUpdate);
       }
     };
 
