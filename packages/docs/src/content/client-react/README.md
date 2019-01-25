@@ -35,7 +35,7 @@ come to expect when building applications using React, leveraging the
 [React Context API](https://reactjs.org/docs/context.html) underneath so you must be
 using at least version 16 of React.
 
-The package provides 5 `Component`s and 1 Higher-Order Component (HOC) we can mix and match to
+The package provides 4 `Component`s and 1 Higher-Order Component (HOC) we can mix and match to
 integrate `tao.js` within our React UI:
 
 * [Provider](provider.md) - `Component` that provides context to the other components in the
@@ -51,7 +51,6 @@ integrate `tao.js` within our React UI:
 * [DataHandler](data-handler.md) - a `Component` that _is also_ a TAO handler used to capture
   `data` from AppCons in response to configured Trigram(s) and make the data available to all child
   & descendant components for consumption
-* [DataConsumer](data-consumer.md) - a `Component` used to consume data supplied by `DataHandler`s
 
 ## Example Usage
 
@@ -79,7 +78,7 @@ src/
 - App.js
 ```
 
-## Defining React `Component`s
+## Defining some React `Component`s to use in our examples
 
 The `Component` definitions for `ErrorMessage`, `Form`, `List` and `View` define basic
 React `Component`s (both functional and class) and are _**not aware**_ of _**nor dependent upon**_
@@ -423,7 +422,7 @@ const Welcome = ({ data }) => (
 export default withContext(
   { t: 'User', a: 'Enter', o: 'Portal' },
   (tao, data) => ({ user: data.User }),
-  () => ({ user: null })
+  { user: null }
 )(Welcome);
 ```
 

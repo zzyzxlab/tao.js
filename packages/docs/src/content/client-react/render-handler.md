@@ -1,4 +1,4 @@
-# `@tao.js/react` RenderHandler
+# `@tao.js/react` RenderHandler Component
 
 The main React `Component` used to integrate the TAO with our React app is the `RenderHandler`.
 

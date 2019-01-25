@@ -1,4 +1,4 @@
-# `@tao.js/react` Provider
+# `@tao.js/react` Provider Component
 
 The first `Component` we use as part of the declarative React API to integrate tao.js is the
 `Provider` component.  The `Provider` provides the TAO (or optionally an individual [`Kernel`](../advanced/kernels.md))

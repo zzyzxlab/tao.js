@@ -1,4 +1,4 @@
-# `@tao.js/react` SwitchHandler
+# `@tao.js/react` SwitchHandler Component
 
 An additional React `Component` used to integrate the TAO with the components used to generate the
 view of our React app is the `SwitchHandler`.
