@@ -120,7 +120,7 @@ We mentioned before about [`Provider`](provider.md)s not just providing the comm
 to the components below it but to also providing a shared data context.
 
 We can find how to add data to the shared data context using a [`DataHandler`](data-handler.md),
-and when we use this, every `DataHandler` has a required `name` prop.
+and when we use this, every `DataHandler` has a required [`name` prop](data-handler.md#defining-the-data-context-name).
 
 To consume this data in a `RenderHandler`, we use the `RenderHandler`'s `context` prop with the
 name or names of the `DataHandler`s we want to consume data from the shared data context.
