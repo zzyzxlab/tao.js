@@ -6,12 +6,18 @@ import { normalizeAC, cleanInput } from './helpers';
 import { Context } from './Provider';
 
 function cleanState(previousState, newState) {
-  return Object.keys(previousState)
-    .concat(Object.keys(newState))
-    .reduce((rv, key) => {
-      rv[key] = newState[key];
+  const keys = Object.keys(previousState);
+  if (newState == null) {
+    return keys.reduce((rv, key) => {
+      rv[key] = void 0;
       return rv;
     }, {});
+  }
+  keys.push(...Object.keys(newState));
+  return keys.reduce((rv, key) => {
+    rv[key] = newState[key];
+    return rv;
+  }, {});
 }
 
 export default function createContextHandler(tao, handler, defaultValue) {
