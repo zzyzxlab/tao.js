@@ -1,4 +1,8 @@
-# Using with [React.js](https://reactjs.org)
+# Original Usage with [React.js](https://reactjs.org)
+
+_This is a description of the first ("original") API for integrating the TAO with React.
+For a description of the Current API which provides a more React-like declarative approach,
+take a look [here](../README.md)._
 
 It's assumed you have read and are familiar with the [Basics](../basics/README.md) guide.
 If not, then please go back and read through that before trying to learn how to use tao.js

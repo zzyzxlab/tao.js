@@ -114,7 +114,7 @@ using `withContext` is using the handler function to set the value used for the 
 the `Component` it is wrapping, which provides the following behaviors:
 
 * if the return value is **not** an instance of `AppCtx` from `@tao.js/core`, then the value
-  will be merged with the existing value for the `data` prop on the wrapped `Component`
+  will be shallow merged with the existing value for the `data` prop on the wrapped `Component`
 * if the return value from the handler function is an instance of `AppCtx` from `@tao.js/core`,
   it will be returned to the TAO and used to set the context on the TAO as an [AppCon chain](../basics/chaining.md)
 * if there is no return value, the existing value will be used for the `data` prop on the wrapped

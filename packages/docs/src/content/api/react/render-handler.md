@@ -1,8 +1,8 @@
 # RenderHandler API
 
-Package: `@tao.js/react`
+**Package:** `@tao.js/react`
 
-Named Export
+**Named Export:** `RenderHandler`
 
 A React `Component` that _is a_ TAO handler listening for AppCons to render its children to the
 component tree.
@@ -34,7 +34,7 @@ desired AppCon has been set in the TAO.
 This **also means** that once the `RenderHandler`'s child handler function has been called and the
 return has been added to the component tree, they will remain until either:
 
-* the `RenderHandler` is unmounted  
+* the `RenderHandler` is unmounted
   OR
 * another matching AppCon is set on the TAO triggering a call the handler child function
 

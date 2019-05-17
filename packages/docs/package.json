@@ -5,7 +5,7 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "book:prep": "gitbook install ./src",
+    "book:prep": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true gitbook install ./src",
     "book:clean": "rimraf dist",
     "book:build": "gitbook build ./src ./dist",
     "book:edit": "gitbook serve ./src",

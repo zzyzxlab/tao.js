@@ -1,5 +1,9 @@
 # tao.js Adapter for React
 
+_This is a description for part of the first ("original") API for integrating the TAO with React.
+For a description of the Current API which provides a more React-like declarative approach,
+take a look [here](../README.md)._
+
 To first integrate the TAO with the programming interface provided by React, we use the tao.js
 `Adapter` from the `@tao.js/react` package.
 
@@ -200,7 +204,7 @@ to avoid repetitive setting of the same aspects when adding or removing `Compone
 There are 2 ways to set the default context:
 
 * `defaultCtx` setter property
-* `setDefaultCtx` method which is fluent chainable by returning a reference to the `Adapter`  
+* `setDefaultCtx` method which is fluent chainable by returning a reference to the `Adapter`
   _you've seen this used in the [Intro to @tao.js React](README.md) examples_
 
 Additionally, the `Adapter` has a getter property `defaultCtx` which returns a copy of the

@@ -1,8 +1,8 @@
 # SwitchHandler API
 
-Package: `@tao.js/react`
+**Package:** `@tao.js/react`
 
-Named Export
+**Named Export:** `SwitchHandler`
 
 A React `Component` that _is a_ TAO handler listening for AppCons to control whether `RenderHandler`
 direct children will be added to the component tree.

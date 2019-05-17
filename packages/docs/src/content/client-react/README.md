@@ -73,21 +73,21 @@ src/
       - List.js
       - View.js
    +- shared/
-      - ErrorMessage.js
+      - Welcome.js
 - App.css
 - App.js
 ```
 
 ## Defining some React `Component`s to use in our examples
 
-The `Component` definitions for `ErrorMessage`, `Form`, `List` and `View` define basic
+The `Component` definitions for `Welcome`, `Form`, `List` and `View` define basic
 React `Component`s (both functional and class) and are _**not aware**_ of _**nor dependent upon**_
 the `@tao.js/react` package.
 
-They _are_ making use of the TAO export from `@tao.js/core` in
+They are making use of the TAO export from `@tao.js/core` in
 order to set the Application Context.
 
-### `src/components/space/view.js`
+### `src/components/space/View.js`
 
 Here is an example of a functional `Component`:
 
@@ -329,7 +329,7 @@ encountered in the TAO, but not controlling removal.  This means the `SpaceConta
 defined above will progressively show each of our `Space` components as users interact with
 the app, but none of these components will disappear.
 
-To have the selective rendering behavior we need, we'll convert the `SpaceContainter` into
+To have the selective rendering behavior we need, we'll convert the `SpaceContainer` into
 using a `SwitchHandler` to ensure only the desired space `Component`s we want displayed are
 rendered and will be removed when the application has moved on from the configured AppCons.
 
@@ -342,9 +342,9 @@ import {
   SwitchHandler,
   RenderHandler,
 } from '@tao.js/react';
-import List from './List';
-import View from './View';
-import Form from './Form';
+import List from './list';
+import View from './view';
+import Form from './form';
 
 // chain entering a Space with showing the View
 TAO.addInlineHandler(
@@ -409,7 +409,7 @@ TAO handler that will receive data from an AppCon when it is encountered.
 
 As a very simple example, say we want to have a welcome message for users of the app.
 
-#### `src/components/shared/welcome.js`
+#### `src/components/shared/Welcome.js`
 
 ```javascript
 import React from 'react';

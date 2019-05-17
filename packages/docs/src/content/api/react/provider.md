@@ -1,8 +1,8 @@
 # Provider API
 
-Package: `@tao.js/react`
+**Package:** `@tao.js/react`
 
-Named Export
+**Named Export:** `Provider`
 
 A React `Component` used to provide context to descendant `Component`s from the `@tao.js/react`
 package.

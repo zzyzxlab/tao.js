@@ -1,8 +1,8 @@
 # DataHandler API
 
-Package: `@tao.js/react`
+**Package:** `@tao.js/react`
 
-Named Export
+**Named Export:** `DataHandler`
 
 A React `Component` that _is a_ TAO handler listening for AppCons to use its handler function to
 add and update data in the shared data context provided by its closest ancestor [`Provider`](provider.md).

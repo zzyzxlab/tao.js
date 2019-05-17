@@ -2,8 +2,8 @@
 
 The main React `Component` used to integrate the TAO with our React app is the `RenderHandler`.
 
-_(all of the description below assumes a single `Provider` at the root of our React App)_
-_(please see the [`Provider`](provider.md#advanced-usage) doc page for more about advanced usage)_
+_(All of the description below assumes a single `Provider` at the root of our React App._
+_Please see the [`Provider`](provider.md#advanced-usage) doc page for more about advanced usage)_
 
 The `RenderHandler` _is a_ React `Component` **and a** TAO handler attached to listen for AppCons
 matching its configured Trigram.
@@ -145,7 +145,7 @@ const App = () => (
   <Provider TAO={TAO}>
     <DataHandler
       name="user" term="User" action="Enter" default={null}
-      handler={(toa, data) => data.User}>
+      handler={(tao, data) => data.User}>
       <AppComponents />
     </DataHandler>
   </Provider>
@@ -168,7 +168,7 @@ const Account = () => (
     term="Account" action="Edit" orient="Portal"
     context="user"> {/* <-- name the 'user' context to consume the value set above */}
     { // the user value consumed from the data context is appended after the standard tao, data args
-      (toa, data, user) => (
+      (tao, data, user) => (
         <AccountSettings account={data.Account} user={user} … />
       )
     }
@@ -193,7 +193,7 @@ in the order in which they're listed in the `context` array, e.g.:
   term="Account" action="Edit" orient="Portal"
   context={['user', 'roles', 'location']}> {/* <-- setting multiple data context values to consume */}
   { // data context values are appended as args in the same order they are set in the context prop
-    (toa, data, user, roles, location) => (
+    (tao, data, user, roles, location) => (
       <AccountSettings
         account={data.Account}
         user={user}

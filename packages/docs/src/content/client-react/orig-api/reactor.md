@@ -1,5 +1,9 @@
 # tao.js Reactor for React
 
+_This is a description for part of the first ("original") API for integrating the TAO with React.
+For a description of the Current API which provides a more React-like declarative approach,
+take a look [here](../README.md)._
+
 Now that we know how to use [`Adapter`](adapter.md)s to use our React `Component`s as handlers for
 Application Contexts in the TAO, we need to learn how to render them in the UI.
 
