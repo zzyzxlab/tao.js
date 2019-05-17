@@ -119,12 +119,12 @@ Which will start `commitizen` for you to generate the commit message in the desi
   - [ ] unit tests for `withContext`
   - [ ] unit tests for `RenderHandler`
   - [ ] unit tests for `SwitchHandler`
-  - [ ] docs for `Provider`
-  - [ ] docs for `createContextHandler`
-  - [ ] docs for `DataHandler`
-  - [ ] docs for `withContext`
-  - [ ] docs for `RenderHandler`
-  - [ ] docs for `SwitchHandler`
+  - [x] docs for `Provider`
+  - [x] docs for `createContextHandler`
+  - [x] docs for `DataHandler`
+  - [x] docs for `withContext`
+  - [x] docs for `RenderHandler`
+  - [x] docs for `SwitchHandler`
 - [ ] complete `@tao.js/socket-io` package
   - [x] figure out how to ensure responses go to same requestor
   - [x] implement using new `Kernel` / socket
