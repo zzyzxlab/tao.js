@@ -3,6 +3,10 @@
 * [README](README.md)
 
 * [Introduction](intro/README.md)
+  * [Client Side, Event-driven development](intro/as-events.md)
+  * [Back end API development](intro/as-api.md)
+  * [Back end Messaging development](intro/as-messaging.md)
+  * [Entropy in Software](intro/entropy.md)
   * [Motivations & Goals of tao.js](intro/motivations.md)
   * [Basic Terminology](intro/basic-terms.md)
   * [Development Roadmap](intro/roadmap.md)
