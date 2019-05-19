@@ -26,4 +26,4 @@ yarn add @tao.js/socket.io
 | -------------------------------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------- |
 | [`npm @tao.js/core`](https://www.npmjs.com/package/@tao.js/core)     | Core Javascript implementation of the TAO ☯ programming paradigm | [tao.js.org](https://tao.js.org)                               |
 | [`npm @tao.js/react`](https://www.npmjs.com/package/@tao.js/react)   | Adapter to use tao.js with React                                 | [Usage with React.js](https://tao.js.org/client-react/)        |
-| [`npm @tao.js/router`](https://www.npmjs.com/package/@tao.js/router) | connects url routing with tao.js                                 | [URL Handling wtih @tao.js/router](https://tao.js.org/router/) |
+| [`npm @tao.js/router`](https://www.npmjs.com/package/@tao.js/router) | connects url routing with tao.js                                 | [URL Handling with @tao.js/router](https://tao.js.org/router/) |
