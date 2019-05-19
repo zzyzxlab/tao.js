@@ -2,6 +2,16 @@
 
 # [0.7.0](https://github.com/zzyzxlab/tao.js/compare/v0.6.2...v0.7.0) (2019-05-19)
 
+Brand new components for the `@tao.js/react` package to offer a React-like programming experience. See the updated docs for [Using with React.js](https://tao.js.org/client-react/).
+
+New Components are:
+
+- [`Provider`](https://tao.js.org/client-react/provider.html) - provides TAO in context to `Component`s below
+- [`RenderHandler`](https://tao.js.org/client-react/render-handler.html) - add TAO handlers declaratively as `Component`s for rendering visual `Component`s into the DOM tree
+- [`SwitchHandler`](https://tao.js.org/client-react/switch-handler.html) - add TAO handlers declaratively as `Component`s to determine what to render into the DOM tree
+- [`withContext` HOC](https://tao.js.org/client-react/with-context.html) - wrap a `Component` in context to use a TAO handler to retrieve state/data
+- [`DataHandler`](https://tao.js.org/client-react/data-handler.html) - add TAO handlers declaratively as `Component`s to retrieve shared state/data from AppCons
+
 ### Bug Fixes
 
 - **createContextHandler:** handler precondition check allows passing null/undefined which works w be ([e65c2cf](https://github.com/zzyzxlab/tao.js/commit/e65c2cf))
