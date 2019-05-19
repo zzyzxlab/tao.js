@@ -11,6 +11,7 @@ import {
 import List from './List';
 import View from './View';
 import Form from './Form';
+import Title from './Title';
 import ErrorMessage from './ErrorMessage';
 
 TAO.addInlineHandler(
@@ -50,6 +51,7 @@ const SpaceAltContainer = props => (
   //   handler={(tao, data, set) => ({ list: data.Space })}
   // >
   <SwitchHandler term="Space" orient="Portal">
+    <Title />
     {/* <RenderHandler context="spaceList" action="List">
         {(tao, data, spaceList) => <List Space={spaceList.list} />}
       </RenderHandler> */}

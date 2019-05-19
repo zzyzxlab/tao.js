@@ -1,16 +1,6 @@
 import React from 'react';
 import TAO from '@tao.js/core';
 import { withContext } from '@tao.js/react';
-// const TAOContext = React.createContext(TAO);
-
-// const Link = props => {
-//   const { t, a, o, data } = props;
-//   return (
-//     <TAOContext.Consumer>
-//       {Kernel => }
-//     </TAOContext.Consumer>
-//   )
-// }
 
 const SpaceItems = ({ spaces }) =>
   spaces.map(s => {

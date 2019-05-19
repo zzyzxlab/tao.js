@@ -19,12 +19,16 @@ TAO.addInlineHandler({ t: 'Router', a: 'Init', o: 'Portal' }, () => {
       {
         Route: '/',
         Add: { term: 'Space', action: 'List' },
-        Attach: { term: 'Space', action: 'Find' }
+        Attach: { term: 'Space', action: 'Find', orient: 'Portal' }
       },
       {
         Route: {
           path: '/{t}/{term._id}',
           lowerCase: true
+          // query: {
+          //   toQuery: (tao, data) => '',
+          //   fromQuery: (tao, data, qs) =>
+          // }
         },
         Add: {
           tao: { action: 'View' },
@@ -35,9 +39,12 @@ TAO.addInlineHandler({ t: 'Router', a: 'Init', o: 'Portal' }, () => {
         Route: {
           path: '/{t}/{action._id}',
           lowerCase: true
+          // query: (tao, data, qs) => {
+
+          // }
         },
         Attach: {
-          tao: { action: 'Find' }
+          tao: { action: 'Find', orient: 'Portal' }
         }
       }
     ]
