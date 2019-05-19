@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/router",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "connects url routing with tao.js",
   "homepage": "https://tao.js.org/",
   "repository": "https://github.com/zzyzxlab/tao.js/tree/master/packages/tao-router",
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@babel/cli": "7.1.5",
-    "@tao.js/core": "^0.6.2",
+    "@tao.js/core": "^0.7.0",
     "rimraf": "^2.6.2"
   },
   "dependencies": {

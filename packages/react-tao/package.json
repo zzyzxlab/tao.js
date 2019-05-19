@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/react",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "Adapter to use tao.js with React",
   "homepage": "https://tao.js.org/",
   "repository": "https://github.com/zzyzxlab/tao.js/tree/master/packages/react-tao",
@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@babel/cli": "7.1.5",
-    "@tao.js/core": "^0.6.2",
+    "@tao.js/core": "^0.7.0",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
