@@ -1,0 +1,1175 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Adapter · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-prism/prism.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-advanced-emoji/emoji-website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="reactor.html" />
+    
+    
+    <link rel="prev" href="data-handler.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../../">
+            
+                <a href="../../">
+            
+                    
+                    README
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../../intro/">
+            
+                <a href="../../intro/">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="../../intro/as-events.html">
+            
+                <a href="../../intro/as-events.html">
+            
+                    
+                    Client Side, Event-driven development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="../../intro/as-api.html">
+            
+                <a href="../../intro/as-api.html">
+            
+                    
+                    Back end API development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="../../intro/as-messaging.html">
+            
+                <a href="../../intro/as-messaging.html">
+            
+                    
+                    Back end Messaging development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.4" data-path="../../intro/entropy.html">
+            
+                <a href="../../intro/entropy.html">
+            
+                    
+                    Entropy in Software
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.5" data-path="../../intro/motivations.html">
+            
+                <a href="../../intro/motivations.html">
+            
+                    
+                    Motivations & Goals of tao.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.6" data-path="../../intro/basic-terms.html">
+            
+                <a href="../../intro/basic-terms.html">
+            
+                    
+                    Basic Terminology
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.7" data-path="../../intro/roadmap.html">
+            
+                <a href="../../intro/roadmap.html">
+            
+                    
+                    Development Roadmap
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../../basics/">
+            
+                <a href="../../basics/">
+            
+                    
+                    Basics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="../../basics/defining-app-cons.html">
+            
+                <a href="../../basics/defining-app-cons.html">
+            
+                    
+                    Defining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="../../basics/setting-app-cons.html">
+            
+                <a href="../../basics/setting-app-cons.html">
+            
+                    
+                    Setting AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="../../basics/define-handlers.html">
+            
+                <a href="../../basics/define-handlers.html">
+            
+                    
+                    Defining Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.4" data-path="../../basics/handlers.html">
+            
+                <a href="../../basics/handlers.html">
+            
+                    
+                    Add Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="../../basics/chaining.html">
+            
+                <a href="../../basics/chaining.html">
+            
+                    
+                    Chaining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.6" data-path="../../basics/wildcards.html">
+            
+                <a href="../../basics/wildcards.html">
+            
+                    
+                    Wildcard Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../../advanced/">
+            
+                <a href="../../advanced/">
+            
+                    
+                    Advanced
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../../advanced/inline-handlers.html">
+            
+                <a href="../../advanced/inline-handlers.html">
+            
+                    
+                    Inline Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../../advanced/async-handlers.html">
+            
+                <a href="../../advanced/async-handlers.html">
+            
+                    
+                    Async Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../../advanced/intercept-handlers.html">
+            
+                <a href="../../advanced/intercept-handlers.html">
+            
+                    
+                    Intercept Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../../advanced/order-of-handlers.html">
+            
+                <a href="../../advanced/order-of-handlers.html">
+            
+                    
+                    Order of Operations
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.5" data-path="../../advanced/promise-hook.html">
+            
+                <a href="../../advanced/promise-hook.html">
+            
+                    
+                    Promise Hook
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.6" data-path="../../advanced/kernels.html">
+            
+                <a href="../../advanced/kernels.html">
+            
+                    
+                    Instantiating Kernels
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../../client-react/">
+            
+                <a href="../../client-react/">
+            
+                    
+                    Using with React.js
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../../client-react/provider.html">
+            
+                <a href="../../client-react/provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="../../client-react/render-handler.html">
+            
+                <a href="../../client-react/render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.3" data-path="../../client-react/switch-handler.html">
+            
+                <a href="../../client-react/switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.4" data-path="../../client-react/with-context.html">
+            
+                <a href="../../client-react/with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.5" data-path="../../client-react/data-handler.html">
+            
+                <a href="../../client-react/data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.6" data-path="../../client-react/orig-api/">
+            
+                <a href="../../client-react/orig-api/">
+            
+                    
+                    Original API
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.6.1" data-path="../../client-react/orig-api/adapter.html">
+            
+                <a href="../../client-react/orig-api/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.6.2" data-path="../../client-react/orig-api/reactor.html">
+            
+                <a href="../../client-react/orig-api/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../../server-side/">
+            
+                <a href="../../server-side/">
+            
+                    
+                    Using Server-side
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.6.1" data-path="../../server-side/socket-io.html">
+            
+                <a href="../../server-side/socket-io.html">
+            
+                    
+                    Socket.io
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2" data-path="../../server-side/koa.html">
+            
+                <a href="../../server-side/koa.html">
+            
+                    
+                    Koa Middleware
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.3" data-path="../../server-side/connect.html">
+            
+                <a href="../../server-side/connect.html">
+            
+                    
+                    Connect/Express Middlware
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../../router/">
+            
+                <a href="../../router/">
+            
+                    
+                    URL Handling wtih @tao.js/router
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    API Reference
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.1" data-path="../core/">
+            
+                <a href="../core/">
+            
+                    
+                    @tao.js/core
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.1.1" data-path="../core/tao.html">
+            
+                <a href="../core/tao.html">
+            
+                    
+                    TAO
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.1.2" data-path="../core/kernel.html">
+            
+                <a href="../core/kernel.html">
+            
+                    
+                    Kernel
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.1.3" data-path="../core/appcon.html">
+            
+                <a href="../core/appcon.html">
+            
+                    
+                    AppCon
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    @tao.js/react
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.2.1" data-path="provider.html">
+            
+                <a href="provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.2" data-path="render-handler.html">
+            
+                <a href="render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.3" data-path="switch-handler.html">
+            
+                <a href="switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.4" data-path="with-context.html">
+            
+                <a href="with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.5" data-path="data-handler.html">
+            
+                <a href="data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.8.2.6" data-path="adapter.html">
+            
+                <a href="adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.7" data-path="reactor.html">
+            
+                <a href="reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3" data-path="../socket-io/">
+            
+                <a href="../socket-io/">
+            
+                    
+                    @tao.js/socket.io
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.3.1" data-path="../socket-io/wire-socket-io.html">
+            
+                <a href="../socket-io/wire-socket-io.html">
+            
+                    
+                    wireTaoJsToSocketIO
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="../../GLOSSARY.html">
+            
+                <a href="../../GLOSSARY.html">
+            
+                    
+                    Glossary
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" >
+            
+                <a target="_blank" href="https://tao.js.org/coverage/index.html">
+            
+                    
+                    Coverage
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../.." >Adapter</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="original-api-adapter-api">[Original API] Adapter API</h1>
+<p><strong>Package:</strong> <code>@tao.js/react</code></p>
+<p><strong>Named Export:</strong> <code>Adapter</code></p>
+<p>Used to adapt regular React <code>Component</code>s (which can also be Functional Components) to act as
+handlers on the <a href="../../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>.</p>
+<p>Use an <code>Adapter</code> in conjunction with a <a href="reactor.html"><code>Reactor</code></a> to get those React <code>Component</code>s
+into the DOM tree.</p>
+<h2 id="methods">Methods</h2>
+<h3 id="constructor">constructor</h3>
+<table>
+<thead>
+<tr>
+<th>arg</th>
+<th>required</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TAO</code></td>
+<td>yes</td>
+<td>Kernel</td>
+<td></td>
+<td>set the <a href="../core/kernel.html"><code>Kernel</code></a> that the Adapter will connect handlers to</td>
+</tr>
+</tbody>
+</table>
+<p>Use the <code>Adapter</code> constructor to create a way to adapt a set of React Components to act as
+handlers.</p>
+<h3 id="setdefaultctx"><code>setDefaultCtx</code></h3>
+<table>
+<thead>
+<tr>
+<th>arg</th>
+<th>required</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trigram</code></td>
+<td>no</td>
+<td>Object</td>
+<td>empty Object</td>
+<td>default <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> attributes when adding handlers</td>
+</tr>
+</tbody>
+</table>
+<p><strong>returns:</strong> <code>Adapter</code> - a reference to the Adapter that was called for chaining</p>
+<p>Use <code>setDefaultCtx</code> to set the default <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> attributes when adding Component Handlers to the
+<code>Adapter</code> so that the same <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> attributes don&apos;t have to be repeated.</p>
+<p>Calling <code>setDefaultCtx</code> repeatedly will change the default <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> attributes used.  Changing
+the default context will only affect Component Handlers added after <code>setDefaultCtx</code> was called.</p>
+<p>Calling <code>setDefaultCtx</code> with no arguments or an empty <code>Object</code></p>
+<h3 id="addcomponenthandler"><code>addComponentHandler</code></h3>
+<table>
+<thead>
+<tr>
+<th>arg</th>
+<th>required</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trigram</code></td>
+<td>no</td>
+<td>Object</td>
+<td>empty Object</td>
+<td>a <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> used for adding the Component <a href="../../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">Handler</a> to the <a href="../../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a></td>
+</tr>
+<tr>
+<td><code>ComponentHandler</code></td>
+<td>yes</td>
+<td><code>Component</code> or <code>Function</code></td>
+<td></td>
+<td>a React Component or function that will be treated as a React Component that will respond to <a href="../../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Contexts</a> when set on the <a href="../../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a></td>
+</tr>
+<tr>
+<td><code>prop</code></td>
+<td>no</td>
+<td>Object</td>
+<td></td>
+<td>additional props to be added to the Component when the <a href="../../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> is triggered by the <a href="../../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>returns:</strong> <code>Adapter</code> - a reference to the Adapter that was called for chaining</p>
+<p><code>trigram</code> can specify all or none of the <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> attributes.</p>
+<p><code>trigram</code> can specify a single value for a <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> attribute or multiple values using an <code>Array</code>.
+When an <code>Array</code> is specified for any of the <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> attributes, then all permutations will be
+determined and used to add the <a href="../../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> to the <a href="../../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> Kernel.</p>
+<p>When the <a href="../../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> is added to the <a href="../../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> Kernel the <code>trigram</code> provided will be merged with the
+<a href="#defaultctx"><code>defaultCtx</code></a> property to determine the set of <a href="../../GLOSSARY.html#trigrams" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigrams</a> permutations that will
+trigger the <a href="../../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>.</p>
+<h3 id="removecomponenthandler"><code>removeComponentHandler</code></h3>
+<table>
+<thead>
+<tr>
+<th>arg</th>
+<th>required</th>
+<th>type</th>
+<th>default</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trigram</code></td>
+<td>no</td>
+<td>Object</td>
+<td>empty Object</td>
+<td>a <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> used for removing the Component <a href="../../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">Handler</a> from the <a href="../../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a></td>
+</tr>
+<tr>
+<td><code>ComponentHandler</code></td>
+<td>yes</td>
+<td><code>Component</code> or <code>Function</code></td>
+<td></td>
+<td>a React Component or function that will be treated as a React Component that will no longer respond to <a href="../../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a taople with attached associated data.">Application Contexts</a> when set on the <a href="../../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>returns:</strong> <code>Adapter</code> - a reference to the Adapter that was called for chaining</p>
+<p><code>trigram</code> can specify all or none of the <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> attributes.</p>
+<p>When <code>trigram</code> has no attributes specified, <code>removeComponentHandler</code> will remove the Component
+<a href="../../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">Handler</a> from all <a href="../../GLOSSARY.html#trigrams" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigrams</a> on the <a href="../../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> Kernel.</p>
+<p><code>trigram</code> can specify a single value for a <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> attribute or multiple values using an <code>Array</code>.
+When an <code>Array</code> is specified for any of the <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> attributes, then all permutations will be
+determined and used to remove the <a href="../../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> from the <a href="../../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> Kernel.</p>
+<p>When the <a href="../../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> is removed from the <a href="../../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> Kernel the <code>trigram</code> provided will be merged with the
+<a href="#defaultctx"><code>defaultCtx</code></a> property to determine the set of <a href="../../GLOSSARY.html#trigrams" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigrams</a> permutations that will
+specify which handlers to remove.</p>
+<h2 id="properties">Properties</h2>
+<h3 id="defaultctx"><code>defaultCtx</code></h3>
+<p>Sets or returns the default context <a href="../../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> attributes used when adding Component Handlers to the
+<code>Adapter</code>.</p>
+<p>The property is defined in a way that mutating the return value will not mutate the internal state
+of <code>Adapter</code>.  The only way to change the state of <code>defaultCtx</code> used by the <code>Adapter</code> is by
+assigning to the <code>defaultCtx</code> prop or by calling <a href="#setdefaultctx"><code>setDefaultCtx</code></a> defined above.</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="data-handler.html" class="navigation navigation-prev " aria-label="Previous page: DataHandler">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="reactor.html" class="navigation navigation-next " aria-label="Next page: Reactor">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Adapter","level":"1.8.2.6","depth":3,"next":{"title":"Reactor","level":"1.8.2.7","depth":3,"path":"api/react/reactor.md","ref":"api/react/reactor.md","articles":[]},"previous":{"title":"DataHandler","level":"1.8.2.5","depth":3,"path":"api/react/data-handler.md","ref":"api/react/data-handler.md","articles":[]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"api/react/adapter.md","mtime":"2019-05-17T05:27:12.145Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-19T06:31:04.060Z"},"basePath":"../..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../../gitbook/gitbook.js"></script>
+    <script src="../../gitbook/theme.js"></script>
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

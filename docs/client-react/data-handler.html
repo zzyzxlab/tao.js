@@ -1,0 +1,1136 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>DataHandler · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-prism/prism.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-advanced-emoji/emoji-website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="orig-api/" />
+    
+    
+    <link rel="prev" href="with-context.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    README
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../intro/">
+            
+                <a href="../intro/">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="../intro/as-events.html">
+            
+                <a href="../intro/as-events.html">
+            
+                    
+                    Client Side, Event-driven development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="../intro/as-api.html">
+            
+                <a href="../intro/as-api.html">
+            
+                    
+                    Back end API development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="../intro/as-messaging.html">
+            
+                <a href="../intro/as-messaging.html">
+            
+                    
+                    Back end Messaging development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.4" data-path="../intro/entropy.html">
+            
+                <a href="../intro/entropy.html">
+            
+                    
+                    Entropy in Software
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.5" data-path="../intro/motivations.html">
+            
+                <a href="../intro/motivations.html">
+            
+                    
+                    Motivations & Goals of tao.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.6" data-path="../intro/basic-terms.html">
+            
+                <a href="../intro/basic-terms.html">
+            
+                    
+                    Basic Terminology
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.7" data-path="../intro/roadmap.html">
+            
+                <a href="../intro/roadmap.html">
+            
+                    
+                    Development Roadmap
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../basics/">
+            
+                <a href="../basics/">
+            
+                    
+                    Basics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="../basics/defining-app-cons.html">
+            
+                <a href="../basics/defining-app-cons.html">
+            
+                    
+                    Defining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="../basics/setting-app-cons.html">
+            
+                <a href="../basics/setting-app-cons.html">
+            
+                    
+                    Setting AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="../basics/define-handlers.html">
+            
+                <a href="../basics/define-handlers.html">
+            
+                    
+                    Defining Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.4" data-path="../basics/handlers.html">
+            
+                <a href="../basics/handlers.html">
+            
+                    
+                    Add Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="../basics/chaining.html">
+            
+                <a href="../basics/chaining.html">
+            
+                    
+                    Chaining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.6" data-path="../basics/wildcards.html">
+            
+                <a href="../basics/wildcards.html">
+            
+                    
+                    Wildcard Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../advanced/">
+            
+                <a href="../advanced/">
+            
+                    
+                    Advanced
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../advanced/inline-handlers.html">
+            
+                <a href="../advanced/inline-handlers.html">
+            
+                    
+                    Inline Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../advanced/async-handlers.html">
+            
+                <a href="../advanced/async-handlers.html">
+            
+                    
+                    Async Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../advanced/intercept-handlers.html">
+            
+                <a href="../advanced/intercept-handlers.html">
+            
+                    
+                    Intercept Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../advanced/order-of-handlers.html">
+            
+                <a href="../advanced/order-of-handlers.html">
+            
+                    
+                    Order of Operations
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.5" data-path="../advanced/promise-hook.html">
+            
+                <a href="../advanced/promise-hook.html">
+            
+                    
+                    Promise Hook
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.6" data-path="../advanced/kernels.html">
+            
+                <a href="../advanced/kernels.html">
+            
+                    
+                    Instantiating Kernels
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Using with React.js
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="provider.html">
+            
+                <a href="provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="render-handler.html">
+            
+                <a href="render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.3" data-path="switch-handler.html">
+            
+                <a href="switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.4" data-path="with-context.html">
+            
+                <a href="with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.5.5" data-path="data-handler.html">
+            
+                <a href="data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.6" data-path="orig-api/">
+            
+                <a href="orig-api/">
+            
+                    
+                    Original API
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.6.1" data-path="orig-api/adapter.html">
+            
+                <a href="orig-api/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.6.2" data-path="orig-api/reactor.html">
+            
+                <a href="orig-api/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../server-side/">
+            
+                <a href="../server-side/">
+            
+                    
+                    Using Server-side
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.6.1" data-path="../server-side/socket-io.html">
+            
+                <a href="../server-side/socket-io.html">
+            
+                    
+                    Socket.io
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2" data-path="../server-side/koa.html">
+            
+                <a href="../server-side/koa.html">
+            
+                    
+                    Koa Middleware
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.3" data-path="../server-side/connect.html">
+            
+                <a href="../server-side/connect.html">
+            
+                    
+                    Connect/Express Middlware
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../router/">
+            
+                <a href="../router/">
+            
+                    
+                    URL Handling wtih @tao.js/router
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="../api/">
+            
+                <a href="../api/">
+            
+                    
+                    API Reference
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.1" data-path="../api/core/">
+            
+                <a href="../api/core/">
+            
+                    
+                    @tao.js/core
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.1.1" data-path="../api/core/tao.html">
+            
+                <a href="../api/core/tao.html">
+            
+                    
+                    TAO
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.1.2" data-path="../api/core/kernel.html">
+            
+                <a href="../api/core/kernel.html">
+            
+                    
+                    Kernel
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.1.3" data-path="../api/core/appcon.html">
+            
+                <a href="../api/core/appcon.html">
+            
+                    
+                    AppCon
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2" data-path="../api/react/">
+            
+                <a href="../api/react/">
+            
+                    
+                    @tao.js/react
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.2.1" data-path="../api/react/provider.html">
+            
+                <a href="../api/react/provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.2" data-path="../api/react/render-handler.html">
+            
+                <a href="../api/react/render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.3" data-path="../api/react/switch-handler.html">
+            
+                <a href="../api/react/switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.4" data-path="../api/react/with-context.html">
+            
+                <a href="../api/react/with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.5" data-path="../api/react/data-handler.html">
+            
+                <a href="../api/react/data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.6" data-path="../api/react/adapter.html">
+            
+                <a href="../api/react/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.7" data-path="../api/react/reactor.html">
+            
+                <a href="../api/react/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3" data-path="../api/socket-io/">
+            
+                <a href="../api/socket-io/">
+            
+                    
+                    @tao.js/socket.io
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.3.1" data-path="../api/socket-io/wire-socket-io.html">
+            
+                <a href="../api/socket-io/wire-socket-io.html">
+            
+                    
+                    wireTaoJsToSocketIO
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="../GLOSSARY.html">
+            
+                <a href="../GLOSSARY.html">
+            
+                    
+                    Glossary
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" >
+            
+                <a target="_blank" href="https://tao.js.org/coverage/index.html">
+            
+                    
+                    Coverage
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >DataHandler</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="taojsreact-datahandler-component"><code>@tao.js/react</code> DataHandler Component</h1>
+<p>A React <code>Component</code> that will register as a <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> for a <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> in order to set data in a
+shared data context from its nearest ancestor <a href="provider.html"><code>Provider</code></a>.  This data can then be
+consumed by <a href="render-handler.html#consuming-shared-state-from-the-data-context"><code>RenderHandler</code>s using the <code>context</code> prop</a>.</p>
+<p>The purpose of the <code>DataHandler</code> component is to react to specific <a href="../GLOSSARY.html#appcons" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCons</a> set on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> and
+add data to a shared state that can be leveraged by multiple other <code>Component</code>s in the render
+hierarchy.</p>
+<h2 id="importing">importing</h2>
+<p><code>DataHandler</code> is a named export from the <code>@tao.js/react</code> package.</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">import</span> <span class="token punctuation">{</span> DataHandler <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">&apos;@tao.js/react&apos;</span><span class="token punctuation">;</span>
+</code></pre>
+<p>OR</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> DataHandler <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">&apos;@tao.js/react&apos;</span><span class="token punctuation">)</span><span class="token punctuation">.</span>DataHandler<span class="token punctuation">;</span>
+</code></pre>
+<h2 id="defining-the-data-context-name">Defining the data context <code>name</code></h2>
+<p>As we know from <a href="provider.html"><code>Provider</code></a>, the data context is shared.  Each <code>DataHandler</code> <strong>must</strong>
+define a <code>name</code> key used to distinguish the data it is putting in this shared data context.</p>
+<p>This <code>name</code> is used by the <code>RenderHandler</code>&apos;s <a href="render-handler.html#consuming-shared-state-from-the-data-context"><code>context</code> prop</a>
+as a way to find the data the <code>DataHandler</code> is adding to the shared data context and make it
+available to teh <code>RenederHandler</code>&apos;s children via its function as a child.</p>
+<pre class="language-"><code class="lang-javascript"><span class="token operator">&lt;</span>DataHandler name<span class="token operator">=</span><span class="token string">&quot;user&quot;</span> &#x2026; <span class="token operator">&gt;</span>
+</code></pre>
+<p>In the example above, all data manipulated by the <code>DataHandler</code> component will be in the shared
+data context on the <code>&quot;user&quot;</code> key.</p>
+<h2 id="defining-the-handler-trigram">Defining the handler Trigram</h2>
+<p>Use the <code>term</code>, <code>action</code> and <code>orient</code> props on the <code>DataHandler</code> to define the <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">Trigram</a> the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>
+is listening for.</p>
+<pre class="language-"><code class="lang-javascript"><span class="token operator">&lt;</span>DataHandler name<span class="token operator">=</span><span class="token string">&quot;user&quot;</span> term<span class="token operator">=</span><span class="token string">&quot;User&quot;</span> action<span class="token operator">=</span><span class="token string">&quot;Enter&quot;</span> orient<span class="token operator">=</span><span class="token string">&quot;Portal&quot;</span> &#x2026; <span class="token operator">/</span><span class="token operator">&gt;</span>
+</code></pre>
+<h3 id="defining-multiple-trigrams">Defining Multiple Trigrams</h3>
+<p>Just like with a standard <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>, it&apos;s possible to use wildcard definitions for the <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">Trigram</a>
+of our <code>DataHandler</code>.  This is done by either ommitting the <a href="../GLOSSARY.html#trigram-prop" class="glossary-term" title="in the @tao.js/react package, one of the set of 3 props used to represent a TAO trigram for a
+context, either the &quot;term&quot;, &quot;action&quot; or &quot;orient&quot; prop which can be set on a Component from the
+package">Trigram prop</a> for the desired wildcard
+or by providing an empty string (<code>&quot;&quot;</code>) as the prop value.</p>
+<p>Additionally, as a convenience provided in the <code>@tao.js/react</code> package, all components can specify
+multiple values for any <a href="../GLOSSARY.html#trigram-prop" class="glossary-term" title="in the @tao.js/react package, one of the set of 3 props used to represent a TAO trigram for a
+context, either the &quot;term&quot;, &quot;action&quot; or &quot;orient&quot; prop which can be set on a Component from the
+package">Trigram prop</a> to capture more than one <strong>specific</strong> <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a> (remember, a
+wildcard will match any).  This is done using an <code>Array</code> of values for the prop, e.g.:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token operator">&lt;</span>DataHandler name<span class="token operator">=</span><span class="token string">&quot;auth&quot;</span> term<span class="token operator">=</span><span class="token punctuation">{</span><span class="token punctuation">[</span><span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Role&apos;</span><span class="token punctuation">]</span><span class="token punctuation">}</span> action<span class="token operator">=</span><span class="token punctuation">{</span><span class="token punctuation">[</span><span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Leave&apos;</span><span class="token punctuation">]</span><span class="token punctuation">}</span> orient<span class="token operator">=</span><span class="token string">&quot;Portal&quot;</span> &#x2026; <span class="token operator">/</span><span class="token operator">&gt;</span>
+</code></pre>
+<p>When a <a href="../GLOSSARY.html#trigram-prop" class="glossary-term" title="in the @tao.js/react package, one of the set of 3 props used to represent a TAO trigram for a
+context, either the &quot;term&quot;, &quot;action&quot; or &quot;orient&quot; prop which can be set on a Component from the
+package">Trigram prop</a> on a <code>DataHandler</code> has more than one value, the <code>DataHandler</code> will calculate
+the cartesian product to determine all of the <a href="../GLOSSARY.html#trigrams" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">Trigrams</a> to which the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> should be attached.</p>
+<p>Using the above example code, that <code>DataHandler</code> would attach a <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> to the following <a href="../GLOSSARY.html#trigrams" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">Trigrams</a>
+on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>:</p>
+<ul>
+<li><code>{User,Enter,Portal}</code></li>
+<li><code>{User,Leave,Portal}</code></li>
+<li><code>{Role,Enter,Portal}</code></li>
+<li><code>{Role,Leave,Portal}</code></li>
+</ul>
+<h2 id="defining-the-handler-function">Defining the handler Function</h2>
+<p>Unlike the <a href="render-handler.html"><code>RenderHandler</code></a>, the <code>DataHandler</code> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> is defined using the
+<code>handler</code> prop.  The <code>handler</code> prop expects a function that has the same signature as a <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>,
+plus a few extra args to work for the purpose design of the <code>DataHandler</code> to provide data to
+components below it.</p>
+<p>Since the <code>DataHandler</code> component and the <a href="with-context.html"><code>withContext</code></a> function use the same
+underlying implementation, for a full description of how the <code>handler</code> function behaves, please
+review the <code>withContext</code> <a href="with-context.html#defining-the-handler-function">handler function docs</a> for
+all of the particulars and behaviors.</p>
+<pre class="language-"><code class="lang-javascript">  <span class="token operator">&lt;</span>DataHandler
+    name<span class="token operator">=</span><span class="token string">&quot;user&quot;</span>
+    term<span class="token operator">=</span><span class="token string">&quot;User&quot;</span>
+    action<span class="token operator">=</span><span class="token string">&quot;Enter&quot;</span>
+    orient<span class="token operator">=</span><span class="token string">&quot;Portal&quot;</span>
+    handler<span class="token operator">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> data<span class="token punctuation">.</span>User<span class="token punctuation">}</span> <span class="token comment">// &lt;-- handler returns the value used to set the key &apos;user&apos; in the shared data context for consumption by children and descendants</span>
+  <span class="token operator">&gt;</span>
+    &#x2026;
+  <span class="token operator">&lt;</span><span class="token operator">/</span>DataHandler<span class="token operator">&gt;</span>
+</code></pre>
+<p>The <code>handler</code> prop function will also be called with <a href="with-context.html#third-set-and-fourth-current-args-to-handler"><code>set</code> and <code>current</code> args</a>
+just like the <code>withContext</code> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function.</p>
+<p>There is only a single difference between the <code>DataHandler</code> <code>handler</code> prop and the <code>withContext</code>
+<a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function:</p>
+<h3 id="not-required">Not required</h3>
+<p>The <code>handler</code> prop is <strong>not required</strong> on a <code>DataHandler</code>. Whereas the <code>withContext</code> function will
+throw an Error if the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> arg is not a <code>Function</code>, the <code>DataHandler</code> component will treat a
+missing <code>handler</code> prop as the identity function.  In that way, if the <code>handler</code> function is not
+defined, then whatever <code>data</code> value would be passed to the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function upon a matching <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a>
+being set on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>, the same <code>data</code> will be used to set the value of the <a href="#defining-the-data-context-name"><code>name</code> key</a>
+in the shared data context as if that <code>data</code> was the return value of the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function (i.e.
+a <a href="with-context.html#using-the-handler-to-return-data">shallow merge will take place</a>).</p>
+<h2 id="initializing-the-state-with-the-default-prop">Initializing the state with the <code>default</code> prop</h2>
+<p>Before any <a href="../GLOSSARY.html#appcons" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCons</a> matching the <a href="../GLOSSARY.html#trigram-props" class="glossary-term" title="in the @tao.js/react package, the set of 3 props used to represent a TAO trigram for a context;
+the props are &quot;term&quot;, &quot;action&quot; and &quot;orient&quot; which can be set on a Component from the package">trigram props</a> defined on the <code>DataHandler</code> are set on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>,
+we can initialize the value for the <code>name</code> key in the shared data context using the <code>default</code>
+prop.</p>
+<pre class="language-"><code class="lang-javascript">  <span class="token operator">&lt;</span>DataHandler
+    name<span class="token operator">=</span><span class="token string">&quot;user&quot;</span>
+    term<span class="token operator">=</span><span class="token string">&quot;User&quot;</span>
+    action<span class="token operator">=</span><span class="token string">&quot;Enter&quot;</span>
+    orient<span class="token operator">=</span><span class="token string">&quot;Portal&quot;</span>
+    handler<span class="token operator">=</span><span class="token punctuation">{</span><span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> data<span class="token punctuation">.</span>User<span class="token punctuation">}</span>
+    <span class="token keyword">default</span><span class="token operator">=</span><span class="token punctuation">{</span><span class="token keyword">null</span><span class="token punctuation">}</span> <span class="token comment">// &lt;-- initialize the `user` key in the shared data context with the value `null`</span>
+  <span class="token operator">&gt;</span>
+    &#x2026;
+  <span class="token operator">&lt;</span><span class="token operator">/</span>DataHandler<span class="token operator">&gt;</span>
+</code></pre>
+<h2 id="consuming-shared-state-provided-by-the-datahandler">Consuming shared state provided by the DataHandler</h2>
+<p><code>RenderHandler</code>s are the components that consume the data provided by the <code>DataHandler</code> to the
+shared data context.</p>
+<p>Please take a look at the <a href="render-handler.html#consuming-shared-state-from-the-data-context"><code>RenderHandler</code> consuming shared state docs</a>
+for more about this topic.</p>
+<h2 id="mounting-and-unmounting">Mounting and Unmounting</h2>
+<p>The <code>DataHandler</code> has a particular relationship with the React <code>Component</code> Lifecycle that is
+important to understand when using it.</p>
+<p>When a <code>DataHandler</code> is mounted, that is when the <code>name</code> key in the shared data context is
+initialized.</p>
+<p>When a <code>DataHandler</code> is unmounted, the <code>name</code> key in the shared data context is <strong>removed</strong>
+from the shared data context.</p>
+<h3 id="name-conflicts"><code>name</code> conflicts</h3>
+<p>If 2 different <code>DataHandler</code>s are the descendants of the same <a href="provider.html"><code>Provider</code></a> and
+<strong>also share the same <code>name</code> prop</strong>, then there will be conflicts with that <code>name</code> key in
+the shared data context.  Specifically, if one of the <code>DataHandler</code>s mounts after the other,
+then the <code>name</code> key will be initialized by that <code>DataHandler</code> over what previously was set
+by the first <code>DataHandler</code>.</p>
+<p>Additionally, if one of the <code>DataHandler</code>s gets unmounted when the other is not, then the <code>name</code>
+key and its value will be removed from the shared data context.</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="with-context.html" class="navigation navigation-prev " aria-label="Previous page: withContext">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="orig-api/" class="navigation navigation-next " aria-label="Next page: Original API">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"DataHandler","level":"1.5.5","depth":2,"next":{"title":"Original API","level":"1.5.6","depth":2,"path":"client-react/orig-api/README.md","ref":"client-react/orig-api/README.md","articles":[{"title":"Adapter","level":"1.5.6.1","depth":3,"path":"client-react/orig-api/adapter.md","ref":"client-react/orig-api/adapter.md","articles":[]},{"title":"Reactor","level":"1.5.6.2","depth":3,"path":"client-react/orig-api/reactor.md","ref":"client-react/orig-api/reactor.md","articles":[]}]},"previous":{"title":"withContext","level":"1.5.4","depth":2,"path":"client-react/with-context.md","ref":"client-react/with-context.md","articles":[]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"client-react/data-handler.md","mtime":"2019-01-25T04:48:04.000Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-19T06:31:04.060Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

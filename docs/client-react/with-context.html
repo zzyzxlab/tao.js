@@ -1,0 +1,1363 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>withContext · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-prism/prism.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-advanced-emoji/emoji-website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="data-handler.html" />
+    
+    
+    <link rel="prev" href="switch-handler.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    README
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../intro/">
+            
+                <a href="../intro/">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="../intro/as-events.html">
+            
+                <a href="../intro/as-events.html">
+            
+                    
+                    Client Side, Event-driven development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="../intro/as-api.html">
+            
+                <a href="../intro/as-api.html">
+            
+                    
+                    Back end API development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="../intro/as-messaging.html">
+            
+                <a href="../intro/as-messaging.html">
+            
+                    
+                    Back end Messaging development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.4" data-path="../intro/entropy.html">
+            
+                <a href="../intro/entropy.html">
+            
+                    
+                    Entropy in Software
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.5" data-path="../intro/motivations.html">
+            
+                <a href="../intro/motivations.html">
+            
+                    
+                    Motivations & Goals of tao.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.6" data-path="../intro/basic-terms.html">
+            
+                <a href="../intro/basic-terms.html">
+            
+                    
+                    Basic Terminology
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.7" data-path="../intro/roadmap.html">
+            
+                <a href="../intro/roadmap.html">
+            
+                    
+                    Development Roadmap
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../basics/">
+            
+                <a href="../basics/">
+            
+                    
+                    Basics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="../basics/defining-app-cons.html">
+            
+                <a href="../basics/defining-app-cons.html">
+            
+                    
+                    Defining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="../basics/setting-app-cons.html">
+            
+                <a href="../basics/setting-app-cons.html">
+            
+                    
+                    Setting AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="../basics/define-handlers.html">
+            
+                <a href="../basics/define-handlers.html">
+            
+                    
+                    Defining Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.4" data-path="../basics/handlers.html">
+            
+                <a href="../basics/handlers.html">
+            
+                    
+                    Add Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="../basics/chaining.html">
+            
+                <a href="../basics/chaining.html">
+            
+                    
+                    Chaining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.6" data-path="../basics/wildcards.html">
+            
+                <a href="../basics/wildcards.html">
+            
+                    
+                    Wildcard Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../advanced/">
+            
+                <a href="../advanced/">
+            
+                    
+                    Advanced
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../advanced/inline-handlers.html">
+            
+                <a href="../advanced/inline-handlers.html">
+            
+                    
+                    Inline Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../advanced/async-handlers.html">
+            
+                <a href="../advanced/async-handlers.html">
+            
+                    
+                    Async Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../advanced/intercept-handlers.html">
+            
+                <a href="../advanced/intercept-handlers.html">
+            
+                    
+                    Intercept Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../advanced/order-of-handlers.html">
+            
+                <a href="../advanced/order-of-handlers.html">
+            
+                    
+                    Order of Operations
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.5" data-path="../advanced/promise-hook.html">
+            
+                <a href="../advanced/promise-hook.html">
+            
+                    
+                    Promise Hook
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.6" data-path="../advanced/kernels.html">
+            
+                <a href="../advanced/kernels.html">
+            
+                    
+                    Instantiating Kernels
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Using with React.js
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="provider.html">
+            
+                <a href="provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="render-handler.html">
+            
+                <a href="render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.3" data-path="switch-handler.html">
+            
+                <a href="switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.5.4" data-path="with-context.html">
+            
+                <a href="with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.5" data-path="data-handler.html">
+            
+                <a href="data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.6" data-path="orig-api/">
+            
+                <a href="orig-api/">
+            
+                    
+                    Original API
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.6.1" data-path="orig-api/adapter.html">
+            
+                <a href="orig-api/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.6.2" data-path="orig-api/reactor.html">
+            
+                <a href="orig-api/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../server-side/">
+            
+                <a href="../server-side/">
+            
+                    
+                    Using Server-side
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.6.1" data-path="../server-side/socket-io.html">
+            
+                <a href="../server-side/socket-io.html">
+            
+                    
+                    Socket.io
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2" data-path="../server-side/koa.html">
+            
+                <a href="../server-side/koa.html">
+            
+                    
+                    Koa Middleware
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.3" data-path="../server-side/connect.html">
+            
+                <a href="../server-side/connect.html">
+            
+                    
+                    Connect/Express Middlware
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../router/">
+            
+                <a href="../router/">
+            
+                    
+                    URL Handling wtih @tao.js/router
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="../api/">
+            
+                <a href="../api/">
+            
+                    
+                    API Reference
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.1" data-path="../api/core/">
+            
+                <a href="../api/core/">
+            
+                    
+                    @tao.js/core
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.1.1" data-path="../api/core/tao.html">
+            
+                <a href="../api/core/tao.html">
+            
+                    
+                    TAO
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.1.2" data-path="../api/core/kernel.html">
+            
+                <a href="../api/core/kernel.html">
+            
+                    
+                    Kernel
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.1.3" data-path="../api/core/appcon.html">
+            
+                <a href="../api/core/appcon.html">
+            
+                    
+                    AppCon
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2" data-path="../api/react/">
+            
+                <a href="../api/react/">
+            
+                    
+                    @tao.js/react
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.2.1" data-path="../api/react/provider.html">
+            
+                <a href="../api/react/provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.2" data-path="../api/react/render-handler.html">
+            
+                <a href="../api/react/render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.3" data-path="../api/react/switch-handler.html">
+            
+                <a href="../api/react/switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.4" data-path="../api/react/with-context.html">
+            
+                <a href="../api/react/with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.5" data-path="../api/react/data-handler.html">
+            
+                <a href="../api/react/data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.6" data-path="../api/react/adapter.html">
+            
+                <a href="../api/react/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.7" data-path="../api/react/reactor.html">
+            
+                <a href="../api/react/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3" data-path="../api/socket-io/">
+            
+                <a href="../api/socket-io/">
+            
+                    
+                    @tao.js/socket.io
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.3.1" data-path="../api/socket-io/wire-socket-io.html">
+            
+                <a href="../api/socket-io/wire-socket-io.html">
+            
+                    
+                    wireTaoJsToSocketIO
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="../GLOSSARY.html">
+            
+                <a href="../GLOSSARY.html">
+            
+                    
+                    Glossary
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" >
+            
+                <a target="_blank" href="https://tao.js.org/coverage/index.html">
+            
+                    
+                    Coverage
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >withContext</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="taojsreact-withcontext-higher-order-component"><code>@tao.js/react</code> withContext Higher-Order Component</h1>
+<p><code>withContext</code> is a <a href="https://reactjs.org/docs/higher-order-components.html" target="_blank">Higher-Order Component (HOC)</a>
+in the <code>@tao.js/react</code> package allowing a different way to integrate standard React <code>Component</code>s
+with the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> by providing access to common functionality used by the other components in the
+<code>@tao.js/react</code> package.</p>
+<p>It&apos;s expected most of integrating our React app with the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> using the <code>@tao.js/react</code> package will
+be using the <a href="render-handler.html"><code>RenderHandler</code></a>, <a href="switch-handler.html"><code>SwitchHandler</code></a> and
+<a href="data-handler.html"><code>DataHandler</code></a>.</p>
+<p>However, there may be cases or contexts in which our React <code>Component</code> has a different type of
+dependency on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> other than what is covered by those 3 components from the package, so we have
+the <code>withContext</code> HOC available to wrap our React <code>Component</code> with a <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> to provide some
+flexibility.</p>
+<h2 id="importing">importing</h2>
+<p><code>withContext</code> is a named export from the <code>@tao.js/react</code> package.</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">import</span> <span class="token punctuation">{</span> withContext <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">&apos;@tao.js/react&apos;</span><span class="token punctuation">;</span>
+</code></pre>
+<p>OR</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> withContext <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">&apos;@tao.js/react&apos;</span><span class="token punctuation">)</span><span class="token punctuation">.</span>withContext<span class="token punctuation">;</span>
+</code></pre>
+<h2 id="using-withcontext-to-create-an-hoc">Using <code>withContext</code> to create an HOC</h2>
+<p>Technically, <code>withContext</code> itself is <strong>not</strong> an HOC, but is a function we use to create an HOC.</p>
+<p>This is a common pattern in use with HOC functions found in other libraries that we are provided
+with a function that we call to <em>create an HOC</em> with some specific context information and then we
+use the returned HOC to wrap standard React <code>Component</code>s.</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> UserHOC <span class="token operator">=</span> <span class="token function">withContext</span><span class="token punctuation">(</span>
+  <span class="token comment">// first arg is a tao trigram</span>
+  <span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token comment">// second arg is a handler function</span>
+  <span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> user<span class="token punctuation">:</span> data<span class="token punctuation">.</span>User <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token comment">// third arg is a default value or function for the data prop</span>
+  <span class="token punctuation">{</span> user<span class="token punctuation">:</span> <span class="token keyword">null</span> <span class="token punctuation">}</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>In the example above, we have created the <code>UserHOC</code> (or User Higher-Order Component) that can be
+used to wrap any of our React <code>Component</code>s somewhere in our app to receive a <code>data</code> prop with the
+value obtained from anytime the <code>{User,Enter,Portal}</code> <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a> is set on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>.</p>
+<h3 id="withcontext-args"><code>withContext</code> args</h3>
+<p>The <code>withContext</code> function takes 3 args that will be described in greater detail in the following
+sections:</p>
+<ul>
+<li><code>tao</code> is the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> definition just like for a standard <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a></li>
+<li><code>handler</code> is a <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function just like a standard <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> but with some additional args &amp;
+behaviors</li>
+<li><code>default</code> is either an <code>Object</code> or a no arg <code>Function</code> that returns an <code>Object</code> used to set the
+default state of the <code>data</code> prop for wrapped components</li>
+</ul>
+<h2 id="defining-the-handler-trigram">Defining the handler Trigram</h2>
+<p>Use the first arg to <code>withContext</code> to define the <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">Trigram</a> the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> is listening for.  In this
+way, <code>withContext</code> is the same as defining any <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> directly on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>, expecting a single <code>Object</code> with any or all of the <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> keys (<code>t</code> or <code>term</code>for <a href="../GLOSSARY.html#term" class="glossary-term" title="the thing or subject in the TAO&apos;s Application Context - conceptually usually a domain entity but not limited to only domain entities">term</a>, <code>a</code> or <code>action</code> for <a href="../GLOSSARY.html#action" class="glossary-term" title="the operation being performed on the thing in the TAO&apos;s Application Context">action</a>,
+<code>o</code> or <code>orient</code> for <a href="../GLOSSARY.html#orient" class="glossary-term" title="the perspective of the interaction with the system at the moment of this operation
+on this thing in the TAO&apos;s Application Context">orient</a>).</p>
+<pre class="language-"><code class="lang-javascript"><span class="token function">withContext</span><span class="token punctuation">(</span><span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> &#x2026;<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// OR</span>
+<span class="token function">withContext</span><span class="token punctuation">(</span><span class="token punctuation">{</span> term<span class="token punctuation">:</span> <span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> action<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> orient<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> &#x2026;<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="defining-multiple-trigrams">Defining Multiple Trigrams</h3>
+<p>Just like with a standard <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>, it&apos;s possible to use wildcard definitions for the <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a>
+of our <code>withContext</code> HOC.  This is done by either ommitting the <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> key for the desired wildcard
+or by providing an empty string (<code>&quot;&quot;</code>) as the prop value.</p>
+<p>Additionally, as a convenience provided in the <code>@tao.js/react</code> package, using <code>withContext</code> we can
+specify multiple values for any <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">Trigram</a> key to capture more than one <strong>specific</strong> <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a> (remember,
+a wildcard will match any).  This is done using an <code>Array</code> of values for the key, e.g.:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token function">withContext</span><span class="token punctuation">(</span><span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Role&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Leave&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> &#x2026;<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// OR</span>
+<span class="token function">withContext</span><span class="token punctuation">(</span><span class="token punctuation">{</span> term<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Role&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> action<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Leave&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> orient<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> &#x2026;<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>Based on the above example, the resulting HOC have handlers for the following <a href="../GLOSSARY.html#trigrams" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigrams</a>:</p>
+<ul>
+<li><code>{User,Enter,Portal}</code></li>
+<li><code>{User,Leave,Portal}</code></li>
+<li><code>{Role,Enter,Portal}</code></li>
+<li><code>{Role,Leave,Portal}</code></li>
+</ul>
+<h2 id="defining-the-handler-function">Defining the handler Function</h2>
+<p>The <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function is the second arg to <code>withContext</code> and has the signature of a standard <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>
+<a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>.  The <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function will be called like all other <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> handlers when an <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a> matching
+the <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a>(s) defined in the first arg to <code>withContext</code> is set on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>.</p>
+<p>It is not possible to use the <code>withContext</code> function to create an HOC for wrapping React
+<code>Component</code>s without providing a function as the second (<a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>) arg to <code>withContext</code>.  This is
+because it doesn&apos;t make any sense to define an HOC using <code>withcontext</code> that has no <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>.  If the
+<a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> arg is not provided, and <code>Error</code> will be thrown.</p>
+<p>However, unlike a standard <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> <a href="../GLOSSARY.html#inline-handler" class="glossary-term" title="A handler added to the TAO for the Inline Phase of execution of the TAO.">Inline Handler</a> function where all return values that are not an
+instance of an <code>AppCtx</code> used for <a href="../basics/chaining.html">chaining</a> are ignored, the HOC created
+using <code>withContext</code> is using the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function to set the value used for the <code>data</code> prop on
+the <code>Component</code> it is wrapping, which provides the following behaviors:</p>
+<ul>
+<li>if the return value is <strong>not</strong> an instance of <code>AppCtx</code> from <code>@tao.js/core</code>, then the value
+will be shallow merged with the existing value for the <code>data</code> prop on the wrapped <code>Component</code></li>
+<li>if the return value from the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function is an instance of <code>AppCtx</code> from <code>@tao.js/core</code>,
+it will be returned to the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> and used to set the context on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> as an <a href="../basics/chaining.html">AppCon chain</a></li>
+<li>if there is no return value, the existing value will be used for the <code>data</code> prop on the wrapped
+<code>Component</code></li>
+</ul>
+<p>Let&apos;s dive into usage with these behaviors below.</p>
+<h3 id="using-the-handler-to-return-data">Using the handler to return data</h3>
+<p>The first behavior mentioned above is returning a value that is <strong>not</strong> an instance of an <code>AppCtx</code>
+from <code>@tao.js/core</code>.  This is the primary usage scenario when using <code>withContext</code> so we&apos;ll tackle
+it first.</p>
+<p>When defining the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function, whatever value is returned will be <strong>shallow merged</strong> with the
+existing data to generate the <code>data</code> prop added to the wrapped <code>Compoonent</code>.  This shallow merging is
+intentional to mimic the behavior of React&apos;s <code>Component.setState</code> in order to allow the HOC to modify
+and maintain its state based on varying and different context brought about by multiple <a href="../GLOSSARY.html#appcons" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCons</a> as
+they are set over time.</p>
+<p>Here&apos;s a simple example we&apos;ve already seen:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> UserHOC <span class="token operator">=</span> <span class="token function">withContext</span><span class="token punctuation">(</span>
+  <span class="token comment">// first arg is a tao trigram</span>
+  <span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token comment">// second arg is a handler function</span>
+  <span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> user<span class="token punctuation">:</span> data<span class="token punctuation">.</span>User <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  &#x2026;
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>From this example, when the <code>{User,Enter,Portal}</code> <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a> is set on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>, the HOC <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> will
+be called with that <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> as the <code>tao</code> arg and whatever <code>data</code> has been set with the <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a>.  In
+our <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>&apos;s case, it&apos;s looking for the <code>data.User</code> (from the <a href="../GLOSSARY.html#term" class="glossary-term" title="the thing or subject in the TAO&apos;s Application Context - conceptually usually a domain entity but not limited to only domain entities">term</a>) and returning an object with
+that <code>User</code> data set as the <code>user</code> key.  The wrapped component will receive a <code>data</code> prop with the
+shape:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token punctuation">{</span> user<span class="token punctuation">:</span> &#x2026; <span class="token punctuation">}</span>
+</code></pre>
+<h4 id="leveraging-the-merging-of-data">Leveraging the Merging of Data</h4>
+<p>Suppose we need our <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> to handle more than one <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a> like:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> UserHOC <span class="token operator">=</span> <span class="token function">withContext</span><span class="token punctuation">(</span>
+  <span class="token comment">// first arg is a tao trigram</span>
+  <span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Role&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Leave&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token comment">// second arg is a handler function</span>
+  <span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>tao<span class="token punctuation">.</span>a <span class="token operator">===</span> <span class="token string">&apos;Leave&apos;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> tao<span class="token punctuation">.</span>t <span class="token operator">===</span> <span class="token string">&apos;User&apos;</span> <span class="token operator">?</span> <span class="token punctuation">{</span> user<span class="token punctuation">:</span> undefined <span class="token punctuation">}</span> <span class="token punctuation">:</span> <span class="token punctuation">{</span> role<span class="token punctuation">:</span> undefined <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>tao<span class="token punctuation">.</span>t <span class="token operator">===</span> <span class="token string">&apos;User&apos;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> <span class="token punctuation">{</span> user<span class="token punctuation">:</span> data<span class="token punctuation">.</span>User <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span> role<span class="token punctuation">:</span> data<span class="token punctuation">.</span>Role <span class="token punctuation">}</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  &#x2026;
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>From this example, our <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> is able to only have to return the portion of the state it
+needs to change in relation to the <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a> that is being handled.  When the <code>{User,Leave,Portal}</code>
+is set on the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>, it&apos;s resetting the <code>user</code> key in the state as opposed to when the
+<code>{Role,Leave,Portal}</code> has been set, the <code>role</code> key is reset in the state, and so forth.</p>
+<p>We expect the <code>data</code> prop of the wrapped component to have the shape:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token punctuation">{</span>
+  user<span class="token punctuation">:</span> &#x2026;<span class="token punctuation">,</span>
+  role<span class="token punctuation">:</span> &#x2026;
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="third-set-and-fourth-current-args-to-handler">Third (<code>set</code>) and Fourth (<code>current</code>) args to handler</h3>
+<p>There may be situations, and we&apos;ll <a href="#modifying-state-data-and-chaining">see one below</a> where we
+want to set the state for the <code>data</code> prop <strong>within</strong> the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function rather than rely on
+the return value and the <a href="#leveraging-the-merging-of-data">shallow merging behavior</a> above.</p>
+<p>For these cases, the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function has 2 additional args passed to it when called which differs
+from a standard <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>:</p>
+<ul>
+<li><code>set</code> is a function that takes a single arg and sets the <code>data</code> prop state to whatever value
+is passed in that arg</li>
+<li><code>current</code> is the current <code>data</code> prop state</li>
+</ul>
+<p>This allows us to have more flexibility and control with the logic we provide in our <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>
+function to <code>withContext</code>, specifically:</p>
+<h4 id="set-arg"><code>set</code> arg</h4>
+<p>Using the <code>set</code> function passed as the third arg to our <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function, we have the ability
+to set the complete state of the <code>data</code> prop for our wrapped component.  Using this we bypass
+the <a href="#leveraging-the-merging-of-data">shallow merging behavior</a> described above which is done as a
+convenience for the majority of use cases.</p>
+<p>Instead of shallow merging the state like when we return a value from the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function, using
+the function from the <code>set</code> arg will set the state of the data prop to the object passed into
+the <code>set</code> arg function.</p>
+<p>As an example, we&apos;ll create an HOC that manages the roles a user can have within our app:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> RolesHOC <span class="token operator">=</span> <span class="token function">withContext</span><span class="token punctuation">(</span>
+  <span class="token comment">// first arg is a tao trigram</span>
+  <span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Role&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Leave&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token comment">// second arg is a handler function</span>
+  <span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">,</span> <span class="token keyword">set</span><span class="token punctuation">,</span> current<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> updatedData <span class="token operator">=</span> <span class="token punctuation">{</span>
+      roles<span class="token punctuation">:</span> <span class="token keyword">new</span> <span class="token class-name">Set</span><span class="token punctuation">(</span>current<span class="token punctuation">.</span>roles<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>tao<span class="token punctuation">.</span>a <span class="token operator">===</span> <span class="token string">&apos;Leave&apos;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>tao<span class="token punctuation">.</span>t <span class="token operator">===</span> <span class="token string">&apos;User&apos;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        updatedData<span class="token punctuation">.</span>roles<span class="token punctuation">.</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        updatedData<span class="token punctuation">.</span>roles<span class="token punctuation">.</span><span class="token keyword">delete</span><span class="token punctuation">(</span>data<span class="token punctuation">.</span>Role<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>tao<span class="token punctuation">.</span>t <span class="token operator">===</span> <span class="token string">&apos;Role&apos;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        updatedData<span class="token punctuation">.</span>role<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>data<span class="token punctuation">.</span>Role<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">set</span><span class="token punctuation">(</span>updatedData<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  &#x2026;
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>For our <code>RolesHOC</code> we need to keep track of the roles that the user is entering and leaving and
+make them accessible to wrapped components.  To do this, we are managing the state of <code>roles</code> data
+using a <code>Set</code> so we can&apos;t return an object with a <code>roles</code> key that will be shallow merged with the
+existing state object.</p>
+<h4 id="current-arg"><code>current</code> arg</h4>
+<p>You can see in the example above illustrating the use of the <a href="#set-arg"><code>set</code> arg</a> that the fourth
+arg is the <code>current</code> value of the state of the data prop.  This is passed so that we can make use
+of this value when setting or updating the state.</p>
+<p><code>current</code> can also be used when returning an object to shallow merge state in circumstances where
+the existing state can determine the future state of our data prop.</p>
+<h3 id="calling-set-prevents-shallow-merge">Calling <code>set</code> prevents shallow merge</h3>
+<p>So that there isn&apos;t any confusion or conflicting behavior, if the function in the <code>set</code> arg to
+our <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function is called, this call prevents any shallow merging of returned data from the
+<a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function.</p>
+<p>If data is returned from the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function and the function in the <code>set</code> arg was called during
+execution of the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function, the data will not be used to shallow merge with the current
+state of the data prop.</p>
+<h3 id="using-the-handler-to-chain-to-another-appcon">Using the handler to chain to another AppCon</h3>
+<p>Because the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> provided to the <code>withContext</code> HOC generating function is to be a <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>,
+the capability to chain to another <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a> works like a standard <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> in that if the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a>
+function passed as the second arg to <code>withContext</code> returns an instance of an <code>AppCtx</code> from the
+<code>@tao.js/core</code> package, then that will be returned to the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a> to chain onto that <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a> by setting
+it in the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>.</p>
+<p>Additionally, the shallow merge <strong>will not occur</strong> in the state of the data prop in the <code>withContext</code>
+created HOC.</p>
+<h4 id="modifying-state-data-and-chaining">Modifying state data AND chaining</h4>
+<p>Because it may be desired to both update the state of the <code>data</code> prop passed to the wrapped
+component AND chain to another <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a> by returning an <code>AppCtx</code>, we can use the <code>set</code> (3rd) arg to our
+<a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function to set the state of the data prop and still return an <code>AppCtx</code>.</p>
+<p>Extending our example from above regarding using the <a href="#set-arg"><code>set</code> arg function</a>:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> RolesHOC <span class="token operator">=</span> <span class="token function">withContext</span><span class="token punctuation">(</span>
+  <span class="token comment">// first arg is a tao trigram</span>
+  <span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Role&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> <span class="token string">&apos;Leave&apos;</span><span class="token punctuation">]</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token comment">// second arg is a handler function</span>
+  <span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">,</span> <span class="token keyword">set</span><span class="token punctuation">,</span> current<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> updatedData <span class="token operator">=</span> <span class="token punctuation">{</span>
+      roles<span class="token punctuation">:</span> <span class="token keyword">new</span> <span class="token class-name">Set</span><span class="token punctuation">(</span>current<span class="token punctuation">.</span>roles<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>tao<span class="token punctuation">.</span>a <span class="token operator">===</span> <span class="token string">&apos;Leave&apos;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>tao<span class="token punctuation">.</span>t <span class="token operator">===</span> <span class="token string">&apos;User&apos;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        updatedData<span class="token punctuation">.</span>roles<span class="token punctuation">.</span><span class="token function">clear</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        updatedData<span class="token punctuation">.</span>roles<span class="token punctuation">.</span><span class="token keyword">delete</span><span class="token punctuation">(</span>data<span class="token punctuation">.</span>Role<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>tao<span class="token punctuation">.</span>t <span class="token operator">===</span> <span class="token string">&apos;Role&apos;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        updatedData<span class="token punctuation">.</span>role<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>data<span class="token punctuation">.</span>Role<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">set</span><span class="token punctuation">(</span>updatedData<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// chain to a new AppCon that is the same as the current AppCon w/ orient=Reporting</span>
+    <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">AppCtx</span><span class="token punctuation">(</span>tao<span class="token punctuation">.</span>t<span class="token punctuation">,</span> tao<span class="token punctuation">.</span>a<span class="token punctuation">,</span> <span class="token string">&apos;Reporting&apos;</span><span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  &#x2026;
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h3 id="return-nothing-from-the-handler">Return nothing from the handler</h3>
+<p>In our third behavior, we have returning nothing (<code>undefined</code> or <code>null</code>) from our <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function.</p>
+<p>The effect this has on our execution is that if nothing is returned, then nothing will happen or
+change the <code>data</code> prop state.  Additionally, this will not trigger a re-render of our <code>withContext</code>
+HOC because it will not call <code>setState</code> on the wrapping component.</p>
+<p>This gives us the option within our <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function to determine whether there is a need for a
+re-render or not, and return something to that effect.</p>
+<p>From our <code>RolesHOC</code> example above, in the case of an <a href="../GLOSSARY.html#appcon" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCon</a> with <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> <code>{User,Enter,Portal}</code>,
+the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function doesn&apos;t return anything explicitly (essentially <code>undefined</code> is returned) and
+does not call the function from the <code>set</code> (3rd) arg to the <a href="../GLOSSARY.html#handler" class="glossary-term" title="A function added to the TAO for an Application Context that is called by the TAO
+when an Application Context that matches is set on the TAO.">handler</a> function, so it will not trigger
+a re-render of the component or its children.</p>
+<h2 id="setting-the-default-value">Setting the Default Value</h2>
+<p>The third arg to the <code>withContext</code> function is how we set the default value for the state of the
+data prop before any matching <a href="../GLOSSARY.html#appcons" class="glossary-term" title="An Application Context represented in code and coded to within a TAO-based System.">AppCons</a> are set in the <a href="../GLOSSARY.html#tao" class="glossary-term" title="the core framework of defining a System using Application Contexts as a 3-Dimensional
+representation of State and implementing the System using handlers that react to them.">TAO</a>.</p>
+<p>The <code>default</code> arg can be either:</p>
+<ul>
+<li>an <code>Object</code> which will be used to initialize default state for the data prop</li>
+<li>a <code>Function</code> that returns an <code>Object</code> that when called will be used to initialize the state for
+the data prop</li>
+</ul>
+<p>Repeating our very first example above:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> UserHOC <span class="token operator">=</span> <span class="token function">withContext</span><span class="token punctuation">(</span>
+  <span class="token comment">// first arg is a tao trigram</span>
+  <span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token comment">// second arg is a handler function</span>
+  <span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> user<span class="token punctuation">:</span> data<span class="token punctuation">.</span>User <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token comment">// third arg is a default value or function for the data prop</span>
+  <span class="token punctuation">{</span> user<span class="token punctuation">:</span> <span class="token keyword">null</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<p>In the above example, our default (3rd) arg to the <code>withContext</code> function is is initializing the
+state of the data prop to:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token punctuation">{</span>
+  user<span class="token punctuation">:</span> <span class="token keyword">null</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>It could just as easily be written using a <code>Function</code> with the exact same result:</p>
+<pre class="language-"><code class="lang-javascript"><span class="token keyword">const</span> UserHOC <span class="token operator">=</span> <span class="token function">withContext</span><span class="token punctuation">(</span>
+  <span class="token comment">// first arg is a tao trigram</span>
+  <span class="token punctuation">{</span> t<span class="token punctuation">:</span> <span class="token string">&apos;User&apos;</span><span class="token punctuation">,</span> a<span class="token punctuation">:</span> <span class="token string">&apos;Enter&apos;</span><span class="token punctuation">,</span> o<span class="token punctuation">:</span> <span class="token string">&apos;Portal&apos;</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token comment">// second arg is a handler function</span>
+  <span class="token punctuation">(</span>tao<span class="token punctuation">,</span> data<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> user<span class="token punctuation">:</span> data<span class="token punctuation">.</span>User <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token comment">// third arg is a default value or function for the data prop</span>
+  <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">(</span><span class="token punctuation">{</span> user<span class="token punctuation">:</span> <span class="token keyword">null</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="switch-handler.html" class="navigation navigation-prev " aria-label="Previous page: SwitchHandler">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="data-handler.html" class="navigation navigation-next " aria-label="Next page: DataHandler">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"withContext","level":"1.5.4","depth":2,"next":{"title":"DataHandler","level":"1.5.5","depth":2,"path":"client-react/data-handler.md","ref":"client-react/data-handler.md","articles":[]},"previous":{"title":"SwitchHandler","level":"1.5.3","depth":2,"path":"client-react/switch-handler.md","ref":"client-react/switch-handler.md","articles":[]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"client-react/with-context.md","mtime":"2019-01-25T22:11:10.000Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-19T06:31:04.060Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

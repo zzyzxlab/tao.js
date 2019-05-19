@@ -1,0 +1,991 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Client Side, Event-driven development · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-prism/prism.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-advanced-emoji/emoji-website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="as-api.html" />
+    
+    
+    <link rel="prev" href="./" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    README
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter active" data-level="1.2.1" data-path="as-events.html">
+            
+                <a href="as-events.html">
+            
+                    
+                    Client Side, Event-driven development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.2" data-path="as-api.html">
+            
+                <a href="as-api.html">
+            
+                    
+                    Back end API development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.3" data-path="as-messaging.html">
+            
+                <a href="as-messaging.html">
+            
+                    
+                    Back end Messaging development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.4" data-path="entropy.html">
+            
+                <a href="entropy.html">
+            
+                    
+                    Entropy in Software
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.5" data-path="motivations.html">
+            
+                <a href="motivations.html">
+            
+                    
+                    Motivations & Goals of tao.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.6" data-path="basic-terms.html">
+            
+                <a href="basic-terms.html">
+            
+                    
+                    Basic Terminology
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2.7" data-path="roadmap.html">
+            
+                <a href="roadmap.html">
+            
+                    
+                    Development Roadmap
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../basics/">
+            
+                <a href="../basics/">
+            
+                    
+                    Basics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="../basics/defining-app-cons.html">
+            
+                <a href="../basics/defining-app-cons.html">
+            
+                    
+                    Defining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="../basics/setting-app-cons.html">
+            
+                <a href="../basics/setting-app-cons.html">
+            
+                    
+                    Setting AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="../basics/define-handlers.html">
+            
+                <a href="../basics/define-handlers.html">
+            
+                    
+                    Defining Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.4" data-path="../basics/handlers.html">
+            
+                <a href="../basics/handlers.html">
+            
+                    
+                    Add Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.5" data-path="../basics/chaining.html">
+            
+                <a href="../basics/chaining.html">
+            
+                    
+                    Chaining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.6" data-path="../basics/wildcards.html">
+            
+                <a href="../basics/wildcards.html">
+            
+                    
+                    Wildcard Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../advanced/">
+            
+                <a href="../advanced/">
+            
+                    
+                    Advanced
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../advanced/inline-handlers.html">
+            
+                <a href="../advanced/inline-handlers.html">
+            
+                    
+                    Inline Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.2" data-path="../advanced/async-handlers.html">
+            
+                <a href="../advanced/async-handlers.html">
+            
+                    
+                    Async Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.3" data-path="../advanced/intercept-handlers.html">
+            
+                <a href="../advanced/intercept-handlers.html">
+            
+                    
+                    Intercept Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.4" data-path="../advanced/order-of-handlers.html">
+            
+                <a href="../advanced/order-of-handlers.html">
+            
+                    
+                    Order of Operations
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.5" data-path="../advanced/promise-hook.html">
+            
+                <a href="../advanced/promise-hook.html">
+            
+                    
+                    Promise Hook
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4.6" data-path="../advanced/kernels.html">
+            
+                <a href="../advanced/kernels.html">
+            
+                    
+                    Instantiating Kernels
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../client-react/">
+            
+                <a href="../client-react/">
+            
+                    
+                    Using with React.js
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.1" data-path="../client-react/provider.html">
+            
+                <a href="../client-react/provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.2" data-path="../client-react/render-handler.html">
+            
+                <a href="../client-react/render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.3" data-path="../client-react/switch-handler.html">
+            
+                <a href="../client-react/switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.4" data-path="../client-react/with-context.html">
+            
+                <a href="../client-react/with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.5" data-path="../client-react/data-handler.html">
+            
+                <a href="../client-react/data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.6" data-path="../client-react/orig-api/">
+            
+                <a href="../client-react/orig-api/">
+            
+                    
+                    Original API
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.5.6.1" data-path="../client-react/orig-api/adapter.html">
+            
+                <a href="../client-react/orig-api/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5.6.2" data-path="../client-react/orig-api/reactor.html">
+            
+                <a href="../client-react/orig-api/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../server-side/">
+            
+                <a href="../server-side/">
+            
+                    
+                    Using Server-side
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.6.1" data-path="../server-side/socket-io.html">
+            
+                <a href="../server-side/socket-io.html">
+            
+                    
+                    Socket.io
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.2" data-path="../server-side/koa.html">
+            
+                <a href="../server-side/koa.html">
+            
+                    
+                    Koa Middleware
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6.3" data-path="../server-side/connect.html">
+            
+                <a href="../server-side/connect.html">
+            
+                    
+                    Connect/Express Middlware
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../router/">
+            
+                <a href="../router/">
+            
+                    
+                    URL Handling wtih @tao.js/router
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8" data-path="../api/">
+            
+                <a href="../api/">
+            
+                    
+                    API Reference
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.1" data-path="../api/core/">
+            
+                <a href="../api/core/">
+            
+                    
+                    @tao.js/core
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.1.1" data-path="../api/core/tao.html">
+            
+                <a href="../api/core/tao.html">
+            
+                    
+                    TAO
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.1.2" data-path="../api/core/kernel.html">
+            
+                <a href="../api/core/kernel.html">
+            
+                    
+                    Kernel
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.1.3" data-path="../api/core/appcon.html">
+            
+                <a href="../api/core/appcon.html">
+            
+                    
+                    AppCon
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2" data-path="../api/react/">
+            
+                <a href="../api/react/">
+            
+                    
+                    @tao.js/react
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.2.1" data-path="../api/react/provider.html">
+            
+                <a href="../api/react/provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.2" data-path="../api/react/render-handler.html">
+            
+                <a href="../api/react/render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.3" data-path="../api/react/switch-handler.html">
+            
+                <a href="../api/react/switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.4" data-path="../api/react/with-context.html">
+            
+                <a href="../api/react/with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.5" data-path="../api/react/data-handler.html">
+            
+                <a href="../api/react/data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.6" data-path="../api/react/adapter.html">
+            
+                <a href="../api/react/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.2.7" data-path="../api/react/reactor.html">
+            
+                <a href="../api/react/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.8.3" data-path="../api/socket-io/">
+            
+                <a href="../api/socket-io/">
+            
+                    
+                    @tao.js/socket.io
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.8.3.1" data-path="../api/socket-io/wire-socket-io.html">
+            
+                <a href="../api/socket-io/wire-socket-io.html">
+            
+                    
+                    wireTaoJsToSocketIO
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.9" data-path="../GLOSSARY.html">
+            
+                <a href="../GLOSSARY.html">
+            
+                    
+                    Glossary
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" >
+            
+                <a target="_blank" href="https://tao.js.org/coverage/index.html">
+            
+                    
+                    Coverage
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Client Side, Event-driven development</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="./" class="navigation navigation-prev " aria-label="Previous page: Introduction">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="as-api.html" class="navigation navigation-next " aria-label="Next page: Back end API development">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Client Side, Event-driven development","level":"1.2.1","depth":2,"next":{"title":"Back end API development","level":"1.2.2","depth":2,"path":"intro/as-api.md","ref":"intro/as-api.md","articles":[]},"previous":{"title":"Introduction","level":"1.2","depth":1,"path":"intro/README.md","ref":"intro/README.md","articles":[{"title":"Client Side, Event-driven development","level":"1.2.1","depth":2,"path":"intro/as-events.md","ref":"intro/as-events.md","articles":[]},{"title":"Back end API development","level":"1.2.2","depth":2,"path":"intro/as-api.md","ref":"intro/as-api.md","articles":[]},{"title":"Back end Messaging development","level":"1.2.3","depth":2,"path":"intro/as-messaging.md","ref":"intro/as-messaging.md","articles":[]},{"title":"Entropy in Software","level":"1.2.4","depth":2,"path":"intro/entropy.md","ref":"intro/entropy.md","articles":[]},{"title":"Motivations & Goals of tao.js","level":"1.2.5","depth":2,"path":"intro/motivations.md","ref":"intro/motivations.md","articles":[]},{"title":"Basic Terminology","level":"1.2.6","depth":2,"path":"intro/basic-terms.md","ref":"intro/basic-terms.md","articles":[]},{"title":"Development Roadmap","level":"1.2.7","depth":2,"path":"intro/roadmap.md","ref":"intro/roadmap.md","articles":[]}]},"dir":"neutral"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"intro/as-events.md","mtime":"2019-04-29T18:20:15.000Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-19T06:31:04.060Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

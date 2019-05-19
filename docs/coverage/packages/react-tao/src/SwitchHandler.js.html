@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for packages/react-tao/src/SwitchHandler.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../../index.html">All files</a> / <a href="index.html">packages/react-tao/src</a> SwitchHandler.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/49</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/10</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/12</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/49</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { Component } from 'react';
+import { AppCtx } from '@tao.js/core';
+import cartesian from 'cartesian';
+&nbsp;
+import { normalizeAC, cleanInput } from './helpers';
+&nbsp;
+import { Context } from './Provider';
+import RenderHandler from './RenderHandler';
+&nbsp;
+export default class SwitchHandler extends Component {
+  static contextType = Context;
+&nbsp;
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(props) {
+<span class="cstat-no" title="statement not covered" >    super(props);</span>
+<span class="cstat-no" title="statement not covered" >    this._adaptedChildren = new Map();</span>
+<span class="cstat-no" title="statement not covered" >    this.state = { chosenList: new Set() };</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  co</span>mponentWillMount() {
+<span class="cstat-no" title="statement not covered" >    console.log('SwitchHandler::componentWillMount::props:', this.props);</span>
+    const { TAO } = <span class="cstat-no" title="statement not covered" >this.context;</span>
+    const defaultTrigram = <span class="cstat-no" title="statement not covered" >cleanInput(normalizeAC(this.props));</span>
+    const intercepted = <span class="cstat-no" title="statement not covered" >new Map();</span>
+<span class="cstat-no" title="statement not covered" >    React.Children.forEach(this.props.children, <span class="fstat-no" title="function not covered" >ch</span>ild =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      if (child.type === RenderHandler) {</span>
+        const childTrigram = <span class="cstat-no" title="statement not covered" >cleanInput(normalizeAC(child.props));</span>
+        const handler = <span class="cstat-no" title="statement not covered" >this.handleSwitch(child);</span>
+        const trigrams = <span class="cstat-no" title="statement not covered" >Object.assign(defaultTrigram, childTrigram);</span>
+<span class="cstat-no" title="statement not covered" >        console.log('trigrams:', trigrams);</span>
+        const permutations = <span class="cstat-no" title="statement not covered" >cartesian(trigrams);</span>
+<span class="cstat-no" title="statement not covered" >        console.log('permutations:', permutations);</span>
+<span class="cstat-no" title="statement not covered" >        this._adaptedChildren.set(child, { permutations, handler });</span>
+<span class="cstat-no" title="statement not covered" >        permutations.forEach(<span class="fstat-no" title="function not covered" >tr</span>igram =&gt; {</span>
+          const ac = <span class="cstat-no" title="statement not covered" >new AppCtx(trigram.term, trigram.action, trigram.orient);</span>
+<span class="cstat-no" title="statement not covered" >          TAO.addInlineHandler(trigram, handler);</span>
+<span class="cstat-no" title="statement not covered" >          if (!intercepted.has(ac.key)) {</span>
+<span class="cstat-no" title="statement not covered" >            TAO.addInterceptHandler(trigram, this.handleClear);</span>
+<span class="cstat-no" title="statement not covered" >            intercepted.set(ac.key, true);</span>
+          }
+        });
+      }
+    });
+<span class="cstat-no" title="statement not covered" >    console.log('SwitchHandler::componentWillMount::complete:', {</span>
+      intercepted,
+      adaptedChildren: this._adaptedChildren
+    });
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  co</span>mponentWillUnmount() {
+    const { TAO } = <span class="cstat-no" title="statement not covered" >this.context;</span>
+<span class="cstat-no" title="statement not covered" >    this._adaptedChildren.forEach(<span class="fstat-no" title="function not covered" >({</span> permutations, handler }, child) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      permutations.forEach(<span class="fstat-no" title="function not covered" >tr</span>igram =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        TAO.removeInlineHandler(trigram, handler);</span>
+<span class="cstat-no" title="statement not covered" >        TAO.removeInterceptHandler(trigram, this.handleClear);</span>
+      });
+    });
+  }
+&nbsp;
+  handleClear = <span class="fstat-no" title="function not covered" >(t</span>ao, data) =&gt; {
+<span class="cstat-no" title="statement not covered" >    console.log('SwitchHandler::handleClear:', { tao, data });</span>
+    const chosenList = <span class="cstat-no" title="statement not covered" >new Set();</span>
+<span class="cstat-no" title="statement not covered" >    this.setState({ chosenList });</span>
+  };
+&nbsp;
+  handleSwitch = <span class="fstat-no" title="function not covered" >ch</span>ild =&gt; <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(t</span>ao, data) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    console.log('SwitchHandler::handleSwitch:', { tao, data });</span>
+    const { chosenList } = <span class="cstat-no" title="statement not covered" >this.state;</span>
+<span class="cstat-no" title="statement not covered" >    console.log('chosenList:', chosenList);</span>
+<span class="cstat-no" title="statement not covered" >    chosenList.add(child);</span>
+<span class="cstat-no" title="statement not covered" >    this.setState({ chosenList });</span>
+<span class="cstat-no" title="statement not covered" >    console.log('SwitchHandler::handleSwitch::set state with:', this.state);</span>
+  };
+&nbsp;
+<span class="fstat-no" title="function not covered" >  re</span>nder() {
+<span class="cstat-no" title="statement not covered" >    console.log('SwitchHandler::render::state:', this.state);</span>
+    const { term, action, orient, children } = <span class="cstat-no" title="statement not covered" >this.props;</span>
+    const { chosenList } = <span class="cstat-no" title="statement not covered" >this.state;</span>
+<span class="cstat-no" title="statement not covered" >    return React.Children.map(children, <span class="fstat-no" title="function not covered" >ch</span>ild =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      if (!React.isValidElement(child) || child.type !== RenderHandler) {</span>
+<span class="cstat-no" title="statement not covered" >        console.log('SwitchHandler::render:returning child');</span>
+<span class="cstat-no" title="statement not covered" >        return child;</span>
+      }
+<span class="cstat-no" title="statement not covered" >      console.log('SwitchHandler::render:testing child');</span>
+<span class="cstat-no" title="statement not covered" >      if (chosenList.has(child)) {</span>
+<span class="cstat-no" title="statement not covered" >        console.log('SwitchHandler::render:cloning child');</span>
+<span class="cstat-no" title="statement not covered" >        return React.cloneElement(child, {</span>
+          term,
+          action,
+          orient,
+          ...child.props
+        });
+      }
+    });
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Sat May 18 2019 23:30:58 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>
