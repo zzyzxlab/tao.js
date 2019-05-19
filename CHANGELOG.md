@@ -1,3 +1,23 @@
+<a name="0.7.0"></a>
+
+# [0.7.0](https://github.com/zzyzxlab/tao.js/compare/v0.6.2...v0.7.0) (2019-05-19)
+
+### Bug Fixes
+
+- **createContextHandler:** handler precondition check allows passing null/undefined which works w be ([e65c2cf](https://github.com/zzyzxlab/tao.js/commit/e65c2cf))
+- **Provider:** ensure [@tao](https://github.com/tao).js/react/Provider's TAO is required and a [@tao](https://github.com/tao).js/core/Kernel ([a8ce457](https://github.com/zzyzxlab/tao.js/commit/a8ce457))
+- **RenderHandler:** include prop type for context as string or array of strings ([baa6fba](https://github.com/zzyzxlab/tao.js/commit/baa6fba))
+
+### Features
+
+- **createContextHandler:** passing undefined or null to the handler function will reset the data fo ([78aee3f](https://github.com/zzyzxlab/tao.js/commit/78aee3f))
+- **createContextHandler:** updates to createContextHandler for consistent application of documented ([b882630](https://github.com/zzyzxlab/tao.js/commit/b882630))
+- **Data/ContextHandler:** react DataHandler (or ContextHandler?) working implementation & with Rend ([7f6c2b8](https://github.com/zzyzxlab/tao.js/commit/7f6c2b8))
+- **react:** createContextHandler and withContext HOC + changes to DataHandler ([b3a2827](https://github.com/zzyzxlab/tao.js/commit/b3a2827))
+- **RenderHandler:** working version of RenderHandler ([8a0eaee](https://github.com/zzyzxlab/tao.js/commit/8a0eaee))
+- **SwitchHandler:** react SwitchHandler component will switch between RenderHandlers that listen on ([12d0d62](https://github.com/zzyzxlab/tao.js/commit/12d0d62))
+- **withContext:** tested working withContext HOC for react package ([44c2890](https://github.com/zzyzxlab/tao.js/commit/44c2890))
+
 <a name="0.6.2"></a>
 
 ## [0.6.2](https://github.com/zzyzxlab/tao.js/compare/v0.6.1...v0.6.2) (2018-10-22)
