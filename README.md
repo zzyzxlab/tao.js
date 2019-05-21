@@ -144,8 +144,8 @@ Which will start `commitizen` for you to generate the commit message in the desi
   - [ ] implement query string handling
 - [ ] project infrastructure updates from stream npm security issue
   - [x] update deps w lodash deps security warnings from github
-  - [ ] update `lerna` to v3
-  - [ ] update `cz-lerna-changelog` for v3 support
+  - [x] update `lerna` to v3
+  - [x] update `cz-lerna-changelog` for v3 support
   - [ ] include `make` scripts for common chores
   - [ ] upgrade `@babel` packages
   - [ ] migrate to `yarn` for better dependency management?

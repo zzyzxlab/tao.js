@@ -1,21 +1,10 @@
 {
-  "lerna": "2.9.0",
-  "packages": [
-    "packages/*",
-    "examples/*"
-  ],
+  "packages": ["packages/*", "examples/*"],
   "command": {
     "publish": {
-      "allowBranch": [
-        "master"
-      ]
+      "allowBranch": ["master"]
     }
   },
-  "ignoreChanges": [
-    "examples/**/*",
-    "**/test/**",
-    "**/*.spec.js",
-    "**/*.md"
-  ],
+  "ignoreChanges": ["examples/**/*", "**/test/**", "**/*.spec.js", "**/*.md"],
   "version": "0.7.0"
 }
