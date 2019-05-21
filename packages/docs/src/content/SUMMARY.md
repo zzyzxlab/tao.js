@@ -58,4 +58,5 @@
 
 ---
 
+* [CHANGELOG](https://github.com/zzyzxlab/tao.js/blob/master/CHANGELOG.md)
 * [Coverage](https://tao.js.org/coverage/index.html)
