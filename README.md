@@ -158,13 +158,21 @@ Which will start `commitizen` for you to generate the commit message in the desi
   - [ ] figure out how to ensure responses go to same requestor
   - [ ] unit tests
   - [ ] update `docs` with `@tao.js/koa`
+- [ ] complete `@tao/http-client` package
+  - [ ] unit tests
+  - [ ] update `docs` with `@tao.js/http-client`
 - [ ] complete `@tao.js/connect` package
+  - [ ] unit tests
   - [ ] update `docs` with `@tao.js/connect`
 - [ ] complete `@tao.js/path` package
+  - [ ] unit tests
   - [ ] update `docs` with `@tao.js/path`
 - [ ] complete `@tao.js/mesh` package
+  - [ ] unit tests
   - [ ] update `docs` with `@tao.js/mesh`
 - [ ] complete `@tao.js/feature` package
+  - [ ] unit tests
   - [ ] update `docs` with `@tao.js/feature`
 - [ ] complete `@tao.js/cli` package
+  - [ ] unit tests
   - [ ] update `docs` with `@tao.js/cli`
