@@ -2,9 +2,15 @@
   "packages": ["packages/*", "examples/*"],
   "command": {
     "publish": {
-      "allowBranch": ["master"]
-    }
+      "allowBranch": ["master"],
+      "ignoreChanges": [
+        "examples/**/*",
+        "**/test/**",
+        "**/*.spec.js",
+        "**/*.md"
+      ]
+    },
+    "bootstrap": {}
   },
-  "ignoreChanges": ["examples/**/*", "**/test/**", "**/*.spec.js", "**/*.md"],
   "version": "0.7.0"
 }

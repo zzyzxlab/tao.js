@@ -22,9 +22,7 @@
     "@tao.js/core": "^0.6.2"
   },
   "devDependencies": {
-    "@babel/cli": "7.1.5",
-    "@tao.js/core": "^0.7.0",
-    "rimraf": "^2.6.2"
+    "@tao.js/core": "file:../tao"
   },
   "dependencies": {
     "get-value": "^3.0.1",

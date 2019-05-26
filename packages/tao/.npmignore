@@ -3,3 +3,4 @@ src
 test
 .babelrc
 package-lock.json
+rollup.*

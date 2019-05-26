@@ -13,9 +13,5 @@
     "coverage": "cp -a src/content/coverage/. src/_book/coverage/ && cp -a src/_book/coverage/. dist/coverage/"
   },
   "author": "eudaimos",
-  "license": "Apache-2.0",
-  "devDependencies": {
-    "gitbook-updated-cli": "^2.3.4",
-    "rimraf": "^2.6.2"
-  }
+  "license": "Apache-2.0"
 }
