@@ -1,6 +1,8 @@
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
+import builtins from 'rollup-plugin-node-builtins';
+import globals from 'rollup-plugin-node-globals';
 import pkg from './package.json';
 
 export default [
@@ -9,17 +11,20 @@ export default [
     input: 'src/index.js',
     output: {
       name: 'tao',
-      file: pkg.browser,
+      file: pkg.bundles.browser,
       format: 'umd',
-      sourcemap: true
+      sourcemap: true,
+      exports: 'named'
     },
     plugins: [
-      resolve(), // so Rollup can find `ms`
-      commonjs(), // so Rollup can convert `ms` to an ES module
       babel({
         runtimeHelpers: true,
         exclude: ['node_modules/**']
-      })
+      }),
+      globals(), // used for clearTimeout in node.js
+      builtins(),
+      resolve(),
+      commonjs()
     ]
   },
 
@@ -30,17 +35,32 @@ export default [
   // an array for the `output` option, where we can specify
   // `file` and `format` for each target)
   {
-    input: 'src/index.js',
-    // external: ['@babel/runtime'],
+    input: {
+      index: 'src/index.js'
+    },
     output: [
-      { file: pkg.main, format: 'cjs', sourcemap: true },
-      { file: pkg.module, format: 'es', sourcemap: true }
+      {
+        dir: pkg.main,
+        format: 'cjs',
+        sourcemap: true,
+        exports: 'named'
+      },
+      {
+        dir: pkg.module,
+        format: 'esm',
+        sourcemap: true,
+        exports: 'named'
+      }
     ],
     plugins: [
       babel({
         runtimeHelpers: true,
         exclude: ['node_modules/**']
-      })
+      }),
+      globals(),
+      builtins(),
+      resolve(),
+      commonjs()
     ]
   }
 ];
