@@ -30,7 +30,7 @@
     "jsTestGen.js-test-gen-vscode",
     "roblourens.unittest-navigate",
     "mezzalab.vscode-annotations",
-    "robertohuertasm.vscode-icons",
+    "vscode-icons-team.vscode-icons",
     "DavidAnson.vscode-markdownlint",
     "eg2.vscode-npm-script",
     "christian-kohler.npm-intellisense",
