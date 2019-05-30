@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { Adapter, Reactor } from '../src';
+import { Adapter, Reactor } from '../src/orig';
 
 describe('@tao.js/react exports convenience tools to use tao.js with React', () => {
   it('should export an Adapter constructor', () => {
