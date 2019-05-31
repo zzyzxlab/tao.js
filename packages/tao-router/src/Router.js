@@ -1,4 +1,5 @@
-import createHistory from 'history/createBrowserHistory';
+// import createHistory from 'history/createBrowserHistory';
+import { createBrowserHistory as createHistory } from 'history';
 import routington from 'routington';
 import get from 'get-value';
 import set from 'set-value';
@@ -67,6 +68,7 @@ function reactToRoute(TAO, match) {
     pathMatched.o = capitalize(pathMatched.o);
   }
   console.log('reactToRoute::node.defaultData:', match.node.defaultData);
+  console.log('reactToRoute::node.attached:', match.node.attached);
   match.node.attached.forEach(trigram => {
     const defaultData = match.node.defaultData
       ? match.node.defaultData.get(trigram.key)
@@ -84,6 +86,7 @@ function reactToRoute(TAO, match) {
     );
 
     TAO.setCtx({ t: 'Route', a: 'Match', o: ac.o }, [match.node.route, ac]);
+    console.log('reactToRoute::TAO.setAppCtx::ac', ac);
     TAO.setAppCtx(ac);
   });
 }
@@ -244,6 +247,7 @@ export default class Router {
     //   }
     // });
     if (incoming.length) {
+      console.log('adding handlers for incoming:', incoming);
       incoming.forEach(inAc => {
         TAO.addInlineHandler(inAc, (tao, data) => {
           console.log('Router::incoming AC handler:', { tao, data });
