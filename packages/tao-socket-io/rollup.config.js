@@ -1,0 +1,64 @@
+import resolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
+import babel from 'rollup-plugin-babel';
+import external from 'rollup-plugin-peer-deps-external';
+import pkg from './package.json';
+
+export default [
+  // browser-friendly UMD build
+  {
+    input: 'src/index.js',
+    output: {
+      name: 'taoSocketIO',
+      file: pkg.bundles.browser,
+      format: 'umd',
+      sourcemap: true,
+      globals: {
+        '@tao.js/core': 'tao'
+      }
+    },
+    plugins: [
+      external(),
+      babel({
+        runtimeHelpers: true,
+        exclude: ['node_modules/**']
+      }),
+      resolve(),
+      commonjs()
+    ]
+  },
+
+  // CommonJS (for Node) and ES module (for bundlers) build.
+  // (We could have three entries in the configuration array
+  // instead of two, but it's quicker to generate multiple
+  // builds from a single configuration where possible, using
+  // an array for the `output` option, where we can specify
+  // `file` and `format` for each target)
+  {
+    input: {
+      index: 'src/index.js'
+    },
+    output: [
+      {
+        dir: pkg.main,
+        format: 'cjs',
+        sourcemap: true
+      },
+      {
+        dir: pkg.module,
+        format: 'esm',
+        sourcemap: true
+      }
+    ],
+    plugins: [
+      external(),
+      babel({
+        runtimeHelpers: true,
+        exclude: ['node_modules/**']
+      }),
+      external(),
+      resolve(),
+      commonjs()
+    ]
+  }
+];
