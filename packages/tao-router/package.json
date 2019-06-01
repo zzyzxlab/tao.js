@@ -6,7 +6,6 @@
   "repository": "https://github.com/zzyzxlab/tao.js/tree/master/packages/tao-router",
   "main": "lib",
   "module": "dist",
-  "browser": "bundles/browser.umd.js",
   "bundles": {
     "browser": "bundles/browser.umd.js"
   },
