@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/koa",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "middleware to hook tao into koa server",
   "private": true,
   "main": "index.js",
