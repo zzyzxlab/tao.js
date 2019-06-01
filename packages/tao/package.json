@@ -3,7 +3,11 @@
   "version": "0.7.0",
   "description": "Core Javascript implementation of the TAO ☯ programming paradigm designed to embrace entropy inherent in application and system development using a simple set of building blocks",
   "homepage": "https://tao.js.org/",
-  "repository": "https://github.com/zzyzxlab/tao.js/tree/master/packages/tao",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzyzxlab/tao.js.git",
+    "directory": "packages/tao"
+  },
   "main": "lib",
   "module": "dist",
   "bundles": {
@@ -19,12 +23,9 @@
     "bundles"
   ],
   "scripts": {
-    "build:clean": "rimraf lib",
-    "build:transpile": "babel src -d lib --source-maps --copy-files",
-    "build": "npm run build:clean && npm run build:transpile",
-    "rollup:clean": "rimraf dist lib bundles",
-    "rollup:build": "rollup --config",
-    "rollup": "npm run rollup:clean && npm run rollup:build"
+    "build:clean": "rimraf dist lib bundles",
+    "build:package": "rollup --config",
+    "build": "npm run build:clean && npm run build:package"
   },
   "author": "eudaimos",
   "license": "Apache-2.0",

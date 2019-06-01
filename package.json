@@ -11,9 +11,8 @@
   "license": "Apache-2.0",
   "description": "",
   "scripts": {
-    "build": "lerna run build --ignore=docs --ignore=patois*",
-    "rollup": "lerna run rollup --ignore=docs --ignore=patois*",
-    "clean:build": "lerna exec --ignore=docs --ignore=patois* -- rimraf build",
+    "build": "lerna run build --ignore=docs --ignore=patois* --stream",
+    "clean:build": "lerna run build:clean --ignore=docs --ignore=patois*",
     "test": "jest",
     "test:coverage": "BABEL_ENV=test jest --coverage",
     "test:coverage:view": "open packages/docs/src/content/coverage/index.html",

@@ -10,7 +10,7 @@ export default [
   {
     input: 'src/index.js',
     output: {
-      name: 'taoRouter',
+      name: 'tao.router',
       file: pkg.bundles.browser,
       format: 'umd',
       sourcemap: true,

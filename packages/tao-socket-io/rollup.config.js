@@ -9,7 +9,7 @@ export default [
   {
     input: 'src/index.js',
     output: {
-      name: 'taoSocketIO',
+      name: 'tao.socketIO',
       file: pkg.bundles.browser,
       format: 'umd',
       sourcemap: true,
