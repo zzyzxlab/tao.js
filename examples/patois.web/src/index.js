@@ -16,6 +16,14 @@ Router(TAO, {
 TAO.addInlineHandler({ t: 'Router', a: 'Init', o: 'Portal' }, () => {
   return new AppCtx('Routes', 'Configure', 'Portal', {
     Routes: [
+      // {
+      //   Route: {
+      //     path: '/{t}/{term._id}/edit',
+      //     lowerCase: true,
+      //   },
+      //   Add: { action: 'Edit' },
+      //   Attach: { action: 'Edit' },
+      // },
       {
         Route: '/',
         Add: { term: 'Space', action: 'List' },
