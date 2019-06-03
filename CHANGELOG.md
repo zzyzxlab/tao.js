@@ -1,3 +1,17 @@
+# [0.8.0](https://github.com/zzyzxlab/tao.js/compare/v0.7.0...v0.8.0) (2019-06-03)
+
+### Bug Fixes
+
+- **cra:** change patois.web cra from using yarn -> npm ([e81f43b](https://github.com/zzyzxlab/tao.js/commit/e81f43b))
+- **dep:** import createBrowserHistory in ESM way ([9cb6d32](https://github.com/zzyzxlab/tao.js/commit/9cb6d32))
+
+### Features
+
+- **package:** rollup build for [@tao](https://github.com/tao).js/react package ([4785f86](https://github.com/zzyzxlab/tao.js/commit/4785f86))
+- **package:** rollup build for tao-router complete (CJS + ESM) ([94faa45](https://github.com/zzyzxlab/tao.js/commit/94faa45))
+- **package:** rollup build for tao-socket-io (UMD, CJS and ESM) ([6f8e7c2](https://github.com/zzyzxlab/tao.js/commit/6f8e7c2))
+- **package:** working 3 diff builds (ESM, CommonJS + UMD) for core package ([76396bf](https://github.com/zzyzxlab/tao.js/commit/76396bf))
+
 <a name="0.7.0"></a>
 
 # [0.7.0](https://github.com/zzyzxlab/tao.js/compare/v0.6.2...v0.7.0) (2019-05-19)
