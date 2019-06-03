@@ -1,5 +1,13 @@
 # [0.8.1](https://github.com/zzyzxlab/tao.js/compare/v0.7.0...v0.8.1) (2019-06-03)
 
+Using [rollup js](https://rollupjs.org) to build packages now offering 3 different builds:
+
+- ES Modules
+- CommonJS
+- UMD
+
+_Note: 0.8.0 was published and unpublished to npmjs so is not available_
+
 ### Bug Fixes
 
 - **cra:** change patois.web cra from using yarn -> npm ([e81f43b](https://github.com/zzyzxlab/tao.js/commit/e81f43b))
