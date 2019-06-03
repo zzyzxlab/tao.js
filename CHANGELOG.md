@@ -1,4 +1,4 @@
-# [0.8.0](https://github.com/zzyzxlab/tao.js/compare/v0.7.0...v0.8.0) (2019-06-03)
+# [0.8.1](https://github.com/zzyzxlab/tao.js/compare/v0.7.0...v0.8.1) (2019-06-03)
 
 ### Bug Fixes
 
