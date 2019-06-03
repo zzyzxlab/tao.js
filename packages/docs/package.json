@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "documentation for tao.js projects",
   "private": true,
   "main": "index.js",
