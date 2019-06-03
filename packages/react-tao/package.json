@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/react",
-  "version": "0.8.0",
+  "version": "0.7.0",
   "description": "Adapter to use tao.js with React",
   "homepage": "https://tao.js.org/",
   "repository": {
