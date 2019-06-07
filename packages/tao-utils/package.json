@@ -1,0 +1,41 @@
+{
+  "name": "@tao.js/utils",
+  "version": "0.1.0",
+  "description": "set of useful utilities for tao.js",
+  "homepage": "https://tao.js.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzyzxlab/tao.js.git",
+    "directory": "packages/tao-utils"
+  },
+  "main": "lib",
+  "module": "dist",
+  "bundles": {
+    "browser": "bundles/browser.umd.js"
+  },
+  "sideEffects": false,
+  "directories": {
+    "lib": "dist"
+  },
+  "files": [
+    "lib",
+    "dist",
+    "bundles"
+  ],
+  "scripts": {
+    "build:clean": "rimraf dist lib bundles",
+    "build:package": "rollup --config",
+    "build": "npm run build:clean && npm run build:package"
+  },
+  "author": "eudaimos",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@tao.js/core": "^0.6.2"
+  },
+  "devDependencies": {
+    "@tao.js/core": "file:../tao"
+  }
+}
