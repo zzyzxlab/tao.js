@@ -3,23 +3,33 @@
   "version": "0.1.0",
   "description": "{{description}}",
   "homepage": "https://tao.js.org/",
-  "repository": "https://github.com/zzyzxlab/tao.js/tree/master/packages/tao-{{kebabCase name}}",
-  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzyzxlab/tao.js.git",
+    "directory": "packages/tao-{{kebabCase name}}"
+  },
+  "main": "lib",
+  "module": "dist",
+  "bundles": {
+    "browser": "bundles/browser.umd.js"
+  },
+  "sideEffects": false,
+  "directories": {
+    "lib": "dist"
+  },
   "files": [
-    "lib"
+    "lib",
+    "dist",
+    "bundles"
   ],
   "scripts": {
-    "build:clean": "rimraf lib",
-    "build:transpile": "babel src -d lib --source-maps --copy-files",
-    "build": "npm run build:clean && npm run build:transpile"
+    "build:clean": "rimraf dist lib bundles",
+    "build:package": "rollup --config",
+    "build": "npm run build:clean && npm run build:package"
   },
   "author": "{{author}}",
   "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "@babel/cli": "7.0.0-beta.55",
-    "rimraf": "^2.6.2"
   }
 }

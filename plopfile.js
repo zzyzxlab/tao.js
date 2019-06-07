@@ -48,6 +48,11 @@ const entry = plop => {
       },
       {
         type: 'add',
+        path: 'packages/tao-{{kebabCase name}}/.npmignore',
+        templateFile: '.plops/templates/package/.npmignore.hbs'
+      },
+      {
+        type: 'add',
         path: 'packages/tao-{{kebabCase name}}/src/index.js',
         templateFile: '.plops/templates/package/index.js.hbs'
       },
@@ -60,6 +65,11 @@ const entry = plop => {
         type: 'add',
         path: 'packages/tao-{{kebabCase name}}/README.md',
         templateFile: '.plops/templates/package/README.md.hbs'
+      },
+      {
+        type: 'add',
+        path: 'packages/tao-{{kebabCase name}}/rollup.config.js',
+        templateFile: '.plops/templates/package/rollup.config.js.hbs'
       },
       {
         type: 'add',
