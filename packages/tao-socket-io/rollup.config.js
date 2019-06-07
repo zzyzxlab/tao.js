@@ -56,7 +56,6 @@ export default [
         runtimeHelpers: true,
         exclude: ['node_modules/**']
       }),
-      external(),
       resolve(),
       commonjs()
     ]
