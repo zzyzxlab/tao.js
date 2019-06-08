@@ -8,12 +8,14 @@ import Router from 'koa-trie-router';
 import IO from 'socket.io';
 import TAO, { AppCtx } from '@tao.js/core';
 import wireTaoJsToSocketIO from '@tao.js/socket.io';
+import * as utils from '@tao.js/utils';
 import { connect } from './data/mongodb';
 import * as redis from './data/redis';
 // import { init } from './data/redis';
 import * as spaces from './lib/models/spaces';
 import * as spaceCache from './lib/models/space-cache';
 import { toASCII } from 'punycode';
+// import taoKoa from '@tao.js/koa';
 
 const { PORT } = process.env;
 
@@ -104,6 +106,16 @@ TAO.addAsyncHandler({ t: 'Space', a: 'Enter', o: 'Portal' }, (tao, data) => {
   );
 });
 
+// taoKoa.path({
+//   incoming: { t: 'Space', a: 'Find', o: 'Portal' },
+//   outgoing: { t: 'Space', a: ['List', 'Enter', 'Fail'], o: 'Portal' },
+// });
+
+// taoKoa.path({
+//   incoming: { t: 'Space', a: ['Update', 'Add'], o: 'Portal' },
+//   outgoing: { t: 'Space', a: ['List', 'Enter', 'Fail'], o: 'Portal' },
+// });
+
 function initClientTAO(clientTAO, id) {
   clientTAO.addInterceptHandler({}, (tao, data) => {
     console.log(`clientTAO[${id}].handling:`, tao);
@@ -162,22 +174,37 @@ function initClientTAO(clientTAO, id) {
     return new AppCtx('Space', 'Enter', tao.o, { Space: data.Space });
   });
 
-  const forwardSpaceTracked = (tao, data) => {
-    clientTAO.setCtx(tao, data);
-  };
-
-  // forward the AppCon to the client
-  TAO.addInlineHandler(
-    { t: 'Space', a: 'Tracked', o: 'Portal' },
-    forwardSpaceTracked
+  const bridgeToGlobal = utils.inlineBridge(
+    clientTAO,
+    TAO,
+    { t: 'Space', a: 'Stored' },
+    { t: 'Space', a: 'Enter' }
   );
+
+  const bridgeToClient = utils.inlineBridge(TAO, clientTAO, {
+    t: 'Space',
+    a: 'Tracked',
+    o: 'Portal'
+  });
+
+  // const forwardSpaceTracked = (tao, data) => {
+  //   clientTAO.setCtx(tao, data);
+  // };
+
+  // // forward the AppCon to the client
+  // TAO.addInlineHandler(
+  //   { t: 'Space', a: 'Tracked', o: 'Portal' },
+  //   forwardSpaceTracked
+  // );
 
   return () => {
     console.log('disconnected client - removing TAO handler');
-    TAO.removeInlineHandler(
-      { t: 'Space', a: 'Tracked', o: 'Portal' },
-      forwardSpaceTracked
-    );
+    bridgeToClient();
+    bridgeToGlobal();
+    // TAO.removeInlineHandler(
+    //   { t: 'Space', a: 'Tracked', o: 'Portal' },
+    //   forwardSpaceTracked
+    // );
   };
 }
 
@@ -190,7 +217,7 @@ async function saveSpaceHandler(tao, { Space }) {
     if (save.success) {
       // return new AppCtx('Space', 'Enter', tao.o, { Space: save.space });
       const ac = new AppCtx('Space', 'Stored', tao.o, { Space: save.space });
-      TAO.setAppCtx(ac);
+      // TAO.setAppCtx(ac);
       return ac;
     }
     failMessage = 'Not Successful';
