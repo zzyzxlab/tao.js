@@ -1,13 +1,28 @@
 import { Component } from 'react';
 import {
+  Adapter,
+  Reactor,
   Provider,
   RenderHandler,
   SwitchHandler,
   DataHandler,
   withContext
-} from '../src';
+} from '../src/all';
 
-describe('@tao.js/react exports convenience tools to use tao.js with React', () => {
+describe('@tao.js/react all.js exports both the current and original APIs to use tao.js with React', () => {
+  it('should export an Adapter constructor', () => {
+    expect(Adapter).toBeDefined();
+    expect(new Adapter()).toBeInstanceOf(Adapter);
+    expect(new Adapter()).not.toBeInstanceOf(Function);
+  });
+
+  it('should export a Reactor Component', () => {
+    expect(Reactor).toBeDefined();
+    expect(new Reactor()).toBeInstanceOf(Reactor);
+    expect(new Reactor()).toBeInstanceOf(Component);
+    expect(new Reactor()).not.toBeInstanceOf(Function);
+  });
+
   it('should export a Provider Component', () => {
     expect(Provider).toBeDefined();
     expect(new Provider()).toBeInstanceOf(Provider);
