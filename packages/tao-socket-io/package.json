@@ -32,6 +32,7 @@
     "@tao.js/core": "^0.6.2"
   },
   "devDependencies": {
-    "@tao.js/core": "file:../tao"
+    "@tao.js/core": "file:../tao",
+    "@tao.js/utils": "file:../tao-utils"
   }
 }

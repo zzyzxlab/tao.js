@@ -1,144 +1,26 @@
 // need this when running in Node.js environment
 import { clearTimeout } from 'timers';
 import {
-  WILDCARD,
-  INTERCEPT,
-  ASYNC,
+  // WILDCARD,
+  // INTERCEPT,
+  // ASYNC,
   INLINE,
   TIMEOUT_REJECT
 } from './constants';
+import Network from './Network';
 import AppCtxRoot from './AppCtxRoot';
 import AppCtx from './AppCtx';
-import AppCtxHandlers from './AppCtxHandlers';
-import { isIterable, concatIterables } from './utils';
+// import AppCtxHandlers from './AppCtxHandlers';
+import { isIterable, concatIterables, _cleanAC } from './utils';
 
-// Private methods for TAO
-function _cleanAC({ t, term, a, action, o, orient }) {
-  return {
-    term: term || t,
-    action: action || a,
-    orient: orient || o
-  };
-}
-
-function _validateHandler(handler) {
-  if (!handler) {
-    throw new Error('cannot do anything with missing handler');
-  }
-  if (typeof handler !== 'function') {
-    throw new Error('handler must be a function');
-  }
-}
-
-function _appendLeaves(leavesFrom, leavesTo, taoism) {
-  if (taoism) {
-    if (leavesFrom.has(taoism) && leavesFrom.get(taoism).size) {
-      leavesFrom.get(taoism).forEach(leaf => leavesTo.add(leaf));
-    }
-  } else {
-    leavesFrom.forEach(leaves => {
-      leaves.forEach(leaf => leavesTo.add(leaf));
-    });
-  }
-}
-
-function _appendWildcards(wildcardsFrom, wildcardsTo, taoism) {
-  if (wildcardsFrom.has(taoism)) {
-    wildcardsFrom.get(taoism).forEach(wc => wildcardsTo.add(wc));
-  }
-  if (wildcardsFrom.has(WILDCARD)) {
-    wildcardsFrom.get(WILDCARD).forEach(wc => wildcardsTo.add(wc));
-  }
-}
-
-function _addLeaf(leaves, taoism, ach) {
-  if (!leaves.has(taoism)) {
-    leaves.set(taoism, new Set());
-  }
-  leaves.get(taoism).add(ach);
-}
-
-function _addWildcard(wildcards, taoism, ach) {
-  if (!wildcards.has(taoism)) {
-    wildcards.set(taoism, new Set());
-  }
-  wildcards.get(taoism).add(ach);
-}
-
-function _addACHandler(
-  tao,
-  taoHandlers,
-  taoLeaves,
-  taoWildcards,
-  { term, action, orient }
-) {
-  const t = term || WILDCARD;
-  const a = action || WILDCARD;
-  const o = orient || WILDCARD;
-  const acKey = AppCtxRoot.getKey(t, a, o);
-  if (taoHandlers.has(acKey)) {
-    return taoHandlers.get(acKey);
-  }
-  const ach = new AppCtxHandlers(t, a, o);
-
-  if (ach.isWildcard) {
-    let leaves = new Set();
-    _appendLeaves(taoLeaves.t, leaves, term);
-    _appendLeaves(taoLeaves.a, leaves, action);
-    _appendLeaves(taoLeaves.o, leaves, orient);
-
-    ach.addLeafHandlers(leaves);
-
-    _addWildcard(taoWildcards.t, t, ach);
-    _addWildcard(taoWildcards.a, a, ach);
-    _addWildcard(taoWildcards.o, o, ach);
-  } else {
-    //!ach.isWildcard
-    _addLeaf(taoLeaves.t, term, ach);
-    _addLeaf(taoLeaves.a, action, ach);
-    _addLeaf(taoLeaves.o, orient, ach);
-
-    let wildcards = new Set();
-    _appendWildcards(taoWildcards.t, wildcards, term);
-    _appendWildcards(taoWildcards.a, wildcards, action);
-    _appendWildcards(taoWildcards.o, wildcards, orient);
-    for (let wc of wildcards) {
-      wc.addLeafHandler(ach);
-    }
-  }
-  taoHandlers.set(acKey, ach);
-  return ach;
-}
-
-function _removeHandler(taoHandlers, { term, action, orient }, handler, type) {
-  _validateHandler(handler);
-  // guard is currently impossible to hit so removing to get 100% test coverage
-  // type = type || INLINE;
-  // if (type !== ASYNC && type !== INLINE && type !== INTERCEPT) {
-  //   throw new Error(
-  //     `${type} not a known handler type - try ${ASYNC}, ${INLINE} or ${INTERCEPT}`
-  //   );
-  // }
-  const t = term || WILDCARD;
-  const a = action || WILDCARD;
-  const o = orient || WILDCARD;
-  const acKey = AppCtxRoot.getKey(t, a, o);
-  if (!taoHandlers.has(acKey)) {
-    return;
-  }
-  taoHandlers.get(acKey)[`remove${type}Handler`](handler);
-}
-
-function _removeHandlers(taoHandlers, acList, handlers, type) {
+function _removeHandlers(network, acList, handlers, type) {
   handlers.forEach(handler =>
-    acList.forEach(ac =>
-      _removeHandler(taoHandlers, _cleanAC(ac), handler, type)
-    )
+    acList.forEach(ac => network.removeHandler(ac, handler, type))
   );
 }
 
 function _createPromiseHandler(
-  taoHandlers,
+  network,
   acList,
   promiseFn,
   timeoutHook,
@@ -150,7 +32,7 @@ function _createPromiseHandler(
   }
   const acHandler = (ac, data) => {
     timeoutHook && timeoutHook();
-    _removeHandlers(taoHandlers, acList, owner.handlers, handlerType);
+    _removeHandlers(network, acList, owner.handlers, handlerType);
     promiseFn({ tao: ac, data });
   };
   owner.handlers.push(acHandler);
@@ -158,19 +40,57 @@ function _createPromiseHandler(
 }
 
 export default class Kernel {
-  constructor(handlers, canSetWildcard = false) {
-    this._handlers = handlers || new Map();
-    this._leaves = {
-      t: new Map(),
-      a: new Map(),
-      o: new Map()
-    };
-    this._wildcards = {
-      t: new Map(),
-      a: new Map(),
-      o: new Map()
-    };
+  constructor(canSetWildcard = false) {
+    this._network = new Network();
+    this._network.use(this.handleAppCon);
     this._canSetWildcard = canSetWildcard;
+  }
+
+  get canSetWildcard() {
+    return this._canSetWildcard;
+  }
+
+  clone(canSetWildcard) {
+    const cloned = new Kernel(
+      typeof canSetWildcard !== 'undefined'
+        ? canSetWildcard
+        : this._canSetWildcard
+    );
+    cloned._network = this._network.clone();
+    return cloned;
+  }
+
+  /**
+   * What if a Channel is a separate thing that operates a Kernel and uses bridges to the
+   * main signal network which is the Kernel from which the Channel is made?
+   *
+   * @returns
+   * @memberof Kernel
+   */
+  channel(id, bridge) {
+    const network = this;
+    const channel = new Kernel();
+    // QQQ: does this mean Kernel has to keep track of all bridges?
+    let debridge = network.inlineBridge(
+      channel,
+      control => control.channelId === id,
+      bridge
+    );
+    return {
+      setCtx({ t, a, o }, data) {
+        network.setAppCtxControl(new AppCtx(t, a, o, data), { channelId: id });
+      },
+      dispose() {
+        debridge();
+      }
+    };
+
+    // const channelled = new Kernel();
+    // channelled._handlers = this._handlers;
+    // channelled._leaves = this._leaves;
+    // channelled._wildcards = this._wildcards;
+    // channelled._canSetWildcard = this._canSetWildcard;
+    // return channelled;
   }
 
   setCtx({ t, term, a, action, o, orient }, data) {
@@ -181,16 +101,9 @@ export default class Kernel {
       // Ignore or Throw Error?
       return;
     }
-    const acKey = AppCtxRoot.getKey(acIn.term, acIn.action, acIn.orient);
-    if (!this._handlers.has(acKey) && !isWild) {
-      _addACHandler(this, this._handlers, this._leaves, this._wildcards, acIn);
-    }
-    if (this._handlers.has(acKey)) {
-      const appCtx = new AppCtx(acIn.term, acIn.action, acIn.orient, data);
-      // why not forward the call to setAppCtx? -> b/c don't want to execute check against existing again
-      const handler = this._handlers.get(acKey);
-      handler.handleAppCon(appCtx, ac => this.setAppCtx(ac));
-    }
+    this._network.setCtxControl(acIn, data, {}, (ac, control) =>
+      this.forwardAppCtx(ac, control)
+    );
   }
 
   setAppCtx(appCtx) {
@@ -202,22 +115,21 @@ export default class Kernel {
       // Ignore or Throw Error?
       return;
     }
-    if (!this._handlers.has(appCtx.key) && !isWild) {
-      _addACHandler(
-        this,
-        this._handlers,
-        this._leaves,
-        this._wildcards,
-        _cleanAC(appCtx)
-      );
-    }
-    if (this._handlers.has(appCtx.key)) {
-      const handler = this._handlers.get(appCtx.key);
-      handler.handleAppCon(appCtx, ac => this.setAppCtx(ac));
-    }
+    this._network.setAppCtxControl(appCtx, {}, (ac, control) =>
+      this.forwardAppCtx(ac, control)
+    );
+  }
+
+  forwardAppCtx(ac, control) {
+    this.setAppCtx(ac, control);
+  }
+
+  handleAppCon(handler, ac, forwardAppCtx, control) {
+    return handler.handleAppCon(ac, forwardAppCtx, control);
   }
 
   asPromiseHook({ resolveOn = [], rejectOn = [] }, timeoutMs = 0) {
+    // return this._network.asPromiseHook({ resolveOn, rejectOn }, timeoutMs);
     const resolvers = isIterable(resolveOn)
       ? resolveOn
       : resolveOn
@@ -246,7 +158,7 @@ export default class Kernel {
         const handlerOwner = {};
         const resolveHandler = _createPromiseHandler.call(
           handlerOwner,
-          this._handlers,
+          this._network,
           allAcs,
           resolve,
           clearTO,
@@ -255,7 +167,7 @@ export default class Kernel {
         resolvers.forEach(ac => this.addInlineHandler(ac, resolveHandler));
         const rejectHandler = _createPromiseHandler.call(
           handlerOwner,
-          this._handlers,
+          this._network,
           allAcs,
           reject,
           clearTO,
@@ -265,7 +177,7 @@ export default class Kernel {
         if (timeoutMs > 0) {
           to = setTimeout(() => {
             _removeHandlers(
-              this._handlers,
+              this._network,
               allAcs,
               handlerOwner.handlers,
               INLINE
@@ -278,70 +190,43 @@ export default class Kernel {
   }
 
   addInterceptHandler({ t, term, a, action, o, orient }, handler) {
-    _validateHandler(handler);
-    const ach = _addACHandler(
-      this,
-      this._handlers,
-      this._leaves,
-      this._wildcards,
-      _cleanAC({ t, term, a, action, o, orient })
+    this._network.addInterceptHandler(
+      { t, term, a, action, o, orient },
+      handler
     );
-    ach.addInterceptHandler(handler);
     return this;
   }
 
   addAsyncHandler({ t, term, a, action, o, orient }, handler) {
-    _validateHandler(handler);
-    const ach = _addACHandler(
-      this,
-      this._handlers,
-      this._leaves,
-      this._wildcards,
-      _cleanAC({ t, term, a, action, o, orient })
-    );
-    ach.addAsyncHandler(handler);
+    this._network.addAsyncHandler({ t, term, a, action, o, orient }, handler);
     return this;
   }
 
   addInlineHandler({ t, term, a, action, o, orient }, handler) {
-    _validateHandler(handler);
-    const ach = _addACHandler(
-      this,
-      this._handlers,
-      this._leaves,
-      this._wildcards,
-      _cleanAC({ t, term, a, action, o, orient })
-    );
-    ach.addInlineHandler(handler);
+    this._network.addInlineHandler({ t, term, a, action, o, orient }, handler);
     return this;
   }
 
   removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
-    _removeHandler(
-      this._handlers,
-      _cleanAC({ t, term, a, action, o, orient }),
-      handler,
-      INTERCEPT
+    this._network.removeInterceptHandler(
+      { t, term, a, action, o, orient },
+      handler
     );
     return this;
   }
 
   removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
-    _removeHandler(
-      this._handlers,
-      _cleanAC({ t, term, a, action, o, orient }),
-      handler,
-      ASYNC
+    this._network.removeAsyncHandler(
+      { t, term, a, action, o, orient },
+      handler
     );
     return this;
   }
 
   removeInlineHandler({ t, term, a, action, o, orient }, handler) {
-    _removeHandler(
-      this._handlers,
-      _cleanAC({ t, term, a, action, o, orient }),
-      handler,
-      INLINE
+    this._network.removeInlineHandler(
+      { t, term, a, action, o, orient },
+      handler
     );
     return this;
   }

@@ -2,6 +2,7 @@ import { Kernel, AppCtx, INTERCEPT, ASYNC, INLINE } from '@tao.js/core';
 
 function forwardHandler(destination) {
   return (tao, data) => {
+    console.log('bridging::tao', tao);
     if (tao instanceof AppCtx) {
       destination.setAppCtx(tao);
     } else {

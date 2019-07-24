@@ -116,76 +116,159 @@ TAO.addAsyncHandler({ t: 'Space', a: 'Enter', o: 'Portal' }, (tao, data) => {
 //   outgoing: { t: 'Space', a: ['List', 'Enter', 'Fail'], o: 'Portal' },
 // });
 
+// taoKoa.bridge({
+//   inline: [
+//     { t: 'Space', a: 'Stored' },
+//     { t: 'Space', a: 'Enter' }
+//   ],
+// });
+
+// For client Interaction
+TAO.addInlineHandler(
+  { t: 'Space', a: 'Find', o: 'Portal' },
+  async (tao, { Find }) => {
+    try {
+      const data = await (!Find || !Find._id
+        ? spaces.findSpaces()
+        : spaces.getSpace(Find._id));
+      // return new AppCtx(
+      //   'Space',
+      //   Array.isArray(data) ? 'List' : 'Enter',
+      //   tao.o,
+      //   {
+      //     Space: data
+      //   }
+      // );
+      // return new AppCtx('Space', Array.isArray(data) ? 'Fetch' : 'Retrieve', tao.o, { Space: data });
+      return new AppCtx(
+        'Space',
+        Array.isArray(data) ? 'List' : 'Enter',
+        tao.o,
+        { Space: data }
+      );
+    } catch (apiErr) {
+      console.error('Failed to retrieve Space:', apiErr);
+      return new AppCtx('Space', 'Fail', tao.o, {
+        Fail: {
+          on: tao.a,
+          message: apiErr.message,
+          Find
+        }
+      });
+    }
+  }
+);
+
+TAO.addInterceptHandler(
+  { t: 'Space', a: 'Find', o: 'Portal' },
+  async (tao, data) => {
+    if (!data.Find || !data.Find._id) {
+      // don't check cache
+      return;
+    }
+    const Space = await redis.getItem(tao.t, data.Find._id);
+    if (!Space || !Space._id) {
+      // cache miss
+      console.log('CACHE MISS! on:', data.Find._id);
+      return;
+    }
+    // use the cache hit to go to the next AppCtx in the protocol chain
+    console.log('CACHE HIT on:', Space._id);
+    // return new AppCtx('Space', 'Retrieve', 'Portal', Space);
+    return new AppCtx('Space', 'Enter', 'Portal', Space);
+  }
+);
+
+TAO.addInlineHandler({ t: 'Space', a: 'Update' }, saveSpaceHandler);
+TAO.addInlineHandler({ t: 'Space', a: 'Add' }, saveSpaceHandler);
+TAO.addInlineHandler({ t: 'Space', a: 'Stored' }, (tao, data) => {
+  console.log('server::stored handler::data:', data);
+  return new AppCtx('Space', 'Enter', tao.o, { Space: data.Space });
+});
+
+const retrieveHandler = (tao, data) =>
+  new AppCtx('Space', 'Enter', tao.o, data);
+const fetchHandler = (tao, data) => new AppCtx('Space', 'List', tao.o, data);
+
 function initClientTAO(clientTAO, id) {
-  clientTAO.addInterceptHandler({}, (tao, data) => {
+  const clientHandler = (tao, data) => {
     console.log(`clientTAO[${id}].handling:`, tao);
-  });
+  };
+  clientTAO.addInterceptHandler({}, clientHandler);
 
-  clientTAO.addInlineHandler(
-    { t: 'Space', a: 'Find', o: 'Portal' },
-    async (tao, { Find }) => {
-      try {
-        const data = await (!Find || !Find._id
-          ? spaces.findSpaces()
-          : spaces.getSpace(Find._id));
-        return new AppCtx(
-          'Space',
-          Array.isArray(data) ? 'List' : 'Enter',
-          tao.o,
-          {
-            Space: data
-          }
-        );
-      } catch (apiErr) {
-        console.error('Failed to retrieve Space:', apiErr);
-        return new AppCtx('Space', 'Fail', tao.o, {
-          Fail: {
-            on: tao.a,
-            message: apiErr.message,
-            Find
-          }
-        });
-      }
-    }
-  );
+  // clientTAO.addInlineHandler({ t: 'Space', a: 'Retrieve', o: 'Portal' },
+  //   retrieveHandler
+  // );
 
-  clientTAO.addInterceptHandler(
-    { t: 'Space', a: 'Find', o: 'Portal' },
-    async (tao, data) => {
-      if (!data.Find || !data.Find._id) {
-        // don't check cache
-        return;
-      }
-      const Space = await redis.getItem(tao.t, data.Find._id);
-      if (!Space || !Space._id) {
-        // cache miss
-        console.log('CACHE MISS! on:', data.Find._id);
-        return;
-      }
-      // use the cache hit to go to the next AppCtx in the protocol chain
-      console.log('CACHE HIT on:', Space._id);
-      return new AppCtx('Space', 'Enter', 'Portal', Space);
-    }
-  );
+  // clientTAO.addInlineHandler({ t: 'Space', a: 'Fetch', o: 'Portal' },
+  //   fetchHandler
+  // );
 
-  clientTAO.addInlineHandler({ t: 'Space', a: 'Update' }, saveSpaceHandler);
-  clientTAO.addInlineHandler({ t: 'Space', a: 'Add' }, saveSpaceHandler);
-  clientTAO.addInlineHandler({ t: 'Space', a: 'Stored' }, (tao, data) => {
-    return new AppCtx('Space', 'Enter', tao.o, { Space: data.Space });
-  });
+  // clientTAO.addInlineHandler(
+  //   { t: 'Space', a: 'Find', o: 'Portal' },
+  //   async (tao, { Find }) => {
+  //     try {
+  //       const data = await (!Find || !Find._id
+  //         ? spaces.findSpaces()
+  //         : spaces.getSpace(Find._id));
+  //       return new AppCtx(
+  //         'Space',
+  //         Array.isArray(data) ? 'List' : 'Enter',
+  //         tao.o,
+  //         {
+  //           Space: data
+  //         }
+  //       );
+  //     } catch (apiErr) {
+  //       console.error('Failed to retrieve Space:', apiErr);
+  //       return new AppCtx('Space', 'Fail', tao.o, {
+  //         Fail: {
+  //           on: tao.a,
+  //           message: apiErr.message,
+  //           Find
+  //         }
+  //       });
+  //     }
+  //   }
+  // );
 
-  const bridgeToGlobal = utils.inlineBridge(
-    clientTAO,
-    TAO,
-    { t: 'Space', a: 'Stored' },
-    { t: 'Space', a: 'Enter' }
-  );
+  // clientTAO.addInterceptHandler(
+  //   { t: 'Space', a: 'Find', o: 'Portal' },
+  //   async (tao, data) => {
+  //     if (!data.Find || !data.Find._id) {
+  //       // don't check cache
+  //       return;
+  //     }
+  //     const Space = await redis.getItem(tao.t, data.Find._id);
+  //     if (!Space || !Space._id) {
+  //       // cache miss
+  //       console.log('CACHE MISS! on:', data.Find._id);
+  //       return;
+  //     }
+  //     // use the cache hit to go to the next AppCtx in the protocol chain
+  //     console.log('CACHE HIT on:', Space._id);
+  //     return new AppCtx('Space', 'Enter', 'Portal', Space);
+  //   }
+  // );
 
-  const bridgeToClient = utils.inlineBridge(TAO, clientTAO, {
-    t: 'Space',
-    a: 'Tracked',
-    o: 'Portal'
-  });
+  // clientTAO.addInlineHandler({ t: 'Space', a: 'Update' }, saveSpaceHandler);
+  // clientTAO.addInlineHandler({ t: 'Space', a: 'Add' }, saveSpaceHandler);
+  // clientTAO.addInlineHandler({ t: 'Space', a: 'Stored' }, (tao, data) => {
+  //   return new AppCtx('Space', 'Enter', tao.o, { Space: data.Space });
+  // });
+
+  // const bridgeToGlobal = utils.inlineBridge(
+  //   clientTAO,
+  //   TAO,
+  //   { t: 'Space', a: 'Stored' },
+  //   { t: 'Space', a: 'Enter' }
+  // );
+
+  // const bridgeToClient = utils.inlineBridge(TAO, clientTAO, {
+  //   t: 'Space',
+  //   a: 'Tracked',
+  //   o: 'Portal'
+  // });
 
   // const forwardSpaceTracked = (tao, data) => {
   //   clientTAO.setCtx(tao, data);
@@ -199,12 +282,16 @@ function initClientTAO(clientTAO, id) {
 
   return () => {
     console.log('disconnected client - removing TAO handler');
-    bridgeToClient();
-    bridgeToGlobal();
-    // TAO.removeInlineHandler(
-    //   { t: 'Space', a: 'Tracked', o: 'Portal' },
-    //   forwardSpaceTracked
-    // );
+    // bridgeToClient();
+    // bridgeToGlobal();
+    // // TAO.removeInlineHandler(
+    // //   { t: 'Space', a: 'Tracked', o: 'Portal' },
+    // //   forwardSpaceTracked
+    // // );
+    clientTAO.removeInterceptHandler({}, clientHandler);
+    // clientTAO.removeInlineHandler({ t: 'Space', a: 'Retrieve', o: 'Portal' }, retrieveHandler);
+    // clientTAO.removeInlineHandler({ t: 'Space', a: 'Fetch', o: 'Portal' }, fetchHandler);
+    clientTAO = null;
   };
 }
 

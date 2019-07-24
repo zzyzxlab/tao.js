@@ -114,7 +114,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
     return this._inline.values();
   }
 
-  async handleAppCon(ac, setAppCtx) {
+  async handleAppCon(ac, setAppCtx, control) {
     const { t, a, o, data } = ac;
     /*
      * Intercept Handlers
@@ -130,7 +130,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
       }
       if (intercepted instanceof AppCtx) {
         try {
-          setAppCtx(intercepted);
+          setAppCtx(intercepted, control);
         } catch (interceptErr) {
           console.log(
             'error setting context returned from intercept handler:',
@@ -159,7 +159,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
         Promise.resolve(asyncH({ t, a, o }, data))
           .then(nextAc => {
             if (nextAc && nextAc instanceof AppCtx) {
-              setAppCtx(nextAc);
+              setAppCtx(nextAc, control);
             }
             console.log(
               `>>>>>>>> ending async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`
@@ -192,7 +192,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
     if (nextSpool.length) {
       for (let nextAc of nextSpool) {
         try {
-          setAppCtx(nextAc);
+          setAppCtx(nextAc, control);
         } catch (inlineErr) {
           console.error('error on next inline:', inlineErr);
         }

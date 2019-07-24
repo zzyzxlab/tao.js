@@ -26,3 +26,20 @@ export function concatIterables(...iterables) {
   }
   return rv;
 }
+
+export function _cleanAC({ t, term, a, action, o, orient }) {
+  return {
+    term: term || t,
+    action: action || a,
+    orient: orient || o
+  };
+}
+
+export function _validateHandler(handler) {
+  if (!handler) {
+    throw new Error('cannot do anything with missing handler');
+  }
+  if (typeof handler !== 'function') {
+    throw new Error('handler must be a function');
+  }
+}

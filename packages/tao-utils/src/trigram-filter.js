@@ -6,8 +6,7 @@ export default function trigramFilter(...trigrams) {
   }
   let exact = false;
   if (typeof trigrams[0] === 'boolean') {
-    exact = trigrams[0];
-    trigrams.shift();
+    exact = trigrams.shift();
   }
   return ac => {
     if (!(ac instanceof AppCtx)) {

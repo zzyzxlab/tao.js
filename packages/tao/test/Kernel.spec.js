@@ -223,7 +223,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
 
     it('should allow setting wildcard App Contexts with a constructor setting', () => {
       // Assemble
-      const uut = new Kernel(null, true);
+      const uut = new Kernel(true);
       const indlineWildH = jest.fn().mockName('inline wild');
       const asyncWildH = jest.fn().mockName('async wild');
       const interceptWildH = jest.fn().mockName('intercept wild');
@@ -260,8 +260,8 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       uut.setAppCtx(ctx2);
 
       // Assert
-      expect(uut._handlers.keys()).toContain(ctx1Key);
-      expect(uut._handlers.keys()).toContain(ctx2Key);
+      expect(uut._network._handlers.keys()).toContain(ctx1Key);
+      expect(uut._network._handlers.keys()).toContain(ctx2Key);
     });
 
     it('should not add missing empty wildcard handler if context is set to matching App Context', () => {
@@ -278,8 +278,8 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       uut.setAppCtx(ctx2);
 
       // Assert
-      expect(uut._handlers.keys()).not.toContain(ctx1Key);
-      expect(uut._handlers.keys()).not.toContain(ctx2Key);
+      expect(uut._network._handlers.keys()).not.toContain(ctx1Key);
+      expect(uut._network._handlers.keys()).not.toContain(ctx2Key);
     });
 
     it('should throw if setAppCtx called without an AppCtx', () => {
@@ -938,9 +938,9 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       });
       // expect.assertions(1);
       // Act
-      const preSetHandlers = new Map(uut._handlers);
+      const preSetHandlers = new Map(uut._network._handlers);
       const resolvingPromise = promiseSetCtx(triggeringAc.unwrapCtx());
-      const postSetHandlers = new Map(uut._handlers);
+      const postSetHandlers = new Map(uut._network._handlers);
       await resolvingPromise;
       // Assert
       expect(preSetHandlers.size).toBe(1);
@@ -974,7 +974,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       // expect.assertions(1);
       // Act
       const result = await promiseSetCtx(triggeringAc.unwrapCtx());
-      const postResolveHandlers = new Map(uut._handlers);
+      const postResolveHandlers = new Map(uut._network._handlers);
       const triggerHandlers = postResolveHandlers.get(triggeringAc.key);
       const resolveHandlers = postResolveHandlers.get(resolveOnAc.key);
       const rejectHandlers = postResolveHandlers.get(rejectOnAc.key);
