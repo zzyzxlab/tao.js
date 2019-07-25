@@ -152,14 +152,20 @@ export default class Network {
       a: new Map(),
       o: new Map()
     };
-    this._middleware = [];
+    this._middleware = new Set();
   }
 
   use(middleware) {
     if (typeof middleware !== 'function') {
       throw new Error('middleware must be a function');
     }
-    this._middleware.push(middleware);
+    this._middleware.add(middleware);
+  }
+
+  stop(middleware) {
+    if (this._middleware.has(middleware)) {
+      this._middleware.delete(middleware);
+    }
   }
 
   clone() {

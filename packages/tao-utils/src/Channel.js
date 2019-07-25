@@ -1,4 +1,5 @@
-import { Kernel } from '@tao.js/core';
+// import { Kernel } from '@tao.js/core';
+import { Network } from '@tao.js/core';
 
 let channelId = 0;
 function newChannelId() {
@@ -13,7 +14,9 @@ export default class Channel {
   constructor(kernel, id) {
     //, { t, term, a, action, o, orient }) {
     this._channelId = id || newChannelId();
-    this._kernel = new Kernel(kernel.canSetWildcard);
+    this._channel = new Network();
+    this._channel.use(this.handleAppCon);
+    // this._kernel = new Kernel(kernel.canSetWildcard);
     this._network = kernel._network;
   }
 
@@ -22,7 +25,7 @@ export default class Channel {
       { t, term, a, action, o, orient },
       data,
       channelControl(this._channelId),
-      (ac, control, handle) => this.forwardAppCtx(ac, control, handle)
+      (ac, control) => this.forwardAppCtx(ac, control)
     );
   }
 
@@ -30,7 +33,7 @@ export default class Channel {
     this._network.setAppCtxControl(
       ac,
       channelControl(this._channelId),
-      (ac, control, handle) => this.forwardAppCtx(ac, control, handle)
+      (ac, control) => this.forwardAppCtx(ac, control)
     );
   }
 
@@ -47,7 +50,8 @@ export default class Channel {
       console.log(
         `channel{${this._channelId}}::forwardAppCtx::control check passed`
       );
-      this._kernel.setAppCtx(ac);
+      // this._kernel.setAppCtx(ac);
+      this._channel.setAppCtxControl(ac, control, a => this.setAppCtx(a));
     }
     console.log(
       `channel{${
@@ -59,34 +63,47 @@ export default class Channel {
     );
   }
 
+  handleAppCon(handler, ac, forwardAppCtx, control) {
+    return handler.handleAppCon(ac, forwardAppCtx, control);
+  }
+
   addInterceptHandler({ t, term, a, action, o, orient }, handler) {
-    this._kernel.addInterceptHandler(
+    // this._kernel.addInterceptHandler(
+    this._channel.addInterceptHandler(
       { t, term, a, action, o, orient },
       handler
     );
   }
 
   addAsyncHandler({ t, term, a, action, o, orient }, handler) {
-    this._kernel.addAsyncHandler({ t, term, a, action, o, orient }, handler);
+    // this._kernel.addAsyncHandler({ t, term, a, action, o, orient }, handler);
+    this._channel.addAsyncHandler({ t, term, a, action, o, orient }, handler);
   }
 
   addInlineHandler({ t, term, a, action, o, orient }, handler) {
-    this._kernel.addInlineHandler({ t, term, a, action, o, orient }, handler);
+    // this._kernel.addInlineHandler({ t, term, a, action, o, orient }, handler);
+    this._channel.addInlineHandler({ t, term, a, action, o, orient }, handler);
   }
 
   removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
-    this._kernel.removeInterceptHandler(
+    // this._kernel.removeInterceptHandler(
+    this._channel.removeInterceptHandler(
       { t, term, a, action, o, orient },
       handler
     );
   }
 
   removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
-    this._kernel.removeAsyncHandler({ t, term, a, action, o, orient }, handler);
+    // this._kernel.removeAsyncHandler({ t, term, a, action, o, orient }, handler);
+    this._channel.removeAsyncHandler(
+      { t, term, a, action, o, orient },
+      handler
+    );
   }
 
   removeInlineHandler({ t, term, a, action, o, orient }, handler) {
-    this._kernel.removeInlineHandler(
+    // this._kernel.removeInlineHandler(
+    this._channel.removeInlineHandler(
       { t, term, a, action, o, orient },
       handler
     );

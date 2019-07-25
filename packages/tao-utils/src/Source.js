@@ -22,9 +22,9 @@ export default class Source {
     );
     this._toSrc = toSrc;
     this._name = sourceName(name);
-    this._network.use((handler, ac, fwd, control) =>
-      this.handleAppCon(handler, ac, fwd, control)
-    );
+    this._middleware = (handler, ac, fwd, control) =>
+      this.handleAppCon(handler, ac, fwd, control);
+    this._network.use(this._middleware);
   }
 
   get name() {
@@ -37,7 +37,7 @@ export default class Source {
     }
   }
 
-  // dispose() {
-  //   this._network.setDefaultForward(this._prevNetworkDefaultFwd);
-  // }
+  dispose() {
+    this._network.stop(this._middleware);
+  }
 }
