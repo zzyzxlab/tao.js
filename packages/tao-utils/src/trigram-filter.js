@@ -8,6 +8,9 @@ export default function trigramFilter(...trigrams) {
   if (typeof trigrams[0] === 'boolean') {
     exact = trigrams.shift();
   }
+  if (Array.isArray(trigrams[0])) {
+    trigrams = trigrams[0];
+  }
   return ac => {
     if (!(ac instanceof AppCtx)) {
       return false;

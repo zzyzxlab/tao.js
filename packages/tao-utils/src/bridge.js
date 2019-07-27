@@ -1,5 +1,7 @@
 import { Kernel, AppCtx, INTERCEPT, ASYNC, INLINE } from '@tao.js/core';
 
+const NOOP = () => {};
+
 function forwardHandler(destination) {
   return (tao, data) => {
     console.log('bridging::tao', tao);
@@ -25,10 +27,10 @@ function filteredForwardHandler(destination, filter) {
 
 function bridge(type, source, destination, filters) {
   if (type !== INTERCEPT && type !== ASYNC && type !== INLINE) {
-    return;
+    return NOOP;
   }
   if (!(source instanceof Kernel) || !(destination instanceof Kernel)) {
-    return;
+    return NOOP;
   }
   const filterFunction =
     typeof filters[0] === 'function' ? filters.shift() : undefined;

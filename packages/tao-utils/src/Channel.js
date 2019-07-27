@@ -1,5 +1,6 @@
 // import { Kernel } from '@tao.js/core';
 import { Network } from '@tao.js/core';
+import seive from './seive';
 
 let channelId = 0;
 function newChannelId() {
@@ -106,6 +107,16 @@ export default class Channel {
     this._channel.removeInlineHandler(
       { t, term, a, action, o, orient },
       handler
+    );
+  }
+
+  bridgeFrom(TAO, ...trigrams) {
+    return seive(
+      this._channelId,
+      TAO,
+      this,
+      (ac, control) => control.channelId !== this._channelId,
+      ...trigrams
     );
   }
 }
