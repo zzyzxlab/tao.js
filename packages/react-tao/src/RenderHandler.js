@@ -63,6 +63,7 @@ export default class RenderHandler extends Component {
     let { shouldRender } = props;
     shouldRender = typeof shouldRender === 'undefined' ? false : shouldRender;
     this.state = { shouldRender };
+    this._refreshOn = null;
   }
 
   componentWillMount() {
@@ -76,6 +77,17 @@ export default class RenderHandler extends Component {
         TAO.addInlineHandler({ term, action, orient }, this.handleRender)
       );
     }
+    const { refreshOn } = this.props;
+    if (refreshOn) {
+      const refresh = cleanInput(normalizeAC(refreshOn));
+      if (!Object.keys(refresh).length) {
+        return;
+      }
+      this._refreshOn = cartesian({ ...trigram, ...refresh });
+      this._refreshOn.forEach(({ term, action, orient }) =>
+        TAO.addInlineHandler({ term, action, orient }, this.handleRender)
+      );
+    }
   }
 
   componentWillUnmount() {
@@ -84,6 +96,11 @@ export default class RenderHandler extends Component {
     const permutations = cartesian(trigram);
     if (permutations.length) {
       permutations.forEach(({ term, action, orient }) =>
+        TAO.removeInlineHandler({ term, action, orient }, this.handleRender)
+      );
+    }
+    if (this._refreshOn && this._refreshOn.length) {
+      this._refreshOn.forEach(({ term, action, orient }) =>
         TAO.removeInlineHandler({ term, action, orient }, this.handleRender)
       );
     }
