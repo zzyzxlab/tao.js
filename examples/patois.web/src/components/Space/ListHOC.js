@@ -27,9 +27,13 @@ const SpaceList = ({ data }) => (
       </button>
     </h3>
     <ul>
-      <SpaceItems spaces={data} />
+      <SpaceItems spaces={data.list} />
     </ul>
   </div>
 );
 
-export default SpaceList;
+export default withContext(
+  { t: 'Space', a: 'List' },
+  (tao, data, set) => ({ list: data.Space }),
+  () => ({ list: [] })
+)(SpaceList);

@@ -196,6 +196,11 @@ function initClientTAO(clientTAO, id) {
   };
   clientTAO.addInterceptHandler({}, clientHandler);
 
+  let bridgeToClient = clientTAO.bridgeFrom(TAO, true, {
+    t: 'Space',
+    a: 'Stored',
+    o: 'Portal'
+  });
   // clientTAO.addInlineHandler({ t: 'Space', a: 'Retrieve', o: 'Portal' },
   //   retrieveHandler
   // );
@@ -282,7 +287,7 @@ function initClientTAO(clientTAO, id) {
 
   return () => {
     console.log('disconnected client - removing TAO handler');
-    // bridgeToClient();
+    bridgeToClient();
     // bridgeToGlobal();
     // // TAO.removeInlineHandler(
     // //   { t: 'Space', a: 'Tracked', o: 'Portal' },
