@@ -10,7 +10,10 @@ It helps to set the stage for _what_ TAO development in `tao.js` is based on fro
 
 ## Why do I want this
 
+* [Decoupling Application from Architecture](decoupling.md) - evolve each independently
+* [A Framework for Building a Platform](platform-framework.md) - the best of both worlds
 * [Entropy in Software](entropy.md) - all software is heading for entropy
+* [Antifragile Software](antifragile.md) - making software that is as antifragile as its product
 * [Motivations & Goals of tao.js](motivations.md) - why tao.js and for what purpose
 
 ## How do I use this

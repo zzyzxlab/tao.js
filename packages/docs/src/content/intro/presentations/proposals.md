@@ -104,6 +104,79 @@ evolve.  However `tao.js` isn't just a philosophical name for a library but a pn
 
 ---
 
+## JSConf US 2019
+
+**Name:** Jeff Hoffer
+
+**Title:** Decoupling Applications from Architectures
+
+Software is the most malleable building material we've ever created, and yet Technical Debt continues to plague the choices we make when building applications.
+
+When we talk about starting new projects, there's always a debate over getting something out the door knowing we're taking on Technical Debt in order to "move faster" versus taking our time to build it properly and risk overengineering and possibly overfitting our application to an unknown problem.  Can we avoid this Kobayashi Maru?
+
+Like what Docker did to decouple the Infrastructure Layer from the Application Layer, we can decouple the Business Application from its Technical Architecture.
+
+From 20 years of experience building software applications for different domains, I'll use many
+code samples and example applications to show how we can change the technical architectural
+choices of without affecting the business logic, and prove it's possible to decouple the
+application from the architecture so we can be fast and build it right.
+
+---
+
+## DeveloperWeek Austin 2019
+
+Title: Decoupling Architecture from Application
+
+Description:
+Like what Docker and containers did to decouple the infrastructure layer from the application layer, using code samples and real applications, we'll walk through how we can decouple our Architectural choices from our Application in order to greatly reduce the technical debt incurred by building fast while also creating flexibility to change technology decisions easily.
+
+Session Format: Other
+Track: JavaScript
+Language: English
+
+---
+
+## CascadiaJS 2019
+
+Video Script:
+
+My name is Jeff Hoffer and I've been building software for 20 years, and from the very beginning I've had a passionate focus on how to properly architect applications and systems.
+
+Software is the most malleable thing we've ever created for building, and yet Technical Debt continues to plague the choices we make when building applications.
+
+I want to talk about how we can build Antifragile Applications and Systems that get better with change to handle this problem.
+Codebases are Fragile while Products are Antifragile, always changing to meet the demand of the customer.  It's time our codebase can model this aspect in the products its implementing.
+
+When we talk about starting new projects, there's always a debate over getting something out the door knowing we're taking on Technical Debt in order to "move faster" or taking our time to build it properly and risk overengineering and possibly overfitting our application to an unknown problem.  Can we avoid this Kobayashi Maru?
+
+Like what Docker did to decouple the Infrastructure Layer from the Application Layer, we can decouple the Business Application from its Technical Architecture.
+
+After many runs through various startup companies, I've been obsessing over this problem for a decade now and having come up with a solution I want to share with everyone.
+
+By starting from the recognition that all software implementations are a set of functions that manipulate state, through that lens then every Pattern, Design or Architectural discussion is about how we intend to couple or arrange the function calls and what the Serialization/Deserialization boundaries are for messages and state.
+
+I will describe the problem using specific causes of Technical Debt, and with code samples, experience with existing example applications and a bit of levity to show how we can build upon past achievements in software design to deliver solutions that can evolve easily with the demands of the product.
+
+Additionally, I will show how we can improve the communication with our Product Teams to reduce upstream causes of Technical Debt as well.
+
+__Not Used__
+
+I will describe the problem through the various causes of Technical Debt, and show examples of how these can be solved.
+
+I will also touch on how we can move beyond engineering problems to coordinate
+
+I will describe the problem through the causes of Technical Debt, and use code samples, example applications and a bit of levity to show how we can embrace the entropy inherent in living applications and deliver software that gets better and stronger with welcomed change.
+
+I want to show with code samples, example applications and a little bit of levity how we can decouple our Applications from the Architectural choices and be able to use the best technology for the job in an ever changing application environment.
+
+I'm going to show code samples and example applications that are able to achieve this lofty goal
+
+I want to talk about the prevailing issue when it comes to architecting applications,
+
+Passionate about properly architecting applications
+
+---
+
 ### Needed for Talk Proposals
 
 Image: ![Avatar](https://en.gravatar.com/userimage/12727498/76ea2d8177e4f21d4dc5437a0b7478e5.jpg?size=300)
