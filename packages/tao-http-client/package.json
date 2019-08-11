@@ -1,0 +1,40 @@
+{
+  "name": "@tao.js/http-client",
+  "version": "0.1.0",
+  "description": "http client used to call a tao http server",
+  "private": true,
+  "homepage": "https://tao.js.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzyzxlab/tao.js.git",
+    "directory": "packages/tao-http-client"
+  },
+  "main": "lib",
+  "module": "dist",
+  "bundles": {
+    "browser": "bundles/browser.umd.js"
+  },
+  "sideEffects": false,
+  "directories": {
+    "lib": "dist"
+  },
+  "files": [
+    "lib",
+    "dist",
+    "bundles"
+  ],
+  "scripts": {
+    "build:clean": "rimraf dist lib bundles",
+    "build:package": "rollup --config",
+    "build": "npm run build:clean && npm run build:package"
+  },
+  "author": "eudaimos",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@tao.js/core": "file:../tao",
+    "@tao.js/utils": "file:../tao-utils"
+  }
+}
