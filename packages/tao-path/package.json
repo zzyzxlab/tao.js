@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/path",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "create value paths for tao using configuration files/snippets",
   "private": true,
   "main": "index.js",
