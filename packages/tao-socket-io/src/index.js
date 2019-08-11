@@ -16,7 +16,7 @@ function decorateNetwork(TAO, socket) {
   const fromHandler = handler =>
     socket.on(EVENTS[ON_EVENT], ({ tao, data }) => handler(tao, data));
   const toEmit = (tao, data) => socket.emit(EVENTS[EMIT_EVENT], { tao, data });
-  const source = new Source(TAO, fromHandler, toEmit);
+  const source = new Source(TAO, toEmit, fromHandler);
   return source;
 }
 

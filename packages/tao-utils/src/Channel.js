@@ -21,6 +21,12 @@ export default class Channel {
     this._network = kernel._network;
   }
 
+  clone(cloneId) {
+    const clone = new Channel({ _network: this._network }, cloneId);
+    clone._channel = this._channel;
+    return clone;
+  }
+
   setCtx({ t, term, a, action, o, orient }, data) {
     this._network.setCtxControl(
       { t, term, a, action, o, orient },
