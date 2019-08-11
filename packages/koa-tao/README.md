@@ -1,8 +1,8 @@
-# @tao.js/http-client
+# @tao.js/koa
 
-> http client used to call a tao http server
+> middleware used to expose a TAO signal network over http using a koa app server
 
-See the website [tao.js](tao.js.org) for more information or the [issues](https://github.com/zzyzxlab/tao.js/issues?q=is%3Aissue+is%3Aopen+label%3A"pkg%3A+http-client")
+See the website [tao.js](tao.js.org) for more information or the [issues](https://github.com/zzyzxlab/tao.js/issues?q=is%3Aissue+is%3Aopen+label%3A"pkg%3A+koa")
 associated with this package.
 
 ## Install
@@ -10,13 +10,13 @@ associated with this package.
 Using npm:
 
 ```sh
-npm install --save @tao.js/http-client
+npm install --save @tao.js/koa
 ```
 
 or using yarn:
 
 ```sh
-yarn add @tao.js/http-client
+yarn add @tao.js/koa
 ```
 
 ## Importing
@@ -28,38 +28,15 @@ telling Node and bundlers where to find the packages distributed code:
 
 - `module` - provides a ES Module version of the package (in the `dist` folder)
 - `main` - provides a CommonJS version of the package (in the `lib` folder)
-- `bundles` - provides keys for any UMD bundles of the package (in the `bundles` folder)
-  - _currently there is no bundler using this pattern but now you know where to find it_
-
-### Why NO `browser` key in `package.json`
-
-The current pattern for packaging bundles meant for browser import is to provide a
-`browser` key in `package.json`. This _should_ be the way to go but unfortunately
-doing this doesn't provide control to you in certain situations.
-
-For instance, in Webpack 4, which is used by `create-react-app`, the default configuration
-is to prefer the `browser` bundle when packaging a build intended for a browser. Unless
-you are controlling this configuration in your `create-react-app` (and most don't) then
-the build process will use the UMD bundle and not be able to leverage tree-shaking if
-you only import and use parts of the package library.
-
-In this circumstance, even if you do what you think is correct and:
-
-```javascript
-import { Kernel } from '@tao.js/http-client';
-```
-
-in your file, because webpack is using the UMD bundle, it will import the whole
-UMD bundle and make that part of your output.
 
 ### ES Module
 
-If you are using `import` statements to import `@tao.js/http-client` then `package.json` identifies
+If you are using `import` statements to import `@tao.js/koa` then `package.json` identifies
 a `module` key to tell Node or your bundler of choice where to find the version packaged as
 ES Modules (the `dist` folder).
 
 ```javascript
-import TAO, { AppCtx } from '@tao.js/http-client';
+import taoKoa from '@tao.js/koa';
 ```
 
 _This is the recommended way to import the package and most modern builders & bundlers can
@@ -72,34 +49,13 @@ If you are using `require` statements and not a bundler that understands ES Modu
 packaged as a CommonJS module (the `lib` folder).
 
 ```javascript
-const TAO = require('@tao.js/http-client').default;
-
-// OR
-const Kernel = require('@tao.js/http-client').Kernel;
-
-// OR
-const tao = require('@tao.js/http-client');
-tao.Kernel;
+const taoKoa = require('@tao.js/koa').default;
 ```
 
 ### UMD Bundles
 
-If you are not using a bundler to build your web application or just want to use a full
-bundled version of the package by importing directly into a `<script>` tag then you will
-find the bundles in the `bundles` folder (also identified in the `bundles` key in `package.json`).
-
-- `bundles/browser.umd.js` - available as global `tao`
-
-```javascript
-tao.TAO;
-
-// OR
-const kernel = new tao.Kernel();
-
-const ac = new tao.AppCtx('x', 'y', 'z');
-```
-
-In the future, this will be published to a CDN for convenience.
+Since `@tao.js/koa` is only used server-side in node.js, there are no UMD bundles provided
+for this package.
 
 ## All Packages in the `@tao.js` family
 

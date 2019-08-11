@@ -1,3 +1,37 @@
+# [0.9.0](https://github.com/zzyzxlab/tao.js/compare/v0.8.1...v0.9.0) (2019-08-11)
+
+Big changes as `@tao.js/core`'s `Kernel` was refactored underneath to delegate to
+`Network` allowing the additions of `Channel`, `Source` and `Transponder`s in the
+new `@tao.js/utils` package to control the flow of signals through the network
+using `control` data.
+
+The interface for `Kernel` goes unchanged and the other signal network extensions
+from `@tao.js/utils` implement the same interface, so there is no affect on clients.
+
+These signal network extensions (and any subsequent ones) are to be used to implement
+signal networks apart from the client code that uses the network, allowing more
+effective ways to integrate the signal network(s) with different technologies
+behind the scenes like socket.io (improved) and http (via koa for now).
+
+Also introduced in this release is the `@tao.js/koa` package which exposes the
+Signal Network using an http endpoint.
+
+### Features
+
+- **koa:** koa integration to provide middleware for signal network as an http interface ([079cdb5](https://github.com/zzyzxlab/tao.js/commit/079cdb5))
+- **network:** refactor + creation of Network, Channel and Source ([ad392a0](https://github.com/zzyzxlab/tao.js/commit/ad392a0))
+- **RenderHandler:** new refreshOn prop allows trigrams for refreshing the render that won't affect ([0428858](https://github.com/zzyzxlab/tao.js/commit/0428858))
+- **seive:** new seive used by Channel allows controlled bridging ([c916870](https://github.com/zzyzxlab/tao.js/commit/c916870))
+- **Transponder:** utils adds Transponder for handling promises ([311f738](https://github.com/zzyzxlab/tao.js/commit/311f738))
+
+### BREAKING CHANGES
+
+- **Transponder:** Source's ctor changed the order of the params, making fromSrc optional
+
+### DEPRECATION NOTICE
+
+- **Kernel.asPromiseHook(…)** will be deprecated in favor of **Transponder** from `@tao.js/utils`
+
 # [0.8.1](https://github.com/zzyzxlab/tao.js/compare/v0.7.0...v0.8.1) (2019-06-03)
 
 Using [rollup js](https://rollupjs.org) to build packages now offering 3 different builds:
