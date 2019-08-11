@@ -16,6 +16,7 @@
   "dependencies": {
     "@koa/cors": "^2.2.2",
     "@tao.js/core": "file:../../packages/tao",
+    "@tao.js/koa": "file:../../packages/koa-tao",
     "@tao.js/socket.io": "file:../../packages/tao-socket-io",
     "@tao.js/utils": "file:../../packages/tao-utils",
     "ioredis": "^4.0.0",

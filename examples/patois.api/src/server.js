@@ -15,7 +15,7 @@ import * as redis from './data/redis';
 import * as spaces from './lib/models/spaces';
 import * as spaceCache from './lib/models/space-cache';
 import { toASCII } from 'punycode';
-// import taoKoa from '@tao.js/koa';
+import taoKoa from '@tao.js/koa';
 
 const { PORT } = process.env;
 
@@ -25,7 +25,7 @@ const connectingToRedis = redis.init();
 const app = new Koa();
 app.use(cors());
 app.use(bodyParser());
-app.use(noTrailingSlash());
+// app.use(noTrailingSlash());
 
 const restRouter = new Router();
 
@@ -106,6 +106,8 @@ TAO.addAsyncHandler({ t: 'Space', a: 'Enter', o: 'Portal' }, (tao, data) => {
   );
 });
 
+const taoMiddleware = taoKoa(TAO, {});
+
 // taoKoa.path({
 //   incoming: { t: 'Space', a: 'Find', o: 'Portal' },
 //   outgoing: { t: 'Space', a: ['List', 'Enter', 'Fail'], o: 'Portal' },
@@ -122,6 +124,28 @@ TAO.addAsyncHandler({ t: 'Space', a: 'Enter', o: 'Portal' }, (tao, data) => {
 //     { t: 'Space', a: 'Enter' }
 //   ],
 // });
+// // this would be a REST-based middleware
+// taoMiddleware.addResponseHandler({ t: 'Space', a: ['List', 'Enter', 'Fail'], o: 'Portal' }, (tao, data, ctx, next) => {
+//   ctx.body = {
+//     tao,
+//     data,
+//   };
+//   next();
+// });
+
+// other version would be plumbed
+// taoMiddleware.addResponseHandler({ t: 'Space', a: ['List', 'Enter', 'Fail'], o: 'Portal' }, (tao, data) => {
+taoMiddleware.addResponseHandler(
+  {
+    t: 'Space',
+    a: ['Fetch', 'Retrieve', 'List', 'Enter', 'Fail'],
+    o: 'Portal'
+  },
+  (tao, data) => {
+    // return new AppCtx('rain', 'make', 'it');
+    console.log('responded with:', { tao, data });
+  }
+);
 
 // For client Interaction
 TAO.addInlineHandler(
@@ -139,13 +163,18 @@ TAO.addInlineHandler(
       //     Space: data
       //   }
       // );
-      // return new AppCtx('Space', Array.isArray(data) ? 'Fetch' : 'Retrieve', tao.o, { Space: data });
       return new AppCtx(
         'Space',
-        Array.isArray(data) ? 'List' : 'Enter',
+        Array.isArray(data) ? 'Fetch' : 'Retrieve',
         tao.o,
         { Space: data }
       );
+      // return new AppCtx(
+      //   'Space',
+      //   Array.isArray(data) ? 'List' : 'Enter',
+      //   tao.o,
+      //   { Space: data }
+      // );
     } catch (apiErr) {
       console.error('Failed to retrieve Space:', apiErr);
       return new AppCtx('Space', 'Fail', tao.o, {
@@ -174,8 +203,8 @@ TAO.addInterceptHandler(
     }
     // use the cache hit to go to the next AppCtx in the protocol chain
     console.log('CACHE HIT on:', Space._id);
-    // return new AppCtx('Space', 'Retrieve', 'Portal', Space);
-    return new AppCtx('Space', 'Enter', 'Portal', Space);
+    return new AppCtx('Space', 'Retrieve', 'Portal', Space);
+    // return new AppCtx('Space', 'Enter', 'Portal', Space);
   }
 );
 
@@ -189,6 +218,13 @@ TAO.addInlineHandler({ t: 'Space', a: 'Stored' }, (tao, data) => {
 const retrieveHandler = (tao, data) =>
   new AppCtx('Space', 'Enter', tao.o, data);
 const fetchHandler = (tao, data) => new AppCtx('Space', 'List', tao.o, data);
+
+TAO.addInlineHandler(
+  { t: 'Space', a: 'Retrieve', o: 'Portal' },
+  retrieveHandler
+);
+
+TAO.addInlineHandler({ t: 'Space', a: 'Fetch', o: 'Portal' }, fetchHandler);
 
 function initClientTAO(clientTAO, id) {
   const clientHandler = (tao, data) => {
@@ -324,6 +360,8 @@ async function saveSpaceHandler(tao, { Space }) {
     }
   });
 }
+
+app.use(taoMiddleware.middleware());
 
 const server = http.createServer(app.callback());
 const io = IO(server);

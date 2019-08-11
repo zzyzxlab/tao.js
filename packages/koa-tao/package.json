@@ -2,14 +2,35 @@
   "name": "@tao.js/koa",
   "version": "0.8.1",
   "description": "middleware to hook tao into koa server",
-  "private": true,
-  "main": "index.js",
+  "homepage": "https://tao.js.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzyzxlab/tao.js.git",
+    "directory": "packages/koa-tao"
+  },
+  "main": "lib",
+  "module": "dist",
+  "files": [
+    "lib",
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:clean": "rimraf dist lib",
+    "build:package": "rollup --config",
+    "build": "npm run build:clean && npm run build:package"
   },
   "author": "eudaimos",
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@tao.js/core": "^0.8.0"
+  },
   "devDependencies": {
-    "@tao.js/core": "file:../tao"
+    "@tao.js/utils": "file:../tao-utils"
+  },
+  "dependencies": {
+    "cartesian": "^1.0.1"
   }
 }
