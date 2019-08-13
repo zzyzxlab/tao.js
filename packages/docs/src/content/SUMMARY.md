@@ -1,5 +1,9 @@
 # Summary
 
+[![Gitter chat](https://img.shields.io/gitter/room/tao-land/tao.js?style=plastic)](https://gitter.im/tao-land/tao.js)
+
+---
+
 * [README](README.md)
 
 * [Introduction](intro/README.md)
