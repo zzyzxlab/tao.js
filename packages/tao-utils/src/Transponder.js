@@ -123,14 +123,17 @@ export default class Transponder {
       { t, term, a, action, o, orient },
       handler
     );
+    return this;
   }
 
   addAsyncHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.addAsyncHandler({ t, term, a, action, o, orient }, handler);
+    return this;
   }
 
   addInlineHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.addInlineHandler({ t, term, a, action, o, orient }, handler);
+    return this;
   }
 
   removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
@@ -138,6 +141,7 @@ export default class Transponder {
       { t, term, a, action, o, orient },
       handler
     );
+    return this;
   }
 
   removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
@@ -145,6 +149,7 @@ export default class Transponder {
       { t, term, a, action, o, orient },
       handler
     );
+    return this;
   }
 
   removeInlineHandler({ t, term, a, action, o, orient }, handler) {
@@ -152,5 +157,6 @@ export default class Transponder {
       { t, term, a, action, o, orient },
       handler
     );
+    return this;
   }
 }
