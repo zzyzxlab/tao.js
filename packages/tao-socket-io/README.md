@@ -6,6 +6,10 @@ See the tao.js website [tao.js for Socket.io](https://tao.js.org/server-side/soc
 more information or the [issues](https://github.com/zzyzxlab/tao.js/issues?q=is%3Aissue+is%3Aopen+label%3A"pkg%3A+socket.io")
 associated with this package.
 
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
+[![Gitter chat](https://badges.gitter.im/tao-land/tao.js.png)]
+
 ## Install
 
 Using npm:

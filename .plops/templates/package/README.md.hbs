@@ -5,6 +5,10 @@
 See the website [tao.js](tao.js.org) for more information or the [issues](https://github.com/zzyzxlab/tao.js/issues?q=is%3Aissue+is%3Aopen+label%3A\"pkg%3A+{{kebabCase name}}\")
 associated with this package.
 
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
+[![Gitter chat](https://badges.gitter.im/tao-land/tao.js.png)]
+
 ## Install
 
 Using npm:
@@ -54,7 +58,7 @@ UMD bundle and make that part of your output.
 
 ### ES Module
 
-If you are using `import` statements to import `@tao.js/core` then `package.json` identifies
+If you are using `import` statements to import `@tao.js/{{kebabCase name}}` then `package.json` identifies
 a `module` key to tell Node or your bundler of choice where to find the version packaged as
 ES Modules (the `dist` folder).
 
@@ -101,10 +105,14 @@ const ac = new tao.AppCtx('x', 'y', 'z');
 
 In the future, this will be published to a CDN for convenience.
 
-## Related Packages in the `@tao.js` family
+## All Packages in the `@tao.js` family
 
 | package                                                                    | description                                                      | docs page                                                             |
 | -------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [`npm @tao.js/core`](https://www.npmjs.com/package/@tao.js/core)           | Core Javascript implementation of the TAO ☯ programming paradigm | [tao.js.org](https://tao.js.org)                                      |
+| [`npm @tao.js/utils`](https://www.npmjs.com/package/@tao.js/utils)         | Extensions to Core used to build out the Signal Network          | [tao.js Utilities for Implementers](https://tao.js.org/implementers/) |
 | [`npm @tao.js/react`](https://www.npmjs.com/package/@tao.js/react)         | Adapter to use tao.js with React                                 | [Usage with React.js](https://tao.js.org/client-react/)               |
 | [`npm @tao.js/socket.io`](https://www.npmjs.com/package/@tao.js/socket.io) | socket.io middleware to run tao.js seamlessly on server & client | [tao.js for Socket.io](https://tao.js.org/server-side/socket-io.html) |
+| [`npm @tao.js/koa`](https://www.npmjs.com/package/@tao.js/koa)             | Expose a TAO signal network over http using a koa app server     | [tao.js for Koa](https://tao.js.org/server-side/koa.html)             |
 | [`npm @tao.js/router`](https://www.npmjs.com/package/@tao.js/router)       | connects url routing with tao.js                                 | [URL Handling with @tao.js/router](https://tao.js.org/router/)        |
+| [`npm @tao.js/{{kebabCase name}}`](https://www.npmjs.com/package/@tao.js/{{kebabCase name}})       | {{description}}                                 | [{{description}}](https://tao.js.org/{{kebabCase name}}/)        |
