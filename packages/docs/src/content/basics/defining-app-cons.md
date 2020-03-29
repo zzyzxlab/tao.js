@@ -22,7 +22,7 @@ From the [Goals of tao.js](../intro/motivations.md) we want to use the language 
 describe our application as a set of code-translatable requirements that can be understood by
 technical and non-technical members of the team.
 
-It is best to start from this place by describing your application as a series of taoples
+It is best to start from this place by describing your application as a series of trigrams
 representing possible states and transitions from one to the next to generate a protocol chain
 that describes the interaction an Actor has with your App.
 
@@ -39,7 +39,7 @@ AppCons that we expect to encounter:
 
 |Term|Action|Orient|description|
 |----|------|------|-----------|
-|`App`|`Enter`|`Portal`|initial taople that sets the App in motion (this can be anything you want)|
+|`App`|`Enter`|`Portal`|initial trigram that sets the App in motion (this can be anything you want)|
 |`App`|`View`|`Portal`|user views the App's Portal|
 |`Space`|`Find`|`Portal`|find all of the `Space`s defined|
 |`Space`|`List`|`Portal`|render the list of `Space`s for the User|
@@ -50,7 +50,7 @@ Another example is AppCons that represent contexts when a user views a Space:
 
 |Term|Action|Orient|description|
 |----|------|------|-----------|
-|`Space`|`Enter`|`Portal`|taople signaling actor is entering an individual `Space`|
+|`Space`|`Enter`|`Portal`|trigram signaling actor is entering an individual `Space`|
 |`Space`|`View`|`Portal`|`Space` details View in App's Portal|
 |`Space-Phrase`|`Find`|`Portal`|find all of the `Space-Phrase` relations defined|
 |`Space-Phrase`|`List`|`Portal`|show the list of `Phrase`s for a `Space`|
@@ -59,6 +59,6 @@ Another example is AppCons that represent contexts when a user views a Space:
 
 |Term|Action|Orient|description|
 |----|------|------|-----------|
-|`Space`|`Edit`|`Portal`|taople signaling actor wants to edit a `Space`|
+|`Space`|`Edit`|`Portal`|trigram signaling actor wants to edit a `Space`|
 |`Space`|`Update`|`Portal`|actor updated the `Space`'s data|
 |`Space`|`Store`|`Portal`|store the `Space`s data for later retrieval|

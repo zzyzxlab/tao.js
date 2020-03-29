@@ -13,8 +13,8 @@ const DOT_REPLACER = '__0__';
 // };
 
 // takes a path definition and provides:
-// 1. a function that turns taople into a path to push onto history
-// 2. a function that receives a url and converts it to a taople to set onto the TAO
+// 1. a function that turns trigram into a path to push onto history
+// 2. a function that receives a url and converts it to a trigram to set onto the TAO
 
 export function deconstructPath(origPath) {
   return origPath.split('/').map((p, i) => {

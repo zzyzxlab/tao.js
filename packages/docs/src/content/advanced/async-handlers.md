@@ -86,7 +86,7 @@ defined and the handlers that need to perform:
 |3|`=>`|`Space`|`Find`|`Portal`|`=>`|fetch all of the `Space`s from api|
 |4|`=>`|`Space`|`List`|`Portal`|`=>`|show the `Space` List View in the Portal|
 
-Notice the duplicated taople (`{App,Enter,Portal}`) added to the table and new (`=>/`[^a] ) mode
+Notice the duplicated trigram (`{App,Enter,Portal}`) added to the table and new (`=>/`[^a] ) mode
 symbol.  The mode symbol is a way to distinguish handling an AppCon asynchronously (`=>/`)
 vs inline (`=>`), where the Async Handler can include a reference ( [^a] ) to another TAO-Path
 or chained AppCon.

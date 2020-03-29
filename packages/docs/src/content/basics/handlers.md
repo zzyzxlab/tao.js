@@ -16,23 +16,23 @@ When called, every handler will **always** receive just the following 2 argument
 
 ### `tao: object` handler arg
 
-The TAO will tell each handler which taople triggered the handler to be called.  The `tao` arg
+The TAO will tell each handler which trigram triggered the handler to be called.  The `tao` arg
 is an `Object` with the following properties:
 
-* `t: string` - the Term of the taople
-* `a: string` - the Action of the taople
-* `o: string` - the Orientation of the taople
+* `t: string` - the Term of the trigram
+* `a: string` - the Action of the trigram
+* `o: string` - the Orientation of the trigram
 
 These properties not only allow for your handler to know exactly why it was triggered, they are
 useful for:
 
 * having the `key`s to access the `data` object's child data
-* allowing [Wilcard Handlers](wildcards.md) to know which taople triggered the handler to be called
+* allowing [Wilcard Handlers](wildcards.md) to know which trigram triggered the handler to be called
 
 ### `data: object` handler arg
 
 The TAO will pass the data used when the AppCon was triggered to all handlers that are registered
-to handle the taople.
+to handle the trigram.
 
 `data` will **always** receive an `Object`, even if it is empty (`{}`) so your handler can rely on
 this and not have to worry about destructuring the `data` parameter against an `undefined` or `null`
@@ -41,8 +41,8 @@ arg.
 `data` can have 0 - 3 `key`s defined on it depending on what was passed to the TAO when setting
 the context to the specific Application Context that triggered the call to your handler.
 
-Each `key` in `data` will be set as the concrete taople available from the [`tao` arg](#tao-handler-arg),
-e.g. if the taople is `{ t: 'App', a: 'Enter', o: 'Portal' }` then `data` _can contain_ the
+Each `key` in `data` will be set as the concrete trigram available from the [`tao` arg](#tao-handler-arg),
+e.g. if the trigram is `{ t: 'App', a: 'Enter', o: 'Portal' }` then `data` _can contain_ the
 `key`s `'App'`, `'Enter'` and `'Portal'` depending on which aspect was provided data when the
 Application Context was set on the TAO.
 
@@ -74,10 +74,10 @@ const TAO = require('@tao.js/core');
 Handlers are added **directly** on the TAO by using one of the `add[Type]Handler(…)` methods and
 passing the following 2 arguments:
 
-* `taople: object` - the taople your handler cares about
+* `trigram: object` - the trigram your handler cares about
   * can take either short form `key`s (`{ t, a, o }`) or
   * long form `key`s (`{ term, action, orient }`).
-* `handler: function` - function you want to be called when an AppCon matching the given taople is set on the TAO
+* `handler: function` - function you want to be called when an AppCon matching the given trigram is set on the TAO
 
 ```javascript
 TAO.addInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, (tao, data) => {
@@ -316,7 +316,7 @@ TAO.removeInlineHandler({ t: 'App', a: 'Enter', o: 'Portal' }, handleAppEnterPor
 ### Missing Handler
 
 When attempting to remove a handler from the TAO, if either the handler is not registered for the
-taople you specify or the taople you specify doesn't have any handlers then the request is
+trigram you specify or the trigram you specify doesn't have any handlers then the request is
 simply ignored.
 
 ## The Decorators Spec

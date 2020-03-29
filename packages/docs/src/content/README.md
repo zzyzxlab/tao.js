@@ -1,5 +1,7 @@
 # tao.js
 
+<a href="https://gitter.im/tao-land/tao.js" target="_chat">![Gitter chat](https://img.shields.io/gitter/room/tao-land/tao.js?style=plastic)</a>
+
 A new _way_ of developing software with a few simple goals (more in the [Intro: Motivations & Goals](intro/motivations.md))
 
 1. Use a simplified language that _elicits_ communication between Engineers and Product Managers
@@ -15,12 +17,12 @@ by implementing what's called the TAO in JavaScript.
 The whole thing is designed around generating _3-Dimensional Events_ in the form of a tuple
 with a specific shape that follows the acronym from its namesake (_T.A.O._):
 
-**T**erm - the _thing_ in the context - conceptually usually a domain entity  
+**T**erm - the _thing_ in the context - conceptually usually but not limited to a domain entity or relationship between entities  
 **A**ction - the _operation_ being performed on the _thing_ in the context  
 **O**rient(ation) - the _perspective_ of the interaction with the system at
-the moment of this _operation_ on this _thing_  
+the moment of this _operation_ on this _thing_
 
-These are affectionately called taoples describing specific tuples with this :point_up:
+These are called trigrams describing specific tuples with this :point_up:
 specific shape and appearing in this order.
 
 Examples are:
@@ -57,8 +59,8 @@ TAO.setCtx({ t: 'Kids', a: 'Enter', o: 'Camp' }, {
 ```
 
 So there you have it.  On the surface it's very simple and easy to use.  Add handlers for
-Application Contexts (AppCons) in the form of taoples and JavaScript functions with
-2 arguments (the taople as `tao` and the particular `data` for this occurrence).  Next we
+Application Contexts (AppCons) in the form of trigrams and JavaScript functions with
+2 arguments (the trigram as `tao` and the particular `data` for this occurrence).  Next we
 set those Application Contexts at the right time in the App to create the reactions.
 
 With this simplicity comes a lot of power in the form of creating Apps that are:
@@ -93,11 +95,11 @@ Currently there are packages to integrate with:
 
 The TAO is a programming paradigm designed around splitting up any System or Application
 into very granular constituent parts organized to respond to a common message format,
-a 3-dimensional tuple (taople) with a very specific set of 3 attributes that
+a 3-dimensional tuple (trigram) with a very specific set of 3 attributes that
 can be used to describe _any_ context which can occur within the System or Application
 (known here as Application Context).
 
-Describing a System or Application as a _Set of taoples_ has the specific intent of making
+Describing a System or Application as a _Set of trigrams_ has the specific intent of making
 it easy to communicate in non-technical terms what the software _should_ or _intends_ to do.
 
 Once the software has been sufficiently decomposed in this way, it is reconstituted thru

@@ -8,7 +8,7 @@ designed to _Evolve_ by using the concepts behind
 Most implementations of AOP use something to inject code
 
 Wildcard Handlers allow us to add handlers to the TAO that are called
-when any of the Concrete taople aspects match the Application Context
+when any of the Concrete trigram aspects match the Application Context
 set on the TAO.
 
 This is one feature that sets tao.js apart from any other Event-driven
@@ -21,26 +21,26 @@ or Orientation or some subset of those 3 or none at all.
 
 ## Wildcard vs Concrete
 
-Concrete taople aspects are specifically named Terms, Actions or
+Concrete trigram aspects are specifically named Terms, Actions or
 Orientations.  They are called "Concrete" in that they are set and
 do not change to be something else.
 
-For example: in `{App,Enter,Portal}`, the entire taople is
+For example: in `{App,Enter,Portal}`, the entire trigram is
 considered a Concrete Application Context because it specifically
-defines each aspect of the taople for the Application Context.
-Each specifically defined aspect of the taople is itself a Concrete
+defines each aspect of the trigram for the Application Context.
+Each specifically defined aspect of the trigram is itself a Concrete
 Aspect, in this case a Concrete Term, Concrete Action and Concrete
 Orient(ation).
 
-Wildcard taoples are those that leave one or more of the taople
+Wildcard trigrams are those that leave one or more of the trigram
 aspects undefined or "not Concrete."
 
-## What Wildcard taoples look like
+## What Wildcard trigrams look like
 
-Wildcard taoples can be defined in various different ways, the
-majority of which is to simply leave the taople property out.
+Wildcard trigrams can be defined in various different ways, the
+majority of which is to simply leave the trigram property out.
 
-Example basic Wildcard taoples:
+Example basic Wildcard trigrams:
 
 ```javascript
 { t: 'App', o: 'Portal' } // Action is left Wild
@@ -49,10 +49,10 @@ Example basic Wildcard taoples:
 ```
 
 You can also use empty strings (`''`) or asterisks (`*`) to
-define Wild taople aspects.
+define Wild trigram aspects.
 
 _support for asterisks (`*`) is due to that is a generalized
-way to describe Wildcard taoples when describing the software
+way to describe Wildcard trigrams when describing the software
 to be written using the TAO_
 
 Examples:
@@ -81,7 +81,7 @@ TAO.addInlineHandler({ term: 'App', action: '*', orient: '*' }, handleApp);
 ```
 
 _**Special Note:** there is no distinction between the 2 above, the second only includes the
-other 2 taople aspects for illustrative purposes._
+other 2 trigram aspects for illustrative purposes._
 
 ### Wilcard Handler for all AppCons of an Action
 

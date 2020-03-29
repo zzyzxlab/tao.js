@@ -27,7 +27,7 @@ and the user should only get there in the successful (or "happy") path.
 
 ### Add/Remove TAO Trigram to/from Route
 
-The first and most used interaction is to configure our Router to react to taoples signaled in the TAO so the URL of our application is updated to reflect the current application context.
+The first and most used interaction is to configure our Router to react to trigrams signaled in the TAO so the URL of our application is updated to reflect the current application context.
 
 The API is described below, but the concept is that we are `Add`ing the `Route` to our app so that
 it will react to a TAO trigram when an Application Context is signaled that matches the trigram.

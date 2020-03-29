@@ -62,7 +62,7 @@ rules.
 |5|`=>`|`Space`|`Store`|`Portal`|`=>`|store the updated `Space`'s data in cache for later retrieval in the `Portal`|
 |6|`=>`|`Space`|`Enter`|`Portal`<td colspan="2">go back to the <a href="#use-case-user-views-space">User Views Space</a> TAO-Path</td>
 
-Notice the duplicated taople (`{Space,Update,Portal}`) which now has 2 handlers, an Intercept
+Notice the duplicated trigram (`{Space,Update,Portal}`) which now has 2 handlers, an Intercept
 Handler denoted by the (`=>?!`[^a] ) and the Inline Handler (`=>`) it had before.  The
 Intercept Handler mode symbol is a way to denote that it presents a choice (`?`) to halt (`!`)
 further progression down the TAO-Path chain (and even to the next handler on the same AppCon) and

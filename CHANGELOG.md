@@ -135,7 +135,7 @@ Needed to publish again to fix a README bug + add related packages to READMEs of
 
 ### Features
 
-- **Adapter:** adapter can receive taoples as {t,a,o} for consistency with core ([80ebf07](https://github.com/zzyzxlab/tao.js/commit/80ebf07)), closes [#2](https://github.com/zzyzxlab/tao.js/issues/2)
+- **Adapter:** adapter can receive trigrams as {t,a,o} for consistency with core ([80ebf07](https://github.com/zzyzxlab/tao.js/commit/80ebf07)), closes [#2](https://github.com/zzyzxlab/tao.js/issues/2)
 - **api:** modified tao so the api is consistent across adding handlers & setting ctx ([69d287b](https://github.com/zzyzxlab/tao.js/commit/69d287b))
 - **AppCtx:** added unwrapCtx method to get bare ctx object ([9ebb558](https://github.com/zzyzxlab/tao.js/commit/9ebb558))
 - **AppCtx:** appCtx.unwrapCtx() now has verbose arg to return long name props ([47de443](https://github.com/zzyzxlab/tao.js/commit/47de443))

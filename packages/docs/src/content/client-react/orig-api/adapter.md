@@ -103,9 +103,9 @@ creating our `Component`s for use in this way.
 The `tao` and `data` objects are **merged** to create the `props` on our `Component` so that we
 at least end up with the following `props` passed to our `Component`:
 
-* `t: string` - the `t` from the `tao` taople arg represents the Term
-* `a: string` - the `a` from the `tao` taople arg represents the Action
-* `o: string` - the `o` from the `tao` taople arg represents the Orient(ation)
+* `t: string` - the `t` from the `tao` trigram arg represents the Term
+* `a: string` - the `a` from the `tao` trigram arg represents the Action
+* `o: string` - the `o` from the `tao` trigram arg represents the Orient(ation)
 * `[term]: any` _(optional)_ - the `[term]` _**key**_ is the value of `t` and the _**value**_ is the
   value of the data in the AppCon that is related to the Term (from `data` arg)
 * `[action]: any` _(optional)_ - the `[action]` _**key**_ is the value of `a` and the _**value**_
@@ -152,7 +152,7 @@ adapter.removeComponentHandler({ t: 'Space', a: 'View', o: 'Portal' }, MyCompone
 
 ### Remove ALL ComponentHandler call
 
-As a convenience, the `Adapter` allows you to remove all taoples attached to a `Component`
+As a convenience, the `Adapter` allows you to remove all trigrams attached to a `Component`
 handler by passing an empty first argument to the `removeComponentHandler` method:
 
 ```javascript
@@ -178,10 +178,10 @@ this way of removing handlers is scoped only to the individual `Adapter`._
 
 The `Adapter` provides 2 mechanisms to reduce the verbosity when working with `Component` handlers.
 
-### Matrixed taoples
+### Matrixed trigrams
 
 Because we may want to use the same `Component` to handle several different Application Contexts,
-the `Adapter` allows the taople values to be `Array`s to capture a matrix of taoples to handle
+the `Adapter` allows the trigram values to be `Array`s to capture a matrix of trigrams to handle
 by our `Component`.  When using this mechanism, the `Adapter` will use the [ternary Cartesian Product](https://en.wikipedia.org/wiki/Cartesian_product#n-ary_Cartesian_product)
 of all possibilities and add handlers to the TAO for each.
 
@@ -212,9 +212,9 @@ value of the default context set by one of the methods above so that it cannot b
 of the `Adapter`.
 
 When using the default context, the `Adapter` will perform an `Object.assign` on the default
-context and the specific taople used in the add or remove call so that taople aspects passed in
-to the specific add or remove invocation will overwrite the default when determining the taople
-that is of interest.  This applies to matrix taoples as well, and the cartesian product will be
+context and the specific trigram used in the add or remove call so that trigram aspects passed in
+to the specific add or remove invocation will overwrite the default when determining the trigram
+that is of interest.  This applies to matrix trigrams as well, and the cartesian product will be
 determined **after** the merge has taken place.
 
 We can use the defualt context to clean up examples from above:
@@ -264,7 +264,7 @@ we are making are particular to when that ComponentHandler is called.
 
 We have 3 options to make them more general and not have to repeat them:
 
-* Add `Component` handlers with [matrixed taoples](#matrixed-taoples)
+* Add `Component` handlers with [matrixed trigrams](#matrixed-trigrams)
 * Use [default context](#default-context)
 * Use the [`Reactor`'s additional `props`](reactor.md#additional-props) which only count for children
   rendered by that `Reactor` and **will not** be assigned for all `Component` handlers of our

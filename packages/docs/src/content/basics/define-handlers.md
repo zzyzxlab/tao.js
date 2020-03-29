@@ -79,5 +79,5 @@ A final example is a TAO-Path that represents when a user edits the details of a
 
 TAO-Paths provide a much more powerful tool when layered in with the [Advanced Topics](../advanced/README.md)
 discussed later in the guide.  In that space we will also explore varying the Orient(ation)
-aspect of taoples and AppCons to add a depth to our specs that will surface gaps and ensure
+aspect of trigrams and AppCons to add a depth to our specs that will surface gaps and ensure
 we understand a lot more about what software we plan to write without additional effort.

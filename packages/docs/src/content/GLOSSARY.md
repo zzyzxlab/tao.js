@@ -61,28 +61,14 @@ For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
 ## Application Context
 
 Representation of a _State_ the System is transitioning to at a given point in time
-described by a taople with attached associated data.
+described by a trigram with attached associated data.
 
 For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
 
 ## Application Contexts
 
 Representation of a _State_ the System is transitioning to at a given point in time
-described by a taople with attached associated data.
-
-For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
-
-## taople
-
-play on the word _tuple_ to specifically describe a _tuple_ with 3 distinct members
-of *T*erm, *A*ction and *O*rient(ation).
-
-For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
-
-## taoples
-
-play on the word _tuple_ to specifically describe a _tuple_ with 3 distinct members
-of *T*erm, *A*ction and *O*rient(ation)
+described by a trigram with attached associated data.
 
 For more see [Intro: Basic Terminology](intro/basic-terms.md#3d-tuples).
 
@@ -153,3 +139,7 @@ when an Application Context that matches is set on the TAO.
 
 See more in the Basics Guide to [Defining Handlers](basics/defineg-handlers.md) and
 [Adding Handlers](basics/handlers.md).
+
+## VAR
+
+Stands for Value-Added Reseller

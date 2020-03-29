@@ -212,7 +212,7 @@ A TAO-Path that represents when a user edits the details of a `Space`:
 ### TAO-Path without TAO Kernel per Client
 
 If we implemented the above using the TAO on the server, we would likely have handlers on the
-server that are called on the taoples as follows:
+server that are called on the trigrams as follows:
 
 |#||Term|Action|Orient||handler spec|
 |---|---|----|------|------|---|-----------|

@@ -29,7 +29,7 @@ You can also pass along data as the 2nd argument to the `setCtx` method on the T
 
 Data can be included in several different forms.
 
-### 1. as an `Object` with properties of the same names as the taople
+### 1. as an `Object` with properties of the same names as the trigram
 
 ```javascript
 TAO.setCtx({ t: 'App', a: 'Enter', o: 'Portal' }, {
@@ -42,7 +42,7 @@ TAO.setCtx({ t: 'App', a: 'Enter', o: 'Portal' }, {
 });
 ```
 
-_**Special Note:** not all properties from the taople are required, the inclusion of
+_**Special Note:** not all properties from the trigram are required, the inclusion of
 `Enter` and `Portal` are illustrative here_
 
 ### 2. as an `Object` with properties named `t` or `term`, `a` or `action`, and/or `o` or `orient`:
@@ -72,7 +72,7 @@ aren't necessarily known ahead of time.  Additionally, the forms can be mixed if
 
 _**Special Note:** no matter how the data is passed in, when we look at [handlers](handlers.md)
 the data sent to the handler will **always** be consistent in the form from the first option
-as properties using the names identified by the taople_
+as properties using the names identified by the trigram_
 
 ### 3. as an `Array` ordered as `[term, action, orient]`
 
@@ -87,7 +87,7 @@ TAO.setCtx({ t: 'App', a: 'Enter', o: 'Portal' }, [
 ]);
 ```
 
-_**Special Note:** not all properties from the taople are required, the inclusion of
+_**Special Note:** not all properties from the trigram are required, the inclusion of
 all 3 entries is illustrative here_
 
 ## Create an `AppCon` and set Context
@@ -120,7 +120,7 @@ to the TAO's `setCtx` method by using the arguments **after** the first 3 args.
 
 Like `setCtx`, the `AppCon` constructor offers several options.
 
-### 1. as a single `Object` with properties of the same names as the taople
+### 1. as a single `Object` with properties of the same names as the trigram
 
 ```javascript
 const appEnterPortal = new AppCon('App', 'Enter', 'Portal', {
@@ -174,7 +174,7 @@ const appEnterPortal = new AppCon('App', 'Enter', 'Portal', [
 TAO.setAppCtx(appEnterPortal);
 ```
 
-_**Special Note:** not all properties from the taople are required, the inclusion of
+_**Special Note:** not all properties from the trigram are required, the inclusion of
 all 3 entries is illustrative here_
 
 ### 4. as a set of up to 3 args in series ordered as `term`, `action`, `orient`

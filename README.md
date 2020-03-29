@@ -99,7 +99,7 @@ Which will start `commitizen` for you to generate the commit message in the desi
   - [x] unit tests for `Adapter`
   - [x] unit tests for `Reactor`
   - [x] enable `Adapter` to unset current component using `null` as a handler for TAO ACs
-  - [x] make taople definition on `Adapter.addComponentHandler` #2 method consistent with `@tao.js/core`
+  - [x] make trigram definition on `Adapter.addComponentHandler` #2 method consistent with `@tao.js/core`
 - [ ] update to `@tao.js/react`
   - **goal:** provide more idiomatic & declarative React components to use with tao.js (keep the old stuff)
   - [x] implement `Provider` that creates a Context used by the rest of the new React Components - supplies TAO Kernel to Consumers

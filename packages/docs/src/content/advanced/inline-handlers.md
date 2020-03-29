@@ -9,12 +9,12 @@ traditional Event-based handlers.
 
 Inline Handlers operate like standard Event listeners in other areas of JavaScript in that the
 handlers are _expected_ to be called in the order in which they were registered (added) to the
-TAO for a taople ("Event").
+TAO for a given trigram ("Event").
 
 This _expectation is modified_ when it comes to using [Wildcard Handlers](../basics/wildcards.md)
-because internally each taople is managing it's own set of handlers.  While all matching
+because internally each trigram is managing it's own set of handlers.  While all matching
 Wildcard Handlers will be called along with all of the Concrete Handlers, they will be called in
-the order that the taoples themselves were added to the TAO, and the order per taople that each
+the order that the trigrams themselves were added to the TAO, and the order per trigram that each
 handler was added as this will be the traversal order used by the TAO.
 
 Ordering of Inline Handler execution is **not a guarantee** provided by the TAO, and the
@@ -38,7 +38,7 @@ Systems and Applications.
 
 The _meaning_ behind "Inline = Ordered" is that **each Inline Handler will complete before the
 next is called.**  In other words, when adding 2 Inline Handlers to the TAO for the same
-Application Context, whether the taople for both is Concrete, Wildcard or they are added to
+Application Context, whether the trigram for both is Concrete, Wildcard or they are added to
 a combination of the two, only _**one Inline Handler**_ will be executed _**to completion**_
 before the next is called.
 
@@ -55,16 +55,16 @@ TAO.addInlineHandler({ t: 'User', a: 'Find', o: 'Portal' }, async (tao, data) =>
 });
 
 TAO.addInlineHandler({}, (tao, data) => {
-  console.log('If no other total Wildcard handlers have been added, I will run third, after all handlers from the previously added taople');
+  console.log('If no other total Wildcard handlers have been added, I will run third, after all handlers from the previously added trigram');
 });
 
 TAO.addInlineHandler({ t: 'User', a: 'Find', o: 'Portal' }, (tao, data) => {
-  console.log('I have something else to do for this AppCon, and will run second'); // <--- b/c the {User,Find,Portal} taople was added to the TAO first, and this handler added for it second
+  console.log('I have something else to do for this AppCon, and will run second'); // <--- b/c the {User,Find,Portal} trigram was added to the TAO first, and this handler added for it second
 })
 ```
 
 _**Special Note:** In all likelihood, our App will register some type of Handler on the total
-Wildcard taople (`{}`) first during bootstrapping of the App, so the above scenario of it being
+Wildcard trigram (`{}`) first during bootstrapping of the App, so the above scenario of it being
 called 3rd is **unlikely** and only here for illustrative purposes._
 
 ## Chaining Inline Handlers

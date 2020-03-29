@@ -11,4 +11,4 @@ to do that here.
 
 Also, don't worry about the overhead of the TAO default Kernel creation if it
 isn't used.  The initial data structure is very small and doesn't provide any
-overhead until taoples and handlers are added.
+overhead until trigrams and handlers are added.

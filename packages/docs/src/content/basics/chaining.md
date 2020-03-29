@@ -33,7 +33,7 @@ trigger the `{App,View,Portal}` Application Context.
 ## Must use AppCon Constructor
 
 The TAO **only** reacts to `AppCon`s which are returned from handlers and
-not any other form of an Application Context or taople.  The TAO will **not**
+not any other form of an Application Context or trigram.  The TAO will **not**
 inspect the return value of a handler other than to determine if it is
 of `AppCon` type.
 
