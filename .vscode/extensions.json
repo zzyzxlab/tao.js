@@ -14,7 +14,7 @@
     "kogai.regex-railroad-diagrams",
     "formulahendry.code-runner",
     "msjsdiag.debugger-for-chrome",
-    "hbenl.vscode-firefox-debug",
+    "firefox-devtools.vscode-firefox-debug",
     "iradul.debugger-for-phantomjs",
     "joelday.docthis",
     "abierbaum.vscode-file-peek",
