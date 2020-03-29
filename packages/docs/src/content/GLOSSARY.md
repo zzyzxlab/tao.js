@@ -17,7 +17,7 @@ A set of AppCons creating a sequence describing a value protocol
 
 A set of AppCons creating a sequence describing a value protocol
 
-## TAO
+## TAO Programming Model
 
 the core framework of defining a System using Application Contexts as a 3-Dimensional
 representation of State and implementing the System using handlers that react to them.

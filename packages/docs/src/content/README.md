@@ -12,7 +12,7 @@ A new _way_ of developing software with a few simple goals (more in the [Intro: 
 
 Literally at the core, `@tao.js/core` is a simple package to use in _any_ App we build to
 create Reactive Apps that espouse the principles outlined in the [Reactive Manifesto](https://www.reactivemanifesto.org/)
-by implementing what's called the TAO in JavaScript.
+by implementing what's called the TAO Programming Model in JavaScript.
 
 The whole thing is designed around generating _3-Dimensional Events_ in the form of a tuple
 with a specific shape that follows the acronym from its namesake (_T.A.O._):
@@ -106,8 +106,9 @@ Once the software has been sufficiently decomposed in this way, it is reconstitu
 generating and passing these messages to functions known as handlers that perform the
 value added activities of the program.
 
-Leveraging the handler as the unit of execution allows the software built to run in
-any execution environment.
+This is done using a Signal Network provided as part of the TAO Implementation which manages
+marshalling these messages to handlers.  Leveraging the handler as the unit of execution allows the
+software built to run in any execution environment.
 
 ## Power of a Common Form of Event & Message
 
@@ -119,3 +120,12 @@ best practices in building software.
 The downstream beauty of this is the meta-data provided by all of these Events is easy
 to siphon off to reporting and any other use for the data without additional effort
 in the generation.
+
+## Where to go Next
+
+Take a look at the following resources to become more familiar with the TAO and tao.js:
+
+* [An Origin Story](story) is a great place to understand how we evolved our thinking to create the TAO Programming Model
+* [Introduction](intro) section has a lot of introductory material to help you get up to speed depending on where you're coming from and why it's useful
+* [Basics](basics) will get you started on how to implement using the tao.js libraries
+

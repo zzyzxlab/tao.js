@@ -116,7 +116,7 @@ Also, with the TAO Programming Model we can define Architecture with:
 
 As long as the Network implements the guarantees provided by the TAO Programming Model, we are
 free to change the App and Architecture independent of one another.  Adding new Application Contexts
-and hanndlers will not affect the Network.  Changinng the Network implementation will not affect
+and handlers will not affect the Network.  Changing the Network implementation will not affect
 the Application Contexts or handlers used to implement our App.
 
 Learn more in the page [about it here](../intro/decoupling.md)

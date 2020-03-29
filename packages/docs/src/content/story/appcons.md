@@ -7,7 +7,12 @@ functionality of our Platform, by:
 1. Building the base set of Features to the Platform to produce a Product Line
 2. Opening up the Extension mechanism to our Partners and Integrators to build on top of the Platform and enhance our Products
 
-## Actions
+## Modifying our Matrix
+
+While the Matrix Model is working thus far, you're sure there are some changes you can make to
+improve upon the initial design.
+
+### Actions
 
 While CRUD has dominated your career in building data-centric applications, you've also worked
 within Frameworks where the basics of CRUD operations was a limiting factor.  You've somewhat
@@ -32,6 +37,39 @@ Perspective.
 So you change the Matrix Model to be more flexible using Action to capture what is happening to
 an Entity or a Relationship at any given time.  Moving beyond CRUD to have a descriptive set of Actions that pertain to the Application being built allows those Actions to communicate more to
 developers and integrators.
+
+### Orientation
+
+You've been using _Perspective_ to refer to our 3rd dimension in the Matrix Model.  While this is a
+truly unique breakthrough, is it reflective of where we're going with this new Model?
+
+_Perspective_ is focused on the point of view of the Observer of activity.  While this was
+initially useful to get us here, you realize it's not exactly emulating what you're trying to
+create with the model.  It occurs to you that if we're going to define an Application Context not
+necessarily by what is perceived to be happening, but as the occurrence of something happening in
+a given direction, then our 3rd dimension should be from the poitn of view of the Actor of the
+interaction rather than the Observer.
+
+_Orientation_ captures this concept better as an Action will be Oriented in a direction.
+
+### Updated Matrix
+
+Our new Matrix is updated to now be:
+
+| Term         | Action   | Orient(ation) |
+|:-------------|:---------|:-------------:|
+| Content      | Create   |     Admin     |
+|              | List     |       "       |
+|              | Retrieve |       "       |
+|              | Find     |       "       |
+|              | List     |     Portal    |
+|              | Select   |       "       |
+|              | View     |       "       |
+|              | Watch    |       "       |
+|              | Watch    |     Report    |
+| User-Content | List     |     Portal    |
+| …            | …        |       …       |
+
 
 ## State Machine
 
@@ -73,7 +111,7 @@ to know who's making changes to the system and verifying whether they should hav
 not.
 
 In other words, it occurs to you that there are some Features you want to build that will be interested in
-more than one Perspective or Term or even more than one Action.
+more than one Orientation or Term or even more than one Action.
 
 Does it make sense to force developers to have to
 hook into/extend the Application at each point?  How large and burdensome can that get?  What about Features that come along later with new Application Contexts that weren't expected?

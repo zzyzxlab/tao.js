@@ -2,13 +2,13 @@
 
 ---
 
-* [README](README.md)
-
 * [Gitter Chat](https://gitter.im/tao-land/tao.js){:target="_chat"}
+
+* [README](README.md)
 
 ---
 
-* [Story](story/README.md)
+* [An Origin Story](story/README.md)
   * [The Problem](story/problem.md)
   * [Requirements](story/reqs.md)
   * [Apps are Data](story/data.md)

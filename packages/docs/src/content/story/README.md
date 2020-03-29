@@ -1,4 +1,4 @@
-# A Story of the TAO Programming Model
+# An Origin Story for the TAO Programming Model
 
 Sometimes and for some people it is important to understand a bit of history in how a thing
 came about in order to grok the thing or fully grasp the implications of it, and why it is a
