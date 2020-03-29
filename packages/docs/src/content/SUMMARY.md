@@ -1,11 +1,22 @@
 # Summary
 
-[![Gitter chat](https://img.shields.io/gitter/room/tao-land/tao.js?style=plastic)](https://gitter.im/tao-land/tao.js)
-
 ---
 
 * [README](README.md)
 
+* [Gitter Chat](https://gitter.im/tao-land/tao.js){:target="_chat"}
+
+---
+
+* [Story](story/README.md)
+  * [The Problem](story/problem.md)
+  * [Requirements](story/reqs.md)
+  * [Apps are Data](story/data.md)
+  * [Building a Matrix](story/matrix.md)
+  * [Designing the App as a Platform](story/platform.md)
+  * [Application Context](story/appcons.md)
+  * [Reactive](story/reactive.md)
+  * [End Result](story/the-tao.md)
 * [Introduction](intro/README.md)
   * [Client Side, Event-driven development](intro/as-events.md)
   * [Back end API development](intro/as-api.md)
@@ -65,5 +76,5 @@
 
 ---
 
-* [CHANGELOG](https://github.com/zzyzxlab/tao.js/blob/master/CHANGELOG.md)
-* [Coverage](https://tao.js.org/coverage/index.html)
+* [CHANGELOG](https://github.com/zzyzxlab/tao.js/blob/master/CHANGELOG.md){:target="_blank"}
+* [Coverage](https://tao.js.org/coverage/index.html){:target="_blank"}
