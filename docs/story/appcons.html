@@ -1,0 +1,1427 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Application Context · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-prism/prism.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-advanced-emoji/emoji-website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="reactive.html" />
+    
+    
+    <link rel="prev" href="platform.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" >
+            
+                <a target="_blank" href="https://gitter.im/tao-land/tao.js">
+            
+                    
+                    Gitter Chat
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    README
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    An Origin Story
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1.1" data-path="problem.html">
+            
+                <a href="problem.html">
+            
+                    
+                    The Problem
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.2" data-path="reqs.html">
+            
+                <a href="reqs.html">
+            
+                    
+                    Requirements
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.3" data-path="data.html">
+            
+                <a href="data.html">
+            
+                    
+                    Apps are Data
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.4" data-path="matrix.html">
+            
+                <a href="matrix.html">
+            
+                    
+                    Building a Matrix
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.5" data-path="platform.html">
+            
+                <a href="platform.html">
+            
+                    
+                    Designing the App as a Platform
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="2.1.6" data-path="appcons.html">
+            
+                <a href="appcons.html">
+            
+                    
+                    Application Context
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.7" data-path="reactive.html">
+            
+                <a href="reactive.html">
+            
+                    
+                    Reactive
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.8" data-path="the-tao.html">
+            
+                <a href="the-tao.html">
+            
+                    
+                    End Result
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2" data-path="../intro/">
+            
+                <a href="../intro/">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.2.1" >
+            
+                <span>
+            
+                    
+                    Where are you coming from?
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.2.1.1" data-path="../intro/as-events.html">
+            
+                <a href="../intro/as-events.html">
+            
+                    
+                    Client Side, Event-driven development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.1.2" data-path="../intro/as-api.html">
+            
+                <a href="../intro/as-api.html">
+            
+                    
+                    Back end API development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.1.3" data-path="../intro/as-messaging.html">
+            
+                <a href="../intro/as-messaging.html">
+            
+                    
+                    Back end Messaging development
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2" >
+            
+                <span>
+            
+                    
+                    Why do I want this?
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.2.2.1" data-path="../intro/decoupling.html">
+            
+                <a href="../intro/decoupling.html">
+            
+                    
+                    Decoupling Application from Architecture
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2.2" data-path="../intro/platform-framework.html">
+            
+                <a href="../intro/platform-framework.html">
+            
+                    
+                    A Framework for Building a Platform
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2.3" data-path="../intro/entropy.html">
+            
+                <a href="../intro/entropy.html">
+            
+                    
+                    Entropy in Software
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2.4" data-path="../intro/antifragile.html">
+            
+                <a href="../intro/antifragile.html">
+            
+                    
+                    Antifragile Software
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2.5" data-path="../intro/motivations.html">
+            
+                <a href="../intro/motivations.html">
+            
+                    
+                    Motivations & Goals of tao.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.3" data-path="../intro/basic-terms.html">
+            
+                <a href="../intro/basic-terms.html">
+            
+                    
+                    Basic Terminology
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.4" data-path="../intro/roadmap.html">
+            
+                <a href="../intro/roadmap.html">
+            
+                    
+                    Development Roadmap
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3" data-path="../basics/">
+            
+                <a href="../basics/">
+            
+                    
+                    Basics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.3.1" data-path="../basics/defining-app-cons.html">
+            
+                <a href="../basics/defining-app-cons.html">
+            
+                    
+                    Defining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.2" data-path="../basics/setting-app-cons.html">
+            
+                <a href="../basics/setting-app-cons.html">
+            
+                    
+                    Setting AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.3" data-path="../basics/define-handlers.html">
+            
+                <a href="../basics/define-handlers.html">
+            
+                    
+                    Defining Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.4" data-path="../basics/handlers.html">
+            
+                <a href="../basics/handlers.html">
+            
+                    
+                    Add Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.5" data-path="../basics/chaining.html">
+            
+                <a href="../basics/chaining.html">
+            
+                    
+                    Chaining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.6" data-path="../basics/wildcards.html">
+            
+                <a href="../basics/wildcards.html">
+            
+                    
+                    Wildcard Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4" data-path="../advanced/">
+            
+                <a href="../advanced/">
+            
+                    
+                    Advanced
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.4.1" data-path="../advanced/inline-handlers.html">
+            
+                <a href="../advanced/inline-handlers.html">
+            
+                    
+                    Inline Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.2" data-path="../advanced/async-handlers.html">
+            
+                <a href="../advanced/async-handlers.html">
+            
+                    
+                    Async Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.3" data-path="../advanced/intercept-handlers.html">
+            
+                <a href="../advanced/intercept-handlers.html">
+            
+                    
+                    Intercept Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.4" data-path="../advanced/order-of-handlers.html">
+            
+                <a href="../advanced/order-of-handlers.html">
+            
+                    
+                    Order of Operations
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.5" data-path="../advanced/promise-hook.html">
+            
+                <a href="../advanced/promise-hook.html">
+            
+                    
+                    Promise Hook
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.6" data-path="../advanced/kernels.html">
+            
+                <a href="../advanced/kernels.html">
+            
+                    
+                    Instantiating Kernels
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5" data-path="../client-react/">
+            
+                <a href="../client-react/">
+            
+                    
+                    Using with React.js
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.5.1" data-path="../client-react/provider.html">
+            
+                <a href="../client-react/provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.2" data-path="../client-react/render-handler.html">
+            
+                <a href="../client-react/render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.3" data-path="../client-react/switch-handler.html">
+            
+                <a href="../client-react/switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.4" data-path="../client-react/with-context.html">
+            
+                <a href="../client-react/with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.5" data-path="../client-react/data-handler.html">
+            
+                <a href="../client-react/data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.6" data-path="../client-react/orig-api/">
+            
+                <a href="../client-react/orig-api/">
+            
+                    
+                    Original API
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.5.6.1" data-path="../client-react/orig-api/adapter.html">
+            
+                <a href="../client-react/orig-api/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.6.2" data-path="../client-react/orig-api/reactor.html">
+            
+                <a href="../client-react/orig-api/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6" data-path="../server-side/">
+            
+                <a href="../server-side/">
+            
+                    
+                    Using Server-side
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.6.1" data-path="../server-side/socket-io.html">
+            
+                <a href="../server-side/socket-io.html">
+            
+                    
+                    Socket.io
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.2" data-path="../server-side/koa.html">
+            
+                <a href="../server-side/koa.html">
+            
+                    
+                    Koa Middleware
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.3" data-path="../server-side/connect.html">
+            
+                <a href="../server-side/connect.html">
+            
+                    
+                    Connect/Express Middlware
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7" data-path="../router/">
+            
+                <a href="../router/">
+            
+                    
+                    URL Handling wtih @tao.js/router
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8" data-path="../api/">
+            
+                <a href="../api/">
+            
+                    
+                    API Reference
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.8.1" data-path="../api/core/">
+            
+                <a href="../api/core/">
+            
+                    
+                    @tao.js/core
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.8.1.1" data-path="../api/core/tao.html">
+            
+                <a href="../api/core/tao.html">
+            
+                    
+                    TAO
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.1.2" data-path="../api/core/kernel.html">
+            
+                <a href="../api/core/kernel.html">
+            
+                    
+                    Kernel
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.1.3" data-path="../api/core/appcon.html">
+            
+                <a href="../api/core/appcon.html">
+            
+                    
+                    AppCon
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2" data-path="../api/react/">
+            
+                <a href="../api/react/">
+            
+                    
+                    @tao.js/react
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.8.2.1" data-path="../api/react/provider.html">
+            
+                <a href="../api/react/provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.2" data-path="../api/react/render-handler.html">
+            
+                <a href="../api/react/render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.3" data-path="../api/react/switch-handler.html">
+            
+                <a href="../api/react/switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.4" data-path="../api/react/with-context.html">
+            
+                <a href="../api/react/with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.5" data-path="../api/react/data-handler.html">
+            
+                <a href="../api/react/data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.6" data-path="../api/react/adapter.html">
+            
+                <a href="../api/react/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.7" data-path="../api/react/reactor.html">
+            
+                <a href="../api/react/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.3" data-path="../api/socket-io/">
+            
+                <a href="../api/socket-io/">
+            
+                    
+                    @tao.js/socket.io
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.8.3.1" data-path="../api/socket-io/wire-socket-io.html">
+            
+                <a href="../api/socket-io/wire-socket-io.html">
+            
+                    
+                    wireTaoJsToSocketIO
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.9" data-path="../GLOSSARY.html">
+            
+                <a href="../GLOSSARY.html">
+            
+                    
+                    Glossary
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="3.1" >
+            
+                <a target="_blank" href="https://github.com/zzyzxlab/tao.js/blob/master/CHANGELOG.md">
+            
+                    
+                    CHANGELOG
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2" >
+            
+                <a target="_blank" href="https://tao.js.org/coverage/index.html">
+            
+                    
+                    Coverage
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Application Context</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="application-context">Application Context</h1>
+<p>What we&apos;ve created is a description of an <a href="../GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a trigram with attached associated data.">Application Context</a> in the form of a 3-dimensional
+tuple also known as a <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a>.  We want to use that <a href="../GLOSSARY.html#trigram" class="glossary-term" title="literally to mean a sequence of 3, trigrams represent the 3 parts of a TAO context
+consisting of the term, action and orient(ation)">trigram</a> as the basis for extending the
+functionality of our Platform, by:</p>
+<ol>
+<li>Building the base set of Features to the Platform to produce a Product Line</li>
+<li>Opening up the Extension mechanism to our Partners and Integrators to build on top of the Platform and enhance our Products</li>
+</ol>
+<h2 id="modifying-our-matrix">Modifying our Matrix</h2>
+<p>While the Matrix Model is working thus far, you&apos;re sure there are some changes you can make to
+improve upon the initial design.</p>
+<h3 id="actions">Actions</h3>
+<p>While CRUD has dominated your career in building data-centric applications, you&apos;ve also worked
+within Frameworks where the basics of CRUD operations was a limiting factor.  You&apos;ve somewhat
+solved for this in your new model by treating Relationships as first-class citizens, and with the
+introduction of Perspectives allowing you to target different views and formats of Entities and
+Relationships within the Platform&apos;s Matrix Model.  But it&apos;s not enough to overcome the following
+questions that still plague dealing with basic CRUD operations as the distinct set of operations,
+such as:</p>
+<ul>
+<li>where does <em>search</em> fit in the standard Read operation?</li>
+<li>does Read pertain to both fetching a single Entity as well as a list of Entities?</li>
+<li>are all Updates the same?</li>
+<li>is a Soft Delete an Update or a Delete?</li>
+<li>is a CRUD operation really the same thing at every point in an Application, from Client to API to database?</li>
+</ul>
+<p>These and other questions, along with fights you&apos;ve had with several ORM-based rapid development
+frameworks to build features beyond basic CRUD functions help you realize and decide that you
+need to move beyond a simplistic set of operations to allow for a more flexible way of looking at
+what developers need in order to operate on Entities and Relationships from any different
+Perspective.</p>
+<p>So you change the Matrix Model to be more flexible using <a href="../GLOSSARY.html#action" class="glossary-term" title="the operation being performed on the thing in the TAO&apos;s Application Context">Action</a> to capture what is happening to
+an Entity or a Relationship at any given time.  Moving beyond CRUD to have a descriptive set of Actions that pertain to the Application being built allows those Actions to communicate more to
+developers and integrators.</p>
+<h3 id="orientation">Orientation</h3>
+<p>You&apos;ve been using <em>Perspective</em> to refer to our 3rd dimension in the Matrix Model.  While this is a
+truly unique breakthrough, is it reflective of where we&apos;re going with this new Model?</p>
+<p><em>Perspective</em> is focused on the point of view of the Observer of activity.  While this was
+initially useful to get us here, you realize it&apos;s not exactly emulating what you&apos;re trying to
+create with the model.  It occurs to you that if we&apos;re going to define an <a href="../GLOSSARY.html#application-context" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a trigram with attached associated data.">Application Context</a> not
+necessarily by what is perceived to be happening, but as the occurrence of something happening in
+a given direction, then our 3rd dimension should be from the poitn of view of the Actor of the
+interaction rather than the Observer.</p>
+<p><em><a href="../GLOSSARY.html#orientation" class="glossary-term" title="the perspective of the interaction with the system at the moment of this operation
+on this thing in the TAO&apos;s Application Context">Orientation</a></em> captures this concept better as an <a href="../GLOSSARY.html#action" class="glossary-term" title="the operation being performed on the thing in the TAO&apos;s Application Context">Action</a> will be Oriented in a direction.</p>
+<h3 id="updated-matrix">Updated Matrix</h3>
+<p>Our new Matrix is updated to now be:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"><a href="../GLOSSARY.html#term" class="glossary-term" title="the thing or subject in the TAO&apos;s Application Context - conceptually usually a domain entity but not limited to only domain entities">Term</a></th>
+<th style="text-align:left"><a href="../GLOSSARY.html#action" class="glossary-term" title="the operation being performed on the thing in the TAO&apos;s Application Context">Action</a></th>
+<th style="text-align:center"><a href="../GLOSSARY.html#orient" class="glossary-term" title="the perspective of the interaction with the system at the moment of this operation
+on this thing in the TAO&apos;s Application Context">Orient</a>(ation)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Content</td>
+<td style="text-align:left">Create</td>
+<td style="text-align:center">Admin</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">List</td>
+<td style="text-align:center">&quot;</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Retrieve</td>
+<td style="text-align:center">&quot;</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Find</td>
+<td style="text-align:center">&quot;</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">List</td>
+<td style="text-align:center">Portal</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Select</td>
+<td style="text-align:center">&quot;</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">View</td>
+<td style="text-align:center">&quot;</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Watch</td>
+<td style="text-align:center">&quot;</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Watch</td>
+<td style="text-align:center">Report</td>
+</tr>
+<tr>
+<td style="text-align:left">User-Content</td>
+<td style="text-align:left">List</td>
+<td style="text-align:center">Portal</td>
+</tr>
+<tr>
+<td style="text-align:left">&#x2026;</td>
+<td style="text-align:left">&#x2026;</td>
+<td style="text-align:center">&#x2026;</td>
+</tr>
+</tbody>
+</table>
+<h2 id="state-machine">State Machine</h2>
+<p>Another bit of knowledge gained from your experience that you&apos;re now building upon is the concept
+that all Applications represent some type of State Machine, with some more complex than others.
+Often times these State Machines are nested.</p>
+<p>By considering our Matrix Model as a set of not only things our Application
+needs to be able to do, but also as a set of States that represent distinct contexts within which a User of our Application
+can enter or move through, you open up the door to more.</p>
+<p>Stepping back from a simple
+Client-Server Application of Request/Reply to focus on the Platform idea, you start to focus on how Users <em>experience</em> our
+Applications and how our <em><strong>Applications experience our Users</strong></em> interacting with it at all
+levels regardless of how that is accomplished.  You recognize that any Application is a State
+Machine with <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a trigram with attached associated data.">Application Contexts</a> representing the state at any given moment.  You also see
+that the totality of the state of an Application at any given moment in time is the aggregation
+of a set of <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a trigram with attached associated data.">Application Contexts</a> that the User is currently experiencing or the User has
+initiated within the Application, e.g. a User can be Viewing a Folder in the Admin while also
+Adding Content to that Folder.</p>
+<p>With this Model you see the possibilities unfolding ahead of you for building this Platform.</p>
+<p>Remember that the Matrix Model is now representing the set of <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a trigram with attached associated data.">Application Contexts</a> that a User
+will experience or flow through as the User interacts with the Application.</p>
+<h2 id="global-features">Global Features</h2>
+<p>You&apos;re now excited about this Platform architecture and using <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a trigram with attached associated data.">Application Contexts</a> as the
+extension points for building Features and Modules when you start to wonder if there are Features
+that would be harder to add within this model, or just don&apos;t fit.  You immediately consider
+whether audit logging is a Feature or not.</p>
+<p>Why not?</p>
+<p>Beyond logging for diagnostics information in troubleshooting, audit logging is for keeping track
+of who did what and when so that the application can provide that information to those who need
+to know who&apos;s making changes to the system and verifying whether they should have that ability or
+not.</p>
+<p>In other words, it occurs to you that there are some Features you want to build that will be interested in
+more than one <a href="../GLOSSARY.html#orientation" class="glossary-term" title="the perspective of the interaction with the system at the moment of this operation
+on this thing in the TAO&apos;s Application Context">Orientation</a> or <a href="../GLOSSARY.html#term" class="glossary-term" title="the thing or subject in the TAO&apos;s Application Context - conceptually usually a domain entity but not limited to only domain entities">Term</a> or even more than one <a href="../GLOSSARY.html#action" class="glossary-term" title="the operation being performed on the thing in the TAO&apos;s Application Context">Action</a>.</p>
+<p>Does it make sense to force developers to have to
+hook into/extend the Application at each point?  How large and burdensome can that get?  What about Features that come along later with new <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a trigram with attached associated data.">Application Contexts</a> that weren&apos;t expected?</p>
+<h3 id="aop">AOP</h3>
+<p>Not many have heard of it, but once upon a time, in January 2003 I attended a lecture by Ivar Jacobson, one of the 3 creators of Rational, the Rational Unified Process (RUP) and UML.  In his lecture he mentioned Aspect-Oriented Programming.  I even won a raffle that he signed a copy of his book to me.</p>
+<p><img src="rup_book.png" alt=""> <img src="signed_book.png" alt=""></p>
+<p>During the lecture, Ivar spoke about several topics, namely his primary topic of Testing Designs
+(before they make it to code), but he also threw out another topic I had to look up later (smart
+phones were not a thing yet).  He mentioned AOP.</p>
+<p>Aspect-Oriented Programming (AOP) makes a distinction between business component logic, that
+which is particular to a specific part of an application, versus Cross-Cutting Concerns, or those
+parts of an application that &quot;cross-cut&quot; all components, the most obvious example being logging.</p>
+<p>As you think about the Audit Logging feature, you&apos;re reminded of AOP and that it&apos;s a cross-cutting
+concern for not only applications, but the platform itself.</p>
+<p>How can we enable the audit logging as a &quot;cross-cutting&quot; concern to be built using our extension
+mechanism?  Is it even possible?</p>
+<p>You realize that if you could solve this, then it would enable the Platform design to provide
+cross-cutting capabilities for extension like what&apos;s expected in AOP without having to change the design of
+the extension point mechanism and without the distaste of providing a new and competing
+extension point mechanism for the Platform.</p>
+<h3 id="wildcards">Wildcards</h3>
+<p>What if we allow a Feature that is using the Platform&apos;s extension point mechanism to essentially
+subscribe to all of the <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a trigram with attached associated data.">Application Contexts</a> that occur, or only those that occur on a given dimension or two, leaving the other dimension(s) free from being fixed?</p>
+<p>You realize that by allowing this level of freedom, you enable a whole set of capabilities for
+building Features without changing our extension point mechanism.  While this will certainly
+affect how it has to be implemented, the extension point mechanism for developers is demonstrably
+enhanced without changing its interface or having to introduce another competing mechanism.</p>
+<p>So instead of being limited to only fixed <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a trigram with attached associated data.">Application Contexts</a> like:</p>
+<ul>
+<li><code>{Content, Create, Admin}</code></li>
+<li><code>{Folder-Content, View, Portal}</code></li>
+</ul>
+<p>developers can also make use of:</p>
+<ul>
+<li><code>{*, *, *}</code></li>
+<li><code>{Content, *, Admin}</code></li>
+<li><code>{*, *, Portal}</code></li>
+</ul>
+<h2 id="representing-application-contexts">Representing Application Contexts</h2>
+<p>You feel very good about these decisions and more emboldened by how it&apos;s going to empower
+developers to build on top of the Platform&apos;s Matrix Model of <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a trigram with attached associated data.">Application Contexts</a>, while be able
+to provide a single mechanism to extend the Platform.</p>
+<p>Next up you start to consider how to represent <a href="../GLOSSARY.html#application-contexts" class="glossary-term" title="Representation of a State the System is transitioning to at a given point in time
+described by a trigram with attached associated data.">Application Contexts</a> and how to actually deliver
+a programmable interface that developers can use in building what becomse a <a href="reactive.html">Reactive</a>
+system.</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="platform.html" class="navigation navigation-prev " aria-label="Previous page: Designing the App as a Platform">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="reactive.html" class="navigation navigation-next " aria-label="Next page: Reactive">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Application Context","level":"2.1.6","depth":2,"next":{"title":"Reactive","level":"2.1.7","depth":2,"path":"story/reactive.md","ref":"story/reactive.md","articles":[]},"previous":{"title":"Designing the App as a Platform","level":"2.1.5","depth":2,"path":"story/platform.md","ref":"story/platform.md","articles":[]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"story/appcons.md","mtime":"2020-03-29T23:57:28.019Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-03-30T07:25:26.490Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

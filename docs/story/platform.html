@@ -1,0 +1,1464 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Designing the App as a Platform · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-prism/prism.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-advanced-emoji/emoji-website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="appcons.html" />
+    
+    
+    <link rel="prev" href="matrix.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" >
+            
+                <a target="_blank" href="https://gitter.im/tao-land/tao.js">
+            
+                    
+                    Gitter Chat
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    README
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="2.1" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    An Origin Story
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1.1" data-path="problem.html">
+            
+                <a href="problem.html">
+            
+                    
+                    The Problem
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.2" data-path="reqs.html">
+            
+                <a href="reqs.html">
+            
+                    
+                    Requirements
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.3" data-path="data.html">
+            
+                <a href="data.html">
+            
+                    
+                    Apps are Data
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.4" data-path="matrix.html">
+            
+                <a href="matrix.html">
+            
+                    
+                    Building a Matrix
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="2.1.5" data-path="platform.html">
+            
+                <a href="platform.html">
+            
+                    
+                    Designing the App as a Platform
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.6" data-path="appcons.html">
+            
+                <a href="appcons.html">
+            
+                    
+                    Application Context
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.7" data-path="reactive.html">
+            
+                <a href="reactive.html">
+            
+                    
+                    Reactive
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.1.8" data-path="the-tao.html">
+            
+                <a href="the-tao.html">
+            
+                    
+                    End Result
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2" data-path="../intro/">
+            
+                <a href="../intro/">
+            
+                    
+                    Introduction
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.2.1" >
+            
+                <span>
+            
+                    
+                    Where are you coming from?
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.2.1.1" data-path="../intro/as-events.html">
+            
+                <a href="../intro/as-events.html">
+            
+                    
+                    Client Side, Event-driven development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.1.2" data-path="../intro/as-api.html">
+            
+                <a href="../intro/as-api.html">
+            
+                    
+                    Back end API development
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.1.3" data-path="../intro/as-messaging.html">
+            
+                <a href="../intro/as-messaging.html">
+            
+                    
+                    Back end Messaging development
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2" >
+            
+                <span>
+            
+                    
+                    Why do I want this?
+            
+                </span>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.2.2.1" data-path="../intro/decoupling.html">
+            
+                <a href="../intro/decoupling.html">
+            
+                    
+                    Decoupling Application from Architecture
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2.2" data-path="../intro/platform-framework.html">
+            
+                <a href="../intro/platform-framework.html">
+            
+                    
+                    A Framework for Building a Platform
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2.3" data-path="../intro/entropy.html">
+            
+                <a href="../intro/entropy.html">
+            
+                    
+                    Entropy in Software
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2.4" data-path="../intro/antifragile.html">
+            
+                <a href="../intro/antifragile.html">
+            
+                    
+                    Antifragile Software
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.2.5" data-path="../intro/motivations.html">
+            
+                <a href="../intro/motivations.html">
+            
+                    
+                    Motivations & Goals of tao.js
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.3" data-path="../intro/basic-terms.html">
+            
+                <a href="../intro/basic-terms.html">
+            
+                    
+                    Basic Terminology
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2.4" data-path="../intro/roadmap.html">
+            
+                <a href="../intro/roadmap.html">
+            
+                    
+                    Development Roadmap
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3" data-path="../basics/">
+            
+                <a href="../basics/">
+            
+                    
+                    Basics
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.3.1" data-path="../basics/defining-app-cons.html">
+            
+                <a href="../basics/defining-app-cons.html">
+            
+                    
+                    Defining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.2" data-path="../basics/setting-app-cons.html">
+            
+                <a href="../basics/setting-app-cons.html">
+            
+                    
+                    Setting AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.3" data-path="../basics/define-handlers.html">
+            
+                <a href="../basics/define-handlers.html">
+            
+                    
+                    Defining Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.4" data-path="../basics/handlers.html">
+            
+                <a href="../basics/handlers.html">
+            
+                    
+                    Add Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.5" data-path="../basics/chaining.html">
+            
+                <a href="../basics/chaining.html">
+            
+                    
+                    Chaining AppCons
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.3.6" data-path="../basics/wildcards.html">
+            
+                <a href="../basics/wildcards.html">
+            
+                    
+                    Wildcard Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4" data-path="../advanced/">
+            
+                <a href="../advanced/">
+            
+                    
+                    Advanced
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.4.1" data-path="../advanced/inline-handlers.html">
+            
+                <a href="../advanced/inline-handlers.html">
+            
+                    
+                    Inline Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.2" data-path="../advanced/async-handlers.html">
+            
+                <a href="../advanced/async-handlers.html">
+            
+                    
+                    Async Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.3" data-path="../advanced/intercept-handlers.html">
+            
+                <a href="../advanced/intercept-handlers.html">
+            
+                    
+                    Intercept Handlers
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.4" data-path="../advanced/order-of-handlers.html">
+            
+                <a href="../advanced/order-of-handlers.html">
+            
+                    
+                    Order of Operations
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.5" data-path="../advanced/promise-hook.html">
+            
+                <a href="../advanced/promise-hook.html">
+            
+                    
+                    Promise Hook
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.4.6" data-path="../advanced/kernels.html">
+            
+                <a href="../advanced/kernels.html">
+            
+                    
+                    Instantiating Kernels
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5" data-path="../client-react/">
+            
+                <a href="../client-react/">
+            
+                    
+                    Using with React.js
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.5.1" data-path="../client-react/provider.html">
+            
+                <a href="../client-react/provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.2" data-path="../client-react/render-handler.html">
+            
+                <a href="../client-react/render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.3" data-path="../client-react/switch-handler.html">
+            
+                <a href="../client-react/switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.4" data-path="../client-react/with-context.html">
+            
+                <a href="../client-react/with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.5" data-path="../client-react/data-handler.html">
+            
+                <a href="../client-react/data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.6" data-path="../client-react/orig-api/">
+            
+                <a href="../client-react/orig-api/">
+            
+                    
+                    Original API
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.5.6.1" data-path="../client-react/orig-api/adapter.html">
+            
+                <a href="../client-react/orig-api/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.5.6.2" data-path="../client-react/orig-api/reactor.html">
+            
+                <a href="../client-react/orig-api/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6" data-path="../server-side/">
+            
+                <a href="../server-side/">
+            
+                    
+                    Using Server-side
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.6.1" data-path="../server-side/socket-io.html">
+            
+                <a href="../server-side/socket-io.html">
+            
+                    
+                    Socket.io
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.2" data-path="../server-side/koa.html">
+            
+                <a href="../server-side/koa.html">
+            
+                    
+                    Koa Middleware
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.6.3" data-path="../server-side/connect.html">
+            
+                <a href="../server-side/connect.html">
+            
+                    
+                    Connect/Express Middlware
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.7" data-path="../router/">
+            
+                <a href="../router/">
+            
+                    
+                    URL Handling wtih @tao.js/router
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8" data-path="../api/">
+            
+                <a href="../api/">
+            
+                    
+                    API Reference
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.8.1" data-path="../api/core/">
+            
+                <a href="../api/core/">
+            
+                    
+                    @tao.js/core
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.8.1.1" data-path="../api/core/tao.html">
+            
+                <a href="../api/core/tao.html">
+            
+                    
+                    TAO
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.1.2" data-path="../api/core/kernel.html">
+            
+                <a href="../api/core/kernel.html">
+            
+                    
+                    Kernel
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.1.3" data-path="../api/core/appcon.html">
+            
+                <a href="../api/core/appcon.html">
+            
+                    
+                    AppCon
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2" data-path="../api/react/">
+            
+                <a href="../api/react/">
+            
+                    
+                    @tao.js/react
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.8.2.1" data-path="../api/react/provider.html">
+            
+                <a href="../api/react/provider.html">
+            
+                    
+                    Provider
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.2" data-path="../api/react/render-handler.html">
+            
+                <a href="../api/react/render-handler.html">
+            
+                    
+                    RenderHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.3" data-path="../api/react/switch-handler.html">
+            
+                <a href="../api/react/switch-handler.html">
+            
+                    
+                    SwitchHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.4" data-path="../api/react/with-context.html">
+            
+                <a href="../api/react/with-context.html">
+            
+                    
+                    withContext
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.5" data-path="../api/react/data-handler.html">
+            
+                <a href="../api/react/data-handler.html">
+            
+                    
+                    DataHandler
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.6" data-path="../api/react/adapter.html">
+            
+                <a href="../api/react/adapter.html">
+            
+                    
+                    Adapter
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.2.7" data-path="../api/react/reactor.html">
+            
+                <a href="../api/react/reactor.html">
+            
+                    
+                    Reactor
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.8.3" data-path="../api/socket-io/">
+            
+                <a href="../api/socket-io/">
+            
+                    
+                    @tao.js/socket.io
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.8.3.1" data-path="../api/socket-io/wire-socket-io.html">
+            
+                <a href="../api/socket-io/wire-socket-io.html">
+            
+                    
+                    wireTaoJsToSocketIO
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2.9" data-path="../GLOSSARY.html">
+            
+                <a href="../GLOSSARY.html">
+            
+                    
+                    Glossary
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+        
+        <li class="divider"></li>
+        
+        
+    
+        <li class="chapter " data-level="3.1" >
+            
+                <a target="_blank" href="https://github.com/zzyzxlab/tao.js/blob/master/CHANGELOG.md">
+            
+                    
+                    CHANGELOG
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2" >
+            
+                <a target="_blank" href="https://tao.js.org/coverage/index.html">
+            
+                    
+                    Coverage
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href=".." >Designing the App as a Platform</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <h1 id="designing-the-app-as-a-platform">Designing the App as a Platform</h1>
+<p>In order to meet the <a href="reqs.html#packaging-requirements">Packaging Requirements</a>, you need to rethink
+how we not only deliver the product as a Product Line with various configurations  rather than a
+single standalone Product, you need to
+consider how the product itself is built.  Additionally, to provide the right type of <a href="reqs.html#api-requirements">API Requirements</a>
+that will meet the needs of our <a href="../GLOSSARY.html#var" class="glossary-term" title="Stands for Value-Added Reseller">VAR</a> Partners, just providing a REST API isn&apos;t good enough as
+our Partners are looking for ways to embed functionality from other products into our Media
+Management products.</p>
+<p>Based on these requirements, to offer the desired flexibility in our first roll out as well as
+provide future flexibility in the form of Features &amp; Modules, you concluded it makes sense to
+architect our new build as a Platform.  But what&apos;s the right way to do that?</p>
+<h2 id="architecting-the-new-build">Architecting the New Build</h2>
+<p>It&apos;s important that we need to see our application as a Platform instead of just a standalone
+Application in order to meet the <a href="reqs.html#packaging-requirements">Packaging Requirements</a>.  A Platform that has hooks for adding Features and Modules from Integrators and
+Module builders.  If we see it in this way then naturally what if we take it further and look
+at it as a Platform on which we build our own Features and Modules, acting like Integrators and
+Module builders.</p>
+<p>Normally, for a product that is a first build and has some uncertainty around customers and market
+fit, it would be crazy to consider building it as a platform, unless that is the product itself.
+I will demonstrate later that this isn&apos;t the case, but in the normal course of building applications, this would be prudent.</p>
+<p>However, when we have a proven product, that is several years old and demonstrating value in the market to the point there is high demand, and it is undergoing a rewrite due to <a href="problem.html#tech-debt">Technical Debt</a>.  In this case, when the desire is to ultimately provide a platform that
+would itself unlock a lot of potential value to not only our company, but to the Integrators we
+rely on for the bulk of our sales, then starting the new build as a Platform is a more prudent
+option from the start.</p>
+<p>In deciding to move forward with a Platform Architecture, you determine that the first Integrators
+will be our team, and we will build up the functionality of our Product Line on top of a basic
+Platform.  But what is that basic Platform?  Where do we start with that?</p>
+<h2 id="platform-extension">Platform Extension</h2>
+<p>When desiging a Platform for software, the most important decision up front is what are the points
+of extension that will be used by developers to add functionality to the Platform.</p>
+<p>Can we build upon our <a href="matrix.html">3-Dimensional Matrix</a> to become our extensions points?<br>I thought you&apos;d never ask.</p>
+<h3 id="relationships">Relationships</h3>
+<p>What&apos;s missing from our current Matrix Model?<br>Because they can have an important life of their own, separate business logic as well as a level
+importance to building Features and Modules, we&apos;re currently not accounting for Relationships between
+Entities, such as User-Content, User-Folder or Folder-Content relationships, in our current Matrix.</p>
+<p>A simple fix is to elevate Relationships to be first-class like an Entity is within our model.</p>
+<p>So now our example matrix is something like this:</p>
+<table>
+<thead>
+<tr>
+<th><a href="../GLOSSARY.html#term" class="glossary-term" title="the thing or subject in the TAO&apos;s Application Context - conceptually usually a domain entity but not limited to only domain entities">Term</a></th>
+<th>C</th>
+<th>R</th>
+<th>U</th>
+<th>D</th>
+<th>Perspective</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Content</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Portal</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Admin</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Report</td>
+</tr>
+<tr>
+<td>User</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Portal</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Admin</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Report</td>
+</tr>
+<tr>
+<td>User-Content</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Portal</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Admin</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Report</td>
+</tr>
+<tr>
+<td>Folder</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Portal</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Admin</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Report</td>
+</tr>
+<tr>
+<td>Folder-Content</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Portal</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Admin</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Report</td>
+</tr>
+<tr>
+<td>User-Folder</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Portal</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Admin</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Report</td>
+</tr>
+<tr>
+<td>&#x2026;</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>&#x2026;</td>
+</tr>
+</tbody>
+</table>
+<p>Now we are covering anything that our data store would need to keep track of and surfacing it to
+our design via the Matrix Model.</p>
+<h3 id="perspectives">Perspectives</h3>
+<p>Our <em>Perspective</em> s capture how we may store the data in different ways depending upon how
+it will be used, e.g. a very normalized version in our Admin database vs a denormalized version in
+our Portal&apos;s data store designed for handling high read throughput.  Our Perspective also provides
+a bit more:</p>
+<ol>
+<li>we can split up our Modules to only listen for the Perspective they care about</li>
+<li>we can split up the logic used to manipulate the data between Perspectives</li>
+</ol>
+<p>An example of #2 from above would be that when a piece of <code>Content</code> is <code>Created</code> via the <code>Admin</code>,
+its denormalized version will need to be <code>Created</code> in the <code>Portal</code> database.  If our <code>Content</code>
+Module can have some sort of trigger when this occurs to execute the <code>Portal</code> logic after the
+<code>Admin</code> logic succeeds without the <code>Admin</code> logic being aware of it, then we&apos;ve successfully
+decoupled the two through a useful extension point.</p>
+<p>Thus, we now have an extension point mechanism we can use throughout the Platform.</p>
+<h2 id="extending-functionality-through-features">Extending Functionality through Features</h2>
+<p>Now that we have a successful model of our Extension Points for the Platform, how do we want to go
+about adding Features to the Platform?  Like, how would a developer add a Feature or Module to the
+Platorm itself?</p>
+<p>Is it possible to use our Extension Point model for this, too?</p>
+<p>What if we used <code>Feature</code> itself as a <a href="../GLOSSARY.html#term" class="glossary-term" title="the thing or subject in the TAO&apos;s Application Context - conceptually usually a domain entity but not limited to only domain entities">Term</a>?</p>
+<p>Individual Features can be created, read (loaded), updated (upgraded), and deleted (removed) from
+the Platform just like any other Entity.  <strong>And</strong> as a Platform, it would need to keep track of
+these in the same way as any other data in order to surface them correctly.</p>
+<p>Additionally, the relationship between <code>Feature</code>s and other Entities would be important in
+determining:</p>
+<ul>
+<li>which Users can access a Feature?</li>
+<li>which Content does a Feature apply to?</li>
+</ul>
+<p>So if our Extension Point mechanism is also the same mechanism by which a Feature is added,
+loaded, and manipulated within the Platform, then we&apos;re truly on our way to a nice elegant design.</p>
+<h2 id="moving-beyond-crud">Moving Beyond CRUD</h2>
+<p>Next we&apos;ll see how moving beyond basic CRUD operations will allow us to understand our
+applications built using the Platform as a series of <a href="appcons.html">Application Contexts</a>.</p>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="matrix.html" class="navigation navigation-prev " aria-label="Previous page: Building a Matrix">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="appcons.html" class="navigation navigation-next " aria-label="Next page: Application Context">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"Designing the App as a Platform","level":"2.1.5","depth":2,"next":{"title":"Application Context","level":"2.1.6","depth":2,"path":"story/appcons.md","ref":"story/appcons.md","articles":[]},"previous":{"title":"Building a Matrix","level":"2.1.4","depth":2,"path":"story/matrix.md","ref":"story/matrix.md","articles":[]},"dir":"ltr"},"config":{"plugins":["prism","-highlight","advanced-emoji","markdown-toc"],"root":"content","styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"prism":{},"simple-page-toc":{"maxDepth":3,"skipFirstH1":true},"embedEmojis":true,"search":{},"markdown-toc":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"fontsettings":{"theme":"white","family":"sans","size":2},"advanced-emoji":{"embedEmojis":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"gitbook":"*"},"file":{"path":"story/platform.md","mtime":"2020-03-27T13:52:19.721Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2020-03-30T07:25:26.490Z"},"basePath":"..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../gitbook/gitbook.js"></script>
+    <script src="../gitbook/theme.js"></script>
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+

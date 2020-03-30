@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">77.78% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>0/9</span>
+        <span class='fraction'>7/9</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">75% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>0/4</span>
+        <span class='fraction'>3/4</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">50% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>0/4</span>
+        <span class='fraction'>2/4</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">77.78% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>0/9</span>
+        <span class='fraction'>7/9</span>
       </div>
     </div>
   </div>
-  <div class='status-line low'></div>
+  <div class='status-line medium'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -73,49 +73,49 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from 'react';
 &nbsp;
 import createContextHandler from './createContextHandler';
 &nbsp;
-export default function <span class="fstat-no" title="function not covered" >withContext(</span>tao, handler, defaultValue) {
-<span class="cstat-no" title="statement not covered" >  if (typeof handler !== 'function') {</span>
+export default function withContext(tao, handler, defaultValue) {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof handler !== 'function') {
 <span class="cstat-no" title="statement not covered" >    throw new Error('withContext `handler` must be a function');</span>
   }
-  const WrappingContext = <span class="cstat-no" title="statement not covered" >createContextHandler(tao, handler, defaultValue);</span>
-<span class="cstat-no" title="statement not covered" >  return <span class="fstat-no" title="function not covered" >Co</span>mponentToWrap =&gt; {</span>
-    const wrappedComponent = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >pr</span>ops =&gt; (</span>
+  const WrappingContext = createContextHandler(tao, handler, defaultValue);
+  return ComponentToWrap =&gt; {
+    const wrappedComponent = <span class="fstat-no" title="function not covered" >pr</span>ops =&gt; (
 <span class="cstat-no" title="statement not covered" >      &lt;WrappingContext.Provider&gt;</span>
         &lt;WrappingContext.Consumer&gt;
           {/* value =&gt;
             React.cloneElement(ComponentToWrap, { data: value, ...props })
           */}
-          {<span class="fstat-no" title="function not covered" >va</span>lue =&gt; <span class="cstat-no" title="statement not covered" >&lt;ComponentToWrap data={value} {...props} /&gt;}</span>
+          {<span class="fstat-no" title="function not covered" >va</span>lue =&gt; &lt;ComponentToWrap data={value} {...props} /&gt;}
         &lt;/WrappingContext.Consumer&gt;
       &lt;/WrappingContext.Provider&gt;
     );
-<span class="cstat-no" title="statement not covered" >    wrappedComponent.displayName = `withContext(${ComponentToWrap.displayName ||</span>
+    wrappedComponent.displayName = `withContext(${ComponentToWrap.displayName ||
       ComponentToWrap.name}`;
-<span class="cstat-no" title="statement not covered" >    return wrappedComponent;</span>
+    return wrappedComponent;
   };
 }
 &nbsp;</pre></td></tr>
@@ -124,7 +124,7 @@ export default function <span class="fstat-no" title="function not covered" >wit
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Sat May 18 2019 23:30:58 GMT-0700 (PDT)
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Sun Mar 29 2020 14:42:53 GMT-0700 (Pacific Daylight Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

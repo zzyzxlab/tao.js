@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for packages/tao-utils/src/Channel.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../../index.html">All files</a> / <a href="index.html">packages/tao-utils/src</a> Channel.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">2.56% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>1/39</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/10</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/20</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">2.63% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>1/38</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// import { Kernel } from '@tao.js/core';
+import { Network } from '@tao.js/core';
+import seive from './seive';
+&nbsp;
+let channelId = 0;
+function <span class="fstat-no" title="function not covered" >newChannelId(</span>) {
+<span class="cstat-no" title="statement not covered" >  return ++channelId;</span>
+}
+&nbsp;
+function <span class="fstat-no" title="function not covered" >channelControl(</span>channelId) {
+<span class="cstat-no" title="statement not covered" >  return { channelId };</span>
+}
+&nbsp;
+export default class Channel {
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(kernel, id) {
+    //, { t, term, a, action, o, orient }) {
+<span class="cstat-no" title="statement not covered" >    this._channelId = typeof id === 'function' ? id(newChannelId()) : id || newChannelId();</span>
+<span class="cstat-no" title="statement not covered" >    this._channel = new Network();</span>
+<span class="cstat-no" title="statement not covered" >    this._channel.use(this.handleAppCon);</span>
+    // this._kernel = new Kernel(kernel.canSetWildcard);
+<span class="cstat-no" title="statement not covered" >    this._network = kernel._network;</span>
+<span class="cstat-no" title="statement not covered" >    this._cloneWithId = typeof id === 'function' ? id : undefined;</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  cl</span>one(cloneId) {
+    const clone = <span class="cstat-no" title="statement not covered" >new Channel({ _network: this._network }, cloneId || this._cloneWithId);</span>
+<span class="cstat-no" title="statement not covered" >    clone._channel = this._channel;</span>
+<span class="cstat-no" title="statement not covered" >    return clone;</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  se</span>tCtx({ t, term, a, action, o, orient }, data) {
+<span class="cstat-no" title="statement not covered" >    this._network.setCtxControl(</span>
+      { t, term, a, action, o, orient },
+      data,
+      channelControl(this._channelId),
+<span class="fstat-no" title="function not covered" >      (a</span>c, control) =&gt; <span class="cstat-no" title="statement not covered" >this.forwardAppCtx(ac, control)</span>
+    );
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  se</span>tAppCtx(ac) {
+<span class="cstat-no" title="statement not covered" >    this._network.setAppCtxControl(</span>
+      ac,
+      channelControl(this._channelId),
+<span class="fstat-no" title="function not covered" >      (a</span>c, control) =&gt; <span class="cstat-no" title="statement not covered" >this.forwardAppCtx(ac, control)</span>
+    );
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  fo</span>rwardAppCtx(ac, control) {
+<span class="cstat-no" title="statement not covered" >    console.log(</span>
+      `channel{${this._channelId}}::forwardAppCtx::ac:`,
+      ac.unwrapCtx()
+    );
+<span class="cstat-no" title="statement not covered" >    console.log(</span>
+      `channel{${this._channelId}}::forwardAppCtx::control:`,
+      control
+    );
+<span class="cstat-no" title="statement not covered" >    if (control.channelId === this._channelId) {</span>
+<span class="cstat-no" title="statement not covered" >      console.log(</span>
+        `channel{${this._channelId}}::forwardAppCtx::control check passed`
+      );
+      // this._kernel.setAppCtx(ac);
+<span class="cstat-no" title="statement not covered" >      this._channel.setAppCtxControl(ac, control, <span class="fstat-no" title="function not covered" >a </span>=&gt; <span class="cstat-no" title="statement not covered" >this.setAppCtx(a))</span>;</span>
+    }
+<span class="cstat-no" title="statement not covered" >    console.log(</span>
+      `channel{${
+        this._channelId
+      }}::forwardAppCtx::calling network.setAppCtxControl`
+    );
+<span class="cstat-no" title="statement not covered" >    this._network.setAppCtxControl(ac, control, <span class="fstat-no" title="function not covered" >(a</span>, c) =&gt;</span>
+<span class="cstat-no" title="statement not covered" >      this.forwardAppCtx(a, c)</span>
+    );
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  ha</span>ndleAppCon(handler, ac, forwardAppCtx, control) {
+<span class="cstat-no" title="statement not covered" >    return handler.handleAppCon(ac, forwardAppCtx, control);</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  ad</span>dInterceptHandler({ t, term, a, action, o, orient }, handler) {
+    // this._kernel.addInterceptHandler(
+<span class="cstat-no" title="statement not covered" >    this._channel.addInterceptHandler(</span>
+      { t, term, a, action, o, orient },
+      handler
+    );
+<span class="cstat-no" title="statement not covered" >    return this;</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  ad</span>dAsyncHandler({ t, term, a, action, o, orient }, handler) {
+    // this._kernel.addAsyncHandler({ t, term, a, action, o, orient }, handler);
+<span class="cstat-no" title="statement not covered" >    this._channel.addAsyncHandler({ t, term, a, action, o, orient }, handler);</span>
+<span class="cstat-no" title="statement not covered" >    return this;</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  ad</span>dInlineHandler({ t, term, a, action, o, orient }, handler) {
+    // this._kernel.addInlineHandler({ t, term, a, action, o, orient }, handler);
+<span class="cstat-no" title="statement not covered" >    this._channel.addInlineHandler({ t, term, a, action, o, orient }, handler);</span>
+<span class="cstat-no" title="statement not covered" >    return this;</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  re</span>moveInterceptHandler({ t, term, a, action, o, orient }, handler) {
+    // this._kernel.removeInterceptHandler(
+<span class="cstat-no" title="statement not covered" >    this._channel.removeInterceptHandler(</span>
+      { t, term, a, action, o, orient },
+      handler
+    );
+<span class="cstat-no" title="statement not covered" >    return this;</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  re</span>moveAsyncHandler({ t, term, a, action, o, orient }, handler) {
+    // this._kernel.removeAsyncHandler({ t, term, a, action, o, orient }, handler);
+<span class="cstat-no" title="statement not covered" >    this._channel.removeAsyncHandler(</span>
+      { t, term, a, action, o, orient },
+      handler
+    );
+<span class="cstat-no" title="statement not covered" >    return this;</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  re</span>moveInlineHandler({ t, term, a, action, o, orient }, handler) {
+    // this._kernel.removeInlineHandler(
+<span class="cstat-no" title="statement not covered" >    this._channel.removeInlineHandler(</span>
+      { t, term, a, action, o, orient },
+      handler
+    );
+<span class="cstat-no" title="statement not covered" >    return this;</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  br</span>idgeFrom(TAO, ...trigrams) {
+<span class="cstat-no" title="statement not covered" >    return seive(</span>
+      this._channelId,
+      TAO,
+      this,
+<span class="fstat-no" title="function not covered" >      (a</span>c, control) =&gt; <span class="cstat-no" title="statement not covered" >control.channelId !== this._channelId,</span>
+      ...trigrams
+    );
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Sun Mar 29 2020 14:42:53 GMT-0700 (Pacific Daylight Time)
+</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>
