@@ -2,9 +2,12 @@
 import { Network } from '@tao.js/core';
 import seive from './seive';
 
+// for backwards compatibility
+const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
+
 let channelId = 0;
 function newChannelId() {
-  return ++channelId;
+  return (channelId = ++channelId % MAX_SAFE_INTEGER);
 }
 
 function channelControl(channelId) {
@@ -12,17 +15,36 @@ function channelControl(channelId) {
 }
 
 export default class Channel {
+  /**
+   *Creates an instance of Channel.
+   * @param {Kernel} kernel - an instance of a Kernel or other TAO Network on which to build a Channel by sharing the same underlying Network
+   * @param {(string|function)} [id] - pass either a desired Channel ID value as a `string` or a `function` that will be used to generate a Channel ID
+   *        the `function` will be called with a new Channel ID integer value to help ensure uniqueness
+   * @memberof Channel
+   */
   constructor(kernel, id) {
-    //, { t, term, a, action, o, orient }) {
-    this._channelId = id || newChannelId();
+    this._channelId =
+      typeof id === 'function' ? id(newChannelId()) : id || newChannelId();
     this._channel = new Network();
     this._channel.use(this.handleAppCon);
-    // this._kernel = new Kernel(kernel.canSetWildcard);
     this._network = kernel._network;
+    this._cloneWithId = typeof id === 'function' ? id : undefined;
   }
 
+  /**
+   * Clones a Channel
+   *
+   * @param {(string|function)} [cloneId] - used as the cloned `Channel`'s ID,
+   *          same as the `id` param to the `Channel` constructor, either an
+   *          explicit value as a `string` or a `function` used to generate the Channel ID
+   * @returns
+   * @memberof Channel
+   */
   clone(cloneId) {
-    const clone = new Channel({ _network: this._network }, cloneId);
+    const clone = new Channel(
+      { _network: this._network },
+      cloneId || this._cloneWithId
+    );
     clone._channel = this._channel;
     return clone;
   }
@@ -57,7 +79,6 @@ export default class Channel {
       console.log(
         `channel{${this._channelId}}::forwardAppCtx::control check passed`
       );
-      // this._kernel.setAppCtx(ac);
       this._channel.setAppCtxControl(ac, control, a => this.setAppCtx(a));
     }
     console.log(
@@ -75,7 +96,6 @@ export default class Channel {
   }
 
   addInterceptHandler({ t, term, a, action, o, orient }, handler) {
-    // this._kernel.addInterceptHandler(
     this._channel.addInterceptHandler(
       { t, term, a, action, o, orient },
       handler
@@ -84,19 +104,16 @@ export default class Channel {
   }
 
   addAsyncHandler({ t, term, a, action, o, orient }, handler) {
-    // this._kernel.addAsyncHandler({ t, term, a, action, o, orient }, handler);
     this._channel.addAsyncHandler({ t, term, a, action, o, orient }, handler);
     return this;
   }
 
   addInlineHandler({ t, term, a, action, o, orient }, handler) {
-    // this._kernel.addInlineHandler({ t, term, a, action, o, orient }, handler);
     this._channel.addInlineHandler({ t, term, a, action, o, orient }, handler);
     return this;
   }
 
   removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
-    // this._kernel.removeInterceptHandler(
     this._channel.removeInterceptHandler(
       { t, term, a, action, o, orient },
       handler
@@ -105,7 +122,6 @@ export default class Channel {
   }
 
   removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
-    // this._kernel.removeAsyncHandler({ t, term, a, action, o, orient }, handler);
     this._channel.removeAsyncHandler(
       { t, term, a, action, o, orient },
       handler
@@ -114,7 +130,6 @@ export default class Channel {
   }
 
   removeInlineHandler({ t, term, a, action, o, orient }, handler) {
-    // this._kernel.removeInlineHandler(
     this._channel.removeInlineHandler(
       { t, term, a, action, o, orient },
       handler
