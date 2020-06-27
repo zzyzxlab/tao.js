@@ -179,3 +179,12 @@ Which will start `commitizen` for you to generate the commit message in the desi
 - [ ] complete `@tao.js/cli` package
   - [ ] unit tests
   - [ ] update `docs` with `@tao.js/cli`
+
+## Publishing
+
+```sh
+$ npm run build
+$ npm run docs:make
+$ npm run chore:publish
+$ npm run chore:changelog
+```
