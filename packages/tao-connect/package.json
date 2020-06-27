@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/connect",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "connect middleware to hook tao into express or other connect compliant framework",
   "private": true,
   "main": "index.js",
