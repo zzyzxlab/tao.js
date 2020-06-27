@@ -159,7 +159,9 @@ export default class Network {
     if (typeof middleware !== 'function') {
       throw new Error('middleware must be a function');
     }
-    this._middleware.add(middleware);
+    if (!this._middleware.has(middleware)) {
+      this._middleware.add(middleware);
+    }
   }
 
   stop(middleware) {
