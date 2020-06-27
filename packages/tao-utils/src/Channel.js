@@ -14,6 +14,13 @@ function channelControl(channelId) {
   return { channelId };
 }
 
+/**
+ * Filters handling of AppCons to the set of attached handlers of the Channel for only those
+ * AppCons that had a preceding AppCon originate from this Channel.
+ *
+ * @export
+ * @class Channel
+ */
 export default class Channel {
   /**
    *Creates an instance of Channel.
@@ -27,7 +34,7 @@ export default class Channel {
       typeof id === 'function' ? id(newChannelId()) : id || newChannelId();
     this._channel = new Network();
     this._channel.use(this.handleAppCon);
-    this._network = kernel._network;
+    this._network = typeof kernel.use === 'function' ? kernel : kernel._network;
     this._cloneWithId = typeof id === 'function' ? id : undefined;
   }
 
@@ -45,8 +52,16 @@ export default class Channel {
       { _network: this._network },
       cloneId || this._cloneWithId
     );
-    clone._channel = this._channel;
+    clone._channel = this._channel.clone();
     return clone;
+  }
+
+  use(middleware) {
+    this._channel.use(middleware);
+  }
+
+  stop(middleware) {
+    this._channel.stop(middleware);
   }
 
   setCtx({ t, term, a, action, o, orient }, data) {
@@ -58,11 +73,45 @@ export default class Channel {
     );
   }
 
+  setCtxControl(
+    { t, term, a, action, o, orient },
+    data,
+    control,
+    forwardAppCtx
+  ) {
+    const chanCtrl = channelControl(this._channelId);
+    this._network.setCtxControl(
+      { t, term, a, action, o, orient },
+      data,
+      { ...control, ...chanCtrl },
+      (ac, control) => {
+        this.forwardAppCtx(ac, control);
+        if (typeof forwardAppCtx === 'function') {
+          forwardAppCtx(ac, control);
+        }
+      }
+    );
+  }
+
   setAppCtx(ac) {
     this._network.setAppCtxControl(
       ac,
       channelControl(this._channelId),
       (ac, control) => this.forwardAppCtx(ac, control)
+    );
+  }
+
+  setAppCtxControl(ac, control, forwardAppCtx) {
+    const chanCtrl = channelControl(this._channelId);
+    this._network.setAppCtxControl(
+      ac,
+      { ...control, ...chanCtrl },
+      (ac, control) => {
+        this.forwardAppCtx(ac, control);
+        if (typeof forwardAppCtx === 'function') {
+          forwardAppCtx(ac, control);
+        }
+      }
     );
   }
 
