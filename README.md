@@ -185,6 +185,12 @@ Which will start `commitizen` for you to generate the commit message in the desi
 ```sh
 $ npm run build
 $ npm run docs:make
-$ npm run chore:publish
+```
+
+update version in `package.jsom`
+
+```sh
 $ npm run chore:changelog
+$ npx git cz # ensure changelog updated
+$ npm run chore:publish
 ```

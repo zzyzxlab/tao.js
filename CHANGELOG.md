@@ -1,3 +1,21 @@
+# [0.11.0](https://github.com/zzyzxlab/tao.js/compare/v0.9.0...v0.11.0) (2020-06-27)
+
+### Bug Fixes
+
+- **fluent:** channel & Transponder in utils was not returning `this` for fluent chaining of handlers l ([df35d6b](https://github.com/zzyzxlab/tao.js/commit/df35d6b))
+- **Network:** prevent same middleware from being added multiple times ([d06913f](https://github.com/zzyzxlab/tao.js/commit/d06913f))
+
+### Features
+
+- **Channel:** id and cloneId params can now take a function used to generate channel ID ([72fb205](https://github.com/zzyzxlab/tao.js/commit/72fb205))
+- **Channel:** implements elements of Network interface ([68164a5](https://github.com/zzyzxlab/tao.js/commit/68164a5))
+- **Transponder:** transponder is now composable to other Network implementations to attach promise ([ebc2e62](https://github.com/zzyzxlab/tao.js/commit/ebc2e62)), closes [#21](https://github.com/zzyzxlab/tao.js/issues/21)
+
+### BREAKING CHANGES
+
+- **Transponder:** Transponder no longer implements Kernel interface of add/remove handlers||To get the pre-existing
+  behavior create a Channel and pass that to the Transponder constructor
+
 # [0.9.0](https://github.com/zzyzxlab/tao.js/compare/v0.8.1...v0.9.0) (2019-08-11)
 
 Big changes as `@tao.js/core`'s `Kernel` was refactored underneath to delegate to
