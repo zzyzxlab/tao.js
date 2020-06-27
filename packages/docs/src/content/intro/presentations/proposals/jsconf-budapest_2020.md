@@ -37,7 +37,7 @@ architecture easily without affecting the App's functionality.
 
 Every App no matter how carefully crafted at the outset incurs Technical Debt.  Our choice then becomes to solve it early with a lot of upfront architectural work or solve it later by moving quickly on the Application itself.  I say, "why choose?"
 
-By leveraging proven architectural principles, tao.js was built to provide a simplified way of Decoupling our Apps from the Architecture on which they reside to allow each to evolve as necessary and only when needed.  In this talk you will learn Why it works with onstage live coding of converting an existing application to use tao.js, and then evolve the App's architecture easily without affecting the App's functionality.
+By leveraging proven architectural principles, tao.js was built to enhance the technologies we already use and provide a simplified way of Decoupling our Apps from the Architecture on which they reside to allow each to evolve as necessary and only when needed.  In this talk you will learn Why it works with onstage live coding of converting an existing application to use tao.js, and then evolve the App's architecture easily without affecting the App's functionality.
 
 ## More Details
 
