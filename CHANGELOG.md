@@ -1,3 +1,10 @@
+## [0.11.1](https://github.com/zzyzxlab/tao.js/compare/v0.11.0...v0.11.1) (2020-06-28)
+
+### Bug Fixes
+
+- **koa:** add new index.js to import tao-http-middleware.js ([8ef8cbd](https://github.com/zzyzxlab/tao.js/commit/8ef8cbd))
+- **koa:** fixed koa middleware to use Channel + Transponder ([84a0cba](https://github.com/zzyzxlab/tao.js/commit/84a0cba))
+
 # [0.11.0](https://github.com/zzyzxlab/tao.js/compare/v0.9.0...v0.11.0) (2020-06-27)
 
 ### Bug Fixes
