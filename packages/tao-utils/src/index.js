@@ -2,7 +2,8 @@ import trigramFilter from './trigram-filter';
 import Channel from './Channel';
 import Source from './Source';
 import Transponder from './Transponder';
+import Transceiver from './Transceiver';
 import seive from './seive';
 export * from './bridge';
 
-export { trigramFilter, Channel, Source, Transponder, seive };
+export { trigramFilter, Channel, Source, Transponder, Transceiver, seive };
