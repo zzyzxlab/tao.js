@@ -2,12 +2,8 @@
   // See http://go.microsoft.com/fwlink/?LinkId=827846
   // for the documentation about the extensions.json format
   "recommendations": [
-    // Extension identifier format: ${publisher}.${name}. Example: vscode.csharp
-    "EditorConfig.editorconfig",
-    // "hnw.vsode-auto-open-markdown-preview",
+    "editorconfig.editorconfig",
     "dzannotti.vscode-babel-coloring",
-    // "eamodio.vscode-gitlens",
-    // "kisstkondoros.vscode-codemetrics", // don't use
     "pflannery.vscode-versionlens",
     "chrmarti.regex",
     "vikas.code-navigation",
@@ -16,7 +12,6 @@
     "msjsdiag.debugger-for-chrome",
     "firefox-devtools.vscode-firefox-debug",
     "iradul.debugger-for-phantomjs",
-    "joelday.docthis",
     "abierbaum.vscode-file-peek",
     "waderyan.gitblame",
     "donjayamanne.githistory",
@@ -27,13 +22,14 @@
     "sallar.json-to-js-object",
     "nfiorello.split-copy-path",
     "cssho.vscode-svgviewer",
-    "jsTestGen.js-test-gen-vscode",
+    "jstestgen.js-test-gen-vscode",
     "roblourens.unittest-navigate",
     "mezzalab.vscode-annotations",
     "vscode-icons-team.vscode-icons",
-    "DavidAnson.vscode-markdownlint",
+    "davidanson.vscode-markdownlint",
     "eg2.vscode-npm-script",
     "christian-kohler.npm-intellisense",
-    "Orta.vscode-jest"
+    "orta.vscode-jest",
+    "oouo-diogo-perdigao.docthis"
   ]
 }
