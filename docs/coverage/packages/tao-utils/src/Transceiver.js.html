@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for packages/tao-utils/src/Transceiver.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../../index.html">All files</a> / <a href="index.html">packages/tao-utils/src</a> Transceiver.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">3% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>3/100</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/55</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/24</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">3% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>3/100</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Network } from '@tao.js/core';
+&nbsp;
+// for backwards compatibility
+const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
+&nbsp;
+let transceiverId = 0;
+function <span class="fstat-no" title="function not covered" >newTransceiverId(</span>) {
+<span class="cstat-no" title="statement not covered" >  return (transceiverId = ++transceiverId % MAX_SAFE_INTEGER);</span>
+}
+&nbsp;
+let signalId = 0;
+function <span class="fstat-no" title="function not covered" >newSignalId(</span>) {
+<span class="cstat-no" title="statement not covered" >  return (signalId = ++signalId % MAX_SAFE_INTEGER);</span>
+}
+&nbsp;
+function <span class="fstat-no" title="function not covered" >transceiverControl(</span>transceiverId, resolve, reject) {
+<span class="cstat-no" title="statement not covered" >  return { transceiverId, signal: { id: newSignalId(), resolve, reject } };</span>
+}
+&nbsp;
+/**
+ * Like a Transponder, a Transceiver converts Signals on a Network to Promises.
+ * Unlike a Transponder, a Transceiver allows the handlers attached to it to control
+ * the behavior of the Promise.
+ *
+ * If a Handler returns an AppCtx, then it will be chained like a standard handler.
+ *
+ * If a Handler returns something other than an AppCtx it will behave as the following:
+ * - returning truthy value from an InterceptHandler will REJECT the Promise
+ * - returning any value not `null` or `undefined` from an AsyncHandler or InlineHandler
+ *   it will be used to RESOLVE the Promise
+ * - throwing an Error in any Handler will REJECT the Promise
+ *
+ * A signal to a Promise can only happen once, so the first thing that happens
+ * will conclude the Promise despite other handlers that may be continue to be
+ * called depending on how you set up your Handlers
+ *
+ * @export
+ * @class Transceiver
+ */
+export default class Transceiver {
+<span class="fstat-no" title="function not covered" >  co</span>nstructor(network, id, timeoutMs = <span class="branch-0 cbranch-no" title="branch not covered" >0,</span> promise = <span class="branch-0 cbranch-no" title="branch not covered" >Promise)</span> {
+<span class="cstat-no" title="statement not covered" >    this._transceiverId =</span>
+      typeof id === 'function'
+        ? id(newTransceiverId())
+        : id || newTransceiverId();
+<span class="cstat-no" title="statement not covered" >    this._signals = new Network();</span>
+<span class="cstat-no" title="statement not covered" >    this._signals.use(this.handleSignalAppCon);</span>
+<span class="cstat-no" title="statement not covered" >    this._network =</span>
+      typeof network.use === 'function' ? network : network._network;
+<span class="cstat-no" title="statement not covered" >    this._timeoutMs = timeoutMs;</span>
+<span class="cstat-no" title="statement not covered" >    this._promise = promise;</span>
+<span class="cstat-no" title="statement not covered" >    this._cloneWithId = typeof id === 'function' ? id : undefined;</span>
+  }
+&nbsp;
+  setCtx = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> t, term, a, action, o, orient }, data) =&gt; {</span>
+    const transceiverId = <span class="cstat-no" title="statement not covered" >this._transceiverId;</span>
+    const timeoutMs = <span class="cstat-no" title="statement not covered" >this._timeoutMs;</span>
+    const promise = <span class="cstat-no" title="statement not covered" >this._promise;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    return new promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      if (timeoutMs) {</span>
+<span class="cstat-no" title="statement not covered" >        setTimeout(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >          reject(`reached timeout of: ${timeoutMs}ms`);</span>
+        }, timeoutMs);
+      }
+<span class="cstat-no" title="statement not covered" >      this._network.setCtxControl(</span>
+        { t, term, a, action, o, orient },
+        data,
+        transceiverControl(transceiverId, resolve, reject),
+        this.forwardAppCtx
+      );
+    });
+  };
+&nbsp;
+  setAppCtx = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >ac</span> =&gt; {</span>
+    const transceiverId = <span class="cstat-no" title="statement not covered" >this._transceiverId;</span>
+    const timeoutMs = <span class="cstat-no" title="statement not covered" >this._timeoutMs;</span>
+    const promise = <span class="cstat-no" title="statement not covered" >this._promise;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    return new promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      if (timeoutMs) {</span>
+<span class="cstat-no" title="statement not covered" >        setTimeout(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >          reject(`reached timeout of: ${timeoutMs}ms`);</span>
+        }, timeoutMs);
+      }
+<span class="cstat-no" title="statement not covered" >      this._network.setAppCtxControl(</span>
+        ac,
+        transceiverControl(transceiverId, resolve, reject),
+        this.forwardAppCtx
+      );
+    });
+  };
+&nbsp;
+  forwardAppCtx = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(a</span>c, control) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (control.transceiverId === this._transceiverId) {</span>
+<span class="cstat-no" title="statement not covered" >      this._signals.setAppCtxControl(ac, control, this.forwardAppCtx);</span>
+    }
+<span class="cstat-no" title="statement not covered" >    this._network.setAppCtxControl(ac, control, this.forwardAppCtx);</span>
+  };
+&nbsp;
+  handleSignalAppCon = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(h</span>andler, ac, forwardAppCtx, control) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (</span>
+      control.transceiverId === this._transceiverId &amp;&amp;
+      control.signal &amp;&amp;
+      !control.signalled
+    ) {
+<span class="cstat-no" title="statement not covered" >      try {</span>
+<span class="cstat-no" title="statement not covered" >        this.captureSignal(handler, ac, forwardAppCtx, control).catch(</span>
+<span class="fstat-no" title="function not covered" >          ha</span>ndleErr =&gt; {
+<span class="cstat-no" title="statement not covered" >            if (!control.signalled) {</span>
+<span class="cstat-no" title="statement not covered" >              control.signalled = true;</span>
+<span class="cstat-no" title="statement not covered" >              control.signal.reject(handleErr);</span>
+            }
+          }
+        );
+      } catch (handleErr) {
+<span class="cstat-no" title="statement not covered" >        if (!control.signalled) {</span>
+<span class="cstat-no" title="statement not covered" >          control.signalled = true;</span>
+<span class="cstat-no" title="statement not covered" >          control.signal.reject(handleErr);</span>
+        }
+      }
+    }
+    // ALERT: handler will have already handled the AppCon before now
+    // return handler.handleAppCon(ac, forwardAppCtx, control);
+  };
+&nbsp;
+  // TODO: refactor AppCtxHandlers to allow an override of behavior
+  captureSignal = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (handler, ac, setAppCtx, control) =&gt; {</span>
+    const { t, a, o, data } = <span class="cstat-no" title="statement not covered" >ac;</span>
+    /*
+     * Intercept Handlers
+     * always occur first
+     * have the ability to prevent other handlers from firing on this AC
+     * optionally can return a single AC that will be set as the new AC instead of the incoming AC
+     *
+     * If handler returns truthy value that is not an AppCtx then it will
+     * be used to REJECT a signal promise that is part of the message
+     * control
+     */
+<span class="cstat-no" title="statement not covered" >    for (let interceptH of handler.interceptHandlers) {</span>
+      // using the decorator pattern to call these?
+      let intercepted = <span class="cstat-no" title="statement not covered" >await interceptH({ t, a, o }, data);</span>
+<span class="cstat-no" title="statement not covered" >      if (!intercepted) {</span>
+<span class="cstat-no" title="statement not covered" >        continue;</span>
+      }
+<span class="cstat-no" title="statement not covered" >      if (intercepted instanceof AppCtx) {</span>
+<span class="cstat-no" title="statement not covered" >        try {</span>
+<span class="cstat-no" title="statement not covered" >          setAppCtx(intercepted, control);</span>
+        } catch (interceptErr) {
+<span class="cstat-no" title="statement not covered" >          if (!control.signalled) {</span>
+<span class="cstat-no" title="statement not covered" >            control.signalled = true;</span>
+<span class="cstat-no" title="statement not covered" >            control.signal.reject(interceptErr);</span>
+          }
+        }
+      } else <span class="cstat-no" title="statement not covered" >if (!control.signalled) {</span>
+<span class="cstat-no" title="statement not covered" >        control.signalled = true;</span>
+<span class="cstat-no" title="statement not covered" >        control.signal.reject(intercepted);</span>
+      }
+<span class="cstat-no" title="statement not covered" >      return;</span>
+    }
+    /*
+     * Async Handlers
+     * designed to kick off asynchronous handling of an AC outside of the current
+     * control loop
+     * fire if all Intercept Handlers don't intercept the fired AC
+     * work inside of their own execution context
+     * can return an AC that will be set as a context inside the async exec ctx
+     * TODO: look into how redux-sagas is implemented and may be a way to use
+     * generators instead of Promises
+     * TODO: would ServiceWorkers make sense for this? tao-sw package
+     *
+     * If handler returns anything that is not an AppCtx then it will
+     * be used to RESOLVE a signal promise that is part of the message
+     * control
+     * If handler or chained handlers throw anything then it will be
+     * used to REJECT a signal promise that is part of the message
+     * control
+     */
+<span class="cstat-no" title="statement not covered" >    for (let asyncH of handler.asyncHandlers) {</span>
+<span class="cstat-no" title="statement not covered" >      (<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        Promise.resolve(asyncH({ t, a, o }, data))</span>
+          .then(<span class="fstat-no" title="function not covered" >ne</span>xtAc =&gt; {
+<span class="cstat-no" title="statement not covered" >            if (nextAc != null) {</span>
+<span class="cstat-no" title="statement not covered" >              if (nextAc instanceof AppCtx) {</span>
+<span class="cstat-no" title="statement not covered" >                setAppCtx(nextAc, control);</span>
+              } else <span class="cstat-no" title="statement not covered" >if (!control.signalled) {</span>
+<span class="cstat-no" title="statement not covered" >                control.signalled = true;</span>
+<span class="cstat-no" title="statement not covered" >                control.signal.resolve(nextAc);</span>
+              }
+            }
+          })
+          .catch(<span class="fstat-no" title="function not covered" >as</span>yncErr =&gt; {
+<span class="cstat-no" title="statement not covered" >            if (!control.signalled) {</span>
+<span class="cstat-no" title="statement not covered" >              control.signalled = true;</span>
+<span class="cstat-no" title="statement not covered" >              control.signal.reject(asyncErr);</span>
+            }
+          });
+      })();
+    }
+    /*
+     * Inline Handlers
+     * fire if all Intercept Handlers don't intercept the fired AC
+     * fired after all Async handlers are fired off
+     * work inside the same execution context as the caller
+     * can return an AC that will be set immediately in the TAO
+     * TODO: should these returns be spooled up then iterated to allow
+     * all handlers to handle this context before any new ones are set?
+     * YES: currently implemented that way
+     *
+     * If handler returns anything that is not an AppCtx then it will
+     * be used to RESOLVE a signal promise that is part of the message
+     * control
+     * If handler or chained handlers throw anything then it will be
+     * used to REJECT a signal promise that is part of the message
+     * control
+     */
+    const nextSpool = <span class="cstat-no" title="statement not covered" >[];</span>
+    let firstResolve = <span class="cstat-no" title="statement not covered" >null;</span>
+<span class="cstat-no" title="statement not covered" >    for (let inlineH of handler.inlineHandlers) {</span>
+      let nextInlineAc = <span class="cstat-no" title="statement not covered" >await inlineH({ t, a, o }, data);</span>
+<span class="cstat-no" title="statement not covered" >      if (nextInlineAc != null) {</span>
+<span class="cstat-no" title="statement not covered" >        if (nextInlineAc instanceof AppCtx) {</span>
+<span class="cstat-no" title="statement not covered" >          nextSpool.push(nextInlineAc);</span>
+        } else <span class="cstat-no" title="statement not covered" >if (!firstResolve) {</span>
+<span class="cstat-no" title="statement not covered" >          firstResolve = nextInlineAc;</span>
+        }
+      }
+    }
+<span class="cstat-no" title="statement not covered" >    if (!control.signalled &amp;&amp; firstResolve) {</span>
+<span class="cstat-no" title="statement not covered" >      control.signalled = true;</span>
+<span class="cstat-no" title="statement not covered" >      control.signal.resolve(firstResolve);</span>
+    }
+<span class="cstat-no" title="statement not covered" >    if (nextSpool.length) {</span>
+<span class="cstat-no" title="statement not covered" >      for (let nextAc of nextSpool) {</span>
+<span class="cstat-no" title="statement not covered" >        try {</span>
+<span class="cstat-no" title="statement not covered" >          setAppCtx(nextAc, control);</span>
+        } catch (inlineErr) {
+<span class="cstat-no" title="statement not covered" >          if (!control.signalled) {</span>
+<span class="cstat-no" title="statement not covered" >            control.signalled = true;</span>
+<span class="cstat-no" title="statement not covered" >            control.signal.reject(inlineErr);</span>
+          }
+        }
+      }
+    }
+  };
+&nbsp;
+  addSignalHandler = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span> t, term, a, action, o, orient }, handler) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    this._signals.addInlineHandler({ t, term, a, action, o, orient }, handler);</span>
+  };
+&nbsp;
+<span class="fstat-no" title="function not covered" >  ad</span>dInterceptHandler({ t, term, a, action, o, orient }, handler) {
+<span class="cstat-no" title="statement not covered" >    this._signals.addInterceptHandler(</span>
+      { t, term, a, action, o, orient },
+      handler
+    );
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  ad</span>dAsyncHandler({ t, term, a, action, o, orient }, handler) {
+<span class="cstat-no" title="statement not covered" >    this._signals.addAsyncHandler({ t, term, a, action, o, orient }, handler);</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  ad</span>dInlineHandler({ t, term, a, action, o, orient }, handler) {
+<span class="cstat-no" title="statement not covered" >    this._signals.addInlineHandler({ t, term, a, action, o, orient }, handler);</span>
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  re</span>moveInterceptHandler({ t, term, a, action, o, orient }, handler) {
+<span class="cstat-no" title="statement not covered" >    this._signals.removeInterceptHandler(</span>
+      { t, term, a, action, o, orient },
+      handler
+    );
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  re</span>moveAsyncHandler({ t, term, a, action, o, orient }, handler) {
+<span class="cstat-no" title="statement not covered" >    this._signals.removeAsyncHandler(</span>
+      { t, term, a, action, o, orient },
+      handler
+    );
+  }
+&nbsp;
+<span class="fstat-no" title="function not covered" >  re</span>moveInlineHandler({ t, term, a, action, o, orient }, handler) {
+<span class="cstat-no" title="statement not covered" >    this._signals.removeInlineHandler(</span>
+      { t, term, a, action, o, orient },
+      handler
+    );
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Feb 23 2021 23:04:21 GMT-0800 (Pacific Standard Time)
+</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>
