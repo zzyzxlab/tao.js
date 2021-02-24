@@ -18,7 +18,7 @@ function transceiverControl(transceiverId, resolve, reject) {
 }
 
 /**
- * Like a Transponder, a Transceiver converts Signnals on a Network to Promises.
+ * Like a Transponder, a Transceiver converts Signals on a Network to Promises.
  * Unlike a Transponder, a Transceiver allows the handlers attached to it to control
  * the behavior of the Promise.
  *
