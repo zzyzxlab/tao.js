@@ -8,8 +8,12 @@ export function normalizeAC({ t, term, a, action, o, orient }) {
   };
 }
 
-export const cleanInput = ({ term, action, orient }) => {
+export function cleanInput({ term, action, orient }) {
   const incoming = { term, action, orient };
   Object.keys(incoming).forEach(k => incoming[k] == null && delete incoming[k]);
   return incoming;
-};
+}
+
+export function normalizeClean({ t, term, a, action, o, orient }) {
+  return cleanInput(normalizeAC({ t, term, a, action, o, orient }));
+}
