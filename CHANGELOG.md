@@ -1,3 +1,11 @@
+# [0.12.0](https://github.com/zzyzxlab/tao.js/compare/v0.11.1...v0.12.0) (2021-02-24)
+
+### Features
+
+- **koa:** simpleMiddleWare for koa ([92674d9](https://github.com/zzyzxlab/tao.js/commit/92674d9)), closes [#23](https://github.com/zzyzxlab/tao.js/issues/23)
+- **react-hooks:** implemented hooks for react 16.8+ to use with tao.js ([f505060](https://github.com/zzyzxlab/tao.js/commit/f505060)), closes [#26](https://github.com/zzyzxlab/tao.js/issues/26)
+- **Transceiver:** transceiver provides more control over promise conversion of signals ([f6e5959](https://github.com/zzyzxlab/tao.js/commit/f6e5959)), closes [#22](https://github.com/zzyzxlab/tao.js/issues/22) [#24](https://github.com/zzyzxlab/tao.js/issues/24)
+
 ## [0.11.1](https://github.com/zzyzxlab/tao.js/compare/v0.11.0...v0.11.1) (2020-06-28)
 
 ### Bug Fixes
