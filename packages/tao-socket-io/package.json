@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/socket.io",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "socket.io middleware to run tao.js seamlessly on server & client",
   "homepage": "https://tao.js.org/",
   "repository": {
