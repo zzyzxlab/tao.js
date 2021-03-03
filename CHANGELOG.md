@@ -1,3 +1,10 @@
+## [0.12.1](https://github.com/zzyzxlab/tao.js/compare/v0.12.0...v0.12.1) (2021-03-03)
+
+### Bug Fixes
+
+- **deps:** fixed peer deps across [@tao](https://github.com/tao).js packages ([dd498b9](https://github.com/zzyzxlab/tao.js/commit/dd498b9))
+- **source:** bug in utils.Source preventing chained ACs from the source ([09659f9](https://github.com/zzyzxlab/tao.js/commit/09659f9)), closes [#29](https://github.com/zzyzxlab/tao.js/issues/29)
+
 # [0.12.0](https://github.com/zzyzxlab/tao.js/compare/v0.11.1...v0.12.0) (2021-02-24)
 
 ### Features
