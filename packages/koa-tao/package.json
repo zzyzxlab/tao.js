@@ -25,9 +25,11 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@tao.js/core": "^0.8.0"
+    "@tao.js/core": "^0.12.0",
+    "@tao.js/utils": "^0.12.0"
   },
   "devDependencies": {
+    "@tao.js/core": "file:../tao",
     "@tao.js/utils": "file:../tao-utils"
   },
   "dependencies": {

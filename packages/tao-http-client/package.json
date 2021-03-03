@@ -33,8 +33,10 @@
   "publishConfig": {
     "access": "public"
   },
+  "peerDependencies": {
+    "@tao.js/core": "^0.12.1"
+  },
   "devDependencies": {
-    "@tao.js/core": "file:../tao",
-    "@tao.js/utils": "file:../tao-utils"
+    "@tao.js/core": "file:../tao"
   }
 }
