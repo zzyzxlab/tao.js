@@ -50,6 +50,7 @@
   * [SwitchHandler](client-react/switch-handler.md)
   * [withContext](client-react/with-context.md)
   * [DataHandler](client-react/data-handler.md)
+  * [hooks](client-react/hooks.md)
   * [Original API](client-react/orig-api/README.md)
     * [Adapter](client-react/orig-api/adapter.md)
     * [Reactor](client-react/orig-api/reactor.md)
