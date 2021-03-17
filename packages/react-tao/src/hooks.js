@@ -35,6 +35,11 @@ function useTaoEffect(
   }, dependencies);
 }
 
+export function useTaoContext() {
+  const { TAO } = useContext(Context);
+  return TAO;
+}
+
 export function useTaoInlineHandler(
   { t, term, a, action, o, orient },
   handler,
