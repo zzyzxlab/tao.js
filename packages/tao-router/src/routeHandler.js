@@ -118,16 +118,16 @@ function pathDataGet(tao, data, deconstructedPath) {
   }, {});
 }
 
-function makeRouteHandler(history, route) {
+function makeRouteHandler(history, route, debug = false) {
   let pathString = route.path || route;
   const deconstructedPath = deconstructPath(pathString);
   const usablePath = convertPath(deconstructedPath);
   const toPath = pathToRegexp.compile(usablePath);
   return (tao, data) => {
-    console.log('routeHandler::called with', { tao, data });
+    debug && console.log('routeHandler::called with', { tao, data });
     // const pathData = pathFlattenData(tao, data);
     const pathData = pathDataGet(tao, data, deconstructedPath);
-    console.log('routeHandler::pathData', pathData);
+    debug && console.log('routeHandler::pathData', pathData);
     let routeValue = toPath(pathData);
     if (route.lowerCase) {
       routeValue = routeValue.toLowerCase();

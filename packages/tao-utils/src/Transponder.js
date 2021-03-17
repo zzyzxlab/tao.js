@@ -38,9 +38,11 @@ export default class Transponder {
    *        - use this to prevent unexpected behaviors
    * @param {Thenable} [promise=Promise] - a `Promise` constructor to be used when creating promises
    *        by a signalling method.
+   * @param {boolean} [debug=false] - pass true to console.log internal activity
    * @memberof Transponder
    */
-  constructor(network, id, timeoutMs = 0, promise = Promise) {
+  constructor(network, id, timeoutMs = 0, promise = Promise, debug = false) {
+    this._debug = debug;
     this._transponderId =
       typeof id === 'function'
         ? id(newTransponderId())
@@ -59,7 +61,8 @@ export default class Transponder {
       this._network,
       cloneId || this._cloneWithId,
       this._timeoutMs,
-      this._promise
+      this._promise,
+      this._debug
     );
     return clone;
   }
@@ -137,14 +140,18 @@ export default class Transponder {
   }
 
   handleSignalAppCon = (handler, ac, forwardAppCtx, control) => {
-    console.log(
-      `transponder{${this._transponderId}}::handleSignalFirstAppCon::ac:`,
-      ac.unwrapCtx()
-    );
-    console.log(
-      `transponder{${this._transponderId}}::handleSignalFirstAppCon::control:`,
-      control
-    );
+    this._debug &&
+      console.log(
+        `transponder{${this._transponderId}}::handleSignalFirstAppCon::ac:`,
+        ac.unwrapCtx()
+      );
+    this._debug &&
+      console.log(
+        `transponder{${
+          this._transponderId
+        }}::handleSignalFirstAppCon::control:`,
+        control
+      );
     // first matching handler will signal the listener
     if (
       control.transponderId === this._transponderId &&

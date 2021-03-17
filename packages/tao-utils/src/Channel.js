@@ -27,9 +27,11 @@ export default class Channel {
    * @param {Kernel} kernel - an instance of a Kernel or other TAO Network on which to build a Channel by sharing the same underlying Network
    * @param {(string|function)} [id] - pass either a desired Channel ID value as a `string` or a `function` that will be used to generate a Channel ID
    *        the `function` will be called with a new Channel ID integer value to help ensure uniqueness
+   * @param {boolean} [debug=false] - pass true to console.log internal activity
    * @memberof Channel
    */
-  constructor(kernel, id) {
+  constructor(kernel, id, debug = false) {
+    this._debug = debug;
     this._channelId =
       typeof id === 'function' ? id(newChannelId()) : id || newChannelId();
     this._channel = new Network();
@@ -116,25 +118,29 @@ export default class Channel {
   }
 
   forwardAppCtx(ac, control) {
-    console.log(
-      `channel{${this._channelId}}::forwardAppCtx::ac:`,
-      ac.unwrapCtx()
-    );
-    console.log(
-      `channel{${this._channelId}}::forwardAppCtx::control:`,
-      control
-    );
-    if (control.channelId === this._channelId) {
+    this._debug &&
       console.log(
-        `channel{${this._channelId}}::forwardAppCtx::control check passed`
+        `channel{${this._channelId}}::forwardAppCtx::ac:`,
+        ac.unwrapCtx()
       );
+    this._debug &&
+      console.log(
+        `channel{${this._channelId}}::forwardAppCtx::control:`,
+        control
+      );
+    if (control.channelId === this._channelId) {
+      this._debug &&
+        console.log(
+          `channel{${this._channelId}}::forwardAppCtx::control check passed`
+        );
       this._channel.setAppCtxControl(ac, control, a => this.setAppCtx(a));
     }
-    console.log(
-      `channel{${
-        this._channelId
-      }}::forwardAppCtx::calling network.setAppCtxControl`
-    );
+    this._debug &&
+      console.log(
+        `channel{${
+          this._channelId
+        }}::forwardAppCtx::calling network.setAppCtxControl`
+      );
     this._network.setAppCtxControl(ac, control, (a, c) =>
       this.forwardAppCtx(a, c)
     );

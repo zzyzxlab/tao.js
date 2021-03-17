@@ -64,13 +64,16 @@ async function handleContext(transponder, bodyProp, ctx, next) {
 
 export default function taoMiddleware(TAO, opt = {}) {
   const responseTrigrams = new Map();
+  const { debug = false } = opt;
   const bodyProp = opt.json;
   const rootPath = opt.root || DEFAULT_ROOT;
   const rootTest = new RegExp(`/${rootPath}/([^/]+)/?(.*)?`, 'i');
   const channel = new Channel(TAO, opt.name);
   // const transponder = new Transponder(TAO, opt.name, 3000);
-  channel.addInlineHandler({}, (tao, data) =>
-    console.log('taoMiddleware::hitting the first with:', tao, data)
+  channel.addInlineHandler(
+    {},
+    (tao, data) =>
+      debug && console.log('taoMiddleware::hitting the first with:', tao, data)
   );
 
   return {
@@ -125,17 +128,19 @@ export default function taoMiddleware(TAO, opt = {}) {
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
-        console.log('@tao.js/koa::addResponseHandler::trigram:', trigram);
+        debug &&
+          console.log('@tao.js/koa::addResponseHandler::trigram:', trigram);
         channel.addInlineHandler(trigram, handler);
         let ac = new AppCtx(trigram.term, trigram.action, trigram.orient);
         if (!responseTrigrams.has(ac.key)) {
           responseTrigrams.set(ac.key, { ac, count: 0 });
         }
         responseTrigrams.get(ac.key).count += 1;
-        console.log(
-          '@tao.js/koa::addResponseHandler::responseTrigrams:',
-          responseTrigrams
-        );
+        debug &&
+          console.log(
+            '@tao.js/koa::addResponseHandler::responseTrigrams:',
+            responseTrigrams
+          );
       }
     },
     removeResponseHandler({ t, term, a, action, o, orient }, handler = noop) {

@@ -55,6 +55,7 @@ export default class RenderHandler extends Component {
       PropTypes.string,
       PropTypes.arrayOf(PropTypes.string)
     ]),
+    debug: PropTypes.bool,
     children: PropTypes.func.isRequired
   };
 
@@ -67,9 +68,10 @@ export default class RenderHandler extends Component {
   }
 
   componentWillMount() {
-    console.log('RenderHandler::props:', this.props);
+    const { debug = false } = this.props;
+    debug && console.log('RenderHandler::props:', this.props);
     const trigram = cleanInput(normalizeAC(this.props));
-    console.log('RenderHandler::context:', this.context);
+    debug && console.log('RenderHandler::context:', this.context);
     const { TAO } = this.context;
     const permutations = cartesian(trigram);
     if (permutations.length) {

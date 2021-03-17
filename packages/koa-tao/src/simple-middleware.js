@@ -35,9 +35,11 @@ function buildCtxTao(transponder) {
  * @param {string} [opt.name] - name to prepend to the TAO Channel and Transponder names that will be generated
  * @param {number} [opt.timeout=3000] - timeout in Milliseconds to wait on completing a TAO chain before the Transponder rejects the Promise
  * @param {Promise} [opt.promise=Promise] - Promise constructor used to create promises returned by `setCtx` and `setAppCtx`
+ * @param {boolean} [opt.debug] - print console.log of internal behavior
  * @returns {Object} - an Object instantiated to attach a `middleware` to a koa app and add/remove response handlers
  */
 export default function simpleMiddleware(TAO, opt = {}) {
+  const { debug = false } = opt;
   const namer = getNameId(CHANNEL_NAME_TYPE, opt.name || DEFAULT_CHANNEL_NAME);
   const channel = new Channel(TAO, namer);
   return {
@@ -62,7 +64,8 @@ export default function simpleMiddleware(TAO, opt = {}) {
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
-        console.log('@tao.js/koa::addResponseHandler::trigram:', trigram);
+        debug &&
+          console.log('@tao.js/koa::addResponseHandler::trigram:', trigram);
         channel.addInlineHandler(trigram, handler);
       }
     },

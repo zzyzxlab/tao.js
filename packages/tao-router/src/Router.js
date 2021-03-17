@@ -48,8 +48,8 @@ function mergeData(pathData, defaultData, parentPath) {
   });
 }
 
-function reactToRoute(TAO, match) {
-  console.log('Router::reacting to route');
+function reactToRoute(TAO, match, debug = false) {
+  debug && console.log('Router::reacting to route');
   const pathMatched = match.node.deconstruction.reduce((pathData, pathItem) => {
     if (!pathItem.match) {
       return pathData;
@@ -67,8 +67,9 @@ function reactToRoute(TAO, match) {
     pathMatched.a = capitalize(pathMatched.a);
     pathMatched.o = capitalize(pathMatched.o);
   }
-  console.log('reactToRoute::node.defaultData:', match.node.defaultData);
-  console.log('reactToRoute::node.attached:', match.node.attached);
+  debug &&
+    console.log('reactToRoute::node.defaultData:', match.node.defaultData);
+  debug && console.log('reactToRoute::node.attached:', match.node.attached);
   match.node.attached.forEach(trigram => {
     const defaultData = match.node.defaultData
       ? match.node.defaultData.get(trigram.key)
@@ -86,7 +87,7 @@ function reactToRoute(TAO, match) {
     );
 
     TAO.setCtx({ t: 'Route', a: 'Match', o: ac.o }, [match.node.route, ac]);
-    console.log('reactToRoute::TAO.setAppCtx::ac', ac);
+    debug && console.log('reactToRoute::TAO.setAppCtx::ac', ac);
     TAO.setAppCtx(ac);
   });
 }
@@ -98,6 +99,8 @@ export default class Router {
       opts = history;
       history = null;
     }
+    const { debug = false } = opts || {};
+    this._debug = debug;
     this._history = history || createHistory();
     this.setupEvents = this.setupEvents.bind(this);
     this.historyChange = this.historyChange.bind(this);
@@ -115,14 +118,7 @@ export default class Router {
     );
   }
 
-  setupEvents /*= */(
-    TAO,
-    history,
-    initAc,
-    incomingAc,
-    defaultRoute,
-    orient
-  ) /* =>*/ {
+  setupEvents = (TAO, history, initAc, incomingAc, defaultRoute, orient) => {
     this._unlistenHistory = history.listen(this.historyChange);
     const incoming = !incomingAc
       ? []
@@ -159,8 +155,8 @@ export default class Router {
       { t: 'Route', a: 'Add', o: orient || '' },
       (tao, { Route, Add }) => {
         // add Route to the Router's configuration
-        console.log(`adding to Route:`, Route, Add);
-        const routeHandler = makeRouteHandler(history, Route);
+        this._debug && console.log(`adding to Route:`, Route, Add);
+        const routeHandler = makeRouteHandler(history, Route, this._debug);
         const trigram = wrapAc(Add.tao || Add);
         const oldHandler = this._routes.get(trigram.key);
         if (oldHandler) {
@@ -168,7 +164,8 @@ export default class Router {
         }
         const handler = wrapIgnore(routeHandler, Add.ignore);
         this._routes.set(trigram.key, handler);
-        console.log('route.add::trigram.unwrapCtx():', trigram.unwrapCtx());
+        this._debug &&
+          console.log('route.add::trigram.unwrapCtx():', trigram.unwrapCtx());
         TAO.addAsyncHandler(trigram.unwrapCtx(), handler);
         if (Add.attach) {
           return new AppCtx('Route', 'Attach', tao.o, Route, Add);
@@ -179,7 +176,7 @@ export default class Router {
       { t: 'Route', a: 'Remove', o: orient || '' },
       (tao, { Route, Remove }) => {
         // remove Route from the Router's configuration
-        console.log(`removing from Route ${Route}:`, Remove);
+        this._debug && console.log(`removing from Route ${Route}:`, Remove);
         const trigram = wrapAc(Remove);
         const routeHandler = this._routes.get(trigram.key);
         if (!routeHandler) {
@@ -196,7 +193,7 @@ export default class Router {
       { t: 'Route', a: 'Attach', o: orient || '' },
       (tao, { Route, Attach }) => {
         // attach Trigram to an incoming route
-        console.log('Going to Attach Route:', { Route, Attach });
+        this._debug && console.log('Going to Attach Route:', { Route, Attach });
         const routeToUse = Route.path || Route;
         const deconstruction = deconstructPath(routeToUse);
         const convertedPath = convertPath(deconstruction);
@@ -218,7 +215,7 @@ export default class Router {
       { t: 'Route', a: 'Detach', o: orient || '' },
       (tao, { Route, Detach }) => {
         // detach Trigram from an incoming route
-        console.log('Going to Detach Route:', { Route, Detach });
+        this._debug && console.log('Going to Detach Route:', { Route, Detach });
         const routeToUse = Route.path || Route;
         const deconstruction = deconstructPath(routeToUse);
         const convertedPath = convertPath(deconstruction);
@@ -247,21 +244,23 @@ export default class Router {
     //   }
     // });
     if (incoming.length) {
-      console.log('adding handlers for incoming:', incoming);
+      this._debug && console.log('adding handlers for incoming:', incoming);
       incoming.forEach(inAc => {
         TAO.addInlineHandler(inAc, (tao, data) => {
-          console.log('Router::incoming AC handler:', { tao, data });
+          this._debug &&
+            console.log('Router::incoming AC handler:', { tao, data });
           let match = this._router.match(this._history.location.pathname);
           if (!match && defaultRoute) {
             match = this._router.match(defaultRoute);
-            console.log(
-              'Router::no match::match from default route "%s"',
-              defaultRoute,
-              match
-            );
+            this._debug &&
+              console.log(
+                'Router::no match::match from default route "%s"',
+                defaultRoute,
+                match
+              );
           }
           if (match) {
-            reactToRoute(this._tao, match);
+            reactToRoute(this._tao, match, this._debug);
           }
           // const loc = this._history.location;
           // const acs = this.getAcsFrom(loc, tao, data);
@@ -273,28 +272,28 @@ export default class Router {
         });
       });
     }
-  } //;
+  }; //;
 
   // this should move to just being an added Async Handler on the individual routes
   // OR would that make the TAO sets too big?
   // they would certainly be completely directed with no middle man interpreter
-  getPathFrom /*= */(tao, data) /* =>*/ {
+  getPathFrom = (tao, data) => {
     if (tao.a !== 'View') {
       return;
     }
     return tao.t === 'Space' ? '/space' : '';
-  } //;
+  };
 
-  getAcsFrom /*= */(location, tao, data) /* =>*/ {
+  getAcsFrom = (location, tao, data) => {
     return [];
-  } //;
+  };
 
-  historyChange /*= */(location, action) /* =>*/ {
+  historyChange = (location, action) => {
     // match the new location to our route tree to find Trigrams and fire ACs from path data
-    console.log('history change:', { location, action });
+    this._debug && console.log('history change:', { location, action });
     const match = this._router.match(location.pathname);
     if (CHANGE_ACTION_SIGNAL === action && match) {
-      reactToRoute(this._tao, match);
+      reactToRoute(this._tao, match, this._debug);
     }
-  } //;
+  };
 }

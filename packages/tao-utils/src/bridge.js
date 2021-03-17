@@ -4,7 +4,7 @@ const NOOP = () => {};
 
 function forwardHandler(destination) {
   return (tao, data) => {
-    console.log('bridging::tao', tao);
+    // console.log('bridging::tao', tao);
     if (tao instanceof AppCtx) {
       destination.setAppCtx(tao);
     } else {

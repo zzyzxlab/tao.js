@@ -21,7 +21,6 @@ function decorateNetwork(TAO, socket) {
 }
 
 function decorateSocket(TAO, socket) {
-  // console.log('TAO is instanceof Channel:', TAO instanceof Channel);
   socket.on(EVENTS[ON_EVENT], ({ tao, data }) => {
     TAO.setCtx(tao, data);
   });
