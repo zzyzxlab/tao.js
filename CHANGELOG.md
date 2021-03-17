@@ -1,3 +1,13 @@
+# [0.13.0](https://github.com/zzyzxlab/tao.js/compare/v0.12.1...v0.13.0) (2021-03-17)
+
+### Features
+
+- **hooks:** added useTaoContext hook to get the TAO network ([d97db2a](https://github.com/zzyzxlab/tao.js/commit/d97db2a))
+
+### Other
+
+- **debug:** refactored to push console.log of internals to a debug flag
+
 ## [0.12.1](https://github.com/zzyzxlab/tao.js/compare/v0.12.0...v0.12.1) (2021-03-03)
 
 ### Bug Fixes
