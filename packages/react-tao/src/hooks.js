@@ -1,4 +1,6 @@
 import { useContext, useEffect, useLayoutEffect } from 'react';
+import cartesian from 'cartesian';
+
 import { Context } from './Provider';
 import { normalizeClean } from './helpers';
 
