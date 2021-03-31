@@ -1,3 +1,9 @@
+## [0.13.1](https://github.com/zzyzxlab/tao.js/compare/v0.13.0...v0.13.1) (2021-03-31)
+
+### Bug Fixes
+
+- **hooks:** missing import in [@tao](https://github.com/tao).js/react:hooks ([c79a976](https://github.com/zzyzxlab/tao.js/commit/c79a976))
+
 # [0.13.0](https://github.com/zzyzxlab/tao.js/compare/v0.12.1...v0.13.0) (2021-03-17)
 
 ### Features
