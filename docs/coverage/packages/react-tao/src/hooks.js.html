@@ -20,9 +20,9 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">63.16% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>0/20</span>
+        <span class='fraction'>12/19</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
@@ -30,18 +30,18 @@
         <span class='fraction'>0/2</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">70% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>0/11</span>
+        <span class='fraction'>7/10</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">58.82% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>0/20</span>
+        <span class='fraction'>10/17</span>
       </div>
     </div>
   </div>
-  <div class='status-line low'></div>
+  <div class='status-line medium'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -120,28 +120,14 @@
 75
 76
 77
-78
-79
-80
-81
-82
-83
-84
-85
-86
-87</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+78</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -150,25 +136,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -176,7 +153,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -213,56 +192,47 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useContext, useEffect, useLayoutEffect } from 'react';
+&nbsp;
 import { Context } from './Provider';
-import { normalizeClean } from './helpers';
+import { getPermutations } from './helpers';
 &nbsp;
-function <span class="fstat-no" title="function not covered" >getPermutations(</span>{ t, term, a, action, o, orient }) {
-  const trigram = <span class="cstat-no" title="statement not covered" >normalizeClean({ t, term, a, action, o, orient });</span>
-<span class="cstat-no" title="statement not covered" >  return cartesian(trigram);</span>
+export function useTaoContext() {
+  const { TAO } = useContext(Context);
+  return TAO;
 }
 &nbsp;
-function <span class="fstat-no" title="function not covered" >handlerForPermutations(</span>taoHandle, permutations, handler) {
-<span class="cstat-no" title="statement not covered" >  if (permutations.length) {</span>
-<span class="cstat-no" title="statement not covered" >    permutations.forEach(<span class="fstat-no" title="function not covered" >({</span> term, action, orient }) =&gt;</span>
-<span class="cstat-no" title="statement not covered" >      taoHandle({ term, action, orient }, handler)</span>
-    );
-  }
-}
-&nbsp;
-function <span class="fstat-no" title="function not covered" >useTaoEffect(</span>
+function useTaoEffect(
   handlerType,
   { t, term, a, action, o, orient },
   handler,
   dependencies
 ) {
-  const [addingHandler, removingHandler] = <span class="cstat-no" title="statement not covered" >[</span>
+  const [addingHandler, removingHandler] = [
     `add${handlerType}Handler`,
     `remove${handlerType}Handler`
   ];
-  const { TAO } = <span class="cstat-no" title="statement not covered" >useContext(Context);</span>
-  const permutations = <span class="cstat-no" title="statement not covered" >getPermutations({ t, term, a, action, o, orient });</span>
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    handlerForPermutations(TAO[addingHandler], permutations, handler);</span>
-<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      handlerForPermutations(TAO[removingHandler], permutations, handler);</span>
+  const TAO = useTaoContext();
+  const permutations = getPermutations({ t, term, a, action, o, orient });
+  useEffect(() =&gt; {
+    permutations.forEach(trigram =&gt; TAO[addingHandler](trigram, handler));
+    return () =&gt; {
+      permutations.forEach(trigram =&gt; TAO[removingHandler](trigram, handler));
     };
   }, dependencies);
 }
 &nbsp;
-export function <span class="fstat-no" title="function not covered" >useTaoContext(</span>) {
-  const { TAO } = <span class="cstat-no" title="statement not covered" >useContext(Context);</span>
-<span class="cstat-no" title="statement not covered" >  return TAO;</span>
-}
-&nbsp;
-export function <span class="fstat-no" title="function not covered" >useTaoInlineHandler(</span>
+export function useTaoInlineHandler(
   { t, term, a, action, o, orient },
   handler,
   dependencies
 ) {
-<span class="cstat-no" title="statement not covered" >  useTaoEffect(</span>
+  useTaoEffect(
     'Inline',
     { t, term, a, action, o, orient },
     handler,
@@ -299,6 +269,9 @@ export function <span class="fstat-no" title="function not covered" >useTaoInter
 export function <span class="fstat-no" title="function not covered" >useTaoDataContext(</span>name) {
   const { getDataContext } = <span class="cstat-no" title="statement not covered" >useContext(Context);</span>
   const dataContext = <span class="cstat-no" title="statement not covered" >getDataContext(name);</span>
+<span class="cstat-no" title="statement not covered" >  if (!dataContext) {</span>
+<span class="cstat-no" title="statement not covered" >    return;</span>
+  }
 <span class="cstat-no" title="statement not covered" >  return useContext(dataContext);</span>
 }
 &nbsp;</pre></td></tr>
@@ -307,7 +280,7 @@ export function <span class="fstat-no" title="function not covered" >useTaoDataC
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Mar 16 2021 23:14:45 GMT-0700 (Pacific Daylight Time)
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Thu Apr 01 2021 01:34:26 GMT-0700 (Pacific Daylight Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>
