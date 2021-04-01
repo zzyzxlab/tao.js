@@ -1,3 +1,9 @@
+## [0.13.2](https://github.com/zzyzxlab/tao.js/compare/v0.13.1...v0.13.2) (2021-04-01)
+
+### Bug Fixes
+
+- **hooks:** fixed bad this ref in hook implementation for permutations ([f3aa058](https://github.com/zzyzxlab/tao.js/commit/f3aa058))
+
 ## [0.13.1](https://github.com/zzyzxlab/tao.js/compare/v0.13.0...v0.13.1) (2021-03-31)
 
 ### Bug Fixes
