@@ -1,3 +1,5 @@
+import cartesian from 'cartesian';
+
 export const noop = () => {};
 
 export function normalizeAC({ t, term, a, action, o, orient }) {
@@ -16,4 +18,13 @@ export function cleanInput({ term, action, orient }) {
 
 export function normalizeClean({ t, term, a, action, o, orient }) {
   return cleanInput(normalizeAC({ t, term, a, action, o, orient }));
+}
+
+export function getPermutations({ t, term, a, action, o, orient }) {
+  const trigram = normalizeClean({ t, term, a, action, o, orient });
+  const permutations = cartesian(trigram);
+  if (permutations.length) {
+    return permutations;
+  }
+  return [{}];
 }

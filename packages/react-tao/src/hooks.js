@@ -1,20 +1,11 @@
 import { useContext, useEffect, useLayoutEffect } from 'react';
-import cartesian from 'cartesian';
 
 import { Context } from './Provider';
-import { normalizeClean } from './helpers';
+import { getPermutations } from './helpers';
 
-function getPermutations({ t, term, a, action, o, orient }) {
-  const trigram = normalizeClean({ t, term, a, action, o, orient });
-  return cartesian(trigram);
-}
-
-function handlerForPermutations(taoHandle, permutations, handler) {
-  if (permutations.length) {
-    permutations.forEach(({ term, action, orient }) =>
-      taoHandle({ term, action, orient }, handler)
-    );
-  }
+export function useTaoContext() {
+  const { TAO } = useContext(Context);
+  return TAO;
 }
 
 function useTaoEffect(
@@ -27,19 +18,14 @@ function useTaoEffect(
     `add${handlerType}Handler`,
     `remove${handlerType}Handler`
   ];
-  const { TAO } = useContext(Context);
+  const TAO = useTaoContext();
   const permutations = getPermutations({ t, term, a, action, o, orient });
   useEffect(() => {
-    handlerForPermutations(TAO[addingHandler], permutations, handler);
+    permutations.forEach(trigram => TAO[addingHandler](trigram, handler));
     return () => {
-      handlerForPermutations(TAO[removingHandler], permutations, handler);
+      permutations.forEach(trigram => TAO[removingHandler](trigram, handler));
     };
   }, dependencies);
-}
-
-export function useTaoContext() {
-  const { TAO } = useContext(Context);
-  return TAO;
 }
 
 export function useTaoInlineHandler(
@@ -84,5 +70,8 @@ export function useTaoInterceptHandler(
 export function useTaoDataContext(name) {
   const { getDataContext } = useContext(Context);
   const dataContext = getDataContext(name);
+  if (!dataContext) {
+    return;
+  }
   return useContext(dataContext);
 }
