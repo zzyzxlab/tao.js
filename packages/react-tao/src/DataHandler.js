@@ -15,7 +15,7 @@ export default class DataHandler extends Component {
     );
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { name } = this.props;
     const { setDataContext } = this.context;
     setDataContext(name, this.ChildContext);

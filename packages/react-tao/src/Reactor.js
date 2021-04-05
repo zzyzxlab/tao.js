@@ -16,7 +16,7 @@ class Reactor extends Component {
     // this._adapter = adapter;
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { adapter } = this.props;
     adapter.registerReactor(this, this.onNotifyChange.bind(this));
   }
@@ -26,11 +26,11 @@ class Reactor extends Component {
     adapter.unregisterReactor(this);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     const { adapter } = this.props;
-    if (adapter !== nextProps.adapter) {
-      adapter.unregisterReactor(this);
-      nextProps.adapter.registerReactor(this, this.onNotifyChange.bind(this));
+    if (adapter !== prevProps.adapter) {
+      prevProps.adapter.unregisterReactor(this);
+      adapter.registerReactor(this, this.onNotifyChange.bind(this));
     }
   }
 

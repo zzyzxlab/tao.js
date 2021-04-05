@@ -25,10 +25,10 @@ export default class SwitchHandler extends Component {
     this.state = { chosenList: new Set() };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { debug = false } = this.props;
     debug &&
-      console.log('SwitchHandler::componentWillMount::props:', this.props);
+      console.log('SwitchHandler::componentDidMount::props:', this.props);
     const { TAO } = this.context;
     const defaultTrigram = normalizeClean(this.props);
     const intercepted = new Map();
@@ -52,7 +52,7 @@ export default class SwitchHandler extends Component {
       }
     });
     debug &&
-      console.log('SwitchHandler::componentWillMount::complete:', {
+      console.log('SwitchHandler::componentDidMount::complete:', {
         intercepted,
         adaptedChildren: this._adaptedChildren
       });

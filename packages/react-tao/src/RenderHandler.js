@@ -67,7 +67,7 @@ export default class RenderHandler extends Component {
     this._refreshOn = null;
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const { debug = false } = this.props;
     debug && console.log('RenderHandler::props:', this.props);
     debug && console.log('RenderHandler::context:', this.context);

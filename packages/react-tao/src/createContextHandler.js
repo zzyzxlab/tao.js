@@ -35,7 +35,7 @@ export default function createContextHandler(tao, handler, defaultValue) {
           : defaultValue || {};
     }
 
-    componentWillMount() {
+    componentDidMount() {
       const { TAO } = this.context;
       const permutations = getPermutations(tao);
       permutations.forEach(trigram =>
