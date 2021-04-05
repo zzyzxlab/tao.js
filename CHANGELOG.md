@@ -1,3 +1,9 @@
+# [0.14.0](https://github.com/zzyzxlab/tao.js/compare/v0.13.2...v0.14.0) (2021-04-05)
+
+- **react:** refactor `componentWillMount` -> `componentDidMount` + `componentWillReceiveProps` -> `componentDid`
+
+`componentWillMount` and `componentWillReceiveProps` were deprecated in React 16.3.0 and will be removed in 17
+
 ## [0.13.2](https://github.com/zzyzxlab/tao.js/compare/v0.13.1...v0.13.2) (2021-04-01)
 
 ### Bug Fixes
