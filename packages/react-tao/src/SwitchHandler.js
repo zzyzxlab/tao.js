@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { AppCtx } from '@tao.js/core';
 import cartesian from 'cartesian';
 
-import { normalizeAC, cleanInput } from './helpers';
+import { normalizeClean } from './helpers';
 
 import { Context } from './Provider';
 import RenderHandler from './RenderHandler';
@@ -30,11 +30,11 @@ export default class SwitchHandler extends Component {
     debug &&
       console.log('SwitchHandler::componentWillMount::props:', this.props);
     const { TAO } = this.context;
-    const defaultTrigram = cleanInput(normalizeAC(this.props));
+    const defaultTrigram = normalizeClean(this.props);
     const intercepted = new Map();
     React.Children.forEach(this.props.children, child => {
       if (child.type === RenderHandler) {
-        const childTrigram = cleanInput(normalizeAC(child.props));
+        const childTrigram = normalizeClean(child.props);
         const handler = this.handleSwitch(child);
         const trigrams = Object.assign(defaultTrigram, childTrigram);
         debug && console.log('trigrams:', trigrams);

@@ -2,7 +2,7 @@ import cartesian from 'cartesian';
 import { Component } from 'react';
 import { AppCtx } from '@tao.js/core';
 
-import { noop, normalizeAC, cleanInput } from './helpers';
+import { noop, normalizeClean } from './helpers';
 
 const wrappedHandler = (ComponentHandler = null, props, _adapter) => (
   tao,
@@ -37,7 +37,7 @@ class Adapter {
   }
 
   set defaultCtx({ t, term, a, action, o, orient } = {}) {
-    this._default = cleanInput(normalizeAC({ t, term, a, action, o, orient }));
+    this._default = normalizeClean({ t, term, a, action, o, orient });
   }
 
   setDefaultCtx({ t, term, a, action, o, orient } = {}) {
@@ -61,7 +61,7 @@ class Adapter {
         'cannot add a Component handler that is not a React.Component or Function'
       );
     }
-    const tao = cleanInput(normalizeAC({ t, term, a, action, o, orient }));
+    const tao = normalizeClean({ t, term, a, action, o, orient });
     const ctx = Object.assign(this.defaultCtx, tao);
     const permutations = cartesian(ctx);
     if (!permutations.length) {
@@ -99,7 +99,7 @@ class Adapter {
       return this;
     }
     const componentHandlers = this._components.get(ComponentHandler);
-    const tao = cleanInput(normalizeAC({ t, term, a, action, o, orient }));
+    const tao = normalizeClean({ t, term, a, action, o, orient });
     if (!tao.term && !tao.action && !tao.orient) {
       // remove all handlers
       for (let [ac, handler] of componentHandlers.handlers) {

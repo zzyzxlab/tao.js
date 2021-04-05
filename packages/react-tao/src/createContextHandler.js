@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import cartesian from 'cartesian';
 import { AppCtx } from '@tao.js/core';
 
-import { normalizeAC, cleanInput } from './helpers';
+import { getPermutations } from './helpers';
 import { Context } from './Provider';
 
 function cleanState(previousState, newState) {
@@ -38,8 +37,7 @@ export default function createContextHandler(tao, handler, defaultValue) {
 
     componentWillMount() {
       const { TAO } = this.context;
-      const trigrams = cleanInput(normalizeAC(tao));
-      const permutations = cartesian(trigrams);
+      const permutations = getPermutations(tao);
       permutations.forEach(trigram =>
         TAO.addInlineHandler(trigram, this.contextHandler)
       );
@@ -47,8 +45,7 @@ export default function createContextHandler(tao, handler, defaultValue) {
 
     componentWillUnmount() {
       const { TAO } = this.context;
-      const trigrams = cleanInput(normalizeAC(tao));
-      const permutations = cartesian(trigrams);
+      const permutations = getPermutations(tao);
       permutations.forEach(trigram =>
         TAO.removeInlineHandler(trigram, this.contextHandler)
       );
