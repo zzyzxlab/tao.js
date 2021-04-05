@@ -20,9 +20,9 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">18.87% </span>
+        <span class="strong">19.23% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>10/53</span>
+        <span class='fraction'>10/52</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">3.45% </span>
@@ -35,9 +35,9 @@
         <span class='fraction'>1/12</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">18.87% </span>
+        <span class="strong">19.23% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>10/53</span>
+        <span class='fraction'>10/52</span>
       </div>
     </div>
   </div>
@@ -178,8 +178,7 @@
 133
 134
 135
-136
-137</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+136</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -257,7 +256,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -265,6 +263,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -274,7 +273,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -319,7 +317,7 @@
 import PropTypes from 'prop-types';
 import cartesian from 'cartesian';
 &nbsp;
-import { normalizeAC, cleanInput } from './helpers';
+import { normalizeClean, getPermutations } from './helpers';
 import { Context } from './Provider';
 &nbsp;
 function <span class="fstat-no" title="function not covered" >recursiveContextGenerator(</span>
@@ -384,13 +382,12 @@ export default class RenderHandler extends Component {
     this._refreshOn = null;
   }
 &nbsp;
-<span class="fstat-no" title="function not covered" >  co</span>mponentWillMount() {
+<span class="fstat-no" title="function not covered" >  co</span>mponentDidMount() {
     const { debug = <span class="branch-0 cbranch-no" title="branch not covered" >false </span>} = <span class="cstat-no" title="statement not covered" >this.props;</span>
 <span class="cstat-no" title="statement not covered" >    debug &amp;&amp; console.log('RenderHandler::props:', this.props);</span>
-    const trigram = <span class="cstat-no" title="statement not covered" >cleanInput(normalizeAC(this.props));</span>
 <span class="cstat-no" title="statement not covered" >    debug &amp;&amp; console.log('RenderHandler::context:', this.context);</span>
     const { TAO } = <span class="cstat-no" title="statement not covered" >this.context;</span>
-    const permutations = <span class="cstat-no" title="statement not covered" >cartesian(trigram);</span>
+    const permutations = <span class="cstat-no" title="statement not covered" >getPermutations(this.props);</span>
 <span class="cstat-no" title="statement not covered" >    if (permutations.length) {</span>
 <span class="cstat-no" title="statement not covered" >      permutations.forEach(<span class="fstat-no" title="function not covered" >({</span> term, action, orient }) =&gt;</span>
 <span class="cstat-no" title="statement not covered" >        TAO.addInlineHandler({ term, action, orient }, this.handleRender)</span>
@@ -398,7 +395,8 @@ export default class RenderHandler extends Component {
     }
     const { refreshOn } = <span class="cstat-no" title="statement not covered" >this.props;</span>
 <span class="cstat-no" title="statement not covered" >    if (refreshOn) {</span>
-      const refresh = <span class="cstat-no" title="statement not covered" >cleanInput(normalizeAC(refreshOn));</span>
+      const trigram = <span class="cstat-no" title="statement not covered" >normalizeClean(this.props);</span>
+      const refresh = <span class="cstat-no" title="statement not covered" >normalizeClean(refreshOn);</span>
 <span class="cstat-no" title="statement not covered" >      if (!Object.keys(refresh).length) {</span>
 <span class="cstat-no" title="statement not covered" >        return;</span>
       }
@@ -410,9 +408,8 @@ export default class RenderHandler extends Component {
   }
 &nbsp;
 <span class="fstat-no" title="function not covered" >  co</span>mponentWillUnmount() {
-    const trigram = <span class="cstat-no" title="statement not covered" >cleanInput(normalizeAC(this.props));</span>
     const { TAO } = <span class="cstat-no" title="statement not covered" >this.context;</span>
-    const permutations = <span class="cstat-no" title="statement not covered" >cartesian(trigram);</span>
+    const permutations = <span class="cstat-no" title="statement not covered" >getPermutations(this.props);</span>
 <span class="cstat-no" title="statement not covered" >    if (permutations.length) {</span>
 <span class="cstat-no" title="statement not covered" >      permutations.forEach(<span class="fstat-no" title="function not covered" >({</span> term, action, orient }) =&gt;</span>
 <span class="cstat-no" title="statement not covered" >        TAO.removeInlineHandler({ term, action, orient }, this.handleRender)</span>
@@ -457,7 +454,7 @@ export default class RenderHandler extends Component {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Thu Apr 01 2021 01:34:26 GMT-0700 (Pacific Daylight Time)
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Mon Apr 05 2021 06:15:08 GMT-0700 (Pacific Daylight Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

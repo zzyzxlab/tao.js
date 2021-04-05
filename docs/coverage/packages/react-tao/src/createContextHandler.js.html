@@ -20,9 +20,9 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">26.32% </span>
+        <span class="strong">25% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>10/38</span>
+        <span class='fraction'>9/36</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">33.33% </span>
@@ -35,9 +35,9 @@
         <span class='fraction'>2/12</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">26.32% </span>
+        <span class="strong">25% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>10/38</span>
+        <span class='fraction'>9/36</span>
       </div>
     </div>
   </div>
@@ -132,11 +132,7 @@
 87
 88
 89
-90
-91
-92
-93</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+90</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -178,7 +174,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -186,12 +181,11 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -228,10 +222,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { Component } from 'react';
-import cartesian from 'cartesian';
 import { AppCtx } from '@tao.js/core';
 &nbsp;
-import { normalizeAC, cleanInput } from './helpers';
+import { getPermutations } from './helpers';
 import { Context } from './Provider';
 &nbsp;
 function <span class="fstat-no" title="function not covered" >cleanState(</span>previousState, newState) {
@@ -265,10 +258,9 @@ export default function createContextHandler(tao, handler, defaultValue) {
           : defaultValue || {};
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    co</span>mponentWillMount() {
+<span class="fstat-no" title="function not covered" >    co</span>mponentDidMount() {
       const { TAO } = <span class="cstat-no" title="statement not covered" >this.context;</span>
-      const trigrams = <span class="cstat-no" title="statement not covered" >cleanInput(normalizeAC(tao));</span>
-      const permutations = <span class="cstat-no" title="statement not covered" >cartesian(trigrams);</span>
+      const permutations = <span class="cstat-no" title="statement not covered" >getPermutations(tao);</span>
 <span class="cstat-no" title="statement not covered" >      permutations.forEach(<span class="fstat-no" title="function not covered" >tr</span>igram =&gt;</span>
 <span class="cstat-no" title="statement not covered" >        TAO.addInlineHandler(trigram, this.contextHandler)</span>
       );
@@ -276,9 +268,8 @@ export default function createContextHandler(tao, handler, defaultValue) {
 &nbsp;
 <span class="fstat-no" title="function not covered" >    co</span>mponentWillUnmount() {
       const { TAO } = <span class="cstat-no" title="statement not covered" >this.context;</span>
-      const trigrams = <span class="cstat-no" title="statement not covered" >cleanInput(normalizeAC(tao));</span>
-      const permutations = <span class="cstat-no" title="statement not covered" >cartesian(trigrams);</span>
-      permutations.forEach(<span class="fstat-no" title="function not covered" >tr</span>igram =&gt;
+      const permutations = <span class="cstat-no" title="statement not covered" >getPermutations(tao);</span>
+<span class="cstat-no" title="statement not covered" >      permutations.forEach(<span class="fstat-no" title="function not covered" >tr</span>igram =&gt;</span>
 <span class="cstat-no" title="statement not covered" >        TAO.removeInlineHandler(trigram, this.contextHandler)</span>
       );
     }
@@ -325,7 +316,7 @@ export default function createContextHandler(tao, handler, defaultValue) {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Thu Apr 01 2021 01:34:26 GMT-0700 (Pacific Daylight Time)
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Mon Apr 05 2021 06:15:08 GMT-0700 (Pacific Daylight Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>
