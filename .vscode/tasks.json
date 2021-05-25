@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "start",
+      "path": "examples/patois.api/",
+      "problemMatcher": [],
+      "label": "npm: start - examples/patois.api",
+      "detail": "bnr start",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
