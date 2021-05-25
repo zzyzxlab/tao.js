@@ -97,6 +97,7 @@
     "@tao.js/react": "file:packages/react-tao",
     "@tao.js/router": "file:packages/tao-router",
     "@tao.js/socket.io": "file:packages/tao-socket-io",
+    "@tao.js/utils": "file:packages/tao-utils",
     "docs": "file:packages/docs",
     "patois.api": "file:examples/patois.api",
     "patois.web": "file:examples/patois.web"
