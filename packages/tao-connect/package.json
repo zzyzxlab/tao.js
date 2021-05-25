@@ -1,15 +1,40 @@
 {
   "name": "@tao.js/connect",
-  "version": "0.14.0",
+  "version": "0.1.0",
   "description": "connect middleware to hook tao into express or other connect compliant framework",
-  "private": true,
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "homepage": "https://tao.js.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzyzxlab/tao.js.git",
+    "directory": "packages/tao-connect"
   },
-  "author": "",
+  "main": "lib",
+  "module": "dist",
+  "sideEffects": false,
+  "directories": {
+    "lib": "dist"
+  },
+  "files": [
+    "lib",
+    "dist",
+    "bundles"
+  ],
+  "scripts": {
+    "build:clean": "rimraf dist lib bundles",
+    "build:package": "rollup --config",
+    "build": "npm run build:clean && npm run build:package"
+  },
+  "author": "eudaimos",
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@tao.js/core": "^0.14.0",
+    "@tao.js/utils": "^0.14.0"
+  },
   "devDependencies": {
-    "@tao.js/core": "file:../tao"
+    "@tao.js/core": "file:../tao",
+    "@tao.js/utils": "file:../tao-utils"
   }
 }
