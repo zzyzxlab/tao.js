@@ -38,8 +38,8 @@
   },
   "peerDependencies": {
     "@tao.js/core": "^0.13.0",
-    "prop-types": "^15.6.2",
-    "react": "^16.8.0"
+    "prop-types": "^15.8.1",
+    "react": "^16.14.0"
   },
   "devDependencies": {
     "@tao.js/core": "file:../tao"

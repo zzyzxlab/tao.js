@@ -7,11 +7,11 @@
     "@tao.js/react": "file:../../packages/react-tao",
     "@tao.js/router": "file:../../packages/tao-router",
     "@tao.js/socket.io": "file:../../packages/tao-socket-io",
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "lodash.isempty": "^4.4.0",
-    "lodash.merge": "^4.6.1",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0",
+    "lodash.merge": "^4.6.2",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "react-scripts": "2.0.5"
   },
   "scripts": {

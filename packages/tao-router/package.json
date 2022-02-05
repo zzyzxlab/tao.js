@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "get-value": "^3.0.1",
-    "history": "^4.7.2",
+    "history": "^4.10.1",
     "path-to-regexp": "^2.4.0",
     "routington": "^1.0.3",
     "set-value": "^3.0.0",
