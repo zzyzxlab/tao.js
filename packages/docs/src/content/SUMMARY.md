@@ -96,5 +96,5 @@
 
 ---
 
-* [CHANGELOG](https://github.com/zzyzxlab/tao.js/blob/master/CHANGELOG.md){:target="_blank"}
+* [CHANGELOG](https://github.com/zzyzxlab/tao.js/blob/main/CHANGELOG.md){:target="_blank"}
 * [Coverage](https://tao.js.org/coverage/index.html){:target="_blank"}
