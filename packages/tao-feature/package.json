@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/feature",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "enable dynamic loading of features using tao",
   "private": true,
   "main": "index.js",
