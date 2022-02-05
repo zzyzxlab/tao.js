@@ -91,6 +91,8 @@ describe('Reactor exports a React Component for reacting to TAO App Contexts', (
       wrapper.instance(),
       expect.any(Function)
     );
+    registerMock.mockReset();
+    registerMock.mockRestore();
   });
 
   it('should unregister from the Adapter when unmounting', () => {
@@ -106,6 +108,8 @@ describe('Reactor exports a React Component for reacting to TAO App Contexts', (
     // Assert
     expect(unregisterMock).toHaveBeenCalledTimes(1);
     expect(unregisterMock).toHaveBeenCalledWith(wrapperInstance);
+    unregisterMock.mockReset();
+    unregisterMock.mockRestore();
   });
 
   it('should not render a component without an AC being triggered', () => {

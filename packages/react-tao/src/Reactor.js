@@ -23,7 +23,7 @@ class Reactor extends Component {
 
   componentWillUnmount() {
     const { adapter } = this.props;
-    adapter.unregisterReactor(this);
+    adapter && adapter.unregisterReactor && adapter.unregisterReactor(this);
   }
 
   componentDidUpdate(prevProps) {
