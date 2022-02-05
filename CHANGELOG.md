@@ -1,3 +1,9 @@
+## [0.14.1](https://github.com/zzyzxlab/tao.js/compare/v0.14.0...v0.14.1) (2022-02-05)
+
+### Bug Fixes
+
+- **SwitchHandler:** fixes losing child references on rerender after DataHandler change ([2f13ec1](https://github.com/zzyzxlab/tao.js/commit/2f13ec1e024ce43d1b2a1086dadf417184d9cafd))
+
 # [0.14.0](https://github.com/zzyzxlab/tao.js/compare/v0.13.2...v0.14.0) (2021-04-05)
 
 - **react:** refactor `componentWillMount` -> `componentDidMount` + `componentWillReceiveProps` -> `componentDid`

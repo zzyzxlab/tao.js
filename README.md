@@ -191,6 +191,63 @@ update version in `package.jsom`
 
 ```sh
 $ npm run chore:changelog
-$ npx git cz # ensure changelog updated
+$ git commit # ensure changelog updated
 $ npm run chore:publish
 ```
+
+## real world
+
+Finding trigrams in code
+
+- search w/ regex `{term}.*{action}.*{orient}`
+- build VS Code extension to find and navigate to them: signalling and handling
+
+Refactoring data passing from one part to another
+
+Forwarding with passing all data parts
+
+Auth Handling
+
+Stop bouncing ALL trigrams with socket.io - use seive or filtering
+
+Verify that Intercept Handlers prevent signals from going to the server via socket.io
+
+Logging support and shipping all ACs somewhere
+
+Capturing TRACE_IDs and SPANs (from inside the network?)
+
+Joiner (for fork-join) will call handler when all provided trigrams have been seen
+
+- used to coordinate out of race conditions
+  \*Continuous Joiner - after they've all been seen, it fires again any time one of the trigrams are seen
+  with a cache of the previous values from the other ACs
+
+Return array of AppCtx from handler
+
+## FIX DATA CONTEXT FOR REACT
+
+Since React changed the lifecycle methods in 16.9 the `setDataContext` is not called before
+children mount. This causes an issue with timing as now `setDataContext` is being called by
+the `DataHandler` in `componentDidMount` meaning that the children have already mounted.
+
+This causes issues with hooks introduced in 16.13 and using the `useContext` hook within the
+`useTaoDataContext` hook as it is receiving the context before it can be set and thus always
+returning `undefined` to the component attempting to use the hook.
+
+### Solution
+
+Reimplement the Data Context internals without changing the API to clients.
+
+Build a hierarchy of data using the `name` as a key in the object.
+
+Each successive context passes its parent context data in and sets its own key.
+
+Each `DataHandler`, `RenderHandler` and `DataConsumer` will consume the same `Context`.
+
+This will do the following things:
+
+1. behave more like React expects with the Context API storing data not accessors to data held somewhere else
+2. allow the originally desired override and tree of data to match the component tree
+3. make the `DataConsumer` component actually work as desired
+4. simplify the consumption of context, no more recursive `Context.Consumer`s needed
+5. let `DataHandler`s also have a `context` prop to use data from a parent context in their handler
