@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { AppCtx } from '@tao.js/core';
 import cartesian from 'cartesian';
 
-import { normalizeClean } from './helpers';
+import { normalizeClean, handlerHash } from './helpers';
 
 import { Context } from './Provider';
 import RenderHandler from './RenderHandler';
@@ -32,10 +32,11 @@ export default class SwitchHandler extends Component {
     const { TAO } = this.context;
     const defaultTrigram = normalizeClean(this.props);
     const intercepted = new Map();
-    React.Children.forEach(this.props.children, child => {
+    React.Children.forEach(this.props.children, (child, i) => {
       if (child.type === RenderHandler) {
         const childTrigram = normalizeClean(child.props);
-        const handler = this.handleSwitch(child);
+        const childHash = handlerHash(childTrigram);
+        const handler = this.handleSwitch(childHash);
         const trigrams = Object.assign(defaultTrigram, childTrigram);
         debug && console.log('trigrams:', trigrams);
         const permutations = cartesian(trigrams);
@@ -75,12 +76,12 @@ export default class SwitchHandler extends Component {
     this.setState({ chosenList });
   };
 
-  handleSwitch = child => (tao, data) => {
+  handleSwitch = childHash => (tao, data) => {
     const { debug = false } = this.props;
     debug && console.log('SwitchHandler::handleSwitch:', { tao, data });
     const { chosenList } = this.state;
     debug && console.log('chosenList:', chosenList);
-    chosenList.add(child);
+    chosenList.add(childHash);
     this.setState({ chosenList });
     debug &&
       console.log('SwitchHandler::handleSwitch::set state with:', this.state);
@@ -97,7 +98,8 @@ export default class SwitchHandler extends Component {
         return child;
       }
       debug && console.log('SwitchHandler::render:testing child');
-      if (chosenList.has(child)) {
+      const childHash = handlerHash(normalizeClean(child.props));
+      if (chosenList.has(childHash)) {
         debug && console.log('SwitchHandler::render:cloning child');
         return React.cloneElement(child, {
           term,

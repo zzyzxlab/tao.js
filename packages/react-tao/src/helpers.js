@@ -28,3 +28,11 @@ export function getPermutations({ t, term, a, action, o, orient }) {
   }
   return [{}];
 }
+
+function trigramHash(trigram) {
+  return !trigram ? '%' : Array.isArray(trigram) ? trigram.join(',') : trigram;
+}
+
+export function handlerHash({ term, action, orient }) {
+  return `${trigramHash(term)}|${trigramHash(action)}|${trigramHash(orient)}`;
+}
