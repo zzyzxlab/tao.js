@@ -12,15 +12,34 @@ function recursiveContextGenerator(
   tao,
   data,
   ctxIdx = 0,
-  ctxDataArgs = []
+  ctxDataArgs = null
 ) {
+  if (ctxDataArgs == null) {
+    ctxDataArgs = new Array(ctxList.length);
+  }
   const ctxName = ctxList[ctxIdx];
   const context = getContext(ctxName);
+  if (!context) {
+    console.warn(
+      `RenderHandler::Unable to find context for '${ctxName}'. Please check that you have it spelled correctly.`
+    );
+    console.info(`RenderHandler::setting context ${ctxName} data arg to null`);
+    ctxDataArgs[ctxIdx] = null;
+    return recursiveContextGenerator(
+      ctxList,
+      getContext,
+      children,
+      tao,
+      data,
+      ctxIdx + 1,
+      ctxDataArgs
+    );
+  }
   if (ctxList.length > ctxIdx + 1) {
     return (
       <context.Consumer name={`${ctxName}.Consumer`}>
         {ctxData => {
-          ctxDataArgs.push(ctxData);
+          ctxDataArgs[ctxIdx] = ctxData;
           return recursiveContextGenerator(
             ctxList,
             getContext,
@@ -37,7 +56,7 @@ function recursiveContextGenerator(
   return (
     <context.Consumer name={`${ctxName}.Consumer`}>
       {ctxData => {
-        ctxDataArgs.push(ctxData);
+        ctxDataArgs[ctxIdx] = ctxData;
         return children(tao, data, ...ctxDataArgs);
       }}
     </context.Consumer>
