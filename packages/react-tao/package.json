@@ -37,7 +37,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@tao.js/core": "^0.13.0",
+    "@tao.js/core": "^0.14.0",
     "prop-types": "^15.8.1",
     "react": "^16.14.0"
   },

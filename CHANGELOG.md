@@ -1,3 +1,10 @@
+## [0.14.2](https://github.com/zzyzxlab/tao.js/compare/v0.14.1...v0.14.2) (2022-02-07)
+
+### Bug Fixes
+
+- **DataConsumer:** port RenderHandler data context fix to DataConsumer ([2af1a4f](https://github.com/zzyzxlab/tao.js/commit/2af1a4fb3d0cab04289f8bd49e0fc68301f64211))
+- **RenderHandler:** updates to context data post-render pushed updated data as subsequent args ([c5556ed](https://github.com/zzyzxlab/tao.js/commit/c5556edece18cb1ae56f8758f8c5903e69b4cc2b))
+
 ## [0.14.1](https://github.com/zzyzxlab/tao.js/compare/v0.14.0...v0.14.1) (2022-02-05)
 
 ### Bug Fixes
