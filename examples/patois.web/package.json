@@ -1,6 +1,6 @@
 {
   "name": "patois.web",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "private": true,
   "dependencies": {
     "@tao.js/core": "file:../../packages/tao",
