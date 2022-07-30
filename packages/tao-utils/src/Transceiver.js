@@ -1,4 +1,4 @@
-import { Network } from '@tao.js/core';
+import { Network, AppCtx } from '@tao.js/core';
 
 // for backwards compatibility
 const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
