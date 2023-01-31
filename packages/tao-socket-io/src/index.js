@@ -56,7 +56,7 @@ export default function wireTaoJsToSocketIO(TAO, io, opts = {}) {
   if (!IS_SERVER) {
     if (io && typeof io === 'function') {
       const host = opts.host || '';
-      const socket = io(`${host}/${ns}`);
+      const socket = io(`${host}/${ns}`, opts.io);
       const source = decorateNetwork(TAO, socket);
       return socket;
     }
