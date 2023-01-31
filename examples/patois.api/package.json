@@ -1,6 +1,6 @@
 {
   "name": "patois.api",
-  "version": "0.14.3",
+  "version": "0.15.0",
   "description": "api used for the patois application",
   "private": true,
   "main": "index.js",

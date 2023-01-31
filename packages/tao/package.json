@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/core",
-  "version": "0.14.1",
+  "version": "0.15.0",
   "description": "Core Javascript implementation of the TAO ☯ programming paradigm designed to embrace entropy inherent in application and system development using a simple set of building blocks",
   "homepage": "https://tao.js.org/",
   "repository": {
