@@ -73,7 +73,7 @@ This project uses `commitizen` and `lerna` + some githooks for `prettier` and `j
 When you have made some changes and staged them **do not** use `git commit` but instead use:
 
 ```sh
-$ npx git cz
+$ npx git-cz
 ```
 
 Which will start `commitizen` for you to generate the commit message in the desired conventional changelog format.
@@ -187,7 +187,7 @@ $ npm run build
 $ npm run docs:make
 ```
 
-update version in `package.jsom`
+update version in `package.json`
 
 ```sh
 $ npm run chore:changelog

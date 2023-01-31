@@ -1,3 +1,9 @@
+# [0.15.0](https://github.com/zzyzxlab/tao.js/compare/v0.14.3...v0.15.0) (2023-01-31)
+
+### Features
+
+- **socket.io-client:** allow passing options to socket on client ([ea0b59c](https://github.com/zzyzxlab/tao.js/commit/ea0b59cc300915a7340447ecab58f970bab7809d))
+
 ## [0.14.3](https://github.com/zzyzxlab/tao.js/compare/v0.14.2...v0.14.3) (2022-07-30)
 
 ### Bug Fixes
