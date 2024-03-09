@@ -152,7 +152,7 @@ Which will start `commitizen` for you to generate the commit message in the desi
   - [ ] include `make` scripts for common chores
   - [ ] upgrade `@babel` packages
   - [ ] migrate to `yarn` for better dependency management?
-  - [ ] use [rollup.js](https://rollupjs.org) for package build?
+  - [x] use [rollup.js](https://rollupjs.org) for package build?
 - [ ] complete `@tao.js/react-router` package
   - [ ] implement `Link` component to set context
   - [ ] update `docs` with `@tao.js/react-router` routing
@@ -179,6 +179,9 @@ Which will start `commitizen` for you to generate the commit message in the desi
 - [ ] complete `@tao.js/cli` package
   - [ ] unit tests
   - [ ] update `docs` with `@tao.js/cli`
+- [ ] complete `@tao.js/rest-maker` package
+  - [ ] unit tests
+  - [ ] update `docs` with `@tao.js/rest-maker`
 
 ## Publishing
 

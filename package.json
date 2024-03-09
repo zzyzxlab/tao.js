@@ -7,7 +7,7 @@
     "doc": "docs",
     "example": "examples"
   },
-  "author": "",
+  "author": "Jeff Hoffer (eudaimos) <jeff@hwgray.com>",
   "license": "Apache-2.0",
   "description": "",
   "scripts": {
