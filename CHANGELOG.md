@@ -1,3 +1,18 @@
+# [0.16.0](https://github.com/zzyzxlab/tao.js/compare/v0.15.0...v0.16.0) (2024-03-10)
+
+### Bug Fixes
+
+- **react:** explicitly make react external package ([0580cf4](https://github.com/zzyzxlab/tao.js/commit/0580cf46de65b634a7a6054c4329d02047747069))
+
+### Features
+
+- **auth:** get auth from socket.io on AC propagation ([ae4d948](https://github.com/zzyzxlab/tao.js/commit/ae4d9483ddf44e3b4abf47500c63e34d8427a9cc))
+- **utils:** new utilities for transfer, forward & logging ([d71ef74](https://github.com/zzyzxlab/tao.js/commit/d71ef7423209a870819385f9e2c8dc179aae18e1))
+
+### BREAKING CHANGES
+
+- **socket.io:** onConnect now receives the whole socket in callback instead of just id prop
+
 # [0.15.0](https://github.com/zzyzxlab/tao.js/compare/v0.14.3...v0.15.0) (2023-01-31)
 
 ### Features
