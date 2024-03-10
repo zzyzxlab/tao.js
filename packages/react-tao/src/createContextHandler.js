@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { AppCtx } from '@tao.js/core';
 
 import { getPermutations } from './helpers';
@@ -24,7 +24,7 @@ export default function createContextHandler(tao, handler, defaultValue) {
     throw new Error('createContextHandler `handler` must be a function');
   }
   const WrappingContext = React.createContext(defaultValue);
-  class Provider extends Component {
+  class Provider extends React.Component {
     static contextType = Context;
 
     constructor(props) {

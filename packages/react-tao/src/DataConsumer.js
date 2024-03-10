@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import { Context } from './Provider';
@@ -55,7 +55,7 @@ function recursiveContextGenerator(
   );
 }
 
-export default class DataConsumer extends Component {
+export default class DataConsumer extends React.Component {
   static contextType = Context;
 
   static propTypes = {

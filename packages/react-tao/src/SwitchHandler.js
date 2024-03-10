@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { AppCtx } from '@tao.js/core';
 import cartesian from 'cartesian';
@@ -8,7 +8,7 @@ import { normalizeClean, handlerHash } from './helpers';
 import { Context } from './Provider';
 import RenderHandler from './RenderHandler';
 
-export default class SwitchHandler extends Component {
+export default class SwitchHandler extends React.Component {
   static contextType = Context;
 
   static propTypes = {

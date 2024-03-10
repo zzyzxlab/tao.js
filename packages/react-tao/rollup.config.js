@@ -105,7 +105,7 @@ export default [
         sourcemap: true
       }
     ],
-    external: ['cartesian'],
+    external: ['cartesian', 'react'],
     plugins: [
       external(),
       babel({
@@ -134,7 +134,7 @@ export default [
         exports: 'named'
       }
     ],
-    external: ['cartesian'],
+    external: ['cartesian', 'react'],
     plugins: [
       external(),
       babel({
@@ -159,7 +159,7 @@ export default [
         sourcemap: true
       }
     ],
-    external: ['cartesian'],
+    external: ['cartesian', 'react'],
     plugins: [
       external(),
       babel({

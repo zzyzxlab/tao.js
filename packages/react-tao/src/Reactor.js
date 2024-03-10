@@ -1,10 +1,10 @@
-import { Component, createElement } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Adapter from './Adapter';
 
 const DUMMY_STATE = {};
 
-class Reactor extends Component {
+class Reactor extends React.Component {
   static get propTypes() {
     return {
       adapter: PropTypes.instanceOf(Adapter).isRequired
@@ -77,7 +77,7 @@ class Reactor extends Component {
     if (!ComponentHandler) {
       return null;
     }
-    return createElement(ComponentHandler, {
+    return React.createElement(ComponentHandler, {
       ...tao,
       ...props,
       ...childProps

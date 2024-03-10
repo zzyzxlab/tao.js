@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 import { Context } from './Provider';
 import createContextHandler from './createContextHandler';
 
-export default class DataHandler extends Component {
+export default class DataHandler extends React.Component {
   static contextType = Context;
 
   constructor(props) {

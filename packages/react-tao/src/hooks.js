@@ -1,10 +1,10 @@
-import { useContext, useEffect, useLayoutEffect } from 'react';
+import React from 'react';
 
 import { Context } from './Provider';
 import { getPermutations } from './helpers';
 
 export function useTaoContext() {
-  const { TAO } = useContext(Context);
+  const { TAO } = React.useContext(Context);
   return TAO;
 }
 
@@ -20,7 +20,7 @@ function useTaoEffect(
   ];
   const TAO = useTaoContext();
   const permutations = getPermutations({ t, term, a, action, o, orient });
-  useEffect(() => {
+  React.useEffect(() => {
     permutations.forEach(trigram => TAO[addingHandler](trigram, handler));
     return () => {
       permutations.forEach(trigram => TAO[removingHandler](trigram, handler));
@@ -68,10 +68,10 @@ export function useTaoInterceptHandler(
 }
 
 export function useTaoDataContext(name) {
-  const { getDataContext } = useContext(Context);
+  const { getDataContext } = React.useContext(Context);
   const dataContext = getDataContext(name);
   if (!dataContext) {
     return;
   }
-  return useContext(dataContext);
+  return React.useContext(dataContext);
 }

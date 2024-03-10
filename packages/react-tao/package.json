@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/react",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "description": "Adapter to use tao.js with React",
   "homepage": "https://tao.js.org/",
   "repository": {
@@ -37,12 +37,16 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@tao.js/core": "^0.14.0",
-    "prop-types": "^15.8.1",
-    "react": "^16.14.0"
+    "@tao.js/core": "^0.15.0",
+    "prop-types": "*",
+    "react": "*",
+    "react-dom": "*"
   },
   "devDependencies": {
-    "@tao.js/core": "file:../tao"
+    "@tao.js/core": "file:../tao",
+    "prop-types": "file:../../node_modules/prop-types",
+    "react": "file:../../node_modules/react",
+    "react-dom": "file:../../node_modules/react-dom"
   },
   "dependencies": {
     "cartesian": "^1.0.1"

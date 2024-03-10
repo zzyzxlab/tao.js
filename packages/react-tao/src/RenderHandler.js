@@ -1,4 +1,4 @@
-import React, { Fragment, Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import cartesian from 'cartesian';
 
@@ -63,7 +63,7 @@ function recursiveContextGenerator(
   );
 }
 
-export default class RenderHandler extends Component {
+export default class RenderHandler extends React.Component {
   static contextType = Context;
 
   static propTypes = {
@@ -140,7 +140,7 @@ export default class RenderHandler extends Component {
       return null;
     }
     if (!context) {
-      return <Fragment>{children(tao, data)}</Fragment>;
+      return <React.Fragment>{children(tao, data)}</React.Fragment>;
     }
     const ctxList = Array.isArray(context) ? context : [context];
     return recursiveContextGenerator(
