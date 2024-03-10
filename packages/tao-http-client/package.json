@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/http-client",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "http client used to call a tao http server",
   "private": true,
   "homepage": "https://tao.js.org/",

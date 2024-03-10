@@ -1,12 +1,13 @@
 {
-  "name": "@tao.js/core",
+  "name": "@tao.js/rest-maker",
   "version": "0.16.0",
-  "description": "Core Javascript implementation of the TAO ☯ programming paradigm designed to embrace entropy inherent in application and system development using a simple set of building blocks",
+  "description": "generates REST API on network from config file",
+  "private": true,
   "homepage": "https://tao.js.org/",
   "repository": {
     "type": "git",
     "url": "https://github.com/zzyzxlab/tao.js.git",
-    "directory": "packages/tao"
+    "directory": "packages/tao-rest-maker"
   },
   "main": "lib",
   "module": "dist",
@@ -18,8 +19,8 @@
     "lib": "dist"
   },
   "files": [
-    "dist",
     "lib",
+    "dist",
     "bundles"
   ],
   "scripts": {
@@ -33,6 +34,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@babel/runtime": "^7.17.0"
+    "gitbook": "3.2.3"
   }
 }
