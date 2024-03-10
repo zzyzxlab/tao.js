@@ -7,6 +7,7 @@ const ON_EVENT = IS_SERVER ? 1 : 0;
 const EVENTS = ['fromServer', 'fromClient'];
 
 const NOOP = () => {};
+const IDENTITY = v => v;
 
 const socketHandler = socket => (tao, data) => {
   socket.emit(EVENTS[EMIT_EVENT], { tao, data });
@@ -20,10 +21,24 @@ function decorateNetwork(TAO, socket) {
   return source;
 }
 
-function decorateSocket(TAO, socket) {
-  socket.on(EVENTS[ON_EVENT], ({ tao, data }) => {
-    TAO.setCtx(tao, data);
-  });
+function onEventPlain(TAO) {
+  return ({ tao, data }) => TAO.setCtx(tao, data);
+}
+
+function onEventAuth(TAO, auth, authTransform) {
+  return async ({ tao, data }) => {
+    const useData = await authTransform(tao, data, auth);
+    TAO.setCtx(tao, useData);
+  };
+}
+
+function decorateSocket(TAO, socket, authTransform) {
+  const { auth } = socket.handshake;
+  if (typeof authTransform === 'function') {
+    socket.on(EVENTS[ON_EVENT], onEventAuth(TAO, auth, authTransform));
+  } else {
+    socket.on(EVENTS[ON_EVENT], onEventPlain(TAO));
+  }
 
   const handler = socketHandler(socket);
   TAO.addInlineHandler({}, handler);
@@ -32,12 +47,17 @@ function decorateSocket(TAO, socket) {
   });
 }
 
-const ioMiddleware = (TAO, onConnect) => (socket, next) => {
+// change, options object now instead of just onConnect
+const ioMiddleware = (TAO, { onConnect, authTransform } = {}) => (
+  socket,
+  next
+) => {
   let clientTAO = new Channel(TAO, socket.id);
   let onDisconnect = NOOP;
-  decorateSocket(clientTAO, socket);
+  decorateSocket(clientTAO, socket, authTransform);
   if (onConnect && typeof onConnect === 'function') {
-    onDisconnect = onConnect(clientTAO, socket.id);
+    // change: pass the whole socket to onConnect
+    onDisconnect = onConnect(clientTAO, socket);
     onDisconnect = typeof onDisconnect === 'function' ? onDisconnect : NOOP;
   }
   socket.on('disconnect', reason => {
@@ -61,12 +81,12 @@ export default function wireTaoJsToSocketIO(TAO, io, opts = {}) {
       return socket;
     }
   } else {
-    const { onConnect } = opts;
+    const { onConnect, authTransform } = opts;
     if (io && typeof io.of === 'function') {
       const namespacedEngine = io.of(`/${ns}`);
-      namespacedEngine.use(ioMiddleware(TAO, onConnect));
+      namespacedEngine.use(ioMiddleware(TAO, { onConnect, authTransform }));
     } else {
-      return ioMiddleware(TAO, onConnect);
+      return ioMiddleware(TAO, { onConnect, authTransform });
     }
   }
 }
