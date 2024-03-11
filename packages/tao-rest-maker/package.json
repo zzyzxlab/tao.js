@@ -1,17 +1,22 @@
 {
-  "name": "@tao.js/router",
+  "name": "@tao.js/rest-maker",
   "version": "0.16.1",
-  "description": "connects url routing with tao.js",
+  "description": "generates REST API on network from config file",
+  "private": true,
   "homepage": "https://tao.js.org/",
   "repository": {
     "type": "git",
     "url": "https://github.com/zzyzxlab/tao.js.git",
-    "directory": "packages/tao-router"
+    "directory": "packages/tao-rest-maker"
   },
   "main": "lib",
   "module": "dist",
   "bundles": {
     "browser": "bundles/browser.umd.js"
+  },
+  "sideEffects": false,
+  "directories": {
+    "lib": "dist"
   },
   "files": [
     "lib",
@@ -27,19 +32,5 @@
   "license": "Apache-2.0",
   "publishConfig": {
     "access": "public"
-  },
-  "peerDependencies": {
-    "@tao.js/core": "*"
-  },
-  "devDependencies": {
-    "@tao.js/core": "file:../tao"
-  },
-  "dependencies": {
-    "get-value": "^3.0.1",
-    "history": "^4.10.1",
-    "path-to-regexp": "^2.4.0",
-    "routington": "^1.0.3",
-    "set-value": "^3.0.0",
-    "url-pattern": "^1.0.3"
   }
 }
