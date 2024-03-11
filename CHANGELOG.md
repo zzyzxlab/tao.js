@@ -1,3 +1,9 @@
+## [0.16.1](https://github.com/zzyzxlab/tao.js/compare/v0.16.0...v0.16.1) (2024-03-11)
+
+### Bug Fixes
+
+- **deps:** update peer deps for [@tao](https://github.com/tao).js/ packages to \* ([1ab19ae](https://github.com/zzyzxlab/tao.js/commit/1ab19aee501c1e4551879e5283694eb3eb578888))
+
 # [0.16.0](https://github.com/zzyzxlab/tao.js/compare/v0.15.0...v0.16.0) (2024-03-10)
 
 ### Bug Fixes
