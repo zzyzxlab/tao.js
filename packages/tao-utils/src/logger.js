@@ -1,18 +1,22 @@
-import { inspect } from 'util';
-
-function inspectObject(obj, depth) {
-  return inspect(obj, false, depth, true);
-}
-
 export function TaoLogger(
   doLogging = true,
-  { verbose = false, depth = 0, group = false, logger = console } = {}
+  {
+    verbose = false,
+    depth = 0,
+    group = false,
+    logger = console,
+    inspect = null
+  } = {}
 ) {
   let inspector = null;
-  if (!depth && depth !== null) {
+  if (
+    inspect == null ||
+    typeof inspect != 'function' ||
+    (!depth && depth != null)
+  ) {
     inspector = obj => obj;
   } else {
-    inspector = obj => inspectObject(obj, depth);
+    inspector = obj => inspect(obj, depth);
   }
   return {
     handler: (tao, data) => {
@@ -41,10 +45,15 @@ export function TaoLogger(
       verbose = !!v;
     },
     depth: v => {
-      if (!v && !v === null) {
+      depth = v;
+      if (
+        inspect == null ||
+        typeof inspect != 'function' ||
+        (!v && !v === null)
+      ) {
         inspector = obj => obj;
       } else {
-        inspector = obj => inspectObject(obj, v);
+        inspector = obj => inspect(obj, depth);
       }
     },
     group: v => {
@@ -52,6 +61,14 @@ export function TaoLogger(
     },
     setLogger: l => {
       logger = l;
+    },
+    setInspect: i => {
+      inspect = i;
+      if (i == null || typeof i != 'function' || (!depth && !depth === null)) {
+        inspector = obj => obj;
+      } else {
+        inspector = obj => inspect(obj, depth);
+      }
     }
   };
 }
