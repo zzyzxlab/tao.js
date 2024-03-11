@@ -1,3 +1,9 @@
+## [0.16.2](https://github.com/zzyzxlab/tao.js/compare/v0.16.1...v0.16.2) (2024-03-11)
+
+### Bug Fixes
+
+- **logger:** remove node util.inspect dep ([8aa6297](https://github.com/zzyzxlab/tao.js/commit/8aa62973cce7862bb712ee264024ea2da51753e2))
+
 ## [0.16.1](https://github.com/zzyzxlab/tao.js/compare/v0.16.0...v0.16.1) (2024-03-11)
 
 ### Bug Fixes
