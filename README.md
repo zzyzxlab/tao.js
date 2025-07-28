@@ -3,19 +3,19 @@
 `tao` represents a new _way_ of programming
 
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
-[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
+[![nx](https://img.shields.io/badge/maintained%20with-nx-cc00ff.svg)](https://nx.dev/)
 [![Gitter chat](https://img.shields.io/gitter/room/tao-land/tao.js?style=plastic)](https://gitter.im/tao-land/tao.js)
 
 ## All Packages in the `@tao.js` family
 
-| package                                                                    | description                                                      | docs page                                                             |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------- |
+| package                                                                    | description                                                       | docs page                                                             |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------- |
 | [`npm @tao.js/core`](https://www.npmjs.com/package/@tao.js/core)           | Core Javascript implementation of the TAO ☯ programming paradigm | [tao.js.org](https://tao.js.org)                                      |
-| [`npm @tao.js/utils`](https://www.npmjs.com/package/@tao.js/utils)         | Extensions to Core used to build out the Signal Network          | [tao.js Utilities for Implementers](https://tao.js.org/implementers/) |
-| [`npm @tao.js/react`](https://www.npmjs.com/package/@tao.js/react)         | Adapter to use tao.js with React                                 | [Usage with React.js](https://tao.js.org/client-react/)               |
-| [`npm @tao.js/socket.io`](https://www.npmjs.com/package/@tao.js/socket.io) | socket.io middleware to run tao.js seamlessly on server & client | [tao.js for Socket.io](https://tao.js.org/server-side/socket-io.html) |
-| [`npm @tao.js/koa`](https://www.npmjs.com/package/@tao.js/koa)             | Expose a TAO signal network over http using a koa app server     | [tao.js for Koa](https://tao.js.org/server-side/koa.html)             |
-| [`npm @tao.js/router`](https://www.npmjs.com/package/@tao.js/router)       | connects url routing with tao.js                                 | [URL Handling with @tao.js/router](https://tao.js.org/router/)        |
+| [`npm @tao.js/utils`](https://www.npmjs.com/package/@tao.js/utils)         | Extensions to Core used to build out the Signal Network           | [tao.js Utilities for Implementers](https://tao.js.org/implementers/) |
+| [`npm @tao.js/react`](https://www.npmjs.com/package/@tao.js/react)         | Adapter to use tao.js with React                                  | [Usage with React.js](https://tao.js.org/client-react/)               |
+| [`npm @tao.js/socket.io`](https://www.npmjs.com/package/@tao.js/socket.io) | socket.io middleware to run tao.js seamlessly on server & client  | [tao.js for Socket.io](https://tao.js.org/server-side/socket-io.html) |
+| [`npm @tao.js/koa`](https://www.npmjs.com/package/@tao.js/koa)             | Expose a TAO signal network over http using a koa app server      | [tao.js for Koa](https://tao.js.org/server-side/koa.html)             |
+| [`npm @tao.js/router`](https://www.npmjs.com/package/@tao.js/router)       | connects url routing with tao.js                                  | [URL Handling with @tao.js/router](https://tao.js.org/router/)        |
 
 ## Further Reading
 
@@ -25,15 +25,15 @@ Docs at [tao.js.org](https://tao.js.org)
 
 | char | code   | symbol    |
 | ---- | ------ | --------- |
-| ☯    | U+262F | yin-yang  |
-| ☰    | U+2630 | heaven    |
-| ☱    | U+2631 | lake      |
-| ☲    | U+2632 | fire      |
-| ☳    | U+2633 | thunder   |
-| ☴    | U+2634 | wind/wood |
-| ☵    | U+2635 | water     |
-| ☶    | U+2636 | mountain  |
-| ☷    | U+2637 | earth     |
+| ☯   | U+262F | yin-yang  |
+| ☰   | U+2630 | heaven    |
+| ☱   | U+2631 | lake      |
+| ☲   | U+2632 | fire      |
+| ☳   | U+2633 | thunder   |
+| ☴   | U+2634 | wind/wood |
+| ☵   | U+2635 | water     |
+| ☶   | U+2636 | mountain  |
+| ☷   | U+2637 | earth     |
 
 ## More to come
 
@@ -41,15 +41,14 @@ This really needs to be filled out
 
 ## Getting started with this repo
 
-The repo is designed to use `nvm` and `npm`/`npx` so that nothing is expected to be installed globally.
+The repo is designed to use `asdf` and `pnpm` so that nothing is expected to be installed globally.
 Additionally, to run the examples you should have Docker installed locally as well.
 
 In the root of the repo:
 
 ```sh
-$ nvm install
-$ npm install
-$ npx lerna bootstrap --hoist
+$ asdf install
+$ pnpm install
 ```
 
 ### Running example site and api
@@ -61,19 +60,101 @@ The Example work are the folders inside the [`examples`] directory. To run them:
 $ docker-compose up -d
 # once db is running
 $ cd examples/patois.api
-$ npm start
+$ pnpm start
 $ cd ../patois.web
-$ yarn start
+$ pnpm start
 ```
+
+## Monorepo Management with Nx
+
+This project uses Nx to manage the monorepo structure and package publishing.
+
+### Common Commands
+
+```bash
+# Install dependencies
+pnpm install
+
+# Create a new commit (with conventional commit messages)
+pnpm run commit
+
+# Build all packages
+pnpm run build
+
+# Build specific package
+pnpm exec nx build @tao.js/core
+
+# Run tests
+pnpm run test
+
+# Run linting
+pnpm run lint
+
+# Run linting on specific package
+pnpm exec nx lint @tao.js/core
+```
+
+### Package Development
+
+Each package in the `packages/` directory is configured as an Nx project. To add a new package:
+
+1. Create your package directory in `packages/`
+2. Add a `project.json` file with build, test, and lint targets
+3. Ensure your package's `package.json` includes proper npm publishing configuration
+
+### Commit Messages
+
+We use commitizen for standardized commit messages. The commit prompt will ask for:
+
+1. Type of change (feat, fix, docs, etc.)
+2. Scope (package name)
+3. Short description
+4. Long description (optional)
+5. Breaking changes (optional)
+
+### Useful Nx Commands
+
+```bash
+# View dependency graph
+pnpm exec nx graph
+
+# Run command only on changed packages
+pnpm exec nx affected --target=build
+
+# Run command on specific package
+pnpm exec nx build @tao.js/core
+pnpm exec nx test @tao.js/core
+```
+
+### Project Structure
+
+```
+.
+├── packages/
+│   ├── tao/           # @tao.js/core
+│   ├── tao-utils/     # @tao.js/utils
+│   ├── react-tao/     # @tao.js/react
+│   └── ...
+├── nx.json
+├── package.json
+├── pnpm-workspace.yaml
+└── .cz-config.js
+```
+
+For more information:
+
+- [Nx Documentation](https://nx.dev)
+- [Commitizen](https://github.com/commitizen/cz-cli)
+- [pnpm Workspaces](https://pnpm.io/workspaces)
 
 ## Contributing - REALLY IMPORTANT INSTRUCTIONS
 
-This project uses `commitizen` and `lerna` + some githooks for `prettier` and `jest` to run.
+This project uses `commitizen` and `nx` + some githooks for `prettier` and `jest` to run.
 
 When you have made some changes and staged them **do not** use `git commit` but instead use:
 
 ```sh
-$ npx git-cz
+$ pnpm run commit
 ```
 
 Which will start `commitizen` for you to generate the commit message in the desired conventional changelog format.
@@ -186,16 +267,16 @@ Which will start `commitizen` for you to generate the commit message in the desi
 ## Publishing
 
 ```sh
-$ npm run build
-$ npm run docs:make
+$ pnpm run build
+$ pnpm run docs:make
 ```
 
 update version in `package.json`
 
 ```sh
-$ npm run chore:changelog
+$ pnpm run chore:changelog
 $ git commit # ensure changelog updated
-$ npm run chore:publish
+$ pnpm run chore:publish
 ```
 
 ## real world

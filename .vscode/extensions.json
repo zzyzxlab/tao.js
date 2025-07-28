@@ -1,6 +1,4 @@
 {
-  // See http://go.microsoft.com/fwlink/?LinkId=827846
-  // for the documentation about the extensions.json format
   "recommendations": [
     "editorconfig.editorconfig",
     "dzannotti.vscode-babel-coloring",
@@ -30,6 +28,7 @@
     "eg2.vscode-npm-script",
     "christian-kohler.npm-intellisense",
     "orta.vscode-jest",
-    "oouo-diogo-perdigao.docthis"
+    "oouo-diogo-perdigao.docthis",
+    "dbaeumer.vscode-eslint"
   ]
 }
