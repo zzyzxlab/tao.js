@@ -42,8 +42,8 @@ function handleResponsesRequest(responseTrigrams, ctx, next) {
   ctx.body = {
     // out,
     responses: Array.from(responseTrigrams.values())
-      .filter(r => r.count > 0)
-      .map(r => r.ac.unwrapCtx())
+      .filter((r) => r.count > 0)
+      .map((r) => r.ac.unwrapCtx()),
   };
   return next();
 }
@@ -54,7 +54,7 @@ async function handleContext(transponder, bodyProp, ctx, next) {
     const ac = await transponder.setCtx(tao, data);
     ctx.body = {
       tao: ac.unwrapCtx(),
-      data: ac.data
+      data: ac.data,
     };
   } catch (err) {
     console.error('Error:', err);
@@ -73,7 +73,7 @@ export default function taoMiddleware(TAO, opt = {}) {
   channel.addInlineHandler(
     {},
     (tao, data) =>
-      debug && console.log('taoMiddleware::hitting the first with:', tao, data)
+      debug && console.log('taoMiddleware::hitting the first with:', tao, data),
   );
 
   return {
@@ -106,11 +106,12 @@ export default function taoMiddleware(TAO, opt = {}) {
               ctx.status = 405;
               return next();
             }
-            const transponder = new Transponder(
+            // eslint-disable-next-line no-case-declarations
+            let transponder = new Transponder(
               channel,
               undefined,
               opt.timeout || DEFAULT_TIMEOUT,
-              opt.promise
+              opt.promise,
             );
             handleContext(transponder, bodyProp, ctx, next);
             transponder.detach();
@@ -124,7 +125,7 @@ export default function taoMiddleware(TAO, opt = {}) {
     },
     addResponseHandler({ t, term, a, action, o, orient }, handler = noop) {
       const trigrams = cleanInput(
-        normalizeAC({ t, term, a, action, o, orient })
+        normalizeAC({ t, term, a, action, o, orient }),
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
@@ -139,13 +140,13 @@ export default function taoMiddleware(TAO, opt = {}) {
         debug &&
           console.log(
             '@tao.js/koa::addResponseHandler::responseTrigrams:',
-            responseTrigrams
+            responseTrigrams,
           );
       }
     },
     removeResponseHandler({ t, term, a, action, o, orient }, handler = noop) {
       const trigrams = cleanInput(
-        normalizeAC({ t, term, a, action, o, orient })
+        normalizeAC({ t, term, a, action, o, orient }),
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
@@ -158,6 +159,6 @@ export default function taoMiddleware(TAO, opt = {}) {
           responseTrigrams.get(ac.key).count -= 1;
         }
       }
-    }
+    },
   };
 }

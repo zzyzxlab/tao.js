@@ -1,8 +1,11 @@
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
-import babel from 'rollup-plugin-babel';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import { babel } from '@rollup/plugin-babel';
 import external from 'rollup-plugin-peer-deps-external';
-import pkg from './package.json';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
 
 export default [
   // browser-friendly UMD build for current API
@@ -17,18 +20,18 @@ export default [
       globals: {
         react: 'React',
         'prop-types': 'PropTypes',
-        '@tao.js/core': 'tao'
-      }
+        '@tao.js/core': 'tao',
+      },
     },
     plugins: [
       external(),
       babel({
-        runtimeHelpers: true,
-        exclude: ['node_modules/**']
+        babelHelpers: 'bundled',
+        exclude: ['node_modules/**'],
       }),
-      resolve(),
-      commonjs()
-    ]
+      nodeResolve(),
+      commonjs(),
+    ],
   },
   // browser-friendly UMD build for original API
   {
@@ -42,18 +45,18 @@ export default [
       globals: {
         react: 'React',
         'prop-types': 'PropTypes',
-        '@tao.js/core': 'tao'
-      }
+        '@tao.js/core': 'tao',
+      },
     },
     plugins: [
       external(),
       babel({
-        runtimeHelpers: true,
-        exclude: ['node_modules/**']
+        babelHelpers: 'bundled',
+        exclude: ['node_modules/**'],
       }),
-      resolve(),
-      commonjs()
-    ]
+      nodeResolve(),
+      commonjs(),
+    ],
   },
   // browser-friendly UMD build for entire API (current + original)
   {
@@ -67,18 +70,18 @@ export default [
       globals: {
         react: 'React',
         'prop-types': 'PropTypes',
-        '@tao.js/core': 'tao'
-      }
+        '@tao.js/core': 'tao',
+      },
     },
     plugins: [
       external(),
       babel({
-        runtimeHelpers: true,
-        exclude: ['node_modules/**']
+        babelHelpers: 'bundled',
+        exclude: ['node_modules/**'],
       }),
-      resolve(),
-      commonjs()
-    ]
+      nodeResolve(),
+      commonjs(),
+    ],
   },
 
   // CommonJS (for Node) and ES module (for bundlers) build.
@@ -96,25 +99,25 @@ export default [
       withContext: 'src/withContext.js',
       DataHandler: 'src/DataHandler.js',
       Adapter: 'src/Adapter.js',
-      Reactor: 'src/Reactor.js'
+      Reactor: 'src/Reactor.js',
     },
     output: [
       {
         dir: pkg.module,
         format: 'esm',
-        sourcemap: true
-      }
+        sourcemap: true,
+      },
     ],
     external: ['cartesian', 'react'],
     plugins: [
       external(),
       babel({
-        runtimeHelpers: true,
-        exclude: ['node_modules/**']
+        babelHelpers: 'bundled',
+        exclude: ['node_modules/**'],
       }),
-      resolve(),
-      commonjs()
-    ]
+      nodeResolve(),
+      commonjs(),
+    ],
   },
   {
     input: {
@@ -123,7 +126,7 @@ export default [
       RenderHandler: 'src/RenderHandler.js',
       SwitchHandler: 'src/SwitchHandler.js',
       withContext: 'src/withContext.js',
-      DataHandler: 'src/DataHandler.js'
+      DataHandler: 'src/DataHandler.js',
     },
     output: [
       {
@@ -131,43 +134,43 @@ export default [
         entryFileNames: '[name].js',
         format: 'cjs',
         sourcemap: true,
-        exports: 'named'
-      }
+        exports: 'named',
+      },
     ],
     external: ['cartesian', 'react'],
     plugins: [
       external(),
       babel({
-        runtimeHelpers: true,
-        exclude: ['node_modules/**']
+        babelHelpers: 'bundled',
+        exclude: ['node_modules/**'],
       }),
-      resolve(),
-      commonjs()
-    ]
+      nodeResolve(),
+      commonjs(),
+    ],
   },
   {
     input: {
       index: 'src/orig.js',
       Adapter: 'src/Adapter.js',
-      Reactor: 'src/Reactor.js'
+      Reactor: 'src/Reactor.js',
     },
     output: [
       {
         dir: pkg.orig,
         entryFileNames: '[name].js',
         format: 'cjs',
-        sourcemap: true
-      }
+        sourcemap: true,
+      },
     ],
     external: ['cartesian', 'react'],
     plugins: [
       external(),
       babel({
-        runtimeHelpers: true,
-        exclude: ['node_modules/**']
+        babelHelpers: 'bundled',
+        exclude: ['node_modules/**'],
       }),
-      resolve(),
-      commonjs()
-    ]
-  }
+      nodeResolve(),
+      commonjs(),
+    ],
+  },
 ];

@@ -3,7 +3,7 @@ import get from 'get-value';
 
 import { AppCtx } from '@tao.js/core';
 
-const PATH_VAR_RE = /(\{([\w|\.]+)(\(.+\))?\})/m;
+const PATH_VAR_RE = /(\{((\w|\.)+)(\(.+\))?\})/m;
 const DOT_REPLACER = '__0__';
 
 // const ISM_MAP = {
@@ -29,16 +29,16 @@ export function deconstructPath(origPath) {
             match[1]
               .replace(/\./g, DOT_REPLACER)
               .replace('{', ':')
-              .replace('}', '')
+              .replace('}', ''),
           ),
-      match: match
+      match: match,
     };
   });
 }
 
 // convert path to usable path for path-to-regexp
 export function convertPath(deconstruction) {
-  return deconstruction.map(p => p.use).join('/');
+  return deconstruction.map((p) => p.use).join('/');
 }
 
 // function pathFlattenData(tao, data) {
@@ -99,7 +99,7 @@ function pathDataGet(tao, data, deconstructedPath) {
     ...data,
     term: data[tao.t],
     action: data[tao.a],
-    orient: data[tao.o]
+    orient: data[tao.o],
   };
   // console.log('pathDataGet::allData:', allData);
   return deconstructedPath.reduce((pathData, item) => {
@@ -136,7 +136,7 @@ function makeRouteHandler(history, route, debug = false) {
       history.push(routeValue);
       return new AppCtx('Route', 'Set', tao.o, {
         Route: route,
-        Set: routeValue
+        Set: routeValue,
       });
     }
   };

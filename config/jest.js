@@ -1,3 +1,53 @@
+// Polyfills for Jest 27 compatibility
+const { TextEncoder, TextDecoder } = require('util');
+
+// Add TextEncoder/TextDecoder to global scope
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = TextEncoder;
+}
+if (typeof global.TextDecoder === 'undefined') {
+  global.TextDecoder = TextDecoder;
+}
+
+// Add other missing globals that might be needed
+if (typeof global.ReadableStream === 'undefined') {
+  global.ReadableStream = class ReadableStream {
+    constructor() {
+      // Simple mock implementation
+    }
+  };
+}
+
+if (typeof global.WritableStream === 'undefined') {
+  global.WritableStream = class WritableStream {
+    constructor() {
+      // Simple mock implementation
+    }
+  };
+}
+
+// Add MessagePort polyfill
+if (typeof global.MessagePort === 'undefined') {
+  global.MessagePort = class MessagePort {
+    constructor() {
+      // Simple mock implementation
+    }
+    postMessage() {}
+    start() {}
+    close() {}
+  };
+}
+
+// Add MessageChannel polyfill
+if (typeof global.MessageChannel === 'undefined') {
+  global.MessageChannel = class MessageChannel {
+    constructor() {
+      this.port1 = new global.MessagePort();
+      this.port2 = new global.MessagePort();
+    }
+  };
+}
+
 // import { shallow, render, mount } from 'enzyme';
 
 // export const setPathname = pathname => {

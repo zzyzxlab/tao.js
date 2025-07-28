@@ -5,8 +5,8 @@ export function TaoLogger(
     depth = 0,
     group = false,
     logger = console,
-    inspect = null
-  } = {}
+    inspect = null,
+  } = {},
 ) {
   let inspector = null;
   if (
@@ -14,9 +14,9 @@ export function TaoLogger(
     typeof inspect != 'function' ||
     (!depth && depth != null)
   ) {
-    inspector = obj => obj;
+    inspector = (obj) => obj;
   } else {
-    inspector = obj => inspect(obj, depth);
+    inspector = (obj) => inspect(obj, depth);
   }
   return {
     handler: (tao, data) => {
@@ -38,37 +38,37 @@ export function TaoLogger(
         logger.groupEnd();
       }
     },
-    doLogging: v => {
+    doLogging: (v) => {
       doLogging = !!v;
     },
-    verbose: v => {
+    verbose: (v) => {
       verbose = !!v;
     },
-    depth: v => {
+    depth: (v) => {
       depth = v;
       if (
         inspect == null ||
         typeof inspect != 'function' ||
-        (!v && !v === null)
+        (!v && v == null)
       ) {
-        inspector = obj => obj;
+        inspector = (obj) => obj;
       } else {
-        inspector = obj => inspect(obj, depth);
+        inspector = (obj) => inspect(obj, depth);
       }
     },
-    group: v => {
+    group: (v) => {
       group = !!v;
     },
-    setLogger: l => {
+    setLogger: (l) => {
       logger = l;
     },
-    setInspect: i => {
+    setInspect: (i) => {
       inspect = i;
-      if (i == null || typeof i != 'function' || (!depth && !depth === null)) {
-        inspector = obj => obj;
+      if (i == null || typeof i != 'function' || (!depth && depth == null)) {
+        inspector = (obj) => obj;
       } else {
-        inspector = obj => inspect(obj, depth);
+        inspector = (obj) => inspect(obj, depth);
       }
-    }
+    },
   };
 }

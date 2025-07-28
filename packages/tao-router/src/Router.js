@@ -26,11 +26,11 @@ function wrapIgnore(handler, ignore) {
   if (!ignore) {
     return handler;
   }
-  const ignoreACs = (Array.isArray(ignore) ? ignore : [ignore]).map(iac =>
-    wrapAc(iac)
+  const ignoreACs = (Array.isArray(ignore) ? ignore : [ignore]).map((iac) =>
+    wrapAc(iac),
   );
   return (tao, data) => {
-    const matchedIgnore = ignoreACs.some(ignoreAc => ignoreAc.isMatch(tao));
+    const matchedIgnore = ignoreACs.some((ignoreAc) => ignoreAc.isMatch(tao));
     if (!matchedIgnore) {
       return handler(tao, data);
     }
@@ -70,7 +70,7 @@ function reactToRoute(TAO, match, debug = false) {
   debug &&
     console.log('reactToRoute::node.defaultData:', match.node.defaultData);
   debug && console.log('reactToRoute::node.attached:', match.node.attached);
-  match.node.attached.forEach(trigram => {
+  match.node.attached.forEach((trigram) => {
     const defaultData = match.node.defaultData
       ? match.node.defaultData.get(trigram.key)
       : null;
@@ -83,7 +83,7 @@ function reactToRoute(TAO, match, debug = false) {
       trigram.isTermWild ? t : trigram.t,
       trigram.isActionWild ? a : trigram.a,
       trigram.isOrientWild ? o : trigram.o,
-      data
+      data,
     );
 
     TAO.setCtx({ t: 'Route', a: 'Match', o: ac.o }, [match.node.route, ac]);
@@ -114,7 +114,7 @@ export default class Router {
       opts.initAc,
       opts.incomingAc,
       opts.defaultRoute,
-      opts.orient
+      opts.orient,
     );
   }
 
@@ -122,8 +122,8 @@ export default class Router {
     this._unlistenHistory = history.listen(this.historyChange);
     const incoming = !incomingAc
       ? []
-      : (Array.isArray(incomingAc) ? incomingAc : [incomingAc]).map(ac =>
-          wrapAc(ac)
+      : (Array.isArray(incomingAc) ? incomingAc : [incomingAc]).map((ac) =>
+          wrapAc(ac),
         );
     TAO.addInlineHandler(initAc, (tao, data) => {
       return new AppCtx('Router', 'Init', tao.o);
@@ -149,7 +149,7 @@ export default class Router {
           }
         });
         return incoming[0];
-      }
+      },
     );
     TAO.addInlineHandler(
       { t: 'Route', a: 'Add', o: orient || '' },
@@ -170,7 +170,7 @@ export default class Router {
         if (Add.attach) {
           return new AppCtx('Route', 'Attach', tao.o, Route, Add);
         }
-      }
+      },
     );
     TAO.addInlineHandler(
       { t: 'Route', a: 'Remove', o: orient || '' },
@@ -187,7 +187,7 @@ export default class Router {
         if (Remove.detach) {
           return new AppCtx('Route', 'Detach', tao.o, Route, Remove);
         }
-      }
+      },
     );
     TAO.addInlineHandler(
       { t: 'Route', a: 'Attach', o: orient || '' },
@@ -209,7 +209,7 @@ export default class Router {
         if (Attach.tao) {
           node.defaultData.set(attachTo.key, Attach.data || {});
         }
-      }
+      },
     );
     TAO.addInlineHandler(
       { t: 'Route', a: 'Detach', o: orient || '' },
@@ -222,15 +222,15 @@ export default class Router {
         const node = this._router.define(convertedPath)[0];
         if (node.attached && node.attached.length) {
           // const attachTo = wrapAc({ o: tao.o, ...(Attach.tao || Attach) });
-          const attachTo = wrapAc(Attach.tao || Attach);
+          const attachTo = wrapAc(Detach.tao || Detach);
           node.attached = node.attached.filter(
-            trigram => !trigram.isMatch(attachTo, true)
+            (trigram) => !trigram.isMatch(attachTo, true),
           );
           if (node.defaultData && node.defaultData.has(attachTo.key)) {
             node.defaultData.delete(attachTo.key);
           }
         }
-      }
+      },
     );
     // TAO.addAsyncHandler({}, (tao, data) => {
     //   const current = new AppCtx(tao.t, tao.a, tao.o, data);
@@ -245,7 +245,7 @@ export default class Router {
     // });
     if (incoming.length) {
       this._debug && console.log('adding handlers for incoming:', incoming);
-      incoming.forEach(inAc => {
+      incoming.forEach((inAc) => {
         TAO.addInlineHandler(inAc, (tao, data) => {
           this._debug &&
             console.log('Router::incoming AC handler:', { tao, data });
@@ -256,7 +256,7 @@ export default class Router {
               console.log(
                 'Router::no match::match from default route "%s"',
                 defaultRoute,
-                match
+                match,
               );
           }
           if (match) {
