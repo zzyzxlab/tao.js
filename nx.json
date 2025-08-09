@@ -7,7 +7,11 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["{projectRoot}/packages/tao/dist"],
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/lib",
+        "{projectRoot}/bundles"
+      ],
       "cache": true
     },
     "build:clean": {
