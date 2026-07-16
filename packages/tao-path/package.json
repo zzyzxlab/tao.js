@@ -4,9 +4,6 @@
   "description": "create value paths for tao using configuration files/snippets",
   "private": true,
   "main": "index.js",
-  "scripts": {
-    "test": "jest --passWithNoTests"
-  },
   "author": "eudaimos",
   "license": "Apache-2.0",
   "devDependencies": {

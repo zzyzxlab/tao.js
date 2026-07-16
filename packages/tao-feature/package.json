@@ -4,9 +4,6 @@
   "description": "enable dynamic loading of features using tao",
   "private": true,
   "main": "index.js",
-  "scripts": {
-    "test": "jest --passWithNoTests"
-  },
   "author": "eudaimos",
   "license": "Apache-2.0",
   "devDependencies": {

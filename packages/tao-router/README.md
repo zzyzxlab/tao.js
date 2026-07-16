@@ -6,7 +6,7 @@ See the tao.js website [URL Handling wtih @tao.js/router](https://tao.js.org/rou
 associated with this package.
 
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
-[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
+[![nx](https://img.shields.io/badge/maintained%20with-nx-cc00ff.svg)](https://nx.dev/)
 [![Gitter chat](https://img.shields.io/gitter/room/tao-land/tao.js?style=plastic)](https://gitter.im/tao-land/tao.js)
 
 ## Install

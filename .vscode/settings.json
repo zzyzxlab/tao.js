@@ -11,5 +11,6 @@
       "other": "off"
     },
     "editor.rulers": [100]
-  }
+  },
+  "nxConsole.generateAiAgentRules": true
 }

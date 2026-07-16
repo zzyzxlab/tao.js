@@ -67,7 +67,7 @@ $ pnpm start
 
 ## Monorepo Management with Nx
 
-This project uses Nx to manage the monorepo structure and package publishing.
+This project uses Nx + pnpm workspaces to manage the monorepo.
 
 ### Common Commands
 
@@ -96,11 +96,13 @@ pnpm exec nx lint @tao.js/core
 
 ### Package Development
 
-Each package in the `packages/` directory is configured as an Nx project. To add a new package:
+Nx infers projects from `package.json` files under `packages/` and `examples/` — there are no `project.json` files. `@nx/jest/plugin` discovers tests via each package's `jest.config.js` (using the root `jest.preset.cjs`), and `@nx/eslint/plugin` provides lint targets. Root scripts use `nx run-many`.
 
-1. Create your package directory in `packages/`
-2. Add a `project.json` file with build, test, and lint targets
-3. Ensure your package's `package.json` includes proper npm publishing configuration
+To add a new package:
+
+1. Create your package directory in `packages/` (covered by pnpm workspaces via `packages/*`)
+2. Add a `package.json` with the package name, build scripts (`build`, `build:clean`, `build:package`, etc.), and npm publishing config
+3. Add a `jest.config.js` that extends the root preset, e.g. `preset: '../../jest.preset.cjs'`
 
 ### Commit Messages
 
@@ -271,13 +273,14 @@ $ pnpm run build
 $ pnpm run docs:make
 ```
 
-update version in `package.json`
+Update versions in the relevant package `package.json` files, then:
 
 ```sh
 $ pnpm run chore:changelog
 $ git commit # ensure changelog updated
-$ pnpm run chore:publish
 ```
+
+Publish packages with `nx release` or `npm publish` from each package directory (or `pnpm publish` with the workspace filter for that package).
 
 ## real world
 

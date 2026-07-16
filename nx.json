@@ -2,11 +2,12 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
     "test": {
-      "dependsOn": ["^test"],
       "cache": true
     },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": [
         "{projectRoot}/dist",
         "{projectRoot}/lib",
@@ -15,24 +16,36 @@
       "cache": true
     },
     "build:clean": {
-      "dependsOn": ["^build:clean"],
+      "dependsOn": [
+        "^build:clean"
+      ],
       "cache": true
     },
     "build:package": {
-      "dependsOn": ["^build:package"],
-      "outputs": ["{projectRoot}/packages/tao/dist"],
+      "dependsOn": [
+        "^build:package"
+      ],
+      "outputs": [
+        "{projectRoot}/packages/tao/dist"
+      ],
       "cache": true
     },
     "book:prep": {
-      "outputs": ["{projectRoot}/packages/docs/src/_book"],
+      "outputs": [
+        "{projectRoot}/packages/docs/src/_book"
+      ],
       "cache": true
     },
     "book:build": {
-      "outputs": ["{projectRoot}/packages/docs/dist"],
+      "outputs": [
+        "{projectRoot}/packages/docs/dist"
+      ],
       "cache": true
     },
     "coverage": {
-      "outputs": ["{projectRoot}/dist/coverage"],
+      "outputs": [
+        "{projectRoot}/dist/coverage"
+      ],
       "cache": true
     },
     "book:clean": {
