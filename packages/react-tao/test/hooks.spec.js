@@ -40,7 +40,7 @@ describe('provides a set of react hooks for interacting with tao.js in functiona
     it('should take a trigram + handler', () => {
       const { result } = renderHook(
         () => hooks.useTaoInlineHandler({ t: [TERM, ALT_TERM] }, NOOP),
-        { wrapper: withProvider }
+        { wrapper: withProvider },
       );
 
       expect(result.current).toBe(undefined);
@@ -51,7 +51,7 @@ describe('provides a set of react hooks for interacting with tao.js in functiona
     it('should take a trigram + handler', () => {
       const { result } = renderHook(
         () => hooks.useTaoAsyncHandler({ t: [TERM, ALT_TERM] }, NOOP),
-        { wrapper: withProvider }
+        { wrapper: withProvider },
       );
 
       expect(result.current).toBe(undefined);
@@ -62,7 +62,7 @@ describe('provides a set of react hooks for interacting with tao.js in functiona
     it('should take a trigram + handler', () => {
       const { result } = renderHook(
         () => hooks.useTaoInterceptHandler({ t: [TERM, ALT_TERM] }, NOOP),
-        { wrapper: withProvider }
+        { wrapper: withProvider },
       );
 
       expect(result.current).toBe(undefined);

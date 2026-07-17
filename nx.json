@@ -5,9 +5,7 @@
       "cache": true
     },
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "outputs": [
         "{projectRoot}/dist",
         "{projectRoot}/lib",
@@ -16,36 +14,24 @@
       "cache": true
     },
     "build:clean": {
-      "dependsOn": [
-        "^build:clean"
-      ],
+      "dependsOn": ["^build:clean"],
       "cache": true
     },
     "build:package": {
-      "dependsOn": [
-        "^build:package"
-      ],
-      "outputs": [
-        "{projectRoot}/packages/tao/dist"
-      ],
+      "dependsOn": ["^build:package"],
+      "outputs": ["{projectRoot}/packages/tao/dist"],
       "cache": true
     },
     "book:prep": {
-      "outputs": [
-        "{projectRoot}/packages/docs/src/_book"
-      ],
+      "outputs": ["{projectRoot}/packages/docs/src/_book"],
       "cache": true
     },
     "book:build": {
-      "outputs": [
-        "{projectRoot}/packages/docs/dist"
-      ],
+      "outputs": ["{projectRoot}/packages/docs/dist"],
       "cache": true
     },
     "coverage": {
-      "outputs": [
-        "{projectRoot}/dist/coverage"
-      ],
+      "outputs": ["{projectRoot}/dist/coverage"],
       "cache": true
     },
     "book:clean": {
@@ -66,5 +52,30 @@
       }
     }
   ],
-  "nxCloudId": "6886c6b53390a1156e50748c"
+  "nxCloudId": "6886c6b53390a1156e50748c",
+  "release": {
+    "projects": [
+      "@tao.js/core",
+      "@tao.js/utils",
+      "@tao.js/react",
+      "@tao.js/router",
+      "@tao.js/socket.io",
+      "@tao.js/koa"
+    ],
+    "projectsRelationship": "fixed",
+    "version": {
+      "preserveLocalDependencyProtocols": true,
+      "versionActions": "./tools/release/version-actions.cjs"
+    },
+    "changelog": {
+      "workspaceChangelog": true,
+      "projectChangelogs": false
+    },
+    "releaseTagPattern": "v{version}",
+    "git": {
+      "commit": true,
+      "tag": true,
+      "commitMessage": "chore(release): publish {version}"
+    }
+  }
 }

@@ -268,19 +268,33 @@ Which will start `commitizen` for you to generate the commit message in the desi
 
 ## Publishing
 
-```sh
-$ pnpm run build
-$ pnpm run docs:make
-```
-
-Update versions in the relevant package `package.json` files, then:
+Public packages (`@tao.js/core`, `@tao.js/utils`, `@tao.js/react`, `@tao.js/router`, `@tao.js/socket.io`, `@tao.js/koa`) are released **together at the same version** (same as the old Lerna fixed-version flow) via [Nx Release](https://nx.dev/features/manage-releases). That keeps peer dependency management simple for consumers. Private packages are excluded.
 
 ```sh
-$ pnpm run chore:changelog
-$ git commit # ensure changelog updated
+# Build artifacts into each package's dist/lib/bundles
+pnpm run build
+
+# Preview (no git/npm writes). Pass a semver bump or exact version:
+pnpm exec nx release patch --dry-run --first-release --skip-publish
+# or sync everyone to one version explicitly:
+# pnpm exec nx release 0.16.3 --dry-run --first-release --skip-publish
+
+# Create the shared version, update root CHANGELOG.md, git commit + tag
+# (prompts to publish; use --skip-publish to only version)
+pnpm exec nx release patch --first-release --skip-publish
+
+# Publish already-versioned packages
+pnpm run release:publish
 ```
 
-Publish packages with `nx release` or `npm publish` from each package directory (or `pnpm publish` with the workspace filter for that package).
+After the first release (once a `v{version}` tag exists), drop `--first-release`. Tags look like `v0.16.3`. You need npm auth (`npm login` / `NPM_TOKEN`) to publish.
+
+Package versions on disk currently drift slightly (leftover from pre-Nx). The first fixed release should use an **exact version** (e.g. `0.16.3`) so all public packages converge.
+
+**Caveats (Nx 21.3):**
+
+- Pass an explicit bump (`patch` / `minor` / `major` / exact version). Do not rely on conventional-commit auto-bump yet — full history would incorrectly force majors.
+- `"*"` peerDependencies are preserved via `tools/release/version-actions.cjs` (Nx 21.3 does not yet ship `preserveMatchingDependencyRanges`).
 
 ## real world
 

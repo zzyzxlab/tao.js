@@ -93,7 +93,7 @@ find the bundles in the `bundles` folder (also identified in the `bundles` key i
 tao.router(tao.TAO, {
   initAc: new tao.AppCtx('App', 'Init', 'Portal'),
   incomingAc: new AppCtx('App', 'Enter', 'Portal'),
-  defaultRoute: '/'
+  defaultRoute: '/',
 });
 ```
 
@@ -101,11 +101,11 @@ In the future, this will be published to a CDN for convenience.
 
 ## All Packages in the `@tao.js` family
 
-| package                                                                    | description                                                      | docs page                                                             |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------- |
+| package                                                                    | description                                                       | docs page                                                             |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------- |
 | [`npm @tao.js/core`](https://www.npmjs.com/package/@tao.js/core)           | Core Javascript implementation of the TAO ☯ programming paradigm | [tao.js.org](https://tao.js.org)                                      |
-| [`npm @tao.js/utils`](https://www.npmjs.com/package/@tao.js/utils)         | Extensions to Core used to build out the Signal Network          | [tao.js Utilities for Implementers](https://tao.js.org/implementers/) |
-| [`npm @tao.js/react`](https://www.npmjs.com/package/@tao.js/react)         | Adapter to use tao.js with React                                 | [Usage with React.js](https://tao.js.org/client-react/)               |
-| [`npm @tao.js/socket.io`](https://www.npmjs.com/package/@tao.js/socket.io) | socket.io middleware to run tao.js seamlessly on server & client | [tao.js for Socket.io](https://tao.js.org/server-side/socket-io.html) |
-| [`npm @tao.js/koa`](https://www.npmjs.com/package/@tao.js/koa)             | Expose a TAO signal network over http using a koa app server     | [tao.js for Koa](https://tao.js.org/server-side/koa.html)             |
-| [`npm @tao.js/router`](https://www.npmjs.com/package/@tao.js/router)       | connects url routing with tao.js                                 | [URL Handling with @tao.js/router](https://tao.js.org/router/)        |
+| [`npm @tao.js/utils`](https://www.npmjs.com/package/@tao.js/utils)         | Extensions to Core used to build out the Signal Network           | [tao.js Utilities for Implementers](https://tao.js.org/implementers/) |
+| [`npm @tao.js/react`](https://www.npmjs.com/package/@tao.js/react)         | Adapter to use tao.js with React                                  | [Usage with React.js](https://tao.js.org/client-react/)               |
+| [`npm @tao.js/socket.io`](https://www.npmjs.com/package/@tao.js/socket.io) | socket.io middleware to run tao.js seamlessly on server & client  | [tao.js for Socket.io](https://tao.js.org/server-side/socket-io.html) |
+| [`npm @tao.js/koa`](https://www.npmjs.com/package/@tao.js/koa)             | Expose a TAO signal network over http using a koa app server      | [tao.js for Koa](https://tao.js.org/server-side/koa.html)             |
+| [`npm @tao.js/router`](https://www.npmjs.com/package/@tao.js/router)       | connects url routing with tao.js                                  | [URL Handling with @tao.js/router](https://tao.js.org/router/)        |

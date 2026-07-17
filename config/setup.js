@@ -94,7 +94,7 @@ global.expect = (received) => {
         if (prop === 'nthReturnedWith') return target.toHaveNthReturnedWith;
 
         return target[prop];
-      }
+      },
     });
   }
 
