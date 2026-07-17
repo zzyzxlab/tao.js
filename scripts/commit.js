@@ -199,7 +199,7 @@ async function main() {
 
     if (!confirmCommit) {
       console.log('Commit has been canceled.');
-      process.exit(0);
+      process.exit(1);
     }
 
     // Write the commit message to the file that Git expects

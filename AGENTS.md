@@ -199,6 +199,28 @@ pnpm nx run-many -t test -p @tao.js/core,@tao.js/utils
 
 Root scripts also exclude `patois.*` from aggregate test/build unless you target them explicitly.
 
+### Commit messages
+
+This repo keeps a **Commitizen-compatible message contract** for changelog history. The interactive wizard (`pnpm run commit` / husky `prepare-commit-msg`) needs a TTY and is for humans. Agents should use `git commit -m` with the same shape; husky `commit-msg` validates it (not Cursor-specific — any non-interactive Git client).
+
+Required format:
+
+```text
+type(scope): subject
+
+Optional longer body.
+
+Affected packages:
+- @tao.js/core
+- @tao.js/react
+```
+
+- **Types:** `feat` | `fix` | `docs` | `style` | `refactor` | `perf` | `test` | `build` | `ci` | `chore`
+- **Scope:** optional (e.g. `nx`, `hooks`, package short name)
+- **Affected packages:** required heading; list workspace package names (`packages/*` / `examples/*` `name` fields). Omit bullets for root-only tooling/docs.
+- Optional: `ISSUES CLOSED: #123`, `BREAKING CHANGE: …`
+- Hooks: `pre-commit` → lint-staged; `prepare-commit-msg` → wizard if TTY and no `-m`; `commit-msg` → `scripts/validate-commit-msg.js`
+
 ### Editing guidance
 
 - Match existing style (plain JS classes in core; Jest + mocks in tests).
@@ -215,6 +237,7 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
+- **2026-07-17** — Commit hooks are standard husky/Git (not Cursor-specific). Interactive Commitizen needs a TTY; agents use `git commit -m` with `Affected packages:` and `scripts/validate-commit-msg.js` enforces the contract.
 - **2026-07-16** — Renamed this file from `TAO.md` → `AGENTS.md`. Reserve `TAO.md` for app repos that document their message protocol; see `FUTURE.md`.
 - **2026-07-16** — `@tao.js/core` default export is a shared `Kernel` instance named `TAO`. `Network` is lower-level; app code and most adapters should use `Kernel` / `TAO`. Wildcard AppCons are ignored on `setCtx`/`setAppCtx` unless `new Kernel(true)`.
 - **2026-07-16** — `Kernel.channel(...)` exists but looks unfinished vs `@tao.js/utils` `Channel` (prefer utils `Channel` for real channeling).

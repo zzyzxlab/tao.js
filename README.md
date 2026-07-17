@@ -151,15 +151,21 @@ For more information:
 
 ## Contributing - REALLY IMPORTANT INSTRUCTIONS
 
-This project uses `commitizen` and `nx` + some githooks for `prettier` and `jest` to run.
+This project uses a Commitizen-compatible commit message format, plus husky hooks for `prettier` / `jest` (lint-staged) and message validation.
 
-When you have made some changes and staged them **do not** use `git commit` but instead use:
+**Humans (interactive):** stage changes, then either:
+
+```sh
+$ git commit
+```
+
+(opens the wizard when a TTY is available), or:
 
 ```sh
 $ pnpm run commit
 ```
 
-Which will start `commitizen` for you to generate the commit message in the desired conventional changelog format.
+**Agents / non-interactive:** use `git commit -m` with the same message shape (must include an `Affected packages:` section). See `AGENTS.md` → Commit messages. The `commit-msg` hook validates; it does not require Cursor.
 
 ## To Dos
 

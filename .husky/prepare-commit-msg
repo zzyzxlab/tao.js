@@ -1,22 +1,37 @@
-#!/bin/sh
-# This hook runs before the commit message is created
-# We'll generate our own commit message and skip Git's editor
+#!/usr/bin/env sh
+# prepare-commit-msg: optionally open the interactive Commitizen-like wizard.
+#
+# This is a normal Git/husky hook (not Cursor-specific). Agents and other
+# non-interactive environments have no usable TTY, so we skip the wizard and
+# rely on commit-msg validation of the message supplied via `git commit -m`.
 
-# Check if we already have a custom commit message (avoid infinite loop)
-if [ -f .git/COMMIT_EDITMSG ] && grep -q "Affected packages:" .git/COMMIT_EDITMSG; then
-  # We already have our custom message, use it
+MSG_FILE="$1"
+SOURCE="${2:-}"
+
+case "$SOURCE" in
+  merge|squash)
+    exit 0
+    ;;
+esac
+
+# Message already matches our contract — do not overwrite (agents / -m / amend).
+if [ -f "$MSG_FILE" ] && grep -q '^Affected packages:' "$MSG_FILE"; then
   exit 0
 fi
 
-# Run lint-staged first
-echo "Running lint-staged..."
-pnpm exec lint-staged
-
-# If lint-staged passed, run our custom commit script
-if [ $? -eq 0 ]; then
-  echo "Lint-staged passed! Generating commit message..."
-  exec < /dev/tty && pnpm run commit "$1" || true
-else
-  echo "Lint-staged failed. Commit aborted."
-  exit 1
+# Interactive wizard only when a human has a TTY and did not pass -m/-F.
+if [ "$SOURCE" = "message" ]; then
+  exit 0
 fi
+
+if [ ! -c /dev/tty ]; then
+  exit 0
+fi
+
+# Attach the controlling terminal for inquirer prompts.
+if ! exec < /dev/tty; then
+  exit 0
+fi
+
+echo "Opening commit message wizard (pnpm run commit)..."
+pnpm run commit "$MSG_FILE"

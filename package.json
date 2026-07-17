@@ -38,6 +38,7 @@
     "release:dry": "nx release 0.16.3 --dry-run --first-release --skip-publish",
     "release:publish": "nx release publish",
     "commit": "node scripts/commit.js",
+    "commit:validate": "node scripts/validate-commit-msg.js",
     "version": "cz bump",
     "prepare": "husky"
   },
@@ -50,7 +51,7 @@
   "lint-staged": {
     "*.{js,json,css,md}": [
       "prettier --write",
-      "jest --bail --findRelatedTests"
+      "jest --bail --findRelatedTests --passWithNoTests"
     ]
   },
   "dependencies": {
