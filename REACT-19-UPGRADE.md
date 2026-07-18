@@ -4,8 +4,7 @@ Branch: `upgrade-react-19`
 Baseline: `@tao.js/*@0.16.3` on Nx 23 / React **16.14**  
 Goal: Support **React 19** for `@tao.js/react` with green tests, fixed DataHandler timing, and updated docs/example smoke path.
 
-**Status (2026-07-17):** Ladder complete through React **19.2** — 79 `@tao.js/react` tests green.
-Data context hierarchy shipped; enzyme removed; peers `^18.2 \|\| ^19`. Remaining optional: Vite smoke example, fill RenderHandler/SwitchHandler stubs.
+**Status (2026-07-17):** Complete through optional work. React **19.2** in monorepo; **86** `@tao.js/react` tests green (RenderHandler / SwitchHandler / withContext covered). Vite smoke: `examples/react19-smoke`. Peers `^18.2 \|\| ^19`.
 
 ---
 
@@ -99,8 +98,8 @@ Work items:
 
 Stubs today: `RenderHandler`, `SwitchHandler`, `DataHandler`, `withContext`.
 
-- [ ] Minimal happy-path + cleanup tests for each (RTL).
-- [ ] One Strict Mode smoke for Provider + hook handler registration.
+- [x] Minimal happy-path + cleanup tests for each (RTL).
+- [x] One Strict Mode smoke for Provider + hook handler registration (`DataHandler.spec.js`).
 
 **Exit:** Regressions on 19 are detectable for the public Current API.
 
@@ -115,8 +114,8 @@ Stubs today: `RenderHandler`, `SwitchHandler`, `DataHandler`, `withContext`.
 
 Prefer a **minimal Vite + React 19** sandbox under `examples/` (or update patois later):
 
-- [ ] Provider + DataHandler + hook + RenderHandler render smoke.
-- [ ] Confirm no peer warnings on install.
+- [x] Provider + DataHandler + hook + RenderHandler render smoke (`examples/react19-smoke`).
+- [x] Confirm no peer warnings on install (example uses React 19; `patois.web` still warns on 16).
 
 `patois.web` (CRA 2) can stay on React 16 until a separate “revive example” task, or get a follow-up upgrade.
 
