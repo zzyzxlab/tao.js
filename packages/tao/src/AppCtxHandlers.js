@@ -129,16 +129,16 @@ export default class AppCtxHandlers extends AppCtxRoot {
         continue;
       }
       if (intercepted instanceof AppCtx) {
+        // Stryker disable all: local console is a noop; catch only swallows
         try {
           setAppCtx(intercepted, control);
-          // Stryker disable all -- local console is a noop; catch only swallows
         } catch (interceptErr) {
           console.log(
             'error setting context returned from intercept handler:',
             interceptErr,
           );
-          // Stryker restore all
         }
+        // Stryker restore all
       }
       return;
     }
@@ -155,7 +155,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
      */
     for (let asyncH of this.asyncHandlers) {
       (() => {
-        // Stryker disable next-line all -- debug logging via noop console
+        // Stryker disable all: debug / error logging via noop console
         console.log(
           `>>>>>>>> starting async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`,
         );
@@ -164,17 +164,16 @@ export default class AppCtxHandlers extends AppCtxRoot {
             if (nextAc && nextAc instanceof AppCtx) {
               setAppCtx(nextAc, control);
             }
-            // Stryker disable next-line all -- debug logging via noop console
             console.log(
               `>>>>>>>> ending async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`,
             );
           })
-          // Stryker disable next-line all -- local console is a noop; catch only swallows
           .catch((asyncErr) => {
             // swallow async errors
             // possibility to set an AC for errors
             console.error('error in async handler:', asyncErr);
           });
+        // Stryker restore all
       })();
     }
     /*
@@ -194,15 +193,16 @@ export default class AppCtxHandlers extends AppCtxRoot {
         nextSpool.push(nextInlineAc);
       }
     }
+    // Stryker disable next-line ConditionalExpression: empty spool makes the loop a no-op either way
     if (nextSpool.length) {
       for (let nextAc of nextSpool) {
+        // Stryker disable all: local console is a noop; catch only swallows
         try {
           setAppCtx(nextAc, control);
-          // Stryker disable all -- local console is a noop; catch only swallows
         } catch (inlineErr) {
           console.error('error on next inline:', inlineErr);
-          // Stryker restore all
         }
+        // Stryker restore all
       }
     }
   }

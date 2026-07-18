@@ -177,6 +177,13 @@ describe('AppCtxRoot defines static methods for checking TAO values', () => {
     expect(AppCtxRoot.isWildcard(wildTerm)).toBe(true);
     expect(AppCtxRoot.isWildcard(wildAction)).toBe(true);
     expect(AppCtxRoot.isWildcard(wildOrient)).toBe(true);
+    // Explicit WILDCARD token on a single axis (not merely missing/empty)
+    expect(AppCtxRoot.isWildcard({ t: TERM, a: WILDCARD, o: ORIENT })).toBe(
+      true,
+    );
+    expect(AppCtxRoot.isWildcard({ t: TERM, a: ACTION, o: WILDCARD })).toBe(
+      true,
+    );
   });
 
   it('should return false from isConcrete if any TAO is not specifically defined', () => {

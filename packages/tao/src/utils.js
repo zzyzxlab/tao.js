@@ -13,6 +13,7 @@ export function isIterable(obj) {
 // needed a convenience function for this
 export function concatIterables(...iterables) {
   let rv = [];
+  // Stryker disable next-line ConditionalExpression: empty rest args make the for-loop a no-op
   if (iterables.length) {
     for (let list of iterables) {
       let iterator = list[Symbol.iterator]();
@@ -31,7 +32,7 @@ export function _cleanAC({ t, term, a, action, o, orient }) {
   return {
     term: term || t,
     action: action || a,
-    orient: orient || o
+    orient: orient || o,
   };
 }
 

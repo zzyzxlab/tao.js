@@ -123,12 +123,42 @@ describe('Network', () => {
       const n = new Network();
       const concrete = AppCtxRoot.getKey(TERM, ACTION, ORIENT);
       const wildcard = AppCtxRoot.getKey('', ACTION, ORIENT);
+      const mw = jest.fn();
 
+      n.use(mw);
       n.setCtxControl(TRIGRAM, {}, {}, () => {});
       n.setCtxControl({ t: '', a: ACTION, o: ORIENT }, {}, {}, () => {});
+      n.setAppCtxControl(new AppCtx('', ACTION, ORIENT));
 
       expect(n._handlers.has(concrete)).toBe(true);
       expect(n._handlers.has(wildcard)).toBe(false);
+      // middleware must not run for unset wildcards (would get an undefined handler)
+      expect(mw).toHaveBeenCalledTimes(1);
+      expect(mw.mock.calls[0][0]).toBeDefined();
+    });
+
+    it('attaches later wildcards to every prior leaf sharing an axis', async () => {
+      const n = new Network();
+      const h1 = jest.fn();
+      const h2 = jest.fn();
+      const wild = jest.fn();
+      const altAction = 'handshake';
+
+      n.addInlineHandler(TRIGRAM, h1);
+      n.addInlineHandler({ t: TERM, a: altAction, o: ORIENT }, h2);
+      // wildcard added after leaves — must index both leaves under term
+      n.addInlineHandler({ t: TERM }, wild);
+
+      n.use((handler, appCtx, forward) =>
+        handler.handleAppCon(appCtx, forward, {}),
+      );
+      n.setAppCtxControl(new AppCtx(TERM, ACTION, ORIENT));
+      n.setAppCtxControl(new AppCtx(TERM, altAction, ORIENT));
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(h1).toHaveBeenCalledTimes(1);
+      expect(h2).toHaveBeenCalledTimes(1);
+      expect(wild).toHaveBeenCalledTimes(2);
     });
   });
 

@@ -196,6 +196,72 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       expect(actual.data[ORIENT]).toBe('orient-value');
     });
 
+    it('treats a single short or named key as a tuple (not whole-object term data)', () => {
+      const viaT = new AppCtx(TERM, ACTION, ORIENT, { t: 'only-t' });
+      expect(viaT.data).toEqual({ [TERM]: 'only-t' });
+
+      const viaA = new AppCtx(TERM, ACTION, ORIENT, { a: 'only-a' });
+      expect(viaA.data).toEqual({ [ACTION]: 'only-a' });
+      expect(viaA.data[TERM]).toBeUndefined();
+      expect(viaA.data).not.toEqual({ [TERM]: { a: 'only-a' } });
+      expect(viaA.data).not.toEqual({
+        [ACTION]: 'only-a',
+        [TERM]: { a: 'only-a' },
+      });
+
+      const viaO = new AppCtx(TERM, ACTION, ORIENT, { o: 'only-o' });
+      expect(viaO.data).toEqual({ [ORIENT]: 'only-o' });
+
+      const viaTermName = new AppCtx(TERM, ACTION, ORIENT, {
+        [TERM]: 'named-term',
+      });
+      expect(viaTermName.data).toEqual({ [TERM]: 'named-term' });
+
+      const viaActionName = new AppCtx(TERM, ACTION, ORIENT, {
+        [ACTION]: 'named-action',
+      });
+      expect(viaActionName.data).toEqual({ [ACTION]: 'named-action' });
+
+      const viaOrientName = new AppCtx(TERM, ACTION, ORIENT, {
+        [ORIENT]: 'named-orient',
+      });
+      expect(viaOrientName.data).toEqual({ [ORIENT]: 'named-orient' });
+    });
+
+    it('omits data slots when positional args are undefined', () => {
+      const onlyAction = new AppCtx(
+        TERM,
+        ACTION,
+        ORIENT,
+        undefined,
+        'action-only',
+      );
+      expect(onlyAction.data).toEqual({ [ACTION]: 'action-only' });
+      expect(onlyAction.data).not.toHaveProperty(TERM);
+      expect(onlyAction.data).not.toHaveProperty(ORIENT);
+
+      const onlyOrient = new AppCtx(
+        TERM,
+        ACTION,
+        ORIENT,
+        undefined,
+        undefined,
+        'orient-only',
+      );
+      expect(onlyOrient.data).toEqual({ [ORIENT]: 'orient-only' });
+      expect(onlyOrient.data).not.toHaveProperty(TERM);
+      expect(onlyOrient.data).not.toHaveProperty(ACTION);
+
+      const fromArray = new AppCtx(TERM, ACTION, ORIENT, [
+        undefined,
+        'mid',
+        undefined,
+      ]);
+      expect(fromArray.data).toEqual({ [ACTION]: 'mid' });
+      expect(fromArray.data).not.toHaveProperty(TERM);
+      expect(fromArray.data).not.toHaveProperty(ORIENT);
+    });
+
     it('should accept data as an object with keys of the tao for the Context', () => {
       // Assemble
       const expectedTermData = {

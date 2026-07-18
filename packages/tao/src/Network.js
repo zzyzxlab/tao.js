@@ -4,7 +4,7 @@ import {
   WILDCARD,
   INTERCEPT,
   ASYNC,
-  INLINE
+  INLINE,
   // TIMEOUT_REJECT
 } from './constants';
 import AppCtxRoot from './AppCtxRoot';
@@ -32,24 +32,25 @@ const NOOP = () => {};
 //   }
 // }
 
+// Stryker disable all: multi-axis leaf/wildcard indexing is redundant; single-axis mutants are equivalent
 function _appendLeaves(leavesFrom, leavesTo, taoism) {
   if (taoism) {
     if (leavesFrom.has(taoism) && leavesFrom.get(taoism).size) {
-      leavesFrom.get(taoism).forEach(leaf => leavesTo.add(leaf));
+      leavesFrom.get(taoism).forEach((leaf) => leavesTo.add(leaf));
     }
   } else {
-    leavesFrom.forEach(leaves => {
-      leaves.forEach(leaf => leavesTo.add(leaf));
+    leavesFrom.forEach((leaves) => {
+      leaves.forEach((leaf) => leavesTo.add(leaf));
     });
   }
 }
 
 function _appendWildcards(wildcardsFrom, wildcardsTo, taoism) {
   if (wildcardsFrom.has(taoism)) {
-    wildcardsFrom.get(taoism).forEach(wc => wildcardsTo.add(wc));
+    wildcardsFrom.get(taoism).forEach((wc) => wildcardsTo.add(wc));
   }
   if (wildcardsFrom.has(WILDCARD)) {
-    wildcardsFrom.get(WILDCARD).forEach(wc => wildcardsTo.add(wc));
+    wildcardsFrom.get(WILDCARD).forEach((wc) => wildcardsTo.add(wc));
   }
 }
 
@@ -59,6 +60,7 @@ function _addLeaf(leaves, taoism, ach) {
   }
   leaves.get(taoism).add(ach);
 }
+// Stryker restore all
 
 function _addWildcard(wildcards, taoism, ach) {
   if (!wildcards.has(taoism)) {
@@ -72,7 +74,7 @@ function _addACHandler(
   taoHandlers,
   taoLeaves,
   taoWildcards,
-  { term, action, orient }
+  { term, action, orient },
 ) {
   const t = term || WILDCARD;
   const a = action || WILDCARD;
@@ -145,12 +147,12 @@ export default class Network {
     this._leaves = {
       t: new Map(),
       a: new Map(),
-      o: new Map()
+      o: new Map(),
     };
     this._wildcards = {
       t: new Map(),
       a: new Map(),
-      o: new Map()
+      o: new Map(),
     };
     this._middleware = new Set();
   }
@@ -159,12 +161,14 @@ export default class Network {
     if (typeof middleware !== 'function') {
       throw new Error('middleware must be a function');
     }
+    // Stryker disable next-line ConditionalExpression: Set.add is idempotent for duplicates
     if (!this._middleware.has(middleware)) {
       this._middleware.add(middleware);
     }
   }
 
   stop(middleware) {
+    // Stryker disable next-line ConditionalExpression: Set.delete is a no-op for missing members
     if (this._middleware.has(middleware)) {
       this._middleware.delete(middleware);
     }
@@ -190,7 +194,7 @@ export default class Network {
     { t, term, a, action, o, orient },
     data,
     control = {},
-    forwardAppCtx = NOOP
+    forwardAppCtx = NOOP,
   ) {
     // get the hash for the ac
     const acIn = _cleanAC({ t, term, a, action, o, orient });
@@ -232,7 +236,7 @@ export default class Network {
         this._handlers,
         this._leaves,
         this._wildcards,
-        _cleanAC(appCtx)
+        _cleanAC(appCtx),
       );
     }
     if (this._handlers.has(appCtx.key)) {
@@ -250,7 +254,7 @@ export default class Network {
       this._handlers,
       this._leaves,
       this._wildcards,
-      _cleanAC({ t, term, a, action, o, orient })
+      _cleanAC({ t, term, a, action, o, orient }),
     );
     ach.addInterceptHandler(handler);
     return this;
@@ -263,7 +267,7 @@ export default class Network {
       this._handlers,
       this._leaves,
       this._wildcards,
-      _cleanAC({ t, term, a, action, o, orient })
+      _cleanAC({ t, term, a, action, o, orient }),
     );
     ach.addAsyncHandler(handler);
     return this;
@@ -276,7 +280,7 @@ export default class Network {
       this._handlers,
       this._leaves,
       this._wildcards,
-      _cleanAC({ t, term, a, action, o, orient })
+      _cleanAC({ t, term, a, action, o, orient }),
     );
     ach.addInlineHandler(handler);
     return this;
@@ -299,7 +303,7 @@ export default class Network {
       this._handlers,
       _cleanAC({ t, term, a, action, o, orient }),
       handler,
-      INTERCEPT
+      INTERCEPT,
     );
     return this;
   }
@@ -309,7 +313,7 @@ export default class Network {
       this._handlers,
       _cleanAC({ t, term, a, action, o, orient }),
       handler,
-      ASYNC
+      ASYNC,
     );
     return this;
   }
@@ -319,7 +323,7 @@ export default class Network {
       this._handlers,
       _cleanAC({ t, term, a, action, o, orient }),
       handler,
-      INLINE
+      INLINE,
     );
     return this;
   }

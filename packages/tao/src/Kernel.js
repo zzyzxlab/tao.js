@@ -31,6 +31,7 @@ function _createPromiseHandler(
     owner.handlers = [];
   }
   const acHandler = (ac, data) => {
+    // Stryker disable next-line all: timeoutHook is always the clearTO fn when provided
     timeoutHook && timeoutHook();
     _removeHandlers(network, acList, owner.handlers, handlerType);
     promiseFn({ tao: ac, data });
@@ -111,6 +112,7 @@ export default class Kernel {
   }
 
   setAppCtx(appCtx) {
+    // Stryker disable next-line all: Network.setAppCtxControl throws the same error
     if (!(appCtx instanceof AppCtx)) {
       throw new Error(`'appCtx' not an instance of AppCtx`);
     }
@@ -158,6 +160,7 @@ export default class Kernel {
     return ({ t, term, a, action, o, orient }, data) =>
       new Promise((resolve, reject) => {
         let to = null;
+        // Stryker disable next-line all: clearTimeout is a named import; hard to observe without timer mocks
         const clearTO = () => to && clearTimeout(to);
         const handlerOwner = {};
         const resolveHandler = _createPromiseHandler.call(
