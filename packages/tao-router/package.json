@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/router",
-  "version": "0.16.3-alpha.nx23",
+  "version": "0.16.3",
   "description": "connects url routing with tao.js",
   "homepage": "https://tao.js.org/",
   "repository": {

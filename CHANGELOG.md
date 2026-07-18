@@ -1,3 +1,7 @@
+## 0.16.3 (2026-07-18)
+
+This was a version bump only, there were no code changes.
+
 ## 0.16.3-alpha.nx23 (2026-07-18)
 
 This was a version bump only, there were no code changes.
