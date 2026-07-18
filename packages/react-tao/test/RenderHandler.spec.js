@@ -322,4 +322,53 @@ describe('RenderHandler', () => {
     expect(logSpy).toHaveBeenCalled();
     logSpy.mockRestore();
   });
+
+  it('resubscribes when trigram props change', async () => {
+    const addSpy = jest.spyOn(TAO, 'addInlineHandler');
+    const removeSpy = jest.spyOn(TAO, 'removeInlineHandler');
+
+    function Harness({ action }) {
+      return (
+        <Provider TAO={TAO}>
+          <RenderHandler term={TERM} action={action} orient={ORIENT}>
+            {(tao) => <div data-testid="out">{tao.a}</div>}
+          </RenderHandler>
+        </Provider>
+      );
+    }
+
+    const { getByTestId, rerender } = render(<Harness action={ACTION} />);
+    const added = addSpy.mock.calls.length;
+    expect(added).toBeGreaterThan(0);
+
+    rerender(<Harness action="Edit" />);
+    expect(removeSpy.mock.calls.length).toBeGreaterThanOrEqual(added);
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx(TERM, 'Edit', ORIENT));
+    });
+    await waitFor(() => {
+      expect(getByTestId('out').textContent).toBe('Edit');
+    });
+
+    addSpy.mockRestore();
+    removeSpy.mockRestore();
+  });
+
+  it('supports array trigram props via cartesian permutations', async () => {
+    const { getByTestId } = render(
+      <Provider TAO={TAO}>
+        <RenderHandler term={TERM} action={['View', 'Edit']} orient={ORIENT}>
+          {(tao) => <div data-testid="out">{tao.a}</div>}
+        </RenderHandler>
+      </Provider>,
+    );
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx(TERM, 'Edit', ORIENT));
+    });
+    await waitFor(() => {
+      expect(getByTestId('out').textContent).toBe('Edit');
+    });
+  });
 });

@@ -6,13 +6,15 @@ export function normalizeAC({ t, term, a, action, o, orient }) {
   return {
     term: term || t,
     action: action || a,
-    orient: orient || o
+    orient: orient || o,
   };
 }
 
 export function cleanInput({ term, action, orient }) {
   const incoming = { term, action, orient };
-  Object.keys(incoming).forEach(k => incoming[k] == null && delete incoming[k]);
+  Object.keys(incoming).forEach(
+    (k) => incoming[k] == null && delete incoming[k],
+  );
   return incoming;
 }
 
@@ -35,4 +37,9 @@ function trigramHash(trigram) {
 
 export function handlerHash({ term, action, orient }) {
   return `${trigramHash(term)}|${trigramHash(action)}|${trigramHash(orient)}`;
+}
+
+/** Stable dep key for Kernel subscription lists (arrays, order). */
+export function serializeTrigrams(trigrams) {
+  return JSON.stringify(trigrams || []);
 }

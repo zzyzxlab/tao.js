@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+// Component still used by createConsumerChild class below
 import { render, cleanup } from '@testing-library/react';
 import { Kernel } from '@tao.js/core';
 import Provider, { Context } from '../src/Provider';
@@ -23,11 +24,9 @@ describe('Provider', () => {
     return ConsumerChild;
   };
 
-  it('should provide a constructor that inherits from React.Component', () => {
+  it('should export a Provider function component', () => {
     expect(Provider).toBeDefined();
-    expect(new Provider()).toBeInstanceOf(Provider);
-    expect(new Provider()).not.toBeInstanceOf(Function);
-    expect(new Provider()).toBeInstanceOf(Component);
+    expect(Provider).toBeInstanceOf(Function);
   });
 
   it('should not enforce a single child', () => {
@@ -75,6 +74,17 @@ describe('Provider', () => {
         <Child />
       </Provider>,
     );
+  });
+
+  it('should expose an empty data layer stack for useDataLayers', () => {
+    const { useDataLayers } = require('../src/DataLayerContext');
+    const { renderHook } = require('@testing-library/react');
+    const kernel = new Kernel();
+    const { result } = renderHook(() => useDataLayers(), {
+      wrapper: ({ children }) => <Provider TAO={kernel}>{children}</Provider>,
+    });
+    expect(result.current).toEqual([]);
+    expect(result.current).toHaveLength(0);
   });
 
   it('should expose TAO and data on the default Context value', () => {

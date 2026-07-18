@@ -130,8 +130,16 @@ describe('provides a set of react hooks for interacting with tao.js in functiona
     });
   });
 
-  describe('useTaoDataContext', () => {
-    it('should return undefined when the named data context is missing', () => {
+  describe('useTaoData / useTaoDataContext', () => {
+    it('should return undefined when the named data layer is missing', () => {
+      const { result } = renderHook(() => hooks.useTaoData('missing'), {
+        wrapper: withProvider,
+      });
+
+      expect(result.current).toBe(undefined);
+    });
+
+    it('useTaoDataContext aliases useTaoData for named lookup', () => {
       const { result } = renderHook(() => hooks.useTaoDataContext('missing'), {
         wrapper: withProvider,
       });
@@ -139,14 +147,43 @@ describe('provides a set of react hooks for interacting with tao.js in functiona
       expect(result.current).toBe(undefined);
     });
 
-    it('should return undefined when context data bag is null', () => {
-      const wrapper = ({ children }) => (
-        <Context.Provider value={{ TAO, data: null }}>
-          {children}
-        </Context.Provider>
-      );
-      const { result } = renderHook(() => hooks.useTaoDataContext('anything'), {
-        wrapper,
+    it('should return undefined for nearest when no DataHandler ancestors exist', () => {
+      const { result } = renderHook(() => hooks.useTaoData(), {
+        wrapper: withProvider,
+      });
+
+      expect(result.current).toBe(undefined);
+    });
+
+    it('treats empty string name as nearest layer', () => {
+      const DataHandler = require('../src/DataHandler').default;
+      const { result } = renderHook(() => hooks.useTaoData(''), {
+        wrapper: ({ children }) => (
+          <Provider TAO={TAO}>
+            <DataHandler
+              name="user"
+              term={TERM}
+              action={ACTION}
+              orient={ORIENT}
+              default={{ id: 1 }}
+            >
+              {children}
+            </DataHandler>
+          </Provider>
+        ),
+      });
+
+      expect(result.current).toEqual({ id: 1 });
+    });
+
+    it('returns undefined when data layers context value is null', () => {
+      const { DataLayerContext } = require('../src/DataLayerContext');
+      const { result } = renderHook(() => hooks.useTaoData('x'), {
+        wrapper: ({ children }) => (
+          <DataLayerContext.Provider value={null}>
+            {children}
+          </DataLayerContext.Provider>
+        ),
       });
 
       expect(result.current).toBe(undefined);

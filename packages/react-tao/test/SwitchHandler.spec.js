@@ -179,4 +179,195 @@ describe('SwitchHandler', () => {
 
     logSpy.mockRestore();
   });
+
+  it('resubscribes when Switch trigram defaults change', async () => {
+    const addSpy = jest.spyOn(TAO, 'addInlineHandler');
+    const removeSpy = jest.spyOn(TAO, 'removeInlineHandler');
+
+    function Harness({ orient }) {
+      return (
+        <Provider TAO={TAO}>
+          <SwitchHandler term="User" orient={orient}>
+            <RenderHandler action="View">
+              {() => <div data-testid="view">view</div>}
+            </RenderHandler>
+          </SwitchHandler>
+        </Provider>
+      );
+    }
+
+    const { getByTestId, rerender, queryByTestId } = render(
+      <Harness orient="Portal" />,
+    );
+
+    const portalAdds = addSpy.mock.calls.filter(([trigram]) => {
+      const o = trigram.o || trigram.orient;
+      return o === 'Portal';
+    });
+    expect(portalAdds.length).toBeGreaterThan(0);
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', 'Portal'));
+    });
+    await waitFor(() => {
+      expect(getByTestId('view')).toBeDefined();
+    });
+
+    const removesBefore = removeSpy.mock.calls.length;
+    rerender(<Harness orient="Admin" />);
+
+    const portalRemoves = removeSpy.mock.calls
+      .slice(removesBefore)
+      .filter(([trigram]) => {
+        const o = trigram.o || trigram.orient;
+        return o === 'Portal';
+      });
+    expect(portalRemoves.length).toBeGreaterThan(0);
+
+    const adminAdds = addSpy.mock.calls.filter(([trigram]) => {
+      const o = trigram.o || trigram.orient;
+      return o === 'Admin';
+    });
+    expect(adminAdds.length).toBeGreaterThan(0);
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', 'Admin'));
+    });
+    await waitFor(() => {
+      expect(getByTestId('view')).toBeDefined();
+    });
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', 'Portal'));
+    });
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', 'Admin'));
+    });
+    await waitFor(() => {
+      expect(queryByTestId('view')).not.toBeNull();
+    });
+
+    addSpy.mockRestore();
+    removeSpy.mockRestore();
+  });
+
+  it('supports array trigram props via cartesian permutations', async () => {
+    const { getByTestId, queryByTestId } = render(
+      <Provider TAO={TAO}>
+        <SwitchHandler term="Space" orient={ORIENT}>
+          <RenderHandler action={['New', 'Edit']}>
+            {() => <div data-testid="form">form</div>}
+          </RenderHandler>
+          <RenderHandler action="View">
+            {() => <div data-testid="view">view</div>}
+          </RenderHandler>
+        </SwitchHandler>
+      </Provider>,
+    );
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('Space', 'New', ORIENT));
+    });
+    await waitFor(() => {
+      expect(getByTestId('form')).toBeDefined();
+    });
+    expect(queryByTestId('view')).toBeNull();
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('Space', 'Edit', ORIENT));
+    });
+    await waitFor(() => {
+      expect(getByTestId('form')).toBeDefined();
+    });
+  });
+
+  it('prunes chosen matchKeys when a matching child is removed from the tree', async () => {
+    function Harness({ showView }) {
+      return (
+        <Provider TAO={TAO}>
+          <SwitchHandler term="User" orient={ORIENT}>
+            {showView ? (
+              <RenderHandler action="View">
+                {() => <div data-testid="view">view</div>}
+              </RenderHandler>
+            ) : null}
+            <RenderHandler action="Edit">
+              {() => <div data-testid="edit">edit</div>}
+            </RenderHandler>
+          </SwitchHandler>
+        </Provider>
+      );
+    }
+
+    const { getByTestId, queryByTestId, rerender } = render(
+      <Harness showView />,
+    );
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', ORIENT));
+    });
+    await waitFor(() => {
+      expect(getByTestId('view')).toBeDefined();
+    });
+
+    rerender(<Harness showView={false} />);
+
+    expect(queryByTestId('view')).toBeNull();
+    expect(queryByTestId('edit')).toBeNull();
+  });
+
+  it('recognizes RenderHandler via isTaoRenderHandler when type identity differs', async () => {
+    function ProxyRenderHandler(props) {
+      return <RenderHandler {...props} />;
+    }
+    ProxyRenderHandler.isTaoRenderHandler = true;
+
+    const { getByTestId } = render(
+      <Provider TAO={TAO}>
+        <SwitchHandler term="User" orient={ORIENT}>
+          <ProxyRenderHandler action="View">
+            {() => <div data-testid="proxy">proxy</div>}
+          </ProxyRenderHandler>
+        </SwitchHandler>
+      </Provider>,
+    );
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', ORIENT));
+    });
+
+    await waitFor(() => {
+      expect(getByTestId('proxy').textContent).toBe('proxy');
+    });
+  });
+
+  it('keeps the latest AppCon match set across a settle chain (not union)', async () => {
+    const { getByTestId, queryByTestId } = render(
+      <Provider TAO={TAO}>
+        <SwitchHandler term="Space" orient={ORIENT}>
+          <RenderHandler action="Enter">
+            {() => <div data-testid="enter">enter</div>}
+          </RenderHandler>
+          <RenderHandler action="View">
+            {() => <div data-testid="view">view</div>}
+          </RenderHandler>
+        </SwitchHandler>
+      </Provider>,
+    );
+
+    TAO.addInlineHandler(
+      { term: 'Space', action: 'Enter', orient: ORIENT },
+      () => new AppCtx('Space', 'View', ORIENT),
+    );
+
+    await act(async () => {
+      TAO.setAppCtx(new AppCtx('Space', 'Enter', ORIENT));
+      await new Promise((r) => setTimeout(r, 50));
+    });
+
+    await waitFor(() => {
+      expect(getByTestId('view')).toBeDefined();
+    });
+    expect(queryByTestId('enter')).toBeNull();
+  });
 });

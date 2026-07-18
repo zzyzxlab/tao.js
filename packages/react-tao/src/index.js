@@ -5,4 +5,5 @@ export { default as RenderHandler } from './RenderHandler';
 export { default as SwitchHandler } from './SwitchHandler';
 export { default as createContextHandler } from './createContextHandler';
 export { default as withContext } from './withContext';
+export { DataLayerContext, useDataLayers } from './DataLayerContext';
 export * from './hooks';

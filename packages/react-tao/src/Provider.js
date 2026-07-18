@@ -2,10 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TAO, { Kernel } from '@tao.js/core';
 
+import { DataLayerContext } from './DataLayerContext';
+
 /**
- * Root TAO + accumulated named data contexts.
- * Each DataHandler nests a new Provider value with `data[name]` merged in,
- * so descendants see data during the same render (no Map + didMount race).
+ * Root TAO + empty data bag / data-layer stack.
+ * Each DataHandler nests Provider `data[name]` (deprecated bag) and pushes
+ * onto DataLayerContext for tree-scoped `useTaoData` lookups.
  */
 const Context = React.createContext({
   TAO,
@@ -14,15 +16,24 @@ const Context = React.createContext({
 
 export { Context };
 
-export default class Provider extends React.Component {
-  static propTypes = {
-    TAO: PropTypes.instanceOf(Kernel).isRequired,
-  };
-
-  render() {
-    const { TAO, children } = this.props;
-    return (
-      <Context.Provider value={{ TAO, data: {} }}>{children}</Context.Provider>
-    );
-  }
+function Provider({ TAO: kernel, children }) {
+  // Root layer stack must be empty so useTaoData() is undefined until a DataHandler pushes.
+  const emptyLayers = [];
+  return (
+    <Context.Provider value={{ TAO: kernel, data: {} }}>
+      <DataLayerContext.Provider value={emptyLayers}>
+        {children}
+      </DataLayerContext.Provider>
+    </Context.Provider>
+  );
 }
+
+// Stryker disable next-line StringLiteral: displayName is DX-only
+Provider.displayName = 'Provider';
+
+Provider.propTypes = {
+  TAO: PropTypes.instanceOf(Kernel).isRequired,
+  children: PropTypes.node,
+};
+
+export default Provider;

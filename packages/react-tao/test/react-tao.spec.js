@@ -8,6 +8,7 @@ import {
   createContextHandler,
   withContext,
   useTaoContext,
+  useTaoData,
   useTaoDataContext,
   useTaoInlineHandler,
   useTaoAsyncHandler,
@@ -17,36 +18,28 @@ import {
 describe('@tao.js/react exports convenience tools to use tao.js with React', () => {
   it('should export a Provider Component', () => {
     expect(Provider).toBeDefined();
-    expect(new Provider()).toBeInstanceOf(Provider);
-    expect(new Provider()).toBeInstanceOf(Component);
-    expect(new Provider()).not.toBeInstanceOf(Function);
+    expect(Provider).toBeInstanceOf(Function);
   });
 
   it('should export a DataConsumer Component', () => {
     expect(DataConsumer).toBeDefined();
-    expect(new DataConsumer({})).toBeInstanceOf(DataConsumer);
-    expect(new DataConsumer({})).toBeInstanceOf(Component);
+    expect(DataConsumer).toBeInstanceOf(Function);
   });
 
   it('should export a RenderHandler Component', () => {
     expect(RenderHandler).toBeDefined();
-    expect(new RenderHandler({})).toBeInstanceOf(RenderHandler);
-    expect(new RenderHandler({})).toBeInstanceOf(Component);
-    expect(new RenderHandler({})).not.toBeInstanceOf(Function);
+    expect(RenderHandler).toBeInstanceOf(Function);
+    expect(RenderHandler.isTaoRenderHandler).toBe(true);
   });
 
   it('should export a SwitchHandler Component', () => {
     expect(SwitchHandler).toBeDefined();
-    expect(new SwitchHandler()).toBeInstanceOf(SwitchHandler);
-    expect(new SwitchHandler()).toBeInstanceOf(Component);
-    expect(new SwitchHandler()).not.toBeInstanceOf(Function);
+    expect(SwitchHandler).toBeInstanceOf(Function);
   });
 
   it('should export a DataHandler Component', () => {
     expect(DataHandler).toBeDefined();
-    expect(new DataHandler({})).toBeInstanceOf(DataHandler);
-    expect(new DataHandler({})).toBeInstanceOf(Component);
-    expect(new DataHandler({})).not.toBeInstanceOf(Function);
+    expect(DataHandler).toBeInstanceOf(Function);
   });
 
   it('should export createContextHandler', () => {
@@ -67,6 +60,7 @@ describe('@tao.js/react exports convenience tools to use tao.js with React', () 
 
   it('should export Current API hooks', () => {
     expect(useTaoContext).toBeInstanceOf(Function);
+    expect(useTaoData).toBeInstanceOf(Function);
     expect(useTaoDataContext).toBeInstanceOf(Function);
     expect(useTaoInlineHandler).toBeInstanceOf(Function);
     expect(useTaoAsyncHandler).toBeInstanceOf(Function);
