@@ -1,4 +1,4 @@
-import { Network } from '@tao.js/core';
+import { AppCtx } from '@tao.js/core';
 
 // for backwards compatibility
 const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
@@ -23,6 +23,11 @@ function transponderControl(transponderId, signal) {
  *
  * It is recommended to attach a Transponder to one of the other `utils` classes that filter
  * or have a subset of the handlers of your primary Network like a Channel.
+ *
+ * The transponder tag rides the cascade scope of the envelope, so it survives
+ * every hop of a chain (see ENVELOPE-SPEC.md). When attached directly to a
+ * Kernel/Network with envelope support, chained AppCons now propagate (they
+ * previously died on a no-op forward).
  *
  * @export
  * @class Transponder
@@ -117,6 +122,14 @@ export default class Transponder {
         }, timeoutMs);
       }
       const control = transponderControl(transponderId, resolve);
+      if (typeof this._network.enter === 'function') {
+        this._network.enter(
+          new AppCtx(term || t, action || a, orient || o, data),
+          { cascade: control },
+        );
+        return;
+      }
+      // wrapped surface owns its own entry semantics (e.g. a Channel)
       this._network.setCtxControl(
         { t, term, a, action, o, orient },
         data,
@@ -137,6 +150,11 @@ export default class Transponder {
         }, timeoutMs);
       }
       const control = transponderControl(transponderId, resolve);
+      if (typeof this._network.enter === 'function') {
+        this._network.enter(ac, { cascade: control });
+        return;
+      }
+      // wrapped surface owns its own entry semantics (e.g. a Channel)
       this._network.setAppCtxControl(ac, control);
     });
   }

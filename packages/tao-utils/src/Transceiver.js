@@ -1,4 +1,4 @@
-import { Network, AppCtx } from '@tao.js/core';
+import { Network, INTERCEPT, ERROR } from '@tao.js/core';
 
 // for backwards compatibility
 const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
@@ -37,6 +37,10 @@ function transceiverControl(transceiverId, resolve, reject) {
  * will conclude the Promise despite other handlers that may be continue to be
  * called depending on how you set up your Handlers
  *
+ * Settlement is implemented with the core dispatch loop's `onReturn` hook
+ * (see ENVELOPE-SPEC.md §6) — the previous fork of the phase semantics
+ * (`captureSignal`) is gone.
+ *
  * @export
  * @class Transceiver
  */
@@ -50,6 +54,11 @@ export default class Transceiver {
     this._signals.use(this.handleSignalAppCon);
     this._network =
       typeof network.use === 'function' ? network : network._network;
+    if (typeof this._network.enter !== 'function') {
+      throw new Error(
+        'Transceiver requires a @tao.js/core version with envelope support - upgrade @tao.js/core',
+      );
+    }
     this._timeoutMs = timeoutMs;
     this._promise = promise;
     this._cloneWithId = typeof id === 'function' ? id : undefined;
@@ -107,147 +116,25 @@ export default class Transceiver {
       control.signal &&
       !control.signalled
     ) {
-      try {
-        this.captureSignal(handler, ac, forwardAppCtx, control).catch(
-          (handleErr) => {
-            if (!control.signalled) {
-              control.signalled = true;
-              control.signal.reject(handleErr);
-            }
-          },
-        );
-      } catch (handleErr) {
-        // Stryker disable next-line ConditionalExpression: equivalent - this synchronous catch runs immediately after entering the try, so control.signalled cannot have been set true by anything else yet
-        if (!control.signalled) {
-          control.signalled = true;
-          control.signal.reject(handleErr);
+      const settle = (phase, value) => {
+        if (control.signalled) {
+          return;
         }
+        control.signalled = true;
+        if (phase === INTERCEPT || phase === ERROR) {
+          control.signal.reject(value);
+        } else {
+          control.signal.resolve(value);
+        }
+      };
+      try {
+        handler.handleAppCon(ac, forwardAppCtx, control, { onReturn: settle });
+      } catch (dispatchErr) {
+        // defensive: a handler that cannot be dispatched rejects the signal
+        settle(ERROR, dispatchErr);
       }
     }
     // ALERT: handler will have already handled the AppCon before now
-    // return handler.handleAppCon(ac, forwardAppCtx, control);
-  };
-
-  // TODO: refactor AppCtxHandlers to allow an override of behavior
-  captureSignal = async (handler, ac, setAppCtx, control) => {
-    const { t, a, o, data } = ac;
-    /*
-     * Intercept Handlers
-     * always occur first
-     * have the ability to prevent other handlers from firing on this AC
-     * optionally can return a single AC that will be set as the new AC instead of the incoming AC
-     *
-     * If handler returns truthy value that is not an AppCtx then it will
-     * be used to REJECT a signal promise that is part of the message
-     * control
-     */
-    for (let interceptH of handler.interceptHandlers) {
-      // using the decorator pattern to call these?
-      let intercepted = await interceptH({ t, a, o }, data);
-      if (!intercepted) {
-        continue;
-      }
-      if (intercepted instanceof AppCtx) {
-        try {
-          setAppCtx(intercepted, control);
-        } catch (interceptErr) {
-          if (!control.signalled) {
-            control.signalled = true;
-            control.signal.reject(interceptErr);
-          }
-        }
-      } else if (!control.signalled) {
-        control.signalled = true;
-        control.signal.reject(intercepted);
-      }
-      return;
-    }
-    /*
-     * Async Handlers
-     * designed to kick off asynchronous handling of an AC outside of the current
-     * control loop
-     * fire if all Intercept Handlers don't intercept the fired AC
-     * work inside of their own execution context
-     * can return an AC that will be set as a context inside the async exec ctx
-     * TODO: look into how redux-sagas is implemented and may be a way to use
-     * generators instead of Promises
-     * TODO: would ServiceWorkers make sense for this? tao-sw package
-     *
-     * If handler returns anything that is not an AppCtx then it will
-     * be used to RESOLVE a signal promise that is part of the message
-     * control
-     * If handler or chained handlers throw anything then it will be
-     * used to REJECT a signal promise that is part of the message
-     * control
-     */
-    for (let asyncH of handler.asyncHandlers) {
-      (() => {
-        Promise.resolve(asyncH({ t, a, o }, data))
-          .then((nextAc) => {
-            if (nextAc != null) {
-              if (nextAc instanceof AppCtx) {
-                setAppCtx(nextAc, control);
-              } else if (!control.signalled) {
-                control.signalled = true;
-                control.signal.resolve(nextAc);
-              }
-            }
-          })
-          .catch((asyncErr) => {
-            if (!control.signalled) {
-              control.signalled = true;
-              control.signal.reject(asyncErr);
-            }
-          });
-      })();
-    }
-    /*
-     * Inline Handlers
-     * fire if all Intercept Handlers don't intercept the fired AC
-     * fired after all Async handlers are fired off
-     * work inside the same execution context as the caller
-     * can return an AC that will be set immediately in the TAO
-     * TODO: should these returns be spooled up then iterated to allow
-     * all handlers to handle this context before any new ones are set?
-     * YES: currently implemented that way
-     *
-     * If handler returns anything that is not an AppCtx then it will
-     * be used to RESOLVE a signal promise that is part of the message
-     * control
-     * If handler or chained handlers throw anything then it will be
-     * used to REJECT a signal promise that is part of the message
-     * control
-     */
-    const nextSpool = [];
-    let firstResolve = null;
-    for (let inlineH of handler.inlineHandlers) {
-      let nextInlineAc = await inlineH({ t, a, o }, data);
-      // Stryker disable next-line ConditionalExpression: equivalent - when nextInlineAc is null/undefined the branch below only ever assigns that same falsy value to firstResolve (or is skipped because firstResolve is already truthy), so forcing entry into the branch changes nothing observable
-      if (nextInlineAc != null) {
-        if (nextInlineAc instanceof AppCtx) {
-          nextSpool.push(nextInlineAc);
-        } else if (!firstResolve) {
-          firstResolve = nextInlineAc;
-        }
-      }
-    }
-    if (!control.signalled && firstResolve) {
-      control.signalled = true;
-      control.signal.resolve(firstResolve);
-    }
-    // Stryker disable next-line ConditionalExpression: equivalent - iterating an empty nextSpool array with for...of already runs zero times, so forcing entry into the branch changes nothing observable
-    if (nextSpool.length) {
-      for (let nextAc of nextSpool) {
-        try {
-          setAppCtx(nextAc, control);
-        } catch (inlineErr) {
-          if (!control.signalled) {
-            control.signalled = true;
-            control.signal.reject(inlineErr);
-          }
-        }
-      }
-    }
   };
 
   addSignalHandler = ({ t, term, a, action, o, orient }, handler) => {
