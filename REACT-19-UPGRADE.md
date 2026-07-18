@@ -4,6 +4,9 @@ Branch: `upgrade-react-19`
 Baseline: `@tao.js/*@0.16.3` on Nx 23 / React **16.14**  
 Goal: Support **React 19** for `@tao.js/react` with green tests, fixed DataHandler timing, and updated docs/example smoke path.
 
+**Status (2026-07-17):** Ladder complete through React **19.2** — 79 `@tao.js/react` tests green.
+Data context hierarchy shipped; enzyme removed; peers `^18.2 \|\| ^19`. Remaining optional: Vite smoke example, fill RenderHandler/SwitchHandler stubs.
+
 ---
 
 ## Current state (audit)

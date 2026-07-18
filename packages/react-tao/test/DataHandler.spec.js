@@ -103,4 +103,26 @@ describe('DataHandler', () => {
 
     expect(result.current).toEqual({ level: 'inner' });
   });
+
+  it('still exposes data on first render under StrictMode', () => {
+    const { result } = renderHook(() => useTaoDataContext('user'), {
+      wrapper: ({ children }) => (
+        <React.StrictMode>
+          <Provider TAO={TAO}>
+            <DataHandler
+              name="user"
+              term={TERM}
+              action={ACTION}
+              orient={ORIENT}
+              default={{ strict: true }}
+            >
+              {children}
+            </DataHandler>
+          </Provider>
+        </React.StrictMode>
+      ),
+    });
+
+    expect(result.current).toEqual({ strict: true });
+  });
 });

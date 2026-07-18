@@ -18,7 +18,7 @@ TODO
 - [ ] complete all tests for 100% code coverage
 - [ ] create a mutation test suite and exercise it
 - [ ] rewrite documentation site
-- [ ] update to React 19 implementation for @taojs/react
+- [x] update to React 19 implementation for @taojs/react (see `REACT-19-UPGRADE.md` / branch `upgrade-react-19`)
 - [ ] transfer ownership to tao-land
 - [ ] implement TAO.md (spec/template + tooling for consuming apps)
 - [ ] implement a Go lib for the network
