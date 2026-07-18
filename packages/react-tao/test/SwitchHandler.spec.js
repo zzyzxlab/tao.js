@@ -268,6 +268,66 @@ describe('SwitchHandler', () => {
     });
   });
 
+  it('prunes chosen matchKeys when a matching child is removed from the tree', async () => {
+    function Harness({ showView }) {
+      return (
+        <Provider TAO={TAO}>
+          <SwitchHandler term="User" orient={ORIENT}>
+            {showView ? (
+              <RenderHandler action="View">
+                {() => <div data-testid="view">view</div>}
+              </RenderHandler>
+            ) : null}
+            <RenderHandler action="Edit">
+              {() => <div data-testid="edit">edit</div>}
+            </RenderHandler>
+          </SwitchHandler>
+        </Provider>
+      );
+    }
+
+    const { getByTestId, queryByTestId, rerender } = render(
+      <Harness showView />,
+    );
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', ORIENT));
+    });
+    await waitFor(() => {
+      expect(getByTestId('view')).toBeDefined();
+    });
+
+    rerender(<Harness showView={false} />);
+
+    expect(queryByTestId('view')).toBeNull();
+    expect(queryByTestId('edit')).toBeNull();
+  });
+
+  it('recognizes RenderHandler via isTaoRenderHandler when type identity differs', async () => {
+    function ProxyRenderHandler(props) {
+      return <RenderHandler {...props} />;
+    }
+    ProxyRenderHandler.isTaoRenderHandler = true;
+
+    const { getByTestId } = render(
+      <Provider TAO={TAO}>
+        <SwitchHandler term="User" orient={ORIENT}>
+          <ProxyRenderHandler action="View">
+            {() => <div data-testid="proxy">proxy</div>}
+          </ProxyRenderHandler>
+        </SwitchHandler>
+      </Provider>,
+    );
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', ORIENT));
+    });
+
+    await waitFor(() => {
+      expect(getByTestId('proxy').textContent).toBe('proxy');
+    });
+  });
+
   it('keeps the latest AppCon match set across a settle chain (not union)', async () => {
     const { getByTestId, queryByTestId } = render(
       <Provider TAO={TAO}>
