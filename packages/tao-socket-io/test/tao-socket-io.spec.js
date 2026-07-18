@@ -174,6 +174,13 @@ describe('@tao.js/socket.io', () => {
       expect(() => socket.events.disconnect('bye')).not.toThrow();
     });
 
+    it('returns middleware when io.of exists but is not a function', () => {
+      const wireTaoJsToSocketIO = loadWire({ browser: false });
+      const middleware = wireTaoJsToSocketIO({}, { of: 'not-a-function' });
+      expect(middleware).toBeInstanceOf(Function);
+      expect(() => middleware(makeSocket())).not.toThrow();
+    });
+
     it('accepts plain inbound events without authTransform', () => {
       const wireTaoJsToSocketIO = loadWire({ browser: false });
       const socket = makeSocket();
