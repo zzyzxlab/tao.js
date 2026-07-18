@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { AppCtx } from '@tao.js/core';
 import cartesian from 'cartesian';
 
 import { normalizeClean, handlerHash } from './helpers';
@@ -16,12 +15,17 @@ export default class SwitchHandler extends React.Component {
     action: PropTypes.any,
     orient: PropTypes.any,
     debug: PropTypes.bool,
-    children: PropTypes.node.isRequired
+    children: PropTypes.node.isRequired,
   };
 
   constructor(props) {
     super(props);
     this._adaptedChildren = new Map();
+    // Wave key for the AppCon currently being handled (inline handlers only).
+    // Avoid intercept+setState: Kernel awaits intercepts, which yields before
+    // inline handlers and can leave the UI stuck on an empty chosenList.
+    this._currentWave = null;
+    this._chosenAccumulator = null;
     this.state = { chosenList: new Set() };
   }
 
@@ -31,60 +35,59 @@ export default class SwitchHandler extends React.Component {
       console.log('SwitchHandler::componentDidMount::props:', this.props);
     const { TAO } = this.context;
     const defaultTrigram = normalizeClean(this.props);
-    const intercepted = new Map();
-    React.Children.forEach(this.props.children, (child, i) => {
+    React.Children.forEach(this.props.children, (child) => {
       if (child.type === RenderHandler) {
         const childTrigram = normalizeClean(child.props);
         const childHash = handlerHash(childTrigram);
         const handler = this.handleSwitch(childHash);
-        const trigrams = Object.assign(defaultTrigram, childTrigram);
+        const trigrams = { ...defaultTrigram, ...childTrigram };
         debug && console.log('trigrams:', trigrams);
         const permutations = cartesian(trigrams);
         debug && console.log('permutations:', permutations);
         this._adaptedChildren.set(child, { permutations, handler });
-        permutations.forEach(trigram => {
-          const ac = new AppCtx(trigram.term, trigram.action, trigram.orient);
+        permutations.forEach((trigram) => {
           TAO.addInlineHandler(trigram, handler);
-          if (!intercepted.has(ac.key)) {
-            TAO.addInterceptHandler(trigram, this.handleClear);
-            intercepted.set(ac.key, true);
-          }
         });
       }
     });
     debug &&
       console.log('SwitchHandler::componentDidMount::complete:', {
-        intercepted,
-        adaptedChildren: this._adaptedChildren
+        adaptedChildren: this._adaptedChildren,
       });
   }
 
   componentWillUnmount() {
     const { TAO } = this.context;
-    this._adaptedChildren.forEach(({ permutations, handler }, child) => {
-      permutations.forEach(trigram => {
+    this._adaptedChildren.forEach(({ permutations, handler }) => {
+      permutations.forEach((trigram) => {
         TAO.removeInlineHandler(trigram, handler);
-        TAO.removeInterceptHandler(trigram, this.handleClear);
       });
     });
   }
 
-  handleClear = (tao, data) => {
+  handleSwitch = (childHash) => (tao, data) => {
     const { debug = false } = this.props;
-    debug && console.log('SwitchHandler::handleClear:', { tao, data });
-    const chosenList = new Set();
-    this.setState({ chosenList });
-  };
-
-  handleSwitch = childHash => (tao, data) => {
-    const { debug = false } = this.props;
-    debug && console.log('SwitchHandler::handleSwitch:', { tao, data });
-    const { chosenList } = this.state;
-    debug && console.log('chosenList:', chosenList);
-    chosenList.add(childHash);
-    this.setState({ chosenList });
+    const waveKey = `${tao.t}|${tao.a}|${tao.o}`;
     debug &&
-      console.log('SwitchHandler::handleSwitch::set state with:', this.state);
+      console.log('SwitchHandler::handleSwitch:', {
+        tao,
+        data,
+        childHash,
+        waveKey,
+      });
+    if (this._currentWave !== waveKey) {
+      this._currentWave = waveKey;
+      this._chosenAccumulator = new Set();
+    }
+    this._chosenAccumulator.add(childHash);
+    const chosenList = this._chosenAccumulator;
+    this.setState({ chosenList, tao, data });
+    debug &&
+      console.log('SwitchHandler::handleSwitch::set state with:', {
+        chosenList,
+        tao,
+        data,
+      });
   };
 
   render() {
@@ -92,7 +95,7 @@ export default class SwitchHandler extends React.Component {
     debug && console.log('SwitchHandler::render::state:', this.state);
     const { term, action, orient, children } = this.props;
     const { chosenList } = this.state;
-    return React.Children.map(children, child => {
+    return React.Children.map(children, (child) => {
       if (!React.isValidElement(child) || child.type !== RenderHandler) {
         debug && console.log('SwitchHandler::render:returning child');
         return child;
@@ -101,13 +104,17 @@ export default class SwitchHandler extends React.Component {
       const childHash = handlerHash(normalizeClean(child.props));
       if (chosenList.has(childHash)) {
         debug && console.log('SwitchHandler::render:cloning child');
+        // shouldRender: the matching AppCon already fired; freshly mounted
+        // RenderHandlers would otherwise miss it and stay blank.
         return React.cloneElement(child, {
           term,
           action,
           orient,
-          ...child.props
+          ...child.props,
+          shouldRender: true,
         });
       }
+      return null;
     });
   }
 }

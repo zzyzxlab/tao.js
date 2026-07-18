@@ -3,6 +3,10 @@ import React from 'react';
 import { Context } from './Provider';
 import createContextHandler from './createContextHandler';
 
+/**
+ * Subscribes to TAO trigrams and merges handler state into the named data bag
+ * on the shared Context tree (see README “FIX DATA CONTEXT FOR REACT”).
+ */
 export default class DataHandler extends React.Component {
   static contextType = Context;
 
@@ -11,27 +15,34 @@ export default class DataHandler extends React.Component {
     this.ChildContext = createContextHandler(
       props,
       props.handler,
-      props.default
+      props.default,
     );
   }
 
-  componentDidMount() {
-    const { name } = this.props;
-    const { setDataContext } = this.context;
-    setDataContext(name, this.ChildContext);
-  }
-
-  componentWillUnmount() {
-    const { name } = this.props;
-    const { removeDataContext } = this.context;
-    removeDataContext(name);
-  }
-
   render() {
-    const { children } = this.props;
-    const Provider = this.ChildContext.Provider;
-    // use React.Children here to inject the context somehow?
-    // https://reactjs.org/docs/react-api.html#reactchildren
-    return <Provider>{children}</Provider>;
+    const { name, children } = this.props;
+    const { TAO, data: parentData = {} } = this.context;
+    const { Provider: LocalProvider, Consumer: LocalConsumer } =
+      this.ChildContext;
+
+    return (
+      <LocalProvider>
+        <LocalConsumer>
+          {(localData) => (
+            <Context.Provider
+              value={{
+                TAO,
+                data: {
+                  ...parentData,
+                  [name]: localData,
+                },
+              }}
+            >
+              {children}
+            </Context.Provider>
+          )}
+        </LocalConsumer>
+      </LocalProvider>
+    );
   }
 }

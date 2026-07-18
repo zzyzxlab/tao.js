@@ -1,7 +1,7 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { Kernel } from '@tao.js/core';
-import Provider from '../src/Provider';
+import Provider, { Context } from '../src/Provider';
 import * as hooks from '../src/hooks';
 
 const TERM = 'colleague';
@@ -73,6 +73,19 @@ describe('provides a set of react hooks for interacting with tao.js in functiona
     it('should return undefined when the named data context is missing', () => {
       const { result } = renderHook(() => hooks.useTaoDataContext('missing'), {
         wrapper: withProvider,
+      });
+
+      expect(result.current).toBe(undefined);
+    });
+
+    it('should return undefined when context data bag is null', () => {
+      const wrapper = ({ children }) => (
+        <Context.Provider value={{ TAO, data: null }}>
+          {children}
+        </Context.Provider>
+      );
+      const { result } = renderHook(() => hooks.useTaoDataContext('anything'), {
+        wrapper,
       });
 
       expect(result.current).toBe(undefined);

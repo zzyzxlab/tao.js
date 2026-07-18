@@ -65,8 +65,8 @@ The `@tao.js/react` package has recently had a complete update to its API (now c
 current API) while keeping its original API. This has been done because consumers of the
 package may want to use the simplified original API which has only 2 exports.
 
-The Current API is provides a more React-like developer experience and is geared towards
-React 16 using the Context API.
+The Current API provides a React-like developer experience using the Context API and
+hooks. Peer dependency: **React 18 or 19** (`react` / `react-dom` `^18.2.0 || ^19.0.0`).
 
 Because of this, `@tao.js/react` builds 3 different versions of bundles for CommonJS and
 UMD for the current, original and all (both).

@@ -1,4 +1,11 @@
-import { normalizeAC, cleanInput } from '../src/helpers';
+import {
+  normalizeAC,
+  cleanInput,
+  normalizeClean,
+  getPermutations,
+  handlerHash,
+  noop,
+} from '../src/helpers';
 
 const TERM = 'colleague';
 const ACTION = 'hug';
@@ -98,6 +105,39 @@ describe('helpers provide functions used across the package', () => {
       expect(actualOrient).not.toHaveProperty('term');
       expect(actualOrient).not.toHaveProperty('action');
       expect(actualOrient).toHaveProperty('orient', orientWild.orient);
+    });
+  });
+
+  describe('normalizeClean / getPermutations / handlerHash', () => {
+    it('normalizeClean drops empty trigram parts', () => {
+      expect(normalizeClean({ t: TERM, a: null, o: ORIENT })).toEqual({
+        term: TERM,
+        orient: ORIENT,
+      });
+    });
+
+    it('getPermutations returns cartesian products for concrete trigrams', () => {
+      expect(
+        getPermutations({ term: TERM, action: ACTION, orient: ORIENT }),
+      ).toEqual([{ term: TERM, action: ACTION, orient: ORIENT }]);
+    });
+
+    it('getPermutations returns a wildcard empty object when no parts remain', () => {
+      expect(getPermutations({})).toEqual([{}]);
+    });
+
+    it('handlerHash encodes missing, scalar, and array trigram parts', () => {
+      expect(handlerHash({})).toBe('%|%|%');
+      expect(handlerHash({ term: TERM, action: ACTION, orient: ORIENT })).toBe(
+        `${TERM}|${ACTION}|${ORIENT}`,
+      );
+      expect(
+        handlerHash({ term: [TERM, 'other'], action: ACTION, orient: null }),
+      ).toBe(`${TERM},other|${ACTION}|%`);
+    });
+
+    it('noop is a callable empty function', () => {
+      expect(noop()).toBeUndefined();
     });
   });
 });

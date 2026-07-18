@@ -1,10 +1,17 @@
 import { Component } from 'react';
 import {
   Provider,
+  DataConsumer,
+  DataHandler,
   RenderHandler,
   SwitchHandler,
-  DataHandler,
-  withContext
+  createContextHandler,
+  withContext,
+  useTaoContext,
+  useTaoDataContext,
+  useTaoInlineHandler,
+  useTaoAsyncHandler,
+  useTaoInterceptHandler,
 } from '../src';
 
 describe('@tao.js/react exports convenience tools to use tao.js with React', () => {
@@ -13,6 +20,12 @@ describe('@tao.js/react exports convenience tools to use tao.js with React', () 
     expect(new Provider()).toBeInstanceOf(Provider);
     expect(new Provider()).toBeInstanceOf(Component);
     expect(new Provider()).not.toBeInstanceOf(Function);
+  });
+
+  it('should export a DataConsumer Component', () => {
+    expect(DataConsumer).toBeDefined();
+    expect(new DataConsumer({})).toBeInstanceOf(DataConsumer);
+    expect(new DataConsumer({})).toBeInstanceOf(Component);
   });
 
   it('should export a RenderHandler Component', () => {
@@ -36,6 +49,11 @@ describe('@tao.js/react exports convenience tools to use tao.js with React', () 
     expect(new DataHandler({})).not.toBeInstanceOf(Function);
   });
 
+  it('should export createContextHandler', () => {
+    expect(createContextHandler).toBeDefined();
+    expect(createContextHandler).toBeInstanceOf(Function);
+  });
+
   it('should export an withContext HOC', () => {
     expect(withContext).toBeDefined();
     expect(withContext).toBeInstanceOf(Function);
@@ -43,9 +61,15 @@ describe('@tao.js/react exports convenience tools to use tao.js with React', () 
     expect(new withContext({}, () => {})).not.toBeInstanceOf(Component);
     expect(new withContext({}, () => {})(Component)).toBeInstanceOf(Function);
     expect(new withContext({}, () => {})(Component)).not.toBeInstanceOf(
-      Component
+      Component,
     );
-    // expect(new withContext({}, () => {})(Component)()).toBeInstanceOf(Component);
-    // expect(new withContext({}, () => {})(Component)()).not.toBeInstanceOf(Function);
+  });
+
+  it('should export Current API hooks', () => {
+    expect(useTaoContext).toBeInstanceOf(Function);
+    expect(useTaoDataContext).toBeInstanceOf(Function);
+    expect(useTaoInlineHandler).toBeInstanceOf(Function);
+    expect(useTaoAsyncHandler).toBeInstanceOf(Function);
+    expect(useTaoInterceptHandler).toBeInstanceOf(Function);
   });
 });

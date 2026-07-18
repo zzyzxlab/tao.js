@@ -1,0 +1,22 @@
+{
+  "name": "react19-smoke",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tao.js/core": "file:../../packages/tao",
+    "@tao.js/react": "file:../../packages/react-tao",
+    "prop-types": "^15.8.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
+    "vite": "^6.3.5"
+  }
+}

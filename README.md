@@ -333,28 +333,7 @@ Return array of AppCtx from handler
 
 ## FIX DATA CONTEXT FOR REACT
 
-Since React changed the lifecycle methods in 16.9 the `setDataContext` is not called before
-children mount. This causes an issue with timing as now `setDataContext` is being called by
-the `DataHandler` in `componentDidMount` meaning that the children have already mounted.
-
-This causes issues with hooks introduced in 16.13 and using the `useContext` hook within the
-`useTaoDataContext` hook as it is receiving the context before it can be set and thus always
-returning `undefined` to the component attempting to use the hook.
-
-### Solution
-
-Reimplement the Data Context internals without changing the API to clients.
-
-Build a hierarchy of data using the `name` as a key in the object.
-
-Each successive context passes its parent context data in and sets its own key.
-
-Each `DataHandler`, `RenderHandler` and `DataConsumer` will consume the same `Context`.
-
-This will do the following things:
-
-1. behave more like React expects with the Context API storing data not accessors to data held somewhere else
-2. allow the originally desired override and tree of data to match the component tree
-3. make the `DataConsumer` component actually work as desired
-4. simplify the consumption of context, no more recursive `Context.Consumer`s needed
-5. let `DataHandler`s also have a `context` prop to use data from a parent context in their handler
+Done on `upgrade-react-19`: named data is nested on the shared Provider `Context` value
+(`data[name]`) as each `DataHandler` renders, so `useTaoDataContext` / `DataConsumer` /
+`RenderHandler` see values on the first render (including under Strict Mode). See
+`REACT-19-UPGRADE.md`.

@@ -12,18 +12,18 @@ function useTaoEffect(
   handlerType,
   { t, term, a, action, o, orient },
   handler,
-  dependencies
+  dependencies,
 ) {
   const [addingHandler, removingHandler] = [
     `add${handlerType}Handler`,
-    `remove${handlerType}Handler`
+    `remove${handlerType}Handler`,
   ];
   const TAO = useTaoContext();
   const permutations = getPermutations({ t, term, a, action, o, orient });
   React.useEffect(() => {
-    permutations.forEach(trigram => TAO[addingHandler](trigram, handler));
+    permutations.forEach((trigram) => TAO[addingHandler](trigram, handler));
     return () => {
-      permutations.forEach(trigram => TAO[removingHandler](trigram, handler));
+      permutations.forEach((trigram) => TAO[removingHandler](trigram, handler));
     };
   }, dependencies);
 }
@@ -31,47 +31,46 @@ function useTaoEffect(
 export function useTaoInlineHandler(
   { t, term, a, action, o, orient },
   handler,
-  dependencies
+  dependencies,
 ) {
   useTaoEffect(
     'Inline',
     { t, term, a, action, o, orient },
     handler,
-    dependencies
+    dependencies,
   );
 }
 
 export function useTaoAsyncHandler(
   { t, term, a, action, o, orient },
   handler,
-  dependencies
+  dependencies,
 ) {
   useTaoEffect(
     'Async',
     { t, term, a, action, o, orient },
     handler,
-    dependencies
+    dependencies,
   );
 }
 
 export function useTaoInterceptHandler(
   { t, term, a, action, o, orient },
   handler,
-  dependencies
+  dependencies,
 ) {
   useTaoEffect(
     'Intercept',
     { t, term, a, action, o, orient },
     handler,
-    dependencies
+    dependencies,
   );
 }
 
 export function useTaoDataContext(name) {
-  const { getDataContext } = React.useContext(Context);
-  const dataContext = getDataContext(name);
-  if (!dataContext) {
+  const { data } = React.useContext(Context);
+  if (data == null || !Object.prototype.hasOwnProperty.call(data, name)) {
     return;
   }
-  return React.useContext(dataContext);
+  return data[name];
 }

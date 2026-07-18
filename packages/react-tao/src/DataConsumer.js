@@ -3,56 +3,15 @@ import PropTypes from 'prop-types';
 
 import { Context } from './Provider';
 
-function recursiveContextGenerator(
-  ctxList,
-  getContext,
-  children,
-  ctxIdx = 0,
-  ctxDataArgs = null
-) {
-  if (ctxDataArgs == null) {
-    ctxDataArgs = new Array(ctxList.length);
-  }
-  const ctxName = ctxList[ctxIdx];
-  const context = getContext(ctxName);
-  if (!context) {
+function readNamedData(data, ctxName) {
+  if (data == null || !Object.prototype.hasOwnProperty.call(data, ctxName)) {
     console.warn(
-      `DataConsumer::Unable to find context for '${ctxName}'. Please check that you have it spelled correctly.`
+      `DataConsumer::Unable to find context for '${ctxName}'. Please check that you have it spelled correctly.`,
     );
     console.info(`DataConsumer::setting context ${ctxName} data arg to null`);
-    ctxDataArgs[ctxIdx] = null;
-    return recursiveContextGenerator(
-      ctxList,
-      getContext,
-      children,
-      ctxIdx + 1,
-      ctxDataArgs
-    );
+    return null;
   }
-  if (ctxList.length > ctxIdx + 1) {
-    return (
-      <context.Consumer name={`${ctxName}.Consumer`}>
-        {ctxData => {
-          ctxDataArgs[ctxIdx] = ctxData;
-          return recursiveContextGenerator(
-            ctxList,
-            getContext,
-            children,
-            ctxIdx + 1,
-            ctxDataArgs
-          );
-        }}
-      </context.Consumer>
-    );
-  }
-  return (
-    <context.Consumer name={`${ctxName}.Consumer`}>
-      {ctxData => {
-        ctxDataArgs[ctxIdx] = ctxData;
-        return children(...ctxDataArgs);
-      }}
-    </context.Consumer>
-  );
+  return data[ctxName];
 }
 
 export default class DataConsumer extends React.Component {
@@ -61,15 +20,16 @@ export default class DataConsumer extends React.Component {
   static propTypes = {
     context: PropTypes.oneOfType([
       PropTypes.string,
-      PropTypes.arrayOf(PropTypes.string)
+      PropTypes.arrayOf(PropTypes.string),
     ]).isRequired,
-    children: PropTypes.func.isRequired
+    children: PropTypes.func.isRequired,
   };
 
   render() {
     const { context, children } = this.props;
-    const { getDataContext } = this.context;
+    const { data } = this.context;
     const ctxList = Array.isArray(context) ? context : [context];
-    return recursiveContextGenerator(ctxList, getDataContext, children);
+    const args = ctxList.map((ctxName) => readNamedData(data, ctxName));
+    return children(...args);
   }
 }
