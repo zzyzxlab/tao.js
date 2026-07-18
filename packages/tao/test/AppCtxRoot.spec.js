@@ -32,7 +32,7 @@ describe('AppCtxRoot holds a tao (term, action, orient) App Context', () => {
     const expected = {
       t: WILDCARD,
       a: WILDCARD,
-      o: WILDCARD
+      o: WILDCARD,
     };
     // Act
     const actual = new AppCtxRoot();
@@ -58,17 +58,17 @@ describe('AppCtxRoot holds a tao (term, action, orient) App Context', () => {
     const expectedTerm = {
       t: TERM,
       a: WILDCARD,
-      o: WILDCARD
+      o: WILDCARD,
     };
     const expectedAction = {
       t: WILDCARD,
       a: ACTION,
-      o: WILDCARD
+      o: WILDCARD,
     };
     const expectedOrient = {
       t: WILDCARD,
       a: WILDCARD,
-      o: ORIENT
+      o: ORIENT,
     };
     // Act
     const actualTerm = new AppCtxRoot(TERM);
@@ -160,17 +160,17 @@ describe('AppCtxRoot defines static methods for checking TAO values', () => {
     const wildTerm = {
       t: WILDCARD,
       a: ACTION,
-      o: ORIENT
+      o: ORIENT,
     };
     const wildAction = {
       term: TERM,
       //action: undefined,
-      orient: ORIENT
+      orient: ORIENT,
     };
     const wildOrient = {
       t: TERM,
       action: ACTION,
-      orient: ''
+      orient: '',
     };
     // Act
     // Assert
@@ -184,16 +184,16 @@ describe('AppCtxRoot defines static methods for checking TAO values', () => {
     const wildTerm = {
       t: WILDCARD,
       a: ACTION,
-      o: ORIENT
+      o: ORIENT,
     };
     const wildAction = {
       term: TERM,
-      orient: ORIENT
+      orient: ORIENT,
     };
     const wildOrient = {
       t: TERM,
       action: ACTION,
-      orient: ''
+      orient: '',
     };
     // Act
     // Assert
@@ -207,17 +207,17 @@ describe('AppCtxRoot defines static methods for checking TAO values', () => {
     const concreteAC1 = {
       t: TERM,
       a: ACTION,
-      o: ORIENT
+      o: ORIENT,
     };
     const concreteAC2 = {
       term: TERM,
       action: ACTION,
-      orient: ORIENT
+      orient: ORIENT,
     };
     const concreteAC3 = {
       t: TERM,
       action: ACTION,
-      o: ORIENT
+      o: ORIENT,
     };
     // Act
     // Assert
@@ -226,22 +226,36 @@ describe('AppCtxRoot defines static methods for checking TAO values', () => {
     expect(AppCtxRoot.isWildcard(concreteAC3)).toBe(false);
   });
 
+  it('prefers short-form keys when both key forms are supplied', () => {
+    const contradictory = {
+      t: TERM,
+      term: '',
+      a: ACTION,
+      action: '',
+      o: ORIENT,
+      orient: '',
+    };
+
+    expect(AppCtxRoot.isWildcard(contradictory)).toBe(false);
+    expect(AppCtxRoot.isConcrete(contradictory)).toBe(true);
+  });
+
   it('should return true from isConcrete if all TAOs are specifically defined', () => {
     // Assemble
     const concreteAC1 = {
       t: TERM,
       a: ACTION,
-      o: ORIENT
+      o: ORIENT,
     };
     const concreteAC2 = {
       term: TERM,
       action: ACTION,
-      orient: ORIENT
+      orient: ORIENT,
     };
     const concreteAC3 = {
       t: TERM,
       action: ACTION,
-      o: ORIENT
+      o: ORIENT,
     };
     // Act
     // Assert
@@ -437,6 +451,14 @@ describe('AppCtxRoot defines methods to allow library writers to test matching',
       expect(matched21).toBe(false);
       expect(matched31).toBe(false);
       expect(matched41).toBe(false);
+    });
+
+    it('does not allow wildcard matching when exact is truthy', () => {
+      const concrete = new AppCtxRoot(TERM, ACTION, ORIENT);
+      const wildcard = new AppCtxRoot(WILDCARD, ACTION, ORIENT);
+
+      expect(AppCtxRoot.isMatch(concrete, wildcard, true)).toBe(false);
+      expect(AppCtxRoot.isMatch(wildcard, concrete, true)).toBe(false);
     });
 
     it('should work the same if second trigram is not an instance of AppCtxRoot', () => {

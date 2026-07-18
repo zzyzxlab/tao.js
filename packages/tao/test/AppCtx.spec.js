@@ -52,11 +52,12 @@ describe('AppCtx can be unwrapped to a bare TAO App Context', () => {
 
   it('should return long-form keys when unwrapCtx(true) is called', () => {
     const uut = new AppCtx(TERM, ACTION, ORIENT);
-    expect(uut.unwrapCtx(true)).toMatchObject({
+    expect(uut.unwrapCtx(true)).toEqual({
       term: TERM,
       action: ACTION,
       orient: ORIENT,
     });
+    expect(uut.unwrapCtx()).toEqual({ t: TERM, a: ACTION, o: ORIENT });
   });
 });
 
@@ -138,6 +139,14 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
   });
 
   describe('AppCtx can receive an object as the data parameter', () => {
+    it('uses named tuple data without treating the tuple itself as term data', () => {
+      const termData = { id: 'term' };
+      const actual = new AppCtx(TERM, ACTION, ORIENT, { term: termData });
+
+      expect(actual.data).toEqual({ [TERM]: termData });
+      expect(actual.data[TERM]).not.toHaveProperty('term');
+    });
+
     it('should accept data as an object with keys of the tao for the Context', () => {
       // Assemble
       const expectedTermData = {

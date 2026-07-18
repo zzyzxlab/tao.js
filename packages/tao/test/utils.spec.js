@@ -188,4 +188,13 @@ describe('concatIterables returns an Iterable made of concatenating all iterable
     // expect(actual.length).toBe(expected.length);
     expect(actual).toEqual(expected);
   });
+
+  it('uses Map values rather than map entry tuples', () => {
+    const map = new Map([
+      ['one', 1],
+      ['two', 2],
+    ]);
+
+    expect(concatIterables(map)).toEqual([1, 2]);
+  });
 });

@@ -1,5 +1,6 @@
 import { INTERCEPT, ASYNC, INLINE } from '../src/constants';
 import AppCtx from '../src/AppCtx';
+import AppCtxRoot from '../src/AppCtxRoot';
 import Network from '../src/Network';
 
 const TERM = 'colleague';
@@ -73,6 +74,18 @@ describe('Network', () => {
         }, 50);
       });
     });
+
+    it('does not copy middleware into the cloned network', () => {
+      const n = new Network();
+      const middleware = jest.fn();
+      n.use(middleware);
+
+      const cloned = n.clone();
+      cloned.addInlineHandler(TRIGRAM, () => {});
+      cloned.setCtxControl(TRIGRAM, {}, {}, () => {});
+
+      expect(middleware).not.toHaveBeenCalled();
+    });
   });
 
   describe('setCtxControl / setAppCtxControl', () => {
@@ -104,6 +117,18 @@ describe('Network', () => {
       n.addInlineHandler(TRIGRAM, () => {});
       n.setAppCtxControl(new AppCtx(TERM, ACTION, ORIENT));
       expect(forwardedType).toBe('function');
+    });
+
+    it('lazily creates concrete handlers but never creates wildcard handlers', () => {
+      const n = new Network();
+      const concrete = AppCtxRoot.getKey(TERM, ACTION, ORIENT);
+      const wildcard = AppCtxRoot.getKey('', ACTION, ORIENT);
+
+      n.setCtxControl(TRIGRAM, {}, {}, () => {});
+      n.setCtxControl({ t: '', a: ACTION, o: ORIENT }, {}, {}, () => {});
+
+      expect(n._handlers.has(concrete)).toBe(true);
+      expect(n._handlers.has(wildcard)).toBe(false);
     });
   });
 

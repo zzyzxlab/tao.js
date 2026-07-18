@@ -487,10 +487,24 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       const emptyThrows = () =>
         uut.asPromiseHook({ resolveOn: '', rejectOn: '' });
       // Assert
-      expect(noArgsThrows).toThrow();
-      expect(undefinedThrows).toThrow();
-      expect(nullThrows).toThrow();
-      expect(emptyThrows).toThrow();
+      const message =
+        'asPromiseHook must be provided with a way to settle the Promise: `resolveOn` or `rejectOn` must have a value';
+      expect(noArgsThrows).toThrow('Cannot read properties of undefined');
+      expect(undefinedThrows).toThrow(message);
+      expect(nullThrows).toThrow(message);
+      expect(emptyThrows).toThrow(message);
+    });
+
+    it('does not schedule a timeout when timeoutMs is zero or negative', () => {
+      const uut = new Kernel();
+      const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+      const options = { resolveOn: { t: TERM, a: ACTION, o: ORIENT } };
+
+      uut.asPromiseHook(options, 0)(options.resolveOn);
+      uut.asPromiseHook(options, -1)(options.resolveOn);
+
+      expect(setTimeoutSpy).not.toHaveBeenCalled();
+      setTimeoutSpy.mockRestore();
     });
 
     it('should resolve a promise from a specified Concrete App Context', () => {
