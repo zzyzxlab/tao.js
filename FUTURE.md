@@ -16,7 +16,7 @@ TODO
 - [x] finish the transformation to nx.js (Nx 23.1.0; alpha ladder `0.16.3-alpha.nx{21,22,23}` on npm `alpha` tag)
 - [ ] implement the TypeScript library wrapper
 - [x] complete all tests for 100% code coverage
-- [ ] create a mutation test suite and exercise it (started: Stryker on `@tao.js/core` — `pnpm test:mutation:core`)
+- [ ] create a mutation test suite and exercise it (Stryker: `@tao.js/core` ~100%; `@tao.js/react` in progress — `pnpm test:mutation:react`)
 - [ ] rewrite documentation site
 - [x] update to React 19 implementation for @taojs/react
 - [ ] transfer ownership to tao-land

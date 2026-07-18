@@ -26,4 +26,4 @@ HTML/JSON reports land in `reports/mutation/` (gitignored).
 - Disable reasons use a colon (`:`), not `--` — otherwise Stryker ignores the directive.
 - Latest score (2026-07-18): **99.81%** (371 killed, 141 timeout, 1 survived before final ignore; thresholds high=95).
 
-Next: roll Stryker out to other packages once core stays green above the high threshold.
+Next: raise `@tao.js/react` (`pnpm test:mutation:react`), then other public packages.

@@ -7,6 +7,9 @@ const rootReactDom = path.resolve(__dirname, '../../node_modules/react-dom');
 
 module.exports = {
   preset: '../../jest.preset.cjs',
+  // Explicit (not only via preset) so Stryker's jest-runner coverage analysis
+  // resolves jsdom — presets are not merged when it overrides the environment.
+  testEnvironment: 'jsdom',
   // Pure re-export barrels — exclude so package coverage reflects executable source.
   collectCoverageFrom: [
     'src/**/*.{js,jsx}',
