@@ -223,9 +223,54 @@ Affected packages:
 
 ### Editing guidance
 
-- Match existing style (plain JS classes in core; Jest + mocks in tests).
+- Match existing style (plain JS classes in core; Jest + mocks in tests). Prefer function components + hooks for new `@tao.js/react` Current API work (see Switch/Render modernization).
 - Do not rewrite the docs site (`packages/docs`) unless asked.
 - Keep this file accurate: if you change a public API, update the relevant section here.
+
+### `@tao.js/react` data-context migration (agents)
+
+Agreed multi-step plan for `DataHandler` / data consumption. Follow this order; do **not** merge steps unless the user explicitly asks.
+
+#### Target end state
+
+- **Tree-scoped named data:** each `DataHandler` is a provider in the React tree. `name` is a lookup key along the **ancestor chain** (nearest match wins / inner shadows outer). Sibling subtrees do not share a global bag.
+- **Any descendant** may read data (not only `RenderHandler`) via hooks: `useTaoData('user')`, optional `useTaoData()` = nearest provider value.
+- **`RenderHandler` child stays `(tao, data) => …`** — AppCon signal only. No positional args appended from data handlers.
+- **Not automatic props** — consumers use hooks (or pass props themselves). Optional later: thin `TaoData` child / `withTaoData` HOC; not the default.
+- **Avoid** importable context-token boilerplate as the app default (bad DX for User + Prefs). Optional tokens may exist as an escape hatch only.
+
+#### Implementation steps (do in order)
+
+1. **Modernize like-for-like (hooks)** — Port `DataHandler` / `createContextHandler` to function components + `useTaoInlineSubscription` (same pattern as Switch/Render). Preserve current bag behavior and public contracts so we have a working baseline if the tree redesign slips.
+2. **Ship tree-scoped lookup (`~0.17`)** — Change storage/lookup to ancestor walk by `name`. Prefer keeping `name` + `useTaoData('name')` so most call sites migrate by behavior, not renames. Alias `useTaoDataContext` → `useTaoData` during overlap.
+3. **Soft-deprecate awkward consume APIs (same release as step 2)** — Keep working, warn in development **once per process** (module flag), JSDoc `@deprecated`, changelog + docs lead with the new API:
+   - `RenderHandler` `context` prop and extra render-prop args `(tao, data, …ctx)`
+   - `DataConsumer` rest-arg render prop
+4. **Overlap window** — At least one published release where old + new coexist; migrate in-repo examples (`patois.web`, `react19-smoke`) and tests to hooks.
+5. **Remove deprecated surface (`~0.18` or `1.0`)** — Drop `context` on `RenderHandler`, remove or rehome `DataConsumer`, delete warn paths. Call out as breaking in release notes (0.x courtesy).
+
+#### Deprecation rules for agents
+
+- **Do not** hard-break bag/`context` in the same PR as the first tree ship without an overlap path.
+- **Do not** park data-bag APIs under `@tao.js/react/orig` (that entry is Adapter/Reactor legacy only).
+- **Do not** warn every render — once-per-session/`NODE_ENV === 'development'` only.
+- **Do not** invent a forever `@tao.js/react/legacy-data` entry point unless the user asks.
+- When editing call sites: prefer  
+  `const user = useTaoData('user')` inside a child component  
+  over `context="user"` / `(tao, data, user) => …`.
+- Codemod is optional later; string `name` preservation makes manual migration small.
+- After any public API change: update this section, package README migration blurb, and tests (coverage + later mutation on `@tao.js/react`).
+
+#### Migration cheat sheet (old → new)
+
+```text
+DataHandler name="user" …          → keep (lookup becomes tree-scoped)
+useTaoDataContext('user')          → useTaoData('user')  (alias OK during overlap)
+<RenderHandler context="user">
+  {(tao, data, user) => …}         → <RenderHandler>{(tao, data) => <Child/>}</RenderHandler>
+                                     with useTaoData('user') inside Child
+<DataConsumer context={['a','b']}> → useTaoData('a'); useTaoData('b');
+```
 
 ### Knowledge handoff
 
@@ -237,7 +282,8 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
-- **2026-07-18** — `@tao.js/react` `SwitchHandler` / `RenderHandler` modernized to function components (`modernize-react-handlers`). Match table from children each render; Kernel inline subs reconciled via `useTaoInlineSubscription`. Selection by trigram `matchKey` (multi-match / wildcards / array cartesian). Wave = one AppCon (latest wins, not settle-chain union). `shouldRender` stays public; non-RH children always pass through. DataHandler still class — next.
+- **2026-07-18** — `@tao.js/react` data-context plan locked: tree-scoped `name` + `useTaoData`; deprecate `RenderHandler.context` / `DataConsumer` with overlap; see **§5 `@tao.js/react` data-context migration**. Next implement step 1 (hooks modernize DataHandler) on `modernize-react-handlers` (or follow-on), then tree lookup.
+- **2026-07-18** — `@tao.js/react` `SwitchHandler` / `RenderHandler` modernized to function components (`modernize-react-handlers`). Match table from children each render; Kernel inline subs reconciled via `useTaoInlineSubscription`. Selection by trigram `matchKey` (multi-match / wildcards / array cartesian). Wave = one AppCon (latest wins, not settle-chain union). `shouldRender` stays public; non-RH children always pass through. DataHandler still class — next (migration plan in §5).
 - **2026-07-18** — Mutation testing on `@tao.js/koa`: `pnpm test:mutation:koa` (`packages/koa-tao/stryker.config.json`, `inPlace: true`). Score raised from 65.15% → **100%** (203 killed, 0 survived, 0 errors). Key techniques: import the mocked `Channel`/`Transponder`/`Transceiver` directly in the test file to assert exact constructor args (e.g. `Transponder.mock.calls[i][2]` for the `opt.timeout || DEFAULT_TIMEOUT` value) since that value never surfaces in a return value; use the inner `mockTransponderSetCtx` jest.fn (decoupled from its fixed mocked resolved value) to assert the exact `(tao, data)` args `getBodyData` computed, which is otherwise invisible because `ctx.body` only reflects the canned mock return; `getBodyData`'s cascading `if (!data && ...)` guards make most "missing field" tests equivalent-looking (any JS falsy value short-circuits identically) — need a genuinely falsy key (e.g. `opt.json = ''`) paired with a _truthy_ value at that key to make `if(bodyProp && ...)` vs `if(true)`/`||` mutants diverge. Found and fixed a real production bug this way: `handleContext` destructured `getBodyData`'s result without a null-guard, so a body-less `POST /tao/context` (no json/body/configured field) crashed the process on `const { tao, data } = await getBodyData(...)` — fixed with `(await getBodyData(...)) || {}` rather than working around it in tests.
 
 - **2026-07-18** — Mutation testing on `@tao.js/router`: `pnpm test:mutation:router` (`packages/tao-router/stryker.config.json`, `inPlace: true`). Score raised from 57.57% → **100%** (271 killed, 0 survived; thresholds high=95). Key techniques: attach multiple trigrams to the same route node and inspect `router._router.define(path)[0].attached/.defaultData` directly to precisely test `Route/Attach`+`Route/Detach`'s filter/`isMatch(...,exact)` logic; use a genuinely lowercase URL against a wildcard-trigram route to exercise `capitalize()` (an already-capitalized URL segment makes most of its mutants equivalent-looking); `AppCtx`'s `_cleanDatum` auto-wraps positional object data under the term name whenever the object has no key matching that term (so a shared/mutated `pathMatched` reference across multiple attached trigrams shows up under different wrapper keys per trigram — check the exact wrapped shape, e.g. `{ Viewer3: { ... } }`, not the raw merged object).

@@ -19,6 +19,7 @@ TODO
 - [x] create a mutation test suite and exercise it (Stryker on all public packages at 100% — `pnpm test:mutation:*`)
 - [ ] rewrite documentation site
 - [x] update to React 19 implementation for @taojs/react
+- [ ] `@tao.js/react` data-context: hooks modernize → tree-scoped `name`/`useTaoData` → deprecate `RenderHandler.context`/`DataConsumer` → remove (see `AGENTS.md` §5 migration)
 - [ ] transfer ownership to tao-land
 - [ ] implement TAO.md (spec/template + tooling for consuming apps)
 - [ ] implement a Go lib for the network
