@@ -20,6 +20,9 @@ importers:
       '@tao.js/koa':
         specifier: file:packages/koa-tao
         version: link:packages/koa-tao
+      '@tao.js/opentelemetry':
+        specifier: file:packages/tao-opentelemetry
+        version: link:packages/tao-opentelemetry
       '@tao.js/path':
         specifier: file:packages/tao-path
         version: link:packages/tao-path
@@ -44,6 +47,9 @@ importers:
       '@tao.js/socket.io':
         specifier: file:packages/tao-socket-io
         version: link:packages/tao-socket-io
+      '@tao.js/trace':
+        specifier: file:packages/tao-trace
+        version: link:packages/tao-trace
       '@tao.js/utils':
         specifier: file:packages/tao-utils
         version: link:packages/tao-utils
@@ -393,6 +399,18 @@ importers:
         specifier: file:../tao
         version: link:../tao
 
+  packages/tao-opentelemetry:
+    devDependencies:
+      '@opentelemetry/api':
+        specifier: ^1.9.1
+        version: 1.9.1
+      '@tao.js/core':
+        specifier: file:../tao
+        version: link:../tao
+      '@tao.js/trace':
+        specifier: file:../tao-trace
+        version: link:../tao-trace
+
   packages/tao-path:
     devDependencies:
       '@tao.js/core':
@@ -495,6 +513,15 @@ importers:
         version: 19.2.7(react@19.2.7)
 
   packages/tao-socket-io:
+    devDependencies:
+      '@tao.js/core':
+        specifier: file:../tao
+        version: link:../tao
+      '@tao.js/utils':
+        specifier: file:../tao-utils
+        version: link:../tao-utils
+
+  packages/tao-trace:
     devDependencies:
       '@tao.js/core':
         specifier: file:../tao
@@ -2471,6 +2498,10 @@ packages:
 
   '@nx/workspace@23.1.0':
     resolution: {integrity: sha512-cobC05wJX7c2bWJ6s3g0IOuu6YLCEPrmpkZdX4xPEtt3GX96BsDnBpqSaqdrKhmhaa16oIERisU3AozmxmV6DA==}
+
+  '@opentelemetry/api@1.9.1':
+    resolution: {integrity: sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q==}
+    engines: {node: '>=8.0.0'}
 
   '@phenomnomnominal/tsquery@6.2.0':
     resolution: {integrity: sha512-Vo9nkhfZxDB/sBiqIY3pjDC4mOSyure+AFlEW5hcy/tRE82MqCXjRN4InnVNMldinRt0dLYqg4HAU2XPq5e1LA==}
@@ -13703,6 +13734,8 @@ snapshots:
     transitivePeerDependencies:
       - '@swc-node/register'
       - '@swc/core'
+
+  '@opentelemetry/api@1.9.1': {}
 
   '@phenomnomnominal/tsquery@6.2.0(typescript@6.0.3)':
     dependencies:

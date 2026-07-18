@@ -1,0 +1,42 @@
+{
+  "name": "@tao.js/trace",
+  "version": "0.17.0",
+  "description": "Causal signal tracer for tao.js — records every AppCon set on a signal network as a tree of cause → effect, with W3C trace context interop",
+  "homepage": "https://tao.js.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzyzxlab/tao.js.git",
+    "directory": "packages/tao-trace"
+  },
+  "main": "lib",
+  "module": "dist",
+  "bundles": {
+    "browser": "bundles/browser.umd.js"
+  },
+  "sideEffects": false,
+  "directories": {
+    "lib": "dist"
+  },
+  "files": [
+    "lib",
+    "dist",
+    "bundles"
+  ],
+  "scripts": {
+    "build:clean": "rimraf dist lib bundles",
+    "build:package": "rollup --config",
+    "build": "npm run build:clean && npm run build:package"
+  },
+  "author": "eudaimos",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@tao.js/core": "*"
+  },
+  "devDependencies": {
+    "@tao.js/core": "file:../tao",
+    "@tao.js/utils": "file:../tao-utils"
+  }
+}

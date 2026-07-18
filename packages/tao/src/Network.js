@@ -286,7 +286,7 @@ export default class Network {
     }
     const handler = this._handlers.get(appCtx.key);
     const hooks = this._buildHooks(appCtx, envelope);
-    this._notifyDispatch(appCtx, envelope);
+    this._notifyDispatch(appCtx, envelope, handler);
     const coreForward = (nextAc) => this._forwardNext(nextAc, envelope);
     for (const middleware of this._middleware) {
       middleware(
@@ -369,11 +369,11 @@ export default class Network {
     };
   }
 
-  _notifyDispatch(appCtx, envelope) {
+  _notifyDispatch(appCtx, envelope, handler) {
     for (const decorator of this._decorators) {
       if (decorator.onDispatch) {
         try {
-          decorator.onDispatch(appCtx, envelope);
+          decorator.onDispatch(appCtx, envelope, handler);
         } catch {
           // a failing decoration must never break dispatch
         }
@@ -420,12 +420,16 @@ export default class Network {
       const appCtx = new AppCtx(acIn.term, acIn.action, acIn.orient, data);
       // why not forward the call to setAppCtx? -> b/c don't want to execute check against existing again
       const handler = this._handlers.get(acKey);
-      this._notifyDispatch(appCtx, {
-        cascade: control,
-        hop: null,
-        chain: null,
-        legacy: true,
-      });
+      this._notifyDispatch(
+        appCtx,
+        {
+          cascade: control,
+          hop: null,
+          chain: null,
+          legacy: true,
+        },
+        handler,
+      );
       for (let middleware of this._middleware) {
         middleware(handler, appCtx, forwardAppCtx, control);
       }
@@ -454,12 +458,16 @@ export default class Network {
     }
     if (this._handlers.has(appCtx.key)) {
       const handler = this._handlers.get(appCtx.key);
-      this._notifyDispatch(appCtx, {
-        cascade: control,
-        hop: null,
-        chain: null,
-        legacy: true,
-      });
+      this._notifyDispatch(
+        appCtx,
+        {
+          cascade: control,
+          hop: null,
+          chain: null,
+          legacy: true,
+        },
+        handler,
+      );
       for (let middleware of this._middleware) {
         middleware(handler, appCtx, forwardAppCtx, control);
       }
