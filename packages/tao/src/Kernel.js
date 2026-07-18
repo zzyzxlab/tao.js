@@ -5,7 +5,7 @@ import {
   // INTERCEPT,
   // ASYNC,
   INLINE,
-  TIMEOUT_REJECT
+  TIMEOUT_REJECT,
 } from './constants';
 import Network from './Network';
 import AppCtxRoot from './AppCtxRoot';
@@ -14,8 +14,8 @@ import AppCtx from './AppCtx';
 import { isIterable, concatIterables, _cleanAC } from './utils';
 
 function _removeHandlers(network, acList, handlers, type) {
-  handlers.forEach(handler =>
-    acList.forEach(ac => network.removeHandler(ac, handler, type))
+  handlers.forEach((handler) =>
+    acList.forEach((ac) => network.removeHandler(ac, handler, type)),
   );
 }
 
@@ -24,7 +24,7 @@ function _createPromiseHandler(
   acList,
   promiseFn,
   timeoutHook,
-  handlerType
+  handlerType,
 ) {
   let owner = this;
   if (!owner.handlers) {
@@ -54,27 +54,28 @@ export default class Kernel {
     const cloned = new Kernel(
       typeof canSetWildcard !== 'undefined'
         ? canSetWildcard
-        : this._canSetWildcard
+        : this._canSetWildcard,
     );
     cloned._network = this._network.clone();
     return cloned;
   }
 
   /**
-   * What if a Channel is a separate thing that operates a Kernel and uses bridges to the
-   * main signal network which is the Kernel from which the Channel is made?
+   * Unfinished sketch — prefer `@tao.js/utils` `Channel` for real channeling.
+   * Excluded from coverage until implemented.
    *
    * @returns
    * @memberof Kernel
    */
+  /* c8 ignore start */
   channel(id, bridge) {
     const network = this;
     const channel = new Kernel();
     // QQQ: does this mean Kernel has to keep track of all bridges?
     let debridge = network.inlineBridge(
       channel,
-      control => control.channelId === id,
-      bridge
+      (control) => control.channelId === id,
+      bridge,
     );
     return {
       setCtx({ t, a, o }, data) {
@@ -82,7 +83,7 @@ export default class Kernel {
       },
       dispose() {
         debridge();
-      }
+      },
     };
 
     // const channelled = new Kernel();
@@ -92,6 +93,7 @@ export default class Kernel {
     // channelled._canSetWildcard = this._canSetWildcard;
     // return channelled;
   }
+  /* c8 ignore stop */
 
   setCtx({ t, term, a, action, o, orient }, data) {
     // get the hash for the ac
@@ -102,7 +104,7 @@ export default class Kernel {
       return;
     }
     this._network.setCtxControl(acIn, data, {}, (ac, control) =>
-      this.forwardAppCtx(ac, control)
+      this.forwardAppCtx(ac, control),
     );
   }
 
@@ -116,7 +118,7 @@ export default class Kernel {
       return;
     }
     this._network.setAppCtxControl(appCtx, {}, (ac, control) =>
-      this.forwardAppCtx(ac, control)
+      this.forwardAppCtx(ac, control),
     );
   }
 
@@ -133,13 +135,13 @@ export default class Kernel {
     const resolvers = isIterable(resolveOn)
       ? resolveOn
       : resolveOn
-      ? [resolveOn]
-      : [];
+        ? [resolveOn]
+        : [];
     const rejectors = isIterable(rejectOn)
       ? rejectOn
       : rejectOn
-      ? [rejectOn]
-      : [];
+        ? [rejectOn]
+        : [];
     if (
       !resolvers.length &&
       !resolvers.size &&
@@ -147,7 +149,7 @@ export default class Kernel {
       !rejectors.size
     ) {
       throw new Error(
-        'asPromiseHook must be provided with a way to settle the Promise: `resolveOn` or `rejectOn` must have a value'
+        'asPromiseHook must be provided with a way to settle the Promise: `resolveOn` or `rejectOn` must have a value',
       );
     }
     const allAcs = concatIterables(resolvers, rejectors);
@@ -162,25 +164,25 @@ export default class Kernel {
           allAcs,
           resolve,
           clearTO,
-          INLINE
+          INLINE,
         );
-        resolvers.forEach(ac => this.addInlineHandler(ac, resolveHandler));
+        resolvers.forEach((ac) => this.addInlineHandler(ac, resolveHandler));
         const rejectHandler = _createPromiseHandler.call(
           handlerOwner,
           this._network,
           allAcs,
           reject,
           clearTO,
-          INLINE
+          INLINE,
         );
-        rejectors.forEach(ac => this.addInlineHandler(ac, rejectHandler));
+        rejectors.forEach((ac) => this.addInlineHandler(ac, rejectHandler));
         if (timeoutMs > 0) {
           to = setTimeout(() => {
             _removeHandlers(
               this._network,
               allAcs,
               handlerOwner.handlers,
-              INLINE
+              INLINE,
             );
             reject(TIMEOUT_REJECT);
           }, timeoutMs);
@@ -192,7 +194,7 @@ export default class Kernel {
   addInterceptHandler({ t, term, a, action, o, orient }, handler) {
     this._network.addInterceptHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
     return this;
   }
@@ -210,7 +212,7 @@ export default class Kernel {
   removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
     this._network.removeInterceptHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
     return this;
   }
@@ -218,7 +220,7 @@ export default class Kernel {
   removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
     this._network.removeAsyncHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
     return this;
   }
@@ -226,7 +228,7 @@ export default class Kernel {
   removeInlineHandler({ t, term, a, action, o, orient }, handler) {
     this._network.removeInlineHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
     return this;
   }

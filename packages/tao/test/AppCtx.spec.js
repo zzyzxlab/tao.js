@@ -46,7 +46,16 @@ describe('AppCtx can be unwrapped to a bare TAO App Context', () => {
     expect(unwrapped).toMatchObject({
       t: TERM,
       a: ACTION,
-      o: ORIENT
+      o: ORIENT,
+    });
+  });
+
+  it('should return long-form keys when unwrapCtx(true) is called', () => {
+    const uut = new AppCtx(TERM, ACTION, ORIENT);
+    expect(uut.unwrapCtx(true)).toMatchObject({
+      term: TERM,
+      action: ACTION,
+      orient: ORIENT,
     });
   });
 });
@@ -58,7 +67,7 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       t: WILDCARD,
       a: WILDCARD,
       o: WILDCARD,
-      data: {}
+      data: {},
     };
     // Act
     const actual = new AppCtx();
@@ -72,16 +81,16 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       const expectedTermData = {
         id: 1234567,
         name: 'My Name',
-        other: { thing: 'below ' }
+        other: { thing: 'below ' },
       };
       const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
       const expected = {
         ...expectedTao,
         data: {
           [TERM]: {
-            ...expectedTermData
-          }
-        }
+            ...expectedTermData,
+          },
+        },
       };
       // Act
       const actual = new AppCtx(TERM, ACTION, ORIENT, [expectedTermData]);
@@ -94,34 +103,34 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       const expectedTermData = {
         id: 1234567,
         name: 'My Name',
-        other: { thing: 'below ' }
+        other: { thing: 'below ' },
       };
       const expectedActionData = {
-        a: 'thing'
+        a: 'thing',
       };
       const expectedOrientData = {
-        token: 'qwertyuiop'
+        token: 'qwertyuiop',
       };
       const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
       const expected = {
         ...expectedTao,
         data: {
           [TERM]: {
-            ...expectedTermData
+            ...expectedTermData,
           },
           [ACTION]: {
-            ...expectedActionData
+            ...expectedActionData,
           },
           [ORIENT]: {
-            ...expectedOrientData
-          }
-        }
+            ...expectedOrientData,
+          },
+        },
       };
       // Act
       const actual = new AppCtx(TERM, ACTION, ORIENT, [
         expectedTermData,
         expectedActionData,
-        expectedOrientData
+        expectedOrientData,
       ]);
       // Assert
       expect(actual).toEqualOn(expected);
@@ -134,34 +143,34 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       const expectedTermData = {
         id: 1234567,
         name: 'My Name',
-        other: { thing: 'below ' }
+        other: { thing: 'below ' },
       };
       const expectedActionData = {
-        a: 'thing'
+        a: 'thing',
       };
       const expectedOrientData = {
-        token: 'qwertyuiop'
+        token: 'qwertyuiop',
       };
       const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
       const expected = {
         ...expectedTao,
         data: {
           [TERM]: {
-            ...expectedTermData
+            ...expectedTermData,
           },
           [ACTION]: {
-            ...expectedActionData
+            ...expectedActionData,
           },
           [ORIENT]: {
-            ...expectedOrientData
-          }
-        }
+            ...expectedOrientData,
+          },
+        },
       };
       // Act
       const actual = new AppCtx(TERM, ACTION, ORIENT, {
         [TERM]: expectedTermData,
         [ACTION]: expectedActionData,
-        [ORIENT]: expectedOrientData
+        [ORIENT]: expectedOrientData,
       });
       // Assert
       expect(actual).toEqualOn(expected);
@@ -172,34 +181,34 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       const expectedTermData = {
         id: 1234567,
         name: 'My Name',
-        other: { thing: 'below ' }
+        other: { thing: 'below ' },
       };
       const expectedActionData = {
-        a: 'thing'
+        a: 'thing',
       };
       const expectedOrientData = {
-        token: 'qwertyuiop'
+        token: 'qwertyuiop',
       };
       const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
       const expected = {
         ...expectedTao,
         data: {
           [TERM]: {
-            ...expectedTermData
+            ...expectedTermData,
           },
           [ACTION]: {
-            ...expectedActionData
+            ...expectedActionData,
           },
           [ORIENT]: {
-            ...expectedOrientData
-          }
-        }
+            ...expectedOrientData,
+          },
+        },
       };
       // Act
       const actual = new AppCtx(TERM, ACTION, ORIENT, {
         term: expectedTermData,
         action: expectedActionData,
-        orient: expectedOrientData
+        orient: expectedOrientData,
       });
       // Assert
       expect(actual).toEqualOn(expected);
@@ -210,34 +219,34 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       const expectedTermData = {
         id: 1234567,
         name: 'My Name',
-        other: { thing: 'below ' }
+        other: { thing: 'below ' },
       };
       const expectedActionData = {
-        a: 'thing'
+        a: 'thing',
       };
       const expectedOrientData = {
-        token: 'qwertyuiop'
+        token: 'qwertyuiop',
       };
       const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
       const expected = {
         ...expectedTao,
         data: {
           [TERM]: {
-            ...expectedTermData
+            ...expectedTermData,
           },
           [ACTION]: {
-            ...expectedActionData
+            ...expectedActionData,
           },
           [ORIENT]: {
-            ...expectedOrientData
-          }
-        }
+            ...expectedOrientData,
+          },
+        },
       };
       // Act
       const actual = new AppCtx(TERM, ACTION, ORIENT, {
         t: expectedTermData,
         a: expectedActionData,
-        o: expectedOrientData
+        o: expectedOrientData,
       });
       // Assert
       expect(actual).toEqualOn(expected);
@@ -250,16 +259,16 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       const expectedTermData = {
         id: 1234567,
         name: 'My Name',
-        other: { thing: 'below ' }
+        other: { thing: 'below ' },
       };
       const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
       const expected = {
         ...expectedTao,
         data: {
           [TERM]: {
-            ...expectedTermData
-          }
-        }
+            ...expectedTermData,
+          },
+        },
       };
       // Act
       const actual = new AppCtx(TERM, ACTION, ORIENT, expectedTermData);
@@ -274,8 +283,8 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       const expected = {
         ...expectedTao,
         data: {
-          [TERM]: expectedTermData
-        }
+          [TERM]: expectedTermData,
+        },
       };
       // Act
       const actual = new AppCtx(TERM, ACTION, ORIENT, expectedTermData);
@@ -286,16 +295,16 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
     it('should accept data in the 2nd position as a single object for the Action', () => {
       // Assemble
       const expectedActionData = {
-        a: 'thing'
+        a: 'thing',
       };
       const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
       const expected = {
         ...expectedTao,
         data: {
           [ACTION]: {
-            ...expectedActionData
-          }
-        }
+            ...expectedActionData,
+          },
+        },
       };
       // Act
       const actual = new AppCtx(
@@ -303,7 +312,7 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
         ACTION,
         ORIENT,
         undefined,
-        expectedActionData
+        expectedActionData,
       );
       // Assert
       expect(actual).toEqualOn(expected);
@@ -316,8 +325,8 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       const expected = {
         ...expectedTao,
         data: {
-          [ACTION]: expectedActionData
-        }
+          [ACTION]: expectedActionData,
+        },
       };
       // Act
       const actual = new AppCtx(
@@ -325,7 +334,7 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
         ACTION,
         ORIENT,
         undefined,
-        expectedActionData
+        expectedActionData,
       );
       // Assert
       expect(actual).toEqualOn(expected);
@@ -334,16 +343,16 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
     it('should accept data in the 3rd position as a single object for the Orient', () => {
       // Assemble
       const expectedOrientData = {
-        token: 'qwertyuiop'
+        token: 'qwertyuiop',
       };
       const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
       const expected = {
         ...expectedTao,
         data: {
           [ORIENT]: {
-            ...expectedOrientData
-          }
-        }
+            ...expectedOrientData,
+          },
+        },
       };
       // Act
       const actual = new AppCtx(
@@ -352,7 +361,7 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
         ORIENT,
         undefined,
         undefined,
-        expectedOrientData
+        expectedOrientData,
       );
       // Assert
       expect(actual).toEqualOn(expected);
@@ -365,8 +374,8 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       const expected = {
         ...expectedTao,
         data: {
-          [ORIENT]: expectedOrientData
-        }
+          [ORIENT]: expectedOrientData,
+        },
       };
       // Act
       const actual = new AppCtx(
@@ -375,7 +384,7 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
         ORIENT,
         undefined,
         undefined,
-        expectedOrientData
+        expectedOrientData,
       );
       // Assert
       expect(actual).toEqualOn(expected);
@@ -386,28 +395,28 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       const expectedTermData = {
         id: 1234567,
         name: 'My Name',
-        other: { thing: 'below ' }
+        other: { thing: 'below ' },
       };
       const expectedActionData = {
-        a: 'thing'
+        a: 'thing',
       };
       const expectedOrientData = {
-        token: 'qwertyuiop'
+        token: 'qwertyuiop',
       };
       const expectedTao = { t: TERM, a: ACTION, o: ORIENT };
       const expected = {
         ...expectedTao,
         data: {
           [TERM]: {
-            ...expectedTermData
+            ...expectedTermData,
           },
           [ACTION]: {
-            ...expectedActionData
+            ...expectedActionData,
           },
           [ORIENT]: {
-            ...expectedOrientData
-          }
-        }
+            ...expectedOrientData,
+          },
+        },
       };
       // Act
       const actual = new AppCtx(
@@ -416,7 +425,7 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
         ORIENT,
         expectedTermData,
         expectedActionData,
-        expectedOrientData
+        expectedOrientData,
       );
       // Assert
       expect(actual).toEqualOn(expected);
@@ -435,19 +444,19 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
         data: {
           [TERM]: expectedTermData,
           [ACTION]: expectedActionData,
-          [ORIENT]: expectedOrientData
-        }
+          [ORIENT]: expectedOrientData,
+        },
       };
       // Act
       const actualFromArray = new AppCtx(TERM, ACTION, ORIENT, [
         expectedTermData,
         expectedActionData,
-        expectedOrientData
+        expectedOrientData,
       ]);
       const actualFromObject = new AppCtx(TERM, ACTION, ORIENT, {
         t: expectedTermData,
         action: expectedActionData,
-        [ORIENT]: expectedOrientData
+        [ORIENT]: expectedOrientData,
       });
       const actualFromArgs = new AppCtx(
         TERM,
@@ -455,7 +464,7 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
         ORIENT,
         expectedTermData,
         expectedActionData,
-        expectedOrientData
+        expectedOrientData,
       );
       // Assert
       expect(actualFromArray).toEqualOn(expected);
@@ -474,19 +483,19 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
         data: {
           [TERM]: expectedTermData,
           [ACTION]: expectedActionData,
-          [ORIENT]: expectedOrientData
-        }
+          [ORIENT]: expectedOrientData,
+        },
       };
       // Act
       const actualFromArray = new AppCtx(TERM, ACTION, ORIENT, [
         expectedTermData,
         expectedActionData,
-        expectedOrientData
+        expectedOrientData,
       ]);
       const actualFromObject = new AppCtx(TERM, ACTION, ORIENT, {
         t: expectedTermData,
         action: expectedActionData,
-        [ORIENT]: expectedOrientData
+        [ORIENT]: expectedOrientData,
       });
       const actualFromArgs = new AppCtx(
         TERM,
@@ -494,7 +503,7 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
         ORIENT,
         expectedTermData,
         expectedActionData,
-        expectedOrientData
+        expectedOrientData,
       );
       // Assert
       expect(actualFromArray).toEqualOn(expected);

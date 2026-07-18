@@ -1,4 +1,5 @@
 module.exports = {
   preset: '../../jest.preset.cjs',
-  // Package-specific overrides can be added here if needed
+  // This package's index is an export barrel; the public client is tested directly.
+  collectCoverageFrom: ['src/**/*.js', '!src/index.js'],
 };

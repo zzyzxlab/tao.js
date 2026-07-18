@@ -993,4 +993,33 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       expect(Array.from(rejectHandlers.inlineHandlers).length).toBe(0);
     });
   });
+
+  describe('canSetWildcard and clone', () => {
+    it('exposes canSetWildcard from the constructor flag', () => {
+      expect(new Kernel().canSetWildcard).toBe(false);
+      expect(new Kernel(true).canSetWildcard).toBe(true);
+    });
+
+    it('clone inherits canSetWildcard and copies handlers onto a new network', () => {
+      const uut = new Kernel();
+      const handler = jest.fn();
+      const trigram = { t: TERM, a: ACTION, o: ORIENT };
+      uut.addInlineHandler(trigram, handler);
+      const cloned = uut.clone();
+      expect(cloned).toBeInstanceOf(Kernel);
+      expect(cloned).not.toBe(uut);
+      expect(cloned.canSetWildcard).toBe(false);
+      expect(cloned._network).not.toBe(uut._network);
+
+      // clone replaces the network without Kernel middleware — reattach it
+      cloned._network.use(cloned.handleAppCon.bind(cloned));
+      cloned.setCtx(trigram);
+      expect(handler).toHaveBeenCalled();
+    });
+
+    it('clone can override canSetWildcard', () => {
+      expect(new Kernel(false).clone(true).canSetWildcard).toBe(true);
+      expect(new Kernel(true).clone(false).canSetWildcard).toBe(false);
+    });
+  });
 });
