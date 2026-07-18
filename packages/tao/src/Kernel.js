@@ -42,7 +42,7 @@ function _createPromiseHandler(
 
 export default class Kernel {
   constructor(canSetWildcard = false) {
-    this._network = new Network();
+    this._network = new Network(canSetWildcard);
     this._network.use(this.handleAppCon);
     this._canSetWildcard = canSetWildcard;
   }
@@ -106,13 +106,11 @@ export default class Kernel {
       // Ignore or Throw Error?
       return;
     }
-    this._network.setCtxControl(acIn, data, {}, (ac, control) =>
-      this.forwardAppCtx(ac, control),
-    );
+    this._network.enter(new AppCtx(acIn.term, acIn.action, acIn.orient, data));
   }
 
   setAppCtx(appCtx) {
-    // Stryker disable next-line all: Network.setAppCtxControl throws the same error
+    // Stryker disable next-line all: Network.enter throws the same error
     if (!(appCtx instanceof AppCtx)) {
       throw new Error(`'appCtx' not an instance of AppCtx`);
     }
@@ -121,17 +119,15 @@ export default class Kernel {
       // Ignore or Throw Error?
       return;
     }
-    this._network.setAppCtxControl(appCtx, {}, (ac, control) =>
-      this.forwardAppCtx(ac, control),
-    );
+    this._network.enter(appCtx);
   }
 
   forwardAppCtx(ac, control) {
     this.setAppCtx(ac, control);
   }
 
-  handleAppCon(handler, ac, forwardAppCtx, control) {
-    return handler.handleAppCon(ac, forwardAppCtx, control);
+  handleAppCon(handler, ac, forwardAppCtx, control, envelope, hooks) {
+    return handler.handleAppCon(ac, forwardAppCtx, control, hooks);
   }
 
   asPromiseHook({ resolveOn = [], rejectOn = [] }, timeoutMs = 0) {

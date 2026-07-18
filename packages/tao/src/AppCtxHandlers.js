@@ -1,5 +1,6 @@
 import AppCtxRoot from './AppCtxRoot';
 import AppCtx from './AppCtx';
+import { INTERCEPT, ASYNC, INLINE, ERROR } from './constants';
 import { isIterable } from './utils';
 
 const console = {
@@ -114,8 +115,32 @@ export default class AppCtxHandlers extends AppCtxRoot {
     return this._inline.values();
   }
 
-  async handleAppCon(ac, setAppCtx, control) {
+  /**
+   * Dispatch an AppCon through the three handler phases.
+   *
+   * `hooks` (optional, supplied by Network decorations — see ENVELOPE-SPEC.md
+   * §6) receives what the legacy loop discards: `hooks.onReturn(phase, value,
+   * ac)` is called for non-AppCtx truthy intercept returns (which still
+   * halt), non-null non-AppCtx async/inline returns, and thrown handler
+   * errors (phase = ERROR — which are rethrown when no hooks are present,
+   * preserving legacy behavior).
+   */
+  async handleAppCon(ac, setAppCtx, control, hooks) {
     const { t, a, o, data } = ac;
+    const onReturn =
+      hooks && typeof hooks.onReturn === 'function' ? hooks.onReturn : null;
+    try {
+      await this._handlePhases(ac, setAppCtx, control, onReturn, t, a, o, data);
+    } catch (dispatchErr) {
+      if (onReturn) {
+        onReturn(ERROR, dispatchErr, ac);
+        return;
+      }
+      throw dispatchErr;
+    }
+  }
+
+  async _handlePhases(ac, setAppCtx, control, onReturn, t, a, o, data) {
     /*
      * Intercept Handlers
      * always occur first
@@ -133,12 +158,18 @@ export default class AppCtxHandlers extends AppCtxRoot {
         try {
           setAppCtx(intercepted, control);
         } catch (interceptErr) {
+          if (onReturn) {
+            onReturn(ERROR, interceptErr, ac);
+          }
           console.log(
             'error setting context returned from intercept handler:',
             interceptErr,
           );
         }
         // Stryker restore all
+      } else if (onReturn) {
+        // truthy non-AppCtx intercept return still halts; settlement sees it
+        onReturn(INTERCEPT, intercepted, ac);
       }
       return;
     }
@@ -155,25 +186,32 @@ export default class AppCtxHandlers extends AppCtxRoot {
      */
     for (let asyncH of this.asyncHandlers) {
       (() => {
-        // Stryker disable all: debug / error logging via noop console
+        // Stryker disable next-line all: debug logging via noop console
         console.log(
           `>>>>>>>> starting async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`,
         );
         Promise.resolve(asyncH({ t, a, o }, data))
           .then((nextAc) => {
-            if (nextAc && nextAc instanceof AppCtx) {
+            if (nextAc instanceof AppCtx) {
               setAppCtx(nextAc, control);
+            } else if (onReturn && nextAc != null) {
+              onReturn(ASYNC, nextAc, ac);
             }
+            // Stryker disable next-line all: debug logging via noop console
             console.log(
               `>>>>>>>> ending async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`,
             );
           })
           .catch((asyncErr) => {
+            if (onReturn) {
+              onReturn(ERROR, asyncErr, ac);
+              return;
+            }
             // swallow async errors
             // possibility to set an AC for errors
+            // Stryker disable next-line all: legacy swallow via noop console
             console.error('error in async handler:', asyncErr);
           });
-        // Stryker restore all
       })();
     }
     /*
@@ -187,22 +225,32 @@ export default class AppCtxHandlers extends AppCtxRoot {
      * YES: currently implemented that way
      */
     const nextSpool = [];
+    const inlineReturns = [];
     for (let inlineH of this.inlineHandlers) {
       let nextInlineAc = await inlineH({ t, a, o }, data);
-      if (nextInlineAc && nextInlineAc instanceof AppCtx) {
+      if (nextInlineAc instanceof AppCtx) {
         nextSpool.push(nextInlineAc);
+      } else if (onReturn && nextInlineAc != null) {
+        inlineReturns.push(nextInlineAc);
       }
+    }
+    // settlement sees inline returns after every inline handler has run and
+    // before any chained AppCons dispatch (Transceiver resolve ordering)
+    for (let inlineValue of inlineReturns) {
+      onReturn(INLINE, inlineValue, ac);
     }
     // Stryker disable next-line ConditionalExpression: empty spool makes the loop a no-op either way
     if (nextSpool.length) {
       for (let nextAc of nextSpool) {
-        // Stryker disable all: local console is a noop; catch only swallows
         try {
           setAppCtx(nextAc, control);
         } catch (inlineErr) {
+          if (onReturn) {
+            onReturn(ERROR, inlineErr, ac);
+          }
+          // Stryker disable next-line all: legacy swallow via noop console
           console.error('error on next inline:', inlineErr);
         }
-        // Stryker restore all
       }
     }
   }
