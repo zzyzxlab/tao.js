@@ -242,5 +242,5 @@ _Append learnings for the next agent. Newest first._
 - **2026-07-16** — Renamed this file from `TAO.md` → `AGENTS.md`. Reserve `TAO.md` for app repos that document their message protocol; see `FUTURE.md`.
 - **2026-07-16** — `@tao.js/core` default export is a shared `Kernel` instance named `TAO`. `Network` is lower-level; app code and most adapters should use `Kernel` / `TAO`. Wildcard AppCons are ignored on `setCtx`/`setAppCtx` unless `new Kernel(true)`.
 - **2026-07-16** — `Kernel.channel(...)` exists but looks unfinished vs `@tao.js/utils` `Channel` (prefer utils `Channel` for real channeling).
-- **2026-07-16** — Monorepo mid-migration from Lerna → Nx (`FUTURE.md`); several packages (`connect`, `feature`, `path`) are private stubs.
+- **2026-07-16** — Lerna → Nx migration complete on current branch (Nx 23). Several packages (`connect`, `feature`, `path`) remain private stubs unrelated to the migration.
 - **2026-07-16** — See `FUTURE.md` for roadmap (TS wrapper, React 19, docs rewrite, ownership transfer, etc.).
