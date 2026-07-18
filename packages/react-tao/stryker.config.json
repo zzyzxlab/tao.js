@@ -1,0 +1,34 @@
+{
+  "$schema": "../../node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "packageManager": "pnpm",
+  "plugins": ["@stryker-mutator/jest-runner"],
+  "testRunner": "jest",
+  "coverageAnalysis": "perTest",
+  "mutate": ["src/**/*.js", "!src/index.js", "!src/all.js", "!src/orig.js"],
+  "ignoreStatic": true,
+  "inPlace": true,
+  "jest": {
+    "projectType": "custom",
+    "configFile": "jest.config.js",
+    "enableFindRelatedTests": true,
+    "config": {
+      "testEnvironment": "@stryker-mutator/jest-runner/jest-env/jsdom"
+    }
+  },
+  "reporters": ["html", "clear-text", "progress", "json"],
+  "htmlReporter": {
+    "fileName": "reports/mutation/mutation.html"
+  },
+  "jsonReporter": {
+    "fileName": "reports/mutation/mutation.json"
+  },
+  "tempDirName": "stryker-tmp",
+  "timeoutMS": 30000,
+  "timeoutFactor": 2,
+  "concurrency": 4,
+  "thresholds": {
+    "high": 95,
+    "low": 90,
+    "break": null
+  }
+}

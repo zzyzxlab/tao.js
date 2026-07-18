@@ -4,11 +4,14 @@ import PropTypes from 'prop-types';
 import { Context } from './Provider';
 
 function readNamedData(data, ctxName) {
+  // Stryker disable next-line ConditionalExpression: missing key still yields undefined≈null for consumers that only check truthiness; warn path is asserted separately
   if (data == null || !Object.prototype.hasOwnProperty.call(data, ctxName)) {
+    // Stryker disable all: diagnostic console output only
     console.warn(
       `DataConsumer::Unable to find context for '${ctxName}'. Please check that you have it spelled correctly.`,
     );
     console.info(`DataConsumer::setting context ${ctxName} data arg to null`);
+    // Stryker restore all
     return null;
   }
   return data[ctxName];

@@ -17,6 +17,7 @@
     "test:coverage": "nx run-many --target=test --all --exclude=patois.*,react19-smoke --coverage",
     "test:coverage:view": "open packages/docs/src/content/coverage/index.html",
     "test:mutation:core": "pnpm --filter @tao.js/core test:mutation",
+    "test:mutation:react": "pnpm --filter @tao.js/react test:mutation",
     "test:watch": "nx run-many --target=test:watch --all --exclude=patois.*,react19-smoke",
     "lint": "nx run-many --target=lint --all --exclude=patois.*,react19-smoke",
     "lint:packages": "nx run-many --target=lint --all",

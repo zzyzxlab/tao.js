@@ -139,6 +139,39 @@ describe('createContextHandler', () => {
       });
     });
 
+    it('ignores a return value for state when the set callback was used', async () => {
+      const { Provider: CtxProvider, Consumer } = createContextHandler(
+        { term: TERM, action: ACTION, orient: ORIENT },
+        (tao, data, set) => {
+          set({ id: data.User.id, fromSet: true });
+          return { id: 'from-return', fromSet: false };
+        },
+        { id: 'seed' },
+      );
+
+      const { getByTestId } = render(
+        <Provider TAO={TAO}>
+          <CtxProvider>
+            <Consumer>
+              {(value) => (
+                <div data-testid="out">{`${value.id}:${value.fromSet}`}</div>
+              )}
+            </Consumer>
+          </CtxProvider>
+        </Provider>,
+      );
+
+      act(() => {
+        TAO.setAppCtx(
+          new AppCtx(TERM, ACTION, ORIENT, { User: { id: 'u-set' } }),
+        );
+      });
+
+      await waitFor(() => {
+        expect(getByTestId('out').textContent).toBe('u-set:true');
+      });
+    });
+
     it('supports the set callback and clearing state with null', async () => {
       const { Provider: CtxProvider, Consumer } = createContextHandler(
         { term: TERM, action: ACTION, orient: ORIENT },
