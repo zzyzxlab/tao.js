@@ -5,62 +5,18 @@ import cartesian from 'cartesian';
 import { normalizeClean, getPermutations } from './helpers';
 import { Context } from './Provider';
 
-function recursiveContextGenerator(
-  ctxList,
-  getContext,
-  children,
-  tao,
-  data,
-  ctxIdx = 0,
-  ctxDataArgs = null
-) {
-  if (ctxDataArgs == null) {
-    ctxDataArgs = new Array(ctxList.length);
-  }
-  const ctxName = ctxList[ctxIdx];
-  const context = getContext(ctxName);
-  if (!context) {
+function readNamedData(dataBag, ctxName) {
+  if (
+    dataBag == null ||
+    !Object.prototype.hasOwnProperty.call(dataBag, ctxName)
+  ) {
     console.warn(
-      `RenderHandler::Unable to find context for '${ctxName}'. Please check that you have it spelled correctly.`
+      `RenderHandler::Unable to find context for '${ctxName}'. Please check that you have it spelled correctly.`,
     );
     console.info(`RenderHandler::setting context ${ctxName} data arg to null`);
-    ctxDataArgs[ctxIdx] = null;
-    return recursiveContextGenerator(
-      ctxList,
-      getContext,
-      children,
-      tao,
-      data,
-      ctxIdx + 1,
-      ctxDataArgs
-    );
+    return null;
   }
-  if (ctxList.length > ctxIdx + 1) {
-    return (
-      <context.Consumer name={`${ctxName}.Consumer`}>
-        {ctxData => {
-          ctxDataArgs[ctxIdx] = ctxData;
-          return recursiveContextGenerator(
-            ctxList,
-            getContext,
-            children,
-            tao,
-            data,
-            ctxIdx + 1,
-            ctxDataArgs
-          );
-        }}
-      </context.Consumer>
-    );
-  }
-  return (
-    <context.Consumer name={`${ctxName}.Consumer`}>
-      {ctxData => {
-        ctxDataArgs[ctxIdx] = ctxData;
-        return children(tao, data, ...ctxDataArgs);
-      }}
-    </context.Consumer>
-  );
+  return dataBag[ctxName];
 }
 
 export default class RenderHandler extends React.Component {
@@ -72,10 +28,10 @@ export default class RenderHandler extends React.Component {
     orient: PropTypes.any,
     context: PropTypes.oneOfType([
       PropTypes.string,
-      PropTypes.arrayOf(PropTypes.string)
+      PropTypes.arrayOf(PropTypes.string),
     ]),
     debug: PropTypes.bool,
-    children: PropTypes.func.isRequired
+    children: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -94,7 +50,7 @@ export default class RenderHandler extends React.Component {
     const permutations = getPermutations(this.props);
     if (permutations.length) {
       permutations.forEach(({ term, action, orient }) =>
-        TAO.addInlineHandler({ term, action, orient }, this.handleRender)
+        TAO.addInlineHandler({ term, action, orient }, this.handleRender),
       );
     }
     const { refreshOn } = this.props;
@@ -106,7 +62,7 @@ export default class RenderHandler extends React.Component {
       }
       this._refreshOn = cartesian({ ...trigram, ...refresh });
       this._refreshOn.forEach(({ term, action, orient }) =>
-        TAO.addInlineHandler({ term, action, orient }, this.handleRender)
+        TAO.addInlineHandler({ term, action, orient }, this.handleRender),
       );
     }
   }
@@ -116,12 +72,12 @@ export default class RenderHandler extends React.Component {
     const permutations = getPermutations(this.props);
     if (permutations.length) {
       permutations.forEach(({ term, action, orient }) =>
-        TAO.removeInlineHandler({ term, action, orient }, this.handleRender)
+        TAO.removeInlineHandler({ term, action, orient }, this.handleRender),
       );
     }
     if (this._refreshOn && this._refreshOn.length) {
       this._refreshOn.forEach(({ term, action, orient }) =>
-        TAO.removeInlineHandler({ term, action, orient }, this.handleRender)
+        TAO.removeInlineHandler({ term, action, orient }, this.handleRender),
       );
     }
   }
@@ -134,7 +90,7 @@ export default class RenderHandler extends React.Component {
   render() {
     const { context, children } = this.props;
     const { shouldRender, tao, data } = this.state;
-    const { getDataContext } = this.context;
+    const { data: dataBag } = this.context;
 
     if (!shouldRender) {
       return null;
@@ -143,12 +99,7 @@ export default class RenderHandler extends React.Component {
       return <React.Fragment>{children(tao, data)}</React.Fragment>;
     }
     const ctxList = Array.isArray(context) ? context : [context];
-    return recursiveContextGenerator(
-      ctxList,
-      getDataContext,
-      children,
-      tao,
-      data
-    );
+    const ctxArgs = ctxList.map((ctxName) => readNamedData(dataBag, ctxName));
+    return <React.Fragment>{children(tao, data, ...ctxArgs)}</React.Fragment>;
   }
 }

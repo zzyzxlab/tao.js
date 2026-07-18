@@ -2,47 +2,27 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TAO, { Kernel } from '@tao.js/core';
 
-const defaultGlobalDataContexts = new Map();
-
-const makeDataContextFunctions = dataCtxMap => {
-  return {
-    setDataContext(key, ctx) {
-      dataCtxMap.set(key, ctx);
-    },
-    getDataContext(key) {
-      return dataCtxMap.get(key);
-    },
-    removeDataContext(key) {
-      dataCtxMap.delete(key);
-    }
-  };
-};
-
+/**
+ * Root TAO + accumulated named data contexts.
+ * Each DataHandler nests a new Provider value with `data[name]` merged in,
+ * so descendants see data during the same render (no Map + didMount race).
+ */
 const Context = React.createContext({
   TAO,
-  ...makeDataContextFunctions(defaultGlobalDataContexts)
+  data: {},
 });
 
 export { Context };
 
 export default class Provider extends React.Component {
   static propTypes = {
-    TAO: PropTypes.instanceOf(Kernel).isRequired
+    TAO: PropTypes.instanceOf(Kernel).isRequired,
   };
-
-  constructor(props) {
-    super(props);
-    this._dataContexts = new Map();
-    this.state = makeDataContextFunctions(this._dataContexts);
-  }
 
   render() {
     const { TAO, children } = this.props;
-    const dataContextFunctions = this.state;
     return (
-      <Context.Provider value={{ TAO, ...dataContextFunctions }}>
-        {children}
-      </Context.Provider>
+      <Context.Provider value={{ TAO, data: {} }}>{children}</Context.Provider>
     );
   }
 }
