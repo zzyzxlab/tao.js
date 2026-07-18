@@ -78,11 +78,11 @@
     "@tao.js/routing-react-router": "file:packages/tao-routing-react-router",
     "@tao.js/routing-tanstack-router": "file:packages/tao-routing-tanstack",
     "@tao.js/socket.io": "file:packages/tao-socket-io",
-    "@tao.js/trace": "file:packages/tao-trace",
     "@tao.js/utils": "file:packages/tao-utils",
     "docs": "file:packages/docs",
     "patois.api": "file:examples/patois.api",
-    "patois.web": "file:examples/patois.web"
+    "patois.web": "file:examples/patois.web",
+    "@tao.js/telemetry": "file:packages/tao-telemetry"
   },
   "devDependencies": {
     "@babel/cli": "7.1.5",

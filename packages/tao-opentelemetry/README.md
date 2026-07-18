@@ -3,7 +3,7 @@
 > Export tao.js signal traces to OpenTelemetry — one span per AppCon, with
 > causal parentage preserved.
 
-A sink for [`@tao.js/trace`](../tao-trace) that maps each signal record onto
+A sink for [`@tao.js/telemetry`](../tao-telemetry) that maps each signal record onto
 an OTel span. Depends only on `@opentelemetry/api`; bring your own SDK /
 `TracerProvider`.
 
@@ -11,7 +11,7 @@ an OTel span. Depends only on `@opentelemetry/api`; bring your own SDK /
 
 ```js
 import TAO from '@tao.js/core';
-import Tracer from '@tao.js/trace';
+import Tracer from '@tao.js/telemetry';
 import OpenTelemetrySink from '@tao.js/opentelemetry';
 import { trace } from '@opentelemetry/api';
 
@@ -50,7 +50,7 @@ Every AppCon becomes a span named `Term.Action.Orient` with attributes
 
 ## Distributed traces
 
-`@tao.js/trace` continues its **internal** trace across processes via W3C
+`@tao.js/telemetry` continues its **internal** trace across processes via W3C
 `traceparent` (see its README). Full OTel-level distributed correlation —
 making the remote process's spans children of the origin's OTel spans —
 additionally requires propagating OTel context with your transport's

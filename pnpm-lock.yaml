@@ -47,9 +47,9 @@ importers:
       '@tao.js/socket.io':
         specifier: file:packages/tao-socket-io
         version: link:packages/tao-socket-io
-      '@tao.js/trace':
-        specifier: file:packages/tao-trace
-        version: link:packages/tao-trace
+      '@tao.js/telemetry':
+        specifier: file:packages/tao-telemetry
+        version: link:packages/tao-telemetry
       '@tao.js/utils':
         specifier: file:packages/tao-utils
         version: link:packages/tao-utils
@@ -407,9 +407,9 @@ importers:
       '@tao.js/core':
         specifier: file:../tao
         version: link:../tao
-      '@tao.js/trace':
-        specifier: file:../tao-trace
-        version: link:../tao-trace
+      '@tao.js/telemetry':
+        specifier: file:../tao-telemetry
+        version: link:../tao-telemetry
 
   packages/tao-path:
     devDependencies:
@@ -521,16 +521,17 @@ importers:
         specifier: file:../tao-utils
         version: link:../tao-utils
 
-  packages/tao-trace:
+  packages/tao-telemetry:
     devDependencies:
       '@tao.js/core':
         specifier: file:../tao
         version: link:../tao
-      '@tao.js/utils':
-        specifier: file:../tao-utils
-        version: link:../tao-utils
 
   packages/tao-utils:
+    dependencies:
+      '@tao.js/telemetry':
+        specifier: file:../tao-telemetry
+        version: link:../tao-telemetry
     devDependencies:
       '@tao.js/core':
         specifier: file:../tao
@@ -2828,6 +2829,11 @@ packages:
     peerDependencies:
       '@tao.js/core': '*'
       '@tao.js/utils': '*'
+
+  '@tao.js/telemetry@file:packages/tao-telemetry':
+    resolution: {directory: packages/tao-telemetry, type: directory}
+    peerDependencies:
+      '@tao.js/core': '*'
 
   '@tao.js/utils@file:packages/tao-utils':
     resolution: {directory: packages/tao-utils, type: directory}
@@ -14072,9 +14078,14 @@ snapshots:
       '@tao.js/core': file:packages/tao
       '@tao.js/utils': file:packages/tao-utils(@tao.js/core@file:packages/tao)
 
+  '@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao)':
+    dependencies:
+      '@tao.js/core': file:packages/tao
+
   '@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao)':
     dependencies:
       '@tao.js/core': file:packages/tao
+      '@tao.js/telemetry': file:packages/tao-telemetry(@tao.js/core@file:packages/tao)
 
   '@testing-library/dom@10.4.1':
     dependencies:

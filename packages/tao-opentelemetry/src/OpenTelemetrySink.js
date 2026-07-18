@@ -6,7 +6,7 @@ import {
 } from '@opentelemetry/api';
 
 /**
- * A `@tao.js/trace` sink that exports each signal record as an OpenTelemetry
+ * A `@tao.js/telemetry` sink that exports each signal record as an OpenTelemetry
  * span, preserving causal parentage.
  *
  * TAO signals are instantaneous state transitions, not duration-bounded

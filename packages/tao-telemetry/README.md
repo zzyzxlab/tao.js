@@ -1,9 +1,10 @@
-# @tao.js/trace
+# @tao.js/telemetry
 
-> Causal signal tracing for tao.js — see every AppCon your app sets as a
-> cause → effect tree, in the product language of your trigrams.
+> Telemetry for tao.js signal networks — causal tracing (see every AppCon
+> your app sets as a cause → effect tree, in the product language of your
+> trigrams) and the TaoLogger.
 
-`TaoLogger` shows you the _sequence_ of signals; `@tao.js/trace` shows you
+`TaoLogger` shows you the _sequence_ of signals; the `Tracer` shows you
 the _causality_: which signal's handlers chained which AppCons, reassembled
 into a tree. The tracer is a pure Network decoration (see ENVELOPE-SPEC.md):
 a chain reducer derives `{ traceId, signalId, parentId }` per hop and an
@@ -15,7 +16,7 @@ entries, chained hops, and channel mirrors all carry causality natively.
 
 ```js
 import TAO from '@tao.js/core';
-import Tracer, { InMemorySink, ConsoleSink } from '@tao.js/trace';
+import Tracer, { InMemorySink, ConsoleSink } from '@tao.js/telemetry';
 
 const memory = new InMemorySink();
 const tracer = new Tracer(TAO, { sinks: [memory, new ConsoleSink()] });
@@ -57,7 +58,7 @@ Sinks are objects with `signal(record)`. Built-ins: `InMemorySink`
 ## Cross-process continuation
 
 ```js
-import { toTraceparent } from '@tao.js/trace';
+import { toTraceparent } from '@tao.js/telemetry';
 
 // origin side: put the current record's context on the wire
 const header = toTraceparent(record); // 00-<traceId>-<signalId>-01
@@ -79,3 +80,20 @@ Chain state is JSON-clean by construction — transports can carry
   start a new trace root.
 - The tracer never dispatches handlers, and a throwing sink never breaks
   dispatch. `dispose()` detaches it.
+
+## TaoLogger
+
+The classic live logger (moved here from `@tao.js/utils`, which keeps a
+deprecated re-export). Attach its handler as a full-wildcard intercept:
+
+```js
+import { TaoLogger } from '@tao.js/telemetry';
+
+const logger = TaoLogger(true, { verbose: true, group: false });
+TAO.addInterceptHandler({}, logger.handler);
+// runtime switches: logger.doLogging(false), logger.verbose(true),
+// logger.depth(2), logger.group(true), logger.setLogger(customConsole)
+```
+
+`TaoLogger` shows the sequence of signals; the `Tracer` shows their
+causality — use either or both.

@@ -38,5 +38,8 @@
   },
   "devDependencies": {
     "@tao.js/core": "file:../tao"
+  },
+  "dependencies": {
+    "@tao.js/telemetry": "file:../tao-telemetry"
   }
 }

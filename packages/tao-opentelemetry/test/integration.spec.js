@@ -1,8 +1,8 @@
 import { AppCtx, Kernel } from '@tao.js/core';
 import { trace as otelTrace } from '@opentelemetry/api';
 // source import (not the built package) so this integration test always
-// exercises the current @tao.js/trace source without requiring a build
-import Tracer from '../../tao-trace/src/Tracer';
+// exercises the current @tao.js/telemetry source without requiring a build
+import Tracer from '../../tao-telemetry/src/Tracer';
 import OpenTelemetrySink from '../src/OpenTelemetrySink';
 
 const TERM = 'otel';

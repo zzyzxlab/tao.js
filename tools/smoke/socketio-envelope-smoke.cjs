@@ -11,9 +11,16 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 const req = (p) => require(path.join(ROOT, p));
 
-const { Kernel, AppCtx } = req('packages/tao/lib');
+// resolve core through the socket.io adapter's own resolution so every
+// module shares ONE core instance (pnpm's file: protocol stores copies;
+// a direct packages/tao/lib require would be a second AppCtx class)
+const { createRequire: createReq } = require('module');
+const socketRequire = createReq(
+  path.join(ROOT, 'packages/tao-socket-io/package.json'),
+);
+const { Kernel, AppCtx } = socketRequire('@tao.js/core');
 const serverWire = req('packages/tao-socket-io/lib').default;
-const { Tracer, InMemorySink } = req('packages/tao-trace/lib');
+const { Tracer, InMemorySink } = req('packages/tao-telemetry/lib');
 
 // client copy of the adapter: IS_SERVER is computed at import time from
 // `typeof window`, so re-require with a window present (same trick the

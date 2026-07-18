@@ -12,7 +12,7 @@ export default [
   {
     input: 'src/index.js',
     output: {
-      name: 'tao.trace',
+      name: 'tao.telemetry',
       file: pkg.bundles.browser,
       format: 'umd',
       sourcemap: true,

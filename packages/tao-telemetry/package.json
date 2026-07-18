@@ -1,12 +1,12 @@
 {
-  "name": "@tao.js/trace",
+  "name": "@tao.js/telemetry",
   "version": "0.17.0",
-  "description": "Causal signal tracer for tao.js — records every AppCon set on a signal network as a tree of cause → effect, with W3C trace context interop",
+  "description": "Telemetry for tao.js signal networks - causal Tracer (a pure Network decoration), TaoLogger, sinks, and W3C trace context helpers",
   "homepage": "https://tao.js.org/",
   "repository": {
     "type": "git",
     "url": "https://github.com/zzyzxlab/tao.js.git",
-    "directory": "packages/tao-trace"
+    "directory": "packages/tao-telemetry"
   },
   "main": "lib",
   "module": "dist",
@@ -36,7 +36,6 @@
     "@tao.js/core": "*"
   },
   "devDependencies": {
-    "@tao.js/core": "file:../tao",
-    "@tao.js/utils": "file:../tao-utils"
+    "@tao.js/core": "file:../tao"
   }
 }

@@ -1,5 +1,4 @@
 import { AppCtx, Kernel } from '@tao.js/core';
-import { Channel, Transponder } from '@tao.js/utils';
 import Tracer from '../src/Tracer';
 import InMemorySink from '../src/InMemorySink';
 
@@ -195,51 +194,6 @@ describe('Tracer records plain kernel signals with full causality — no instrum
     TAO.setCtx(TRIGRAM, {});
     // Assert
     expect(sink.size).toBe(1);
-  });
-});
-
-describe('Tracer composes with Channel — full fidelity without instrumentation', () => {
-  it('should record channel cascades as one linked tree while channel filtering works', async () => {
-    // Assemble
-    new Tracer(TAO, { sinks: [sink] });
-    const channel = new Channel(TAO, 'traced-channel');
-    const other = new Channel(TAO, 'other-channel');
-    const mirrored = jest.fn();
-    const leaked = jest.fn();
-    channel.addInlineHandler(NEXT_TRIGRAM, mirrored);
-    other.addInlineHandler(NEXT_TRIGRAM, leaked);
-    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
-    TAO.addInlineHandler(
-      NEXT_TRIGRAM,
-      () => new AppCtx(TERM, THIRD_ACTION, ORIENT),
-    );
-    // Act
-    channel.setCtx(TRIGRAM, {});
-    await flush();
-    // Assert — behavior: this channel's handlers saw the chain, no leaks
-    expect(mirrored).toHaveBeenCalledTimes(1);
-    expect(leaked).not.toHaveBeenCalled();
-    // Assert — tracing: one tree, each signal recorded exactly once
-    expect(sink.size).toBe(3);
-    const [root, child, grandchild] = sink.records;
-    expect(child.parentId).toBe(root.signalId);
-    expect(grandchild.parentId).toBe(child.signalId);
-    expect(grandchild.traceId).toBe(root.traceId);
-  });
-
-  it('should trace transponder-entered cascades with full linkage', async () => {
-    // Assemble
-    new Tracer(TAO, { sinks: [sink] });
-    const transponder = new Transponder(TAO, 'traced-transponder', 0);
-    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
-    // Act
-    const settled = await transponder.setCtx(TRIGRAM, {});
-    await flush();
-    // Assert
-    expect(settled).toBeInstanceOf(AppCtx);
-    expect(sink.size).toBe(2);
-    const [root, child] = sink.records;
-    expect(child.parentId).toBe(root.signalId);
   });
 });
 

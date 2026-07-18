@@ -3,7 +3,7 @@
 Status: **implemented** on `feat/network-envelope` (see §11 for the
 verification record; end-to-end proof at
 `tools/smoke/socketio-envelope-smoke.cjs`).
-Scope: `@tao.js/core` internals, `@tao.js/utils` adapters, new `@tao.js/trace` +
+Scope: `@tao.js/core` internals, `@tao.js/utils` adapters, new `@tao.js/telemetry` +
 `@tao.js/opentelemetry`. **Zero changes** to the app-facing TAO surface.
 
 This is the final hardening of the JS implementation's signal plane. It also
@@ -219,7 +219,7 @@ consumers). Kept working via its existing inline-handler implementation.
 
 ## 8. Trace as the proof of decoration
 
-`@tao.js/trace` (ported from the `feat/tao-trace` prototype) becomes a pure
+`@tao.js/telemetry` (tracer ported from the `feat/tao-trace` prototype) becomes a pure
 decorator: `onDispatch` observer + a `chain` reducer stamping
 `{ traceId, signalId, parentId }` (W3C-shaped ids). **No `instrument()`.**
 Full causal fidelity for every entry surface — kernels, channels,

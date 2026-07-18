@@ -315,6 +315,7 @@ export default class Network {
       chain: this._reduceChain(prevEnvelope.chain, nextAc, prevEnvelope),
     };
     for (const decorator of this._decorators) {
+      // Stryker disable next-line ConditionalExpression: equivalent - calling a missing onForward throws inside the guarded try, so observable behavior is identical
       if (decorator.onForward) {
         try {
           decorator.onForward(nextAc, nextEnvelope, { from: prevEnvelope });
@@ -348,6 +349,7 @@ export default class Network {
       if (decorator.onReturn) {
         // Stryker disable next-line ConditionalExpression: lazy init is equivalent to eager for observable behavior
         if (!settlers) {
+          // Stryker disable next-line ArrayDeclaration: equivalent - non-function junk in the settlers array is call-guarded by the per-settle try
           settlers = [];
         }
         settlers.push(decorator.onReturn);
@@ -371,6 +373,7 @@ export default class Network {
 
   _notifyDispatch(appCtx, envelope, handler) {
     for (const decorator of this._decorators) {
+      // Stryker disable next-line ConditionalExpression: equivalent - calling a missing onDispatch throws inside the guarded try, so observable behavior is identical
       if (decorator.onDispatch) {
         try {
           decorator.onDispatch(appCtx, envelope, handler);

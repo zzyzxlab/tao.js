@@ -32,13 +32,41 @@ describe('Network.decorate validates decorations', () => {
     // Act
     // Assert
     expect(() => network.decorate()).toThrow(/decoration spec/);
+    expect(() => network.decorate(null)).toThrow(/decoration spec/);
+    expect(() => network.decorate(42)).toThrow(/decoration spec/);
     expect(() => network.decorate({})).toThrow(/at least one capability/);
     expect(() => network.decorate({ onDispatch: 42 })).toThrow(
-      /must be a function/,
+      /onDispatch must be a function/,
+    );
+    expect(() => network.decorate({ onForward: 42 })).toThrow(
+      /onForward must be a function/,
+    );
+    expect(() => network.decorate({ onReturn: 42 })).toThrow(
+      /onReturn must be a function/,
     );
     expect(() => network.decorate({ chain: { key: 'x' } })).toThrow(
       /chain must be/,
     );
+    expect(() => network.decorate({ chain: null })).toThrow(/chain must be/);
+    expect(() =>
+      network.decorate({ chain: { key: 42, next: () => ({}) } }),
+    ).toThrow(/chain must be/);
+  });
+
+  it('should not release another decoration chain key on double dispose', () => {
+    // Assemble
+    const network = new Network();
+    const first = network.decorate({
+      chain: { key: 'shared', next: () => ({}) },
+    });
+    first();
+    network.decorate({ chain: { key: 'shared', next: () => ({}) } });
+    // Act — disposing the first again must not free the second's key
+    first();
+    // Assert
+    expect(() =>
+      network.decorate({ chain: { key: 'shared', next: () => ({}) } }),
+    ).toThrow(/already reduced/);
   });
 
   it('should reject a duplicate chain key and release it on dispose', () => {
@@ -167,9 +195,13 @@ describe('Network.enter dispatches through the hop engine', () => {
     const wildKernel = new Kernel(true);
     const plainSeen = [];
     const wildSeen = [];
+    const plainWildcardHandler = jest.fn();
     TAO._network.decorate({ onDispatch: (ac) => plainSeen.push(ac.key) });
     wildKernel._network.decorate({ onDispatch: (ac) => wildSeen.push(ac.key) });
     TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM));
+    // a wildcard ACH exists on the plain kernel, so a dispatched wildcard
+    // chain WOULD have somewhere to land — the policy must still drop it
+    TAO.addInlineHandler({ t: TERM }, plainWildcardHandler);
     wildKernel.addInlineHandler(TRIGRAM, () => new AppCtx(TERM));
     wildKernel.addInlineHandler({ t: TERM }, jest.fn());
     // Act
@@ -178,7 +210,38 @@ describe('Network.enter dispatches through the hop engine', () => {
     await flush();
     // Assert — plain kernel drops the wildcard chain, wildcard kernel dispatches it
     expect(plainSeen).toEqual([`${TERM}|${ACTION}|${ORIENT}`]);
+    // the wildcard handler fired for the concrete entry only, never a wildcard dispatch
+    expect(plainWildcardHandler).toHaveBeenCalledTimes(1);
     expect(wildSeen).toContain(`${TERM}|*|*`);
+  });
+
+  it('should silently ignore wildcard entries with no matching wildcard registration', () => {
+    // Assemble
+    const wildKernel = new Kernel(true);
+    const seen = [];
+    wildKernel._network.decorate({ onDispatch: (ac) => seen.push(ac.key) });
+    // Act
+    // Assert — no auto-added handler, no dispatch, no throw
+    expect(() => wildKernel.setCtx({ t: TERM }, {})).not.toThrow();
+    expect(seen).toEqual([]);
+    expect(wildKernel._network._handlers.has(`${TERM}|*|*`)).toBe(false);
+  });
+
+  it('should drop wildcard chains on a bare Network by default', async () => {
+    // Assemble — a raw Network (no Kernel) defaults canSetWildcard to false
+    const network = new Network();
+    network.use((handler, ac, forward, control) =>
+      handler.handleAppCon(ac, forward, control),
+    );
+    const seen = [];
+    network.decorate({ onDispatch: (ac) => seen.push(ac.key) });
+    network.addInlineHandler(TRIGRAM, () => new AppCtx(TERM));
+    network.addInlineHandler({ t: TERM }, jest.fn());
+    // Act
+    network.enter(new AppCtx(TERM, ACTION, ORIENT));
+    await flush();
+    // Assert
+    expect(seen).toEqual([`${TERM}|${ACTION}|${ORIENT}`]);
   });
 });
 
@@ -391,6 +454,76 @@ describe('Settlement hook (onReturn)', () => {
     await flush();
     // Assert
     expect(returns).toEqual([]);
+  });
+
+  it('should pass undefined hooks to middleware when no settlement is decorated', () => {
+    // Assemble — an observation-only decoration must NOT manufacture hooks,
+    // or legacy error rethrow semantics would silently change
+    let capturedHooks = 'unset';
+    TAO._network.decorate({ onDispatch: jest.fn() });
+    TAO._network.use((handler, ac, forward, control, envelope, hooks) => {
+      capturedHooks = hooks;
+    });
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    // Assert
+    expect(capturedHooks).toBeUndefined();
+  });
+
+  it('should ignore a non-function onReturn on the hooks object', async () => {
+    // Assemble — a malformed hooks object must fall back to legacy rethrow
+    TAO.addInlineHandler(TRIGRAM, () => {
+      throw new Error('legacy boom');
+    });
+    const ach = TAO._network._handlers.get(`${TERM}|${ACTION}|${ORIENT}`);
+    // Act
+    // Assert
+    await expect(
+      ach.handleAppCon(
+        new AppCtx(TERM, ACTION, ORIENT),
+        () => {},
+        {},
+        {
+          onReturn: 42,
+        },
+      ),
+    ).rejects.toThrow('legacy boom');
+  });
+
+  it('should invoke a caller-supplied legacy forward for chained AppCons', async () => {
+    // Assemble — the frozen legacy path: caller-owned forwarding must still
+    // receive every chained AppCon
+    const ctxForward = jest.fn();
+    const appCtxForward = jest.fn();
+    const control = { legacy: 'caller' };
+    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
+    // Act
+    TAO._network.setCtxControl(TRIGRAM, {}, control, ctxForward);
+    TAO._network.setAppCtxControl(
+      new AppCtx(TERM, ACTION, ORIENT),
+      control,
+      appCtxForward,
+    );
+    await flush();
+    // Assert
+    expect(ctxForward).toHaveBeenCalledTimes(1);
+    expect(ctxForward).toHaveBeenCalledWith(expect.any(AppCtx), control);
+    expect(ctxForward.mock.calls[0][0].a).toBe(NEXT_ACTION);
+    expect(appCtxForward).toHaveBeenCalledTimes(1);
+    expect(appCtxForward).toHaveBeenCalledWith(expect.any(AppCtx), control);
+  });
+
+  it('should key single-object AppCtx data under the action name', () => {
+    // Assemble
+    const seen = [];
+    TAO.addInlineHandler(TRIGRAM, (tao, data) => {
+      seen.push(data);
+    });
+    // Act
+    TAO.setAppCtx(new AppCtx(TERM, ACTION, ORIENT, { action: { id: 9 } }));
+    // Assert — the { action } tuple key maps under the action name, not as a
+    // positional term object
+    expect(seen).toEqual([{ [ACTION]: { id: 9 } }]);
   });
 
   it('should keep legacy error behavior when no settlement is decorated', async () => {
