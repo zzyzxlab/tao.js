@@ -1256,3 +1256,153 @@ describe('Transceiver', () => {
     expect(inline).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('envelope version guards', () => {
+  const OLD_CORE_NETWORK = () => ({
+    use: () => {},
+    stop: () => {},
+    setCtxControl: () => {},
+    setAppCtxControl: () => {},
+  });
+
+  it('Channel throws a clear error on a pre-envelope core', () => {
+    expect(() => new Channel({ _network: OLD_CORE_NETWORK() }, 'old')).toThrow(
+      /envelope support/,
+    );
+  });
+
+  it('Source throws a clear error on a pre-envelope core', () => {
+    expect(
+      () => new Source({ _network: OLD_CORE_NETWORK() }, jest.fn()),
+    ).toThrow(/envelope support/);
+  });
+
+  it('Relay throws a clear error on a pre-envelope core', () => {
+    expect(
+      () =>
+        new Relay({ _network: OLD_CORE_NETWORK() }, jest.fn(), 'r', jest.fn()),
+    ).toThrow(/envelope support/);
+  });
+
+  it('Transceiver throws a clear error on a pre-envelope core', () => {
+    expect(() => new Transceiver({ _network: OLD_CORE_NETWORK() })).toThrow(
+      /envelope support/,
+    );
+  });
+});
+
+describe('Channel entry trigram normalization', () => {
+  it('builds the entered AppCtx from short or long trigram keys', () => {
+    const network = {
+      enter: jest.fn(),
+      decorate: jest.fn(() => () => {}),
+      setCtxControl: jest.fn(),
+      setAppCtxControl: jest.fn(),
+    };
+    const channel = new Channel({ _network: network }, 'normalizing');
+
+    channel.setCtxControl({ t: 'Short', a: 'Key', o: 'Form' }, DATA, {});
+    channel.setCtxControl(
+      { term: 'Long', action: 'Key', orient: 'Form' },
+      DATA,
+      {},
+    );
+
+    const [shortAc] = network.enter.mock.calls[0];
+    expect(shortAc.unwrapCtx()).toEqual({ t: 'Short', a: 'Key', o: 'Form' });
+    const [longAc] = network.enter.mock.calls[1];
+    expect(longAc.unwrapCtx()).toEqual({ t: 'Long', a: 'Key', o: 'Form' });
+  });
+});
+
+describe('Source under legacy dispatches', () => {
+  it('emits legacy-dispatched AppCons and suppresses its own legacy source marker', () => {
+    const kernel = new Kernel();
+    const toSrc = jest.fn();
+    const source = new Source(kernel, toSrc, 'legacy-source');
+
+    // legacy caller-owned dispatch without a source marker: emitted
+    kernel._network.setCtxControl(SOURCE, DATA, { other: true }, () => {});
+    expect(toSrc).toHaveBeenCalledTimes(1);
+
+    // legacy dispatch carrying this source's marker on control: suppressed
+    kernel._network.setCtxControl(
+      SOURCE,
+      DATA,
+      { source: 'legacy-source' },
+      () => {},
+    );
+    expect(toSrc).toHaveBeenCalledTimes(1);
+
+    // a different source name on control: emitted
+    kernel._network.setCtxControl(
+      SOURCE,
+      DATA,
+      { source: 'someone-else' },
+      () => {},
+    );
+    expect(toSrc).toHaveBeenCalledTimes(2);
+    source.dispose();
+  });
+});
+
+describe('Transponder entry modes', () => {
+  it('propagates chains when attached directly to a kernel network', async () => {
+    const kernel = new Kernel();
+    const transponder = new Transponder(kernel, 'direct-chains', 0);
+    const chained = jest.fn();
+    kernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+    kernel.addInlineHandler(TARGET, chained);
+
+    const viaCtx = await transponder.setCtx(SOURCE, DATA);
+    await tick();
+    expect(viaCtx).toBeInstanceOf(AppCtx);
+    expect(chained).toHaveBeenCalledTimes(1);
+
+    const viaAppCtx = await transponder.setAppCtx(
+      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
+    );
+    await tick();
+    expect(viaAppCtx).toBeInstanceOf(AppCtx);
+    expect(chained).toHaveBeenCalledTimes(2);
+  });
+
+  it('resolves through a wrapped Channel with chains still propagating', async () => {
+    const kernel = new Kernel();
+    const channel = new Channel(kernel, 'transponder-channel');
+    const transponder = new Transponder(channel, 'via-channel', 0);
+    kernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+
+    const settled = await transponder.setCtx(SOURCE, DATA);
+    expect(settled).toBeInstanceOf(AppCtx);
+    expect(settled.unwrapCtx()).toEqual(TARGET);
+  });
+
+  it('falls back to legacy control entries on a pre-envelope network', () => {
+    const network = {
+      use: () => {},
+      setCtxControl: jest.fn(),
+      setAppCtxControl: jest.fn(),
+    };
+    const transponder = new Transponder({ _network: network }, 'old-net', 0);
+
+    transponder.setCtx(SOURCE, DATA);
+    expect(network.setCtxControl).toHaveBeenCalledWith(
+      expect.objectContaining(SOURCE),
+      DATA,
+      expect.objectContaining({ transponderId: 'old-net' }),
+    );
+
+    transponder.setAppCtx(new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA));
+    expect(network.setAppCtxControl).toHaveBeenCalledWith(
+      expect.any(AppCtx),
+      expect.objectContaining({ transponderId: 'old-net' }),
+    );
+  });
+});

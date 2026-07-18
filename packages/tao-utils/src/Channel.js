@@ -50,6 +50,7 @@ export default class Channel {
     }
     this._cloneWithId = typeof id === 'function' ? id : undefined;
     this._undecorate = this._network.decorate({
+      // Stryker disable next-line StringLiteral: decoration name is a diagnostic label with no observable behavior
       name: `channel:${this._channelId}`,
       onForward: (nextAc, envelope) => {
         this._mirror(nextAc, envelope.cascade);

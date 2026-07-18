@@ -22,7 +22,11 @@ TODO
 - [x] `@tao.js/react` data-context 0.17: hooks modernize + tree-scoped `useTaoData` + soft-deprecate `RenderHandler.context`/`DataConsumer` (see `AGENTS.md` §5; removal still open)
 - [ ] `@tao.js/react` remove deprecated data consume APIs (`RenderHandler.context`, `DataConsumer`) after overlap window
 - [ ] host-router adapters (`@tao.js/routing-core` + react-router / tanstack / next) — first PR open for review; publish into fixed release group when approved
+- [x] signal-plane hardening: envelope scopes + Network decorations + settlement hook per `ENVELOPE-SPEC.md` (`feat/network-envelope`); `@tao.js/telemetry` (causal Tracer + TaoLogger) + `@tao.js/opentelemetry`
+- [ ] carry `envelope.chain` across process transports (socket.io/koa) natively — see `ENVELOPE-SPEC.md` §9; `@tao.js/telemetry` already continues W3C traceparent manually
+- [ ] remove the deprecated `TaoLogger` re-export from `@tao.js/utils` after an overlap window
+- [ ] Stryker configs for `@tao.js/telemetry` + `@tao.js/opentelemetry` (new packages; coverage suites exist, mutation not yet wired)
 - [ ] transfer ownership to tao-land
 - [ ] implement TAO.md (spec/template + tooling for consuming apps)
-- [ ] implement a Go lib for the network
+- [ ] implement a Go lib for the network (the envelope scopes in `ENVELOPE-SPEC.md` are the reference protocol)
 - [ ] implement Schema parsing/validation layer hooks for messages in TS
