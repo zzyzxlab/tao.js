@@ -4,7 +4,7 @@ import { isIterable } from './utils';
 
 const console = {
   error: () => 1,
-  log: () => 1
+  log: () => 1,
 };
 
 export default class AppCtxHandlers extends AppCtxRoot {
@@ -30,11 +30,11 @@ export default class AppCtxHandlers extends AppCtxRoot {
       (this.isOrientWild || this.o === leafAch.o)
     ) {
       this._leafAppConHandlers.add(leafAch);
-      this._intercept.forEach(inHandler =>
-        leafAch.addInterceptHandler(inHandler)
+      this._intercept.forEach((inHandler) =>
+        leafAch.addInterceptHandler(inHandler),
       );
-      this._async.forEach(aHandler => leafAch.addAsyncHandler(aHandler));
-      this._inline.forEach(inHandler => leafAch.addInlineHandler(inHandler));
+      this._async.forEach((aHandler) => leafAch.addAsyncHandler(aHandler));
+      this._inline.forEach((inHandler) => leafAch.addInlineHandler(inHandler));
     }
   }
 
@@ -53,15 +53,15 @@ export default class AppCtxHandlers extends AppCtxRoot {
       throw new Error('An InterceptHandler can only be a function');
     }
     this._intercept.add(handler);
-    this._leafAppConHandlers.forEach(leafAch =>
-      leafAch.addInterceptHandler(handler)
+    this._leafAppConHandlers.forEach((leafAch) =>
+      leafAch.addInterceptHandler(handler),
     );
   }
 
   removeInterceptHandler(handler) {
     this._intercept.delete(handler);
-    this._leafAppConHandlers.forEach(leafAch =>
-      leafAch.removeInterceptHandler(handler)
+    this._leafAppConHandlers.forEach((leafAch) =>
+      leafAch.removeInterceptHandler(handler),
     );
   }
 
@@ -70,15 +70,15 @@ export default class AppCtxHandlers extends AppCtxRoot {
       throw new Error('An AsyncHandler can only be a function');
     }
     this._async.add(handler);
-    this._leafAppConHandlers.forEach(leafAch =>
-      leafAch.addAsyncHandler(handler)
+    this._leafAppConHandlers.forEach((leafAch) =>
+      leafAch.addAsyncHandler(handler),
     );
   }
 
   removeAsyncHandler(handler) {
     this._async.delete(handler);
-    this._leafAppConHandlers.forEach(leafAch =>
-      leafAch.removeAsyncHandler(handler)
+    this._leafAppConHandlers.forEach((leafAch) =>
+      leafAch.removeAsyncHandler(handler),
     );
   }
 
@@ -87,15 +87,15 @@ export default class AppCtxHandlers extends AppCtxRoot {
       throw new Error('An InlineHandler can only be a function');
     }
     this._inline.add(handler);
-    this._leafAppConHandlers.forEach(leafAch =>
-      leafAch.addInlineHandler(handler)
+    this._leafAppConHandlers.forEach((leafAch) =>
+      leafAch.addInlineHandler(handler),
     );
   }
 
   removeInlineHandler(handler) {
     this._inline.delete(handler);
-    this._leafAppConHandlers.forEach(leafAch =>
-      leafAch.removeInlineHandler(handler)
+    this._leafAppConHandlers.forEach((leafAch) =>
+      leafAch.removeInlineHandler(handler),
     );
   }
 
@@ -131,11 +131,13 @@ export default class AppCtxHandlers extends AppCtxRoot {
       if (intercepted instanceof AppCtx) {
         try {
           setAppCtx(intercepted, control);
+          // Stryker disable all -- local console is a noop; catch only swallows
         } catch (interceptErr) {
           console.log(
             'error setting context returned from intercept handler:',
-            interceptErr
+            interceptErr,
           );
+          // Stryker restore all
         }
       }
       return;
@@ -153,19 +155,22 @@ export default class AppCtxHandlers extends AppCtxRoot {
      */
     for (let asyncH of this.asyncHandlers) {
       (() => {
+        // Stryker disable next-line all -- debug logging via noop console
         console.log(
-          `>>>>>>>> starting async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`
+          `>>>>>>>> starting async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`,
         );
         Promise.resolve(asyncH({ t, a, o }, data))
-          .then(nextAc => {
+          .then((nextAc) => {
             if (nextAc && nextAc instanceof AppCtx) {
               setAppCtx(nextAc, control);
             }
+            // Stryker disable next-line all -- debug logging via noop console
             console.log(
-              `>>>>>>>> ending async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`
+              `>>>>>>>> ending async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`,
             );
           })
-          .catch(asyncErr => {
+          // Stryker disable next-line all -- local console is a noop; catch only swallows
+          .catch((asyncErr) => {
             // swallow async errors
             // possibility to set an AC for errors
             console.error('error in async handler:', asyncErr);
@@ -193,8 +198,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
       for (let nextAc of nextSpool) {
         try {
           setAppCtx(nextAc, control);
+          // Stryker disable all -- local console is a noop; catch only swallows
         } catch (inlineErr) {
           console.error('error on next inline:', inlineErr);
+          // Stryker restore all
         }
       }
     }

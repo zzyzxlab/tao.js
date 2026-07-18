@@ -147,6 +147,55 @@ describe('AppCtx adds data in order to define concrete Application Contexts duri
       expect(actual.data[TERM]).not.toHaveProperty('term');
     });
 
+    it('maps short and long tuple keys onto term/action/orient data slots', () => {
+      const viaLong = new AppCtx(TERM, ACTION, ORIENT, {
+        term: { id: 1 },
+        action: { kind: 'a' },
+        orient: { side: 'o' },
+      });
+      expect(viaLong.data).toEqual({
+        [TERM]: { id: 1 },
+        [ACTION]: { kind: 'a' },
+        [ORIENT]: { side: 'o' },
+      });
+
+      const viaShort = new AppCtx(TERM, ACTION, ORIENT, {
+        t: { id: 2 },
+        a: { kind: 'b' },
+        o: { side: 'p' },
+      });
+      expect(viaShort.data).toEqual({
+        [TERM]: { id: 2 },
+        [ACTION]: { kind: 'b' },
+        [ORIENT]: { side: 'p' },
+      });
+
+      const viaNames = new AppCtx(TERM, ACTION, ORIENT, {
+        [TERM]: { id: 3 },
+        [ACTION]: { kind: 'c' },
+        [ORIENT]: { side: 'q' },
+      });
+      expect(viaNames.data).toEqual({
+        [TERM]: { id: 3 },
+        [ACTION]: { kind: 'c' },
+        [ORIENT]: { side: 'q' },
+      });
+    });
+
+    it('does not fall through to positional assignment when a tuple object is used', () => {
+      const tuple = {
+        term: 'term-value',
+        action: 'action-value',
+        orient: 'orient-value',
+      };
+      const actual = new AppCtx(TERM, ACTION, ORIENT, tuple);
+      // If `assigned` were never set true, the whole tuple would become term data.
+      expect(actual.data[TERM]).toBe('term-value');
+      expect(actual.data[TERM]).not.toEqual(tuple);
+      expect(actual.data[ACTION]).toBe('action-value');
+      expect(actual.data[ORIENT]).toBe('orient-value');
+    });
+
     it('should accept data as an object with keys of the tao for the Context', () => {
       // Assemble
       const expectedTermData = {

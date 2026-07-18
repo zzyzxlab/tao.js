@@ -20,6 +20,12 @@
     "fileName": "reports/mutation/mutation.json"
   },
   "tempDirName": "stryker-tmp",
-  "timeoutMS": 15000,
-  "concurrency": 4
+  "timeoutMS": 20000,
+  "timeoutFactor": 2,
+  "concurrency": 4,
+  "thresholds": {
+    "high": 90,
+    "low": 80,
+    "break": null
+  }
 }

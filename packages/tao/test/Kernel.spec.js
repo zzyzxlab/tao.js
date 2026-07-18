@@ -1034,6 +1034,38 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
     it('clone can override canSetWildcard', () => {
       expect(new Kernel(false).clone(true).canSetWildcard).toBe(true);
       expect(new Kernel(true).clone(false).canSetWildcard).toBe(false);
+      // Explicit undefined must inherit, not force a false override
+      expect(new Kernel(true).clone(undefined).canSetWildcard).toBe(true);
+    });
+  });
+
+  describe('handler remove methods forward trigram bags', () => {
+    it('removes handlers registered with mixed short/long trigram keys', () => {
+      const uut = new Kernel();
+      const intercept = jest.fn();
+      const asyncH = jest.fn();
+      const inline = jest.fn();
+      const trigram = { term: TERM, a: ACTION, orient: ORIENT };
+      uut
+        .addInterceptHandler(trigram, intercept)
+        .addAsyncHandler(trigram, asyncH)
+        .addInlineHandler(trigram, inline);
+      uut
+        .removeInterceptHandler(
+          { t: TERM, action: ACTION, o: ORIENT },
+          intercept,
+        )
+        .removeAsyncHandler({ term: TERM, a: ACTION, orient: ORIENT }, asyncH)
+        .removeInlineHandler({ t: TERM, a: ACTION, o: ORIENT }, inline);
+      uut.setCtx({ t: TERM, a: ACTION, o: ORIENT });
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          expect(intercept).not.toHaveBeenCalled();
+          expect(asyncH).not.toHaveBeenCalled();
+          expect(inline).not.toHaveBeenCalled();
+          resolve();
+        }, 50);
+      });
     });
   });
 });

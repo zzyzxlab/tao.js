@@ -22,6 +22,7 @@ HTML/JSON reports land in `reports/mutation/` (gitignored).
 
 - Config: `stryker.config.json` — `inPlace: true` so Jest can still resolve the monorepo `jest.preset.cjs`.
 - Unfinished `Kernel.channel` is excluded via `// Stryker disable all`.
-- Baseline score (2026-07-18): **~88%** mutation score (372 killed, 181 timeout, 74 survived).
+- Latest score (2026-07-18): **90.31%** mutation score (377 killed, 154 timeout, 57 survived; thresholds high=90).
+- Equivalent noop-`console` catch/log paths in `AppCtxHandlers` are Stryker-disabled.
 
-Next: raise thresholds / kill survivors with stronger tests, then roll Stryker out to other packages.
+Next: keep killing behavioral survivors in `AppCtx` / `Network`, then roll Stryker out to other packages.
