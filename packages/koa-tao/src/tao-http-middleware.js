@@ -49,7 +49,9 @@ function handleResponsesRequest(responseTrigrams, ctx, next) {
 }
 
 async function handleContext(transponder, bodyProp, ctx, next) {
-  const { tao, data } = await getBodyData(ctx, bodyProp);
+  // getBodyData resolves to null when no matching body/json/configured field is
+  // present on the request; guard so a body-less POST can't crash the process.
+  const { tao, data } = (await getBodyData(ctx, bodyProp)) || {};
   try {
     const ac = await transponder.setCtx(tao, data);
     ctx.body = {
