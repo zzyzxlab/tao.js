@@ -75,6 +75,33 @@ describe('transfer helpers', () => {
     });
   });
 
+  it('accepts short target trigram keys', () => {
+    const appCtx = transferToAppCtx(SOURCE, DATA, {
+      t: 'Target',
+      a: 'Done',
+      o: 'Result',
+    });
+
+    expect(appCtx.unwrapCtx()).toEqual({
+      t: 'Target',
+      a: 'Done',
+      o: 'Result',
+    });
+  });
+
+  it('falls back to source trigram fields omitted from short targets', () => {
+    const appCtx = transferToAppCtx(SOURCE, DATA, {
+      t: 'Target',
+      o: 'Result',
+    });
+
+    expect(appCtx.unwrapCtx()).toEqual({
+      t: 'Target',
+      a: 'Load',
+      o: 'Result',
+    });
+  });
+
   it('builds error datagrams for string, Error, and HTTP errors', () => {
     const stringError = transferError(SOURCE, DATA, 'not found');
     const error = new Error('bad response');
@@ -142,11 +169,29 @@ describe('TaoLogger', () => {
     expect(logger.info).toHaveBeenCalled();
     log.setInspect(inspect);
     log.depth(null);
+    log.handler(tao, DATA);
+    log.depth(1);
+    log.handler(tao, DATA);
+    log.setInspect(inspect);
+    log.handler(tao, DATA);
 
     TaoLogger(true, { logger, verbose: true, inspect: 'invalid' }).handler(
       tao,
       DATA,
     );
+  });
+
+  it('uses the identity inspector for a zero depth', () => {
+    const logger = { info: jest.fn() };
+    const inspect = jest.fn();
+
+    TaoLogger(true, { logger, verbose: true, inspect, depth: 0 }).handler(
+      tao,
+      DATA,
+    );
+
+    expect(inspect).not.toHaveBeenCalled();
+    expect(logger.info).toHaveBeenCalledWith('Source:\n', DATA.Source);
   });
 });
 
@@ -207,6 +252,20 @@ describe('bridges and seives', () => {
     detach();
   });
 
+  it('forwards AppCtx values supplied to a bridge handler', () => {
+    const source = new Kernel();
+    const destination = new Kernel();
+    const received = jest.fn();
+    const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
+    destination.addInlineHandler(SOURCE, received);
+    inlineBridge(source, destination, SOURCE);
+
+    const handlers = source._network._handlers.get('Source|Load|Page');
+    Array.from(handlers.inlineHandlers)[0](appCtx);
+
+    expect(received).toHaveBeenCalledWith(SOURCE, DATA);
+  });
+
   it('forwards matching signals through a seive and can stop it', () => {
     const source = new Kernel();
     const destination = new Kernel();
@@ -227,6 +286,24 @@ describe('bridges and seives', () => {
     source._network.setCtxControl(SOURCE, DATA, { allow: true });
     expect(received).toHaveBeenCalledTimes(1);
     expect(seive('bad', {}, {})()).toBeUndefined();
+  });
+
+  it('uses trigram-only seive filters when no predicate is supplied', () => {
+    const source = new Kernel();
+    const destination = new Kernel();
+    const received = jest.fn();
+    destination.addInlineHandler(SOURCE, received);
+
+    const stop = seive(
+      'trigram-only',
+      source,
+      { _network: destination._network, _channel: destination._network },
+      SOURCE,
+    );
+    source.setCtx(SOURCE, DATA);
+
+    expect(received).toHaveBeenCalledWith(SOURCE, DATA);
+    stop();
   });
 });
 

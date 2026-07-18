@@ -11,13 +11,17 @@ jest.mock('@tao.js/utils', () => ({
     this.removeInlineHandler = jest.fn();
     mockChannels.push(this);
   }),
-  Transponder: jest.fn().mockImplementation(function Transponder() {
-    this.setCtx = jest.fn((...args) => mockTransponderSetCtx(...args));
-    this.setAppCtx = jest.fn();
-    this.detach = jest.fn();
-    mockTransponders.push(this);
-  }),
-  Transceiver: jest.fn().mockImplementation(function Transceiver() {
+  Transponder: jest
+    .fn()
+    .mockImplementation(function Transponder(channel, namer) {
+      this.name = typeof namer === 'function' ? namer('request') : namer;
+      this.setCtx = jest.fn((...args) => mockTransponderSetCtx(...args));
+      this.setAppCtx = jest.fn();
+      this.detach = jest.fn();
+      mockTransponders.push(this);
+    }),
+  Transceiver: jest.fn().mockImplementation(function Transceiver(tao, namer) {
+    this.name = typeof namer === 'function' ? namer('request') : namer;
     [
       'setCtx',
       'setAppCtx',
@@ -79,9 +83,19 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
     const ctx = {};
     middleware.middleware()(ctx, next);
     const transponder = mockTransponders[0];
+    expect(transponder.name).toBe('api-transponder-request');
     expect(next).toHaveBeenCalled();
     expect(transponder.detach).toHaveBeenCalled();
     expect(ctx.tao).toBeNull();
+
+    simpleMiddleware({}, {}).addResponseHandler(
+      { t: 'User', a: 'View', o: 'Web' },
+      handler,
+    );
+    simpleMiddleware({}, { debug: true }).addResponseHandler(
+      { t: 'User', a: 'View', o: 'Web' },
+      handler,
+    );
   });
 
   it('delegates all enhanced handler phases and request context calls', () => {
@@ -98,6 +112,7 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
       middleware[method]({ t: 'User', a: 'View' }, handler),
     );
     const transceiver = mockTransceivers[0];
+    expect(transceiver.name).toBe('api-transceiver-request');
     expect(transceiver.addInterceptHandler).toHaveBeenCalledWith(
       { term: 'User', action: 'View' },
       handler,
@@ -234,5 +249,48 @@ describe('@tao.js/koa HTTP middleware', () => {
     await middleware(bodyCtx, next);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(bodyCtx.body.data).toEqual({ id: 1 });
+  });
+
+  it('reads body values and functions, logs debug handlers, and handles missing routes', async () => {
+    const log = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const api = taoMiddleware({}, { debug: true, json: 'payload' });
+    const channel = mockChannels[0];
+    channel.addInlineHandler.mock.calls[0][1]({ t: 'User' }, { id: 1 });
+
+    const handler = jest.fn();
+    api.addResponseHandler({ t: 'User', a: 'View', o: 'Web' }, handler);
+    api.removeResponseHandler({ t: 'Missing', a: 'View', o: 'Web' }, handler);
+    expect(log).toHaveBeenCalledWith(
+      '@tao.js/koa::addResponseHandler::responseTrigrams:',
+      expect.any(Map),
+    );
+
+    const middleware = api.middleware();
+    const valueCtx = {
+      path: '/tao/context',
+      method: 'POST',
+      request: { payload: { tao: { t: 'User' }, data: { id: 4 } } },
+    };
+    await middleware(valueCtx, next);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(valueCtx.body.data).toEqual({ id: 1 });
+
+    const bodyFnCtx = {
+      path: '/tao/context',
+      method: 'POST',
+      request: { body: async () => ({ tao: { t: 'User' }, data: { id: 5 } }) },
+    };
+    await middleware(bodyFnCtx, next);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(bodyFnCtx.body.data).toEqual({ id: 1 });
+
+    const noRouteCtx = {
+      path: { match: jest.fn(() => ['/tao', undefined]) },
+      method: 'GET',
+      request: {},
+    };
+    await middleware(noRouteCtx, next);
+    expect(noRouteCtx.status).toBe(404);
+    log.mockRestore();
   });
 });

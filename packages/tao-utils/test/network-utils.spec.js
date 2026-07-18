@@ -1,4 +1,4 @@
-import { AppCtx, Kernel } from '@tao.js/core';
+import { AppCtx, Kernel, Network } from '@tao.js/core';
 import Channel from '../src/Channel';
 import Source from '../src/Source';
 import Relay from '../src/Relay';
@@ -139,6 +139,13 @@ describe('Channel', () => {
     expect(network.setAppCtxControl).toHaveBeenCalledTimes(3);
     expect(log).toHaveBeenCalled();
     log.mockRestore();
+  });
+
+  it('generates IDs and accepts Network instances directly', () => {
+    const channel = new Channel(new Network());
+
+    expect(channel._channelId).toEqual(expect.any(Number));
+    expect(channel._network).toBeInstanceOf(Network);
   });
 });
 
@@ -461,5 +468,12 @@ describe('Transceiver', () => {
     await expect(contextPromise).rejects.toBe('reached timeout of: 10ms');
     await expect(appCtxPromise).rejects.toBe('reached timeout of: 10ms');
     jest.useRealTimers();
+  });
+
+  it('generates IDs and accepts Network instances directly', () => {
+    const transceiver = new Transceiver(new Network());
+
+    expect(transceiver._transceiverId).toEqual(expect.any(Number));
+    expect(transceiver._network).toBeInstanceOf(Network);
   });
 });

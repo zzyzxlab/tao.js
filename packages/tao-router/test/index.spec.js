@@ -199,4 +199,97 @@ describe('@tao.js/router', () => {
     ).toBeUndefined();
     log.mockRestore();
   });
+
+  it('handles constructor, capitalization, and ignored route edges', () => {
+    const optionsOnly = new Router(makeTao(), {
+      initAc: { t: 'App', a: 'Init', o: 'Web' },
+    });
+    expect(optionsOnly._history).toBeDefined();
+    expect(new Router(makeTao(), null, null)._history).toBeDefined();
+
+    const tao = makeTao();
+    const history = {
+      location: { pathname: '/User/View/Web' },
+      listen: jest.fn(() => jest.fn()),
+      push: jest.fn(),
+    };
+    const router = new Router(tao, history, {
+      initAc: { t: 'App', a: 'Init', o: 'Web' },
+      incomingAc: new (require('@tao.js/core').AppCtx)(
+        'App',
+        'Incoming',
+        'Web',
+      ),
+    });
+    const route = { path: '/{t}/{a}/{o}', lowerCase: true };
+    const attach = handlerFor(tao, 'Route', 'Attach');
+    attach({ o: 'Web' }, { Route: route, Attach: {} });
+    delete router._router.define('/:t/:a/:o')[0].defaultData;
+    handlerFor(tao, 'App', 'Incoming')({ o: 'Web' }, {});
+    expect(tao.setAppCtx).toHaveBeenLastCalledWith(
+      expect.objectContaining({ t: 'User', a: 'View', o: 'Web' }),
+    );
+
+    const log = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const add = handlerFor(tao, 'Route', 'Add');
+    router._debug = true;
+    add(
+      { o: 'Web' },
+      {
+        Route: '/users',
+        Add: {
+          t: 'User',
+          a: 'View',
+          o: 'Web',
+          ignore: { t: 'Ignored', a: 'View', o: 'Web' },
+        },
+      },
+    );
+    const ignoredHandler = tao.addAsyncHandler.mock.calls.at(-1)[1];
+    ignoredHandler({ t: 'User', a: 'View', o: 'Web' }, {});
+    ignoredHandler({ t: 'Ignored', a: 'View', o: 'Web' }, {});
+    expect(history.push).toHaveBeenCalledWith('/users');
+    expect(log).toHaveBeenCalledWith('route.add::trigram.unwrapCtx():', {
+      t: 'User',
+      a: 'View',
+      o: 'Web',
+    });
+    add(
+      { o: 'Web' },
+      {
+        Route: '/plain',
+        Add: {
+          t: 'Plain',
+          a: 'View',
+          o: 'Web',
+          ignore: [
+            { t: 'Ignored', a: 'View', o: 'Web' },
+            { t: 'AlsoIgnored', a: 'View', o: 'Web' },
+          ],
+        },
+      },
+    );
+    const detach = handlerFor(tao, 'Route', 'Detach');
+    attach(
+      { o: 'Web' },
+      {
+        Route: '/plain',
+        Attach: { tao: { t: 'Plain', a: 'View', o: 'Web' } },
+      },
+    );
+    detach(
+      { o: 'Web' },
+      { Route: '/plain', Detach: { t: 'Plain', a: 'View', o: 'Web' } },
+    );
+    detach({ o: 'Web' }, { Route: '/unattached', Detach: {} });
+    log.mockRestore();
+  });
+
+  it('does not add absent route-path data', () => {
+    const history = { location: { pathname: '/' }, push: jest.fn() };
+    const handler = makeRouteHandler(history, '/users/{User.id}');
+    expect(() =>
+      handler({ t: 'User', a: 'View', o: 'Web' }, { User: {} }),
+    ).toThrow();
+  });
 });

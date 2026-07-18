@@ -135,5 +135,15 @@ describe('@tao.js/http-client Requester', () => {
         body: { id: '42', name: 'Ada' },
       }),
     );
+
+    mockApiRequester.mockRejectedValueOnce({ message: 'offline' });
+    const fallback = await call({
+      params: { id: '42', name: 'Ada' },
+      authToken: 'token',
+    });
+    expect(fallback).toMatchObject({
+      ok: false,
+      error: { type: 'service-error', message: 'offline' },
+    });
   });
 });

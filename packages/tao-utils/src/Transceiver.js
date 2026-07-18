@@ -113,7 +113,7 @@ export default class Transceiver {
             }
           },
         );
-        /* c8 ignore next -- captureSignal is async, so synchronous throws reject above. */
+        /* c8 ignore next 6 -- captureSignal is async, so synchronous throws reject above. */
       } catch (handleErr) {
         if (!control.signalled) {
           control.signalled = true;

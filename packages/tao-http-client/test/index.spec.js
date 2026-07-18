@@ -146,6 +146,18 @@ describe('@tao.js/http-client fetch primitives', () => {
       message: 'server down',
       status: 500,
     });
+
+    global.fetch.mockResolvedValueOnce(
+      response({
+        status: 502,
+        statusText: 'Bad Gateway',
+        contentLength: 0,
+      }),
+    );
+    await expect(request('/fallback-message', {})).rejects.toMatchObject({
+      message: 'Response error: /fallback-message resulted in 502',
+      status: 502,
+    });
   });
 });
 

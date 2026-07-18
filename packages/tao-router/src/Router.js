@@ -1,4 +1,5 @@
 // import createHistory from 'history/createBrowserHistory';
+/* v8 ignore next -- module imports are recorded as an unreachable branch by V8. */
 import { createBrowserHistory as createHistory } from 'history';
 import routington from 'routington';
 import get from 'get-value';
@@ -99,7 +100,8 @@ export default class Router {
       opts = history;
       history = null;
     }
-    const { debug = false } = opts || {};
+    opts = opts || {};
+    const { debug = false } = opts;
     this._debug = debug;
     this._history = history || createHistory();
     this.setupEvents = this.setupEvents.bind(this);
