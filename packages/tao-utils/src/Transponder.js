@@ -5,6 +5,7 @@ const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
 
 let transponderId = 0;
 function newTransponderId() {
+  // Stryker disable next-line ArithmeticOperator,UpdateOperator: counter monotonicity/modulo wraparound at MAX_SAFE_INTEGER is untestable without exhausting the counter
   return (transponderId = ++transponderId % MAX_SAFE_INTEGER);
 }
 
@@ -48,6 +49,7 @@ export default class Transponder {
         ? id(newTransponderId())
         : id || newTransponderId();
     const inTO = +timeoutMs || 0;
+    // Stryker disable next-line EqualityOperator: equivalent - `inTO || 0` above already coerces -0/NaN to 0, so for every remaining value `inTO > 0` and `inTO >= 0` pick the same branch (0 stays 0 either way)
     this._timeoutMs = inTO > 0 ? inTO : 0;
     this._network =
       typeof network.use === 'function' ? network : network._network;
@@ -62,7 +64,7 @@ export default class Transponder {
       cloneId || this._cloneWithId,
       this._timeoutMs,
       this._promise,
-      this._debug
+      this._debug,
     );
     return clone;
   }
@@ -118,7 +120,7 @@ export default class Transponder {
       this._network.setCtxControl(
         { t, term, a, action, o, orient },
         data,
-        control
+        control,
       );
     });
   }
@@ -140,18 +142,20 @@ export default class Transponder {
   }
 
   handleSignalAppCon = (handler, ac, forwardAppCtx, control) => {
+    // Stryker disable all: optional debug logging
     this._debug &&
       console.log(
         `transponder{${this._transponderId}}::handleSignalFirstAppCon::ac:`,
-        ac.unwrapCtx()
+        ac.unwrapCtx(),
       );
     this._debug &&
       console.log(
         `transponder{${
           this._transponderId
         }}::handleSignalFirstAppCon::control:`,
-        control
+        control,
       );
+    // Stryker restore all
     // first matching handler will signal the listener
     if (
       control.transponderId === this._transponderId &&

@@ -5,13 +5,16 @@ const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
 
 let transceiverId = 0;
 function newTransceiverId() {
+  // Stryker disable next-line ArithmeticOperator,UpdateOperator: counter monotonicity/modulo wraparound at MAX_SAFE_INTEGER is untestable without exhausting the counter
   return (transceiverId = ++transceiverId % MAX_SAFE_INTEGER);
 }
 
 let signalId = 0;
+// Stryker disable all: counter monotonicity/modulo wraparound at MAX_SAFE_INTEGER is untestable without exhausting the counter, and the returned id is not observed by tests
 function newSignalId() {
   return (signalId = ++signalId % MAX_SAFE_INTEGER);
 }
+// Stryker restore all
 
 function transceiverControl(transceiverId, resolve, reject) {
   return { transceiverId, signal: { id: newSignalId(), resolve, reject } };
@@ -113,8 +116,8 @@ export default class Transceiver {
             }
           },
         );
-        /* c8 ignore next 6 -- captureSignal is async, so synchronous throws reject above. */
       } catch (handleErr) {
+        // Stryker disable next-line ConditionalExpression: equivalent - this synchronous catch runs immediately after entering the try, so control.signalled cannot have been set true by anything else yet
         if (!control.signalled) {
           control.signalled = true;
           control.signal.reject(handleErr);
@@ -219,6 +222,7 @@ export default class Transceiver {
     let firstResolve = null;
     for (let inlineH of handler.inlineHandlers) {
       let nextInlineAc = await inlineH({ t, a, o }, data);
+      // Stryker disable next-line ConditionalExpression: equivalent - when nextInlineAc is null/undefined the branch below only ever assigns that same falsy value to firstResolve (or is skipped because firstResolve is already truthy), so forcing entry into the branch changes nothing observable
       if (nextInlineAc != null) {
         if (nextInlineAc instanceof AppCtx) {
           nextSpool.push(nextInlineAc);
@@ -231,6 +235,7 @@ export default class Transceiver {
       control.signalled = true;
       control.signal.resolve(firstResolve);
     }
+    // Stryker disable next-line ConditionalExpression: equivalent - iterating an empty nextSpool array with for...of already runs zero times, so forcing entry into the branch changes nothing observable
     if (nextSpool.length) {
       for (let nextAc of nextSpool) {
         try {
