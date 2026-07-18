@@ -237,6 +237,7 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
+- **2026-07-18** — Mutation testing started with Stryker on `@tao.js/core`: `pnpm test:mutation:core` (config `packages/tao/stryker.config.json`, `inPlace: true` for monorepo Jest preset paths). First run ~88% mutation score (650 mutants; reports gitignored under `packages/tao/reports/mutation/`).
 - **2026-07-18** — Public packages at **100%** coverage on `test-full-coverage`: core, react, utils, router, socket.io, koa, http-client. `Kernel.channel` still unfinished (`c8 ignore`). Private stubs (`connect`, `feature`, `path`) untested.
 - **2026-07-17** — Branch `test-full-coverage`: `@tao.js/core` and `@tao.js/react` at 100% executable coverage. Other public packages raised substantially (utils/router/koa/socket/http-client). `Kernel.channel` is unfinished — `c8 ignore` + prefer `@tao.js/utils` `Channel`. Private stubs (`connect`, `feature`, `path`) still have no real tests.
 - **2026-07-17** — `SwitchHandler` must not `setState` from intercept handlers: `Kernel`/`handleAppCon` `await`s intercepts, which yields before inline handlers and can leave `chosenList` empty. Clear/select via inline only (wave key); clone chosen `RenderHandler` with `shouldRender: true` so the first matching AppCon paints. Smoke: `examples/react19-smoke` (build `@tao.js/core` + `@tao.js/react` first).

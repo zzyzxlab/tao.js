@@ -62,12 +62,13 @@ export default class Kernel {
 
   /**
    * Unfinished sketch — prefer `@tao.js/utils` `Channel` for real channeling.
-   * Excluded from coverage until implemented.
+   * Excluded from coverage / mutation until implemented.
    *
    * @returns
    * @memberof Kernel
    */
   /* c8 ignore start */
+  // Stryker disable all
   channel(id, bridge) {
     const network = this;
     const channel = new Kernel();
@@ -93,6 +94,7 @@ export default class Kernel {
     // channelled._canSetWildcard = this._canSetWildcard;
     // return channelled;
   }
+  // Stryker restore all
   /* c8 ignore stop */
 
   setCtx({ t, term, a, action, o, orient }, data) {
