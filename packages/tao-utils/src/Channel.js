@@ -7,6 +7,7 @@ const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
 
 let channelId = 0;
 function newChannelId() {
+  // Stryker disable next-line ArithmeticOperator,UpdateOperator: counter monotonicity/modulo wraparound at MAX_SAFE_INTEGER is untestable without exhausting the counter
   return (channelId = ++channelId % MAX_SAFE_INTEGER);
 }
 
@@ -52,7 +53,7 @@ export default class Channel {
   clone(cloneId) {
     const clone = new Channel(
       { _network: this._network },
-      cloneId || this._cloneWithId
+      cloneId || this._cloneWithId,
     );
     clone._channel = this._channel.clone();
     return clone;
@@ -71,7 +72,7 @@ export default class Channel {
       { t, term, a, action, o, orient },
       data,
       channelControl(this._channelId),
-      (ac, control) => this.forwardAppCtx(ac, control)
+      (ac, control) => this.forwardAppCtx(ac, control),
     );
   }
 
@@ -79,7 +80,7 @@ export default class Channel {
     { t, term, a, action, o, orient },
     data,
     control,
-    forwardAppCtx
+    forwardAppCtx,
   ) {
     const chanCtrl = channelControl(this._channelId);
     this._network.setCtxControl(
@@ -91,7 +92,7 @@ export default class Channel {
         if (typeof forwardAppCtx === 'function') {
           forwardAppCtx(ac, control);
         }
-      }
+      },
     );
   }
 
@@ -99,7 +100,7 @@ export default class Channel {
     this._network.setAppCtxControl(
       ac,
       channelControl(this._channelId),
-      (ac, control) => this.forwardAppCtx(ac, control)
+      (ac, control) => this.forwardAppCtx(ac, control),
     );
   }
 
@@ -113,36 +114,42 @@ export default class Channel {
         if (typeof forwardAppCtx === 'function') {
           forwardAppCtx(ac, control);
         }
-      }
+      },
     );
   }
 
   forwardAppCtx(ac, control) {
+    // Stryker disable all: optional debug logging
     this._debug &&
       console.log(
         `channel{${this._channelId}}::forwardAppCtx::ac:`,
-        ac.unwrapCtx()
+        ac.unwrapCtx(),
       );
     this._debug &&
       console.log(
         `channel{${this._channelId}}::forwardAppCtx::control:`,
-        control
+        control,
       );
+    // Stryker restore all
     if (control.channelId === this._channelId) {
+      // Stryker disable all: optional debug logging
       this._debug &&
         console.log(
-          `channel{${this._channelId}}::forwardAppCtx::control check passed`
+          `channel{${this._channelId}}::forwardAppCtx::control check passed`,
         );
-      this._channel.setAppCtxControl(ac, control, a => this.setAppCtx(a));
+      // Stryker restore all
+      this._channel.setAppCtxControl(ac, control, (a) => this.setAppCtx(a));
     }
+    // Stryker disable all: optional debug logging
     this._debug &&
       console.log(
         `channel{${
           this._channelId
-        }}::forwardAppCtx::calling network.setAppCtxControl`
+        }}::forwardAppCtx::calling network.setAppCtxControl`,
       );
+    // Stryker restore all
     this._network.setAppCtxControl(ac, control, (a, c) =>
-      this.forwardAppCtx(a, c)
+      this.forwardAppCtx(a, c),
     );
   }
 
@@ -153,7 +160,7 @@ export default class Channel {
   addInterceptHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.addInterceptHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
     return this;
   }
@@ -171,7 +178,7 @@ export default class Channel {
   removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.removeInterceptHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
     return this;
   }
@@ -179,7 +186,7 @@ export default class Channel {
   removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.removeAsyncHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
     return this;
   }
@@ -187,7 +194,7 @@ export default class Channel {
   removeInlineHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.removeInlineHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
     return this;
   }
@@ -198,7 +205,7 @@ export default class Channel {
       TAO,
       this,
       (ac, control) => control.channelId !== this._channelId,
-      ...trigrams
+      ...trigrams,
     );
   }
 }

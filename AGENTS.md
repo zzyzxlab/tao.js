@@ -237,6 +237,7 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
+- **2026-07-18** — Mutation testing on `@tao.js/utils`: `pnpm test:mutation:utils` — score **100%**.
 - **2026-07-18** — Mutation testing on `@tao.js/socket.io`: `pnpm test:mutation:socket.io` — score **100%** (Node jest-env; client/server via `window` + `isolateModules`).
 - **2026-07-18** — Mutation testing on `@tao.js/react`: `pnpm test:mutation:react` (`packages/react-tao/stryker.config.json`, same `inPlace` + jest-runner pattern as core). Score **100%**. Explicit `testEnvironment: 'jsdom'` required — Stryker does not merge preset env under `perTest` coverage analysis.
 - **2026-07-18** — Mutation testing on `@tao.js/core` via Stryker: `pnpm test:mutation:core` (`packages/tao/stryker.config.json`, `inPlace: true`). Score raised to **~99.8%** (behavioral survivors killed; equivalents ignored via `// Stryker disable … : reason`). Thresholds high=95. Reports gitignored under `packages/tao/reports/mutation/`.

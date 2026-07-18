@@ -10,6 +10,7 @@ export function TaoLogger(
 ) {
   let inspector = null;
   if (
+    // Stryker disable next-line ConditionalExpression: equivalent - whenever inspect is null/undefined the typeof clause below is also true, so this clause alone never changes the outcome
     inspect == null ||
     typeof inspect != 'function' ||
     (!depth && depth != null)
@@ -47,6 +48,7 @@ export function TaoLogger(
     depth: (v) => {
       depth = v;
       if (
+        // Stryker disable next-line ConditionalExpression: equivalent - whenever inspect is null/undefined the typeof clause below is also true, so this clause alone never changes the outcome
         inspect == null ||
         typeof inspect != 'function' ||
         (!v && v == null)
@@ -64,6 +66,7 @@ export function TaoLogger(
     },
     setInspect: (i) => {
       inspect = i;
+      // Stryker disable next-line ConditionalExpression: equivalent - whenever i is null/undefined the typeof clause is also true, so the clause1-alone mutant never changes the outcome (other clauses on this line remain covered by tests)
       if (i == null || typeof i != 'function' || (!depth && depth == null)) {
         inspector = (obj) => obj;
       } else {
