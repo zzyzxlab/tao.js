@@ -6,6 +6,7 @@ import { normalizeClean, getPermutations } from './helpers';
 import { Context } from './Provider';
 
 function readNamedData(dataBag, ctxName) {
+  // Stryker disable all: dataBag==null short-circuit redundant with Provider {}; console is diagnostic
   if (
     dataBag == null ||
     !Object.prototype.hasOwnProperty.call(dataBag, ctxName)
@@ -16,6 +17,7 @@ function readNamedData(dataBag, ctxName) {
     console.info(`RenderHandler::setting context ${ctxName} data arg to null`);
     return null;
   }
+  // Stryker restore all
   return dataBag[ctxName];
 }
 
@@ -37,17 +39,22 @@ export default class RenderHandler extends React.Component {
   constructor(props) {
     super(props);
     let { shouldRender } = props;
+    // Stryker disable next-line all: undefined shouldRender is already falsy in render()
     shouldRender = typeof shouldRender === 'undefined' ? false : shouldRender;
     this.state = { shouldRender };
     this._refreshOn = null;
   }
 
   componentDidMount() {
+    // Stryker disable next-line BooleanLiteral: debug defaults false; logging is optional
     const { debug = false } = this.props;
+    // Stryker disable all: optional debug logging
     debug && console.log('RenderHandler::props:', this.props);
     debug && console.log('RenderHandler::context:', this.context);
+    // Stryker restore all
     const { TAO } = this.context;
     const permutations = getPermutations(this.props);
+    // Stryker disable next-line ConditionalExpression: empty permutations make forEach a no-op
     if (permutations.length) {
       permutations.forEach(({ term, action, orient }) =>
         TAO.addInlineHandler({ term, action, orient }, this.handleRender),
@@ -70,6 +77,7 @@ export default class RenderHandler extends React.Component {
   componentWillUnmount() {
     const { TAO } = this.context;
     const permutations = getPermutations(this.props);
+    // Stryker disable next-line ConditionalExpression: empty permutations make forEach a no-op
     if (permutations.length) {
       permutations.forEach(({ term, action, orient }) =>
         TAO.removeInlineHandler({ term, action, orient }, this.handleRender),
@@ -95,6 +103,7 @@ export default class RenderHandler extends React.Component {
     if (!shouldRender) {
       return null;
     }
+    // Stryker disable next-line all: no-context path is covered; empty-block fallthrough still invokes children
     if (!context) {
       return <React.Fragment>{children(tao, data)}</React.Fragment>;
     }

@@ -7,7 +7,7 @@ const DUMMY_STATE = {};
 class Reactor extends React.Component {
   static get propTypes() {
     return {
-      adapter: PropTypes.instanceOf(Adapter).isRequired
+      adapter: PropTypes.instanceOf(Adapter).isRequired,
     };
   }
 
@@ -23,6 +23,7 @@ class Reactor extends React.Component {
 
   componentWillUnmount() {
     const { adapter } = this.props;
+    // Stryker disable next-line all: defensive optional calls; propTypes require adapter
     adapter && adapter.unregisterReactor && adapter.unregisterReactor(this);
   }
 
@@ -80,7 +81,7 @@ class Reactor extends React.Component {
     return React.createElement(ComponentHandler, {
       ...tao,
       ...props,
-      ...childProps
+      ...childProps,
     });
   }
 }

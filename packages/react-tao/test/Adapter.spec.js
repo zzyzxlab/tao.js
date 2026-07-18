@@ -139,11 +139,11 @@ describe('Adapter integrates with React', () => {
       const willThrow = () =>
         uut.addComponentHandler(
           { term: TERM, action: ACTION, orient: ORIENT },
-          'Component'
+          'Component',
         );
       // Assert
       expect(willThrow).toThrow(
-        'cannot add a Component handler that is not a React.Component or Function'
+        'cannot add a Component handler that is not a React.Component or Function',
       );
     });
 
@@ -162,8 +162,8 @@ describe('Adapter integrates with React', () => {
         ComponentHandler: Component,
         tao: triggerAc.unwrapCtx(),
         props: {
-          [TERM]: triggerData
-        }
+          [TERM]: triggerData,
+        },
       });
     });
 
@@ -175,7 +175,7 @@ describe('Adapter integrates with React', () => {
       // Act
       uut.addComponentHandler(
         { t: [TERM, ALT_TERM], a: [ACTION], o: ORIENT },
-        Component
+        Component,
       );
       TAO.setCtx({ t: TERM, a: ACTION, o: ORIENT }, [triggerData1]);
       const actual1 = uut.current;
@@ -185,12 +185,12 @@ describe('Adapter integrates with React', () => {
       expect(actual1).toMatchObject({
         ComponentHandler: Component,
         tao: { t: TERM, a: ACTION, o: ORIENT },
-        props: { [TERM]: triggerData1 }
+        props: { [TERM]: triggerData1 },
       });
       expect(actual2).toMatchObject({
         ComponentHandler: Component,
         tao: { t: ALT_TERM, a: ACTION, o: ORIENT },
-        props: { [ACTION]: triggerData2 }
+        props: { [ACTION]: triggerData2 },
       });
     });
 
@@ -224,12 +224,12 @@ describe('Adapter integrates with React', () => {
       expect(actual1).toMatchObject({
         ComponentHandler: Component,
         tao: ac1.unwrapCtx(),
-        props: {}
+        props: {},
       });
       expect(actual2).toMatchObject({
         ComponentHandler: Component,
         tao: ac2.unwrapCtx(),
-        props: {}
+        props: {},
       });
     });
 
@@ -237,6 +237,7 @@ describe('Adapter integrates with React', () => {
       // Assemble
       const uut = new Adapter(TAO);
       const ac = new AppCtx(TERM, ACTION, ORIENT);
+      const addSpy = jest.spyOn(TAO, 'addInlineHandler');
       // Act
       uut
         .addComponentHandler(ac.unwrapCtx(), Component)
@@ -246,6 +247,21 @@ describe('Adapter integrates with React', () => {
       const compHandler = uut._components.get(Component);
       expect(compHandler.index.size).toBe(1);
       expect(compHandler.handlers.size).toBe(1);
+      expect(addSpy).toHaveBeenCalledTimes(1);
+      addSpy.mockRestore();
+    });
+
+    it('keeps other ACs when adding the same Component a second time', () => {
+      const uut = new Adapter(TAO);
+      uut.addComponentHandler(
+        { term: TERM, action: ACTION, orient: ORIENT },
+        Component,
+      );
+      uut.addComponentHandler(
+        { term: ALT_TERM, action: ALT_ACTION, orient: ALT_ORIENT },
+        Component,
+      );
+      expect(uut._components.get(Component).handlers.size).toBe(2);
     });
 
     it('should allow clearing a Component for an AC', () => {
@@ -255,12 +271,12 @@ describe('Adapter integrates with React', () => {
       const triggerData2 = { b: 2 };
       uut.addComponentHandler(
         { term: [TERM], action: ACTION, orient: ORIENT },
-        Component
+        Component,
       );
       uut.addComponentHandler({
         term: ALT_TERM,
         action: ACTION,
-        orient: ORIENT
+        orient: ORIENT,
       });
       // Act
       TAO.setCtx({ t: TERM, a: ACTION, o: ORIENT }, [triggerData1]);
@@ -271,12 +287,12 @@ describe('Adapter integrates with React', () => {
       expect(actual1).toMatchObject({
         ComponentHandler: Component,
         tao: { t: TERM, a: ACTION, o: ORIENT },
-        props: { [TERM]: triggerData1 }
+        props: { [TERM]: triggerData1 },
       });
       expect(actual2).toMatchObject({
         ComponentHandler: null,
         tao: { t: ALT_TERM, a: ACTION, o: ORIENT },
-        props: { [ACTION]: triggerData2 }
+        props: { [ACTION]: triggerData2 },
       });
     });
 
@@ -294,8 +310,8 @@ describe('Adapter integrates with React', () => {
         ComponentHandler: Component,
         tao: triggerAc.unwrapCtx(),
         props: {
-          [triggerAc.t]: triggerData
-        }
+          [triggerAc.t]: triggerData,
+        },
       });
     });
 
@@ -318,15 +334,15 @@ describe('Adapter integrates with React', () => {
       expect(actual1).toMatchObject({
         ComponentHandler: Component,
         tao: ac1.unwrapCtx(),
-        props: defProps
+        props: defProps,
       });
       expect(actual2).toMatchObject({
         ComponentHandler: Component,
         tao: ac2.unwrapCtx(),
         props: {
           ...defProps,
-          [ac2.t]: acData
-        }
+          [ac2.t]: acData,
+        },
       });
     });
   });
@@ -341,7 +357,7 @@ describe('Adapter integrates with React', () => {
       expect(uut.removeComponentHandler).toBeDefined();
       expect(uut.removeComponentHandler).toBeInstanceOf(Function);
       expect(uut.removeComponentHandler(ac.unwrapCtx(true), Component)).toBe(
-        uut
+        uut,
       );
     });
 
@@ -369,9 +385,9 @@ describe('Adapter integrates with React', () => {
         {
           term: [TERM, ALT_TERM],
           action: [ACTION, ALT_ACTION],
-          orient: [ORIENT, ALT_ORIENT]
+          orient: [ORIENT, ALT_ORIENT],
         },
-        Component
+        Component,
       );
       const added = new Map(uut._components);
       uut.removeComponentHandler(undefined, Component);
@@ -383,6 +399,55 @@ describe('Adapter integrates with React', () => {
       expect(actual).toBeNull();
     });
 
+    it('removes all ACs when removeComponentHandler is given an empty trigram object', () => {
+      const uut = new Adapter(TAO);
+      const addSpy = jest.spyOn(TAO, 'addInlineHandler');
+      const removeSpy = jest.spyOn(TAO, 'removeInlineHandler');
+      uut.addComponentHandler(
+        { term: TERM, action: ACTION, orient: ORIENT },
+        Component,
+      );
+      uut.addComponentHandler(
+        { term: ALT_TERM, action: ALT_ACTION, orient: ALT_ORIENT },
+        Component,
+      );
+      const registered = addSpy.mock.calls.length;
+      expect(registered).toBeGreaterThan(0);
+
+      uut.removeComponentHandler({}, Component);
+
+      expect(uut._components.size).toBe(0);
+      expect(removeSpy.mock.calls.length).toBeGreaterThanOrEqual(registered);
+      TAO.setCtx({ t: TERM, a: ACTION, o: ORIENT });
+      expect(uut.current).toBeNull();
+
+      addSpy.mockRestore();
+      removeSpy.mockRestore();
+    });
+
+    it('does not remove all ACs when only one trigram axis is omitted', () => {
+      const uut = new Adapter(TAO);
+      uut.addComponentHandler(
+        { term: TERM, action: ACTION, orient: ORIENT },
+        Component,
+      );
+      uut.addComponentHandler(
+        { term: ALT_TERM, action: ALT_ACTION, orient: ALT_ORIENT },
+        Component,
+      );
+      expect(uut._components.get(Component).handlers.size).toBe(2);
+
+      // A partial trigram must not take the remove-all branch
+      uut.removeComponentHandler({ term: TERM }, Component);
+
+      expect(uut._components.has(Component)).toBe(true);
+      // cartesian of a partial trigram may not hit the concrete AC keys, but it
+      // must never wipe the Component entirely (that is the empty-trigram path).
+      expect(uut._components.get(Component).handlers.size).toBe(2);
+      TAO.setCtx({ t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT });
+      expect(uut.current).not.toBeNull();
+    });
+
     it('should not remove a Component handler for an AC that it was not added for', () => {
       // Assemble
       const uut = new Adapter(TAO);
@@ -392,7 +457,7 @@ describe('Adapter integrates with React', () => {
       // Act
       uut.removeComponentHandler(
         { term: ALT_TERM, action: ACTION, orient: ORIENT },
-        Component
+        Component,
       );
       TAO.setAppCtx(ac);
       const actual = uut.current;
@@ -402,7 +467,7 @@ describe('Adapter integrates with React', () => {
       expect(actual).toMatchObject({
         ComponentHandler: Component,
         tao: ac.unwrapCtx(),
-        props: {}
+        props: {},
       });
     });
   });

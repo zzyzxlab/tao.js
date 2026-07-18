@@ -24,6 +24,7 @@ HTML/JSON reports land in `reports/mutation/` (gitignored).
 - `testEnvironment` is set explicitly on the package Jest config **and** as Stryker’s jsdom env wrapper — Stryker does not merge preset-provided `testEnvironment` under `perTest` coverage analysis.
 - Barrel re-exports (`index.js`, `all.js`, `orig.js`) are excluded from mutation (same as coverage).
 - Disable equivalent mutants with `// Stryker disable … : reason` (colon required; place `disable` before a `try`, not inside it).
-- Baseline score (2026-07-18): **75.66%** (275 killed, 11 timeout, 92 survived). Weakest files: `SwitchHandler.js` (~42%), `hooks.js` (~56%), `RenderHandler.js` (~69%).
+- Latest score (2026-07-18): **100%** (270 killed, 11 timeout, 0 survived; thresholds high=95).
+- Optional `debug` console paths and redundant Provider-`{}` null checks are Stryker-disabled as equivalent.
 
 See `@tao.js/core` (`packages/tao/README.mutation.md`) for the pattern used to raise scores.

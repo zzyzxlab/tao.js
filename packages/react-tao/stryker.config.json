@@ -27,8 +27,8 @@
   "timeoutFactor": 2,
   "concurrency": 4,
   "thresholds": {
-    "high": 80,
-    "low": 60,
+    "high": 95,
+    "low": 90,
     "break": null
   }
 }

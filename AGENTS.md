@@ -237,7 +237,7 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
-- **2026-07-18** — Mutation testing on `@tao.js/react`: `pnpm test:mutation:react` (`packages/react-tao/stryker.config.json`, same `inPlace` + jest-runner pattern as core). Baseline **~75.7%**. Explicit `testEnvironment: 'jsdom'` required — Stryker does not merge preset env under `perTest` coverage analysis.
+- **2026-07-18** — Mutation testing on `@tao.js/react`: `pnpm test:mutation:react` (`packages/react-tao/stryker.config.json`, same `inPlace` + jest-runner pattern as core). Score **100%**. Explicit `testEnvironment: 'jsdom'` required — Stryker does not merge preset env under `perTest` coverage analysis.
 - **2026-07-18** — Mutation testing on `@tao.js/core` via Stryker: `pnpm test:mutation:core` (`packages/tao/stryker.config.json`, `inPlace: true`). Score raised to **~99.8%** (behavioral survivors killed; equivalents ignored via `// Stryker disable … : reason`). Thresholds high=95. Reports gitignored under `packages/tao/reports/mutation/`.
 - **2026-07-18** — Stryker disable reasons must use `:` not `--`, or the directive is ignored. Disable-inside-`try` does not cover the following `catch` (block scope); put `disable` _before_ the `try`.
 - **2026-07-18** — Public packages at **100%** coverage on `test-full-coverage`: core, react, utils, router, socket.io, koa, http-client. `Kernel.channel` still unfinished (`c8 ignore`). Private stubs (`connect`, `feature`, `path`) untested.

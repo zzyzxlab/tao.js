@@ -30,6 +30,40 @@ describe('RenderHandler', () => {
     expect(container.firstChild).toBeNull();
   });
 
+  it('renders immediately when shouldRender is true without waiting for an AppCon', () => {
+    const { getByTestId } = render(
+      <Provider TAO={TAO}>
+        <RenderHandler term={TERM} action={ACTION} orient={ORIENT} shouldRender>
+          {() => <div data-testid="out">ready</div>}
+        </RenderHandler>
+      </Provider>,
+    );
+
+    expect(getByTestId('out').textContent).toBe('ready');
+  });
+
+  it('registers concrete trigrams (not empty objects) with the Kernel', () => {
+    const addSpy = jest.spyOn(TAO, 'addInlineHandler');
+    render(
+      <Provider TAO={TAO}>
+        <RenderHandler term={TERM} action={ACTION} orient={ORIENT}>
+          {() => null}
+        </RenderHandler>
+      </Provider>,
+    );
+
+    expect(addSpy).toHaveBeenCalled();
+    expect(
+      addSpy.mock.calls.some(([trigram]) => {
+        const t = trigram.t || trigram.term;
+        const a = trigram.a || trigram.action;
+        const o = trigram.o || trigram.orient;
+        return t === TERM && a === ACTION && o === ORIENT;
+      }),
+    ).toBe(true);
+    addSpy.mockRestore();
+  });
+
   it('renders children with tao and data when a matching AppCon fires', async () => {
     const { getByTestId } = render(
       <Provider TAO={TAO}>
@@ -204,6 +238,14 @@ describe('RenderHandler', () => {
 
     const addedBefore = addSpy.mock.calls.length;
     expect(addedBefore).toBeGreaterThanOrEqual(2);
+    expect(
+      addSpy.mock.calls.some(([trigram]) => {
+        const a = trigram.a || trigram.action;
+        const t = trigram.t || trigram.term;
+        const o = trigram.o || trigram.orient;
+        return t === TERM && a === 'Refresh' && o === ORIENT;
+      }),
+    ).toBe(true);
 
     act(() => {
       TAO.setAppCtx(new AppCtx(TERM, ACTION, ORIENT));
@@ -221,6 +263,25 @@ describe('RenderHandler', () => {
 
     unmount();
     expect(removeSpy.mock.calls.length).toBeGreaterThanOrEqual(addedBefore);
+    const concreteRemoves = removeSpy.mock.calls.filter(([trigram]) => {
+      const t = trigram.t || trigram.term;
+      const a = trigram.a || trigram.action;
+      const o = trigram.o || trigram.orient;
+      return t && a && o;
+    });
+    expect(concreteRemoves.length).toBeGreaterThanOrEqual(addedBefore);
+    expect(
+      concreteRemoves.some(([trigram]) => {
+        const a = trigram.a || trigram.action;
+        return a === 'Refresh';
+      }),
+    ).toBe(true);
+    expect(
+      concreteRemoves.some(([trigram]) => {
+        const a = trigram.a || trigram.action;
+        return a === ACTION;
+      }),
+    ).toBe(true);
 
     addSpy.mockRestore();
     removeSpy.mockRestore();

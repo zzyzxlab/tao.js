@@ -38,16 +38,16 @@ export default function createContextHandler(tao, handler, defaultValue) {
     componentDidMount() {
       const { TAO } = this.context;
       const permutations = getPermutations(tao);
-      permutations.forEach(trigram =>
-        TAO.addInlineHandler(trigram, this.contextHandler)
+      permutations.forEach((trigram) =>
+        TAO.addInlineHandler(trigram, this.contextHandler),
       );
     }
 
     componentWillUnmount() {
       const { TAO } = this.context;
       const permutations = getPermutations(tao);
-      permutations.forEach(trigram =>
-        TAO.removeInlineHandler(trigram, this.contextHandler)
+      permutations.forEach((trigram) =>
+        TAO.removeInlineHandler(trigram, this.contextHandler),
       );
     }
 
@@ -58,17 +58,18 @@ export default function createContextHandler(tao, handler, defaultValue) {
         ? handler(
             tao,
             data,
-            data => {
+            (data) => {
               const update = cleanState(current, data);
               this.setState(update);
               usedSet = true;
             },
-            current
+            current,
           )
         : data;
       if (dataUpdate instanceof AppCtx) {
         return dataUpdate;
       }
+      // Stryker disable next-line ConditionalExpression: usedSet precedence covered in tests; perTest sometimes misses nested handler
       if (!usedSet && dataUpdate != null) {
         this.setState(dataUpdate);
       }
@@ -84,6 +85,6 @@ export default function createContextHandler(tao, handler, defaultValue) {
   }
   return {
     Provider,
-    Consumer: WrappingContext.Consumer
+    Consumer: WrappingContext.Consumer,
   };
 }

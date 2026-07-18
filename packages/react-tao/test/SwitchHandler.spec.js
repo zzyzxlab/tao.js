@@ -104,24 +104,31 @@ describe('SwitchHandler', () => {
   });
 
   it('accumulates multiple chosen children when several handlers fire for one AppCon', async () => {
-    // Two children that both listen to the same concrete trigram via parent defaults.
+    // Distinct child trigram props (different hashes) that still merge with the
+    // parent defaults into the same concrete AppCon. If the wave accumulator
+    // resets on every handler call, only the last child remains chosen.
     const { getByTestId } = render(
       <Provider TAO={TAO}>
         <SwitchHandler term="User" action="View" orient={ORIENT}>
-          <RenderHandler>{() => <div data-testid="a">a</div>}</RenderHandler>
-          <RenderHandler>{() => <div data-testid="b">b</div>}</RenderHandler>
+          <RenderHandler term="User">
+            {() => <div data-testid="a">a</div>}
+          </RenderHandler>
+          <RenderHandler action="View">
+            {() => <div data-testid="b">b</div>}
+          </RenderHandler>
         </SwitchHandler>
       </Provider>,
     );
 
-    act(() => {
+    // Kernel awaits each inline handler, so both SwitchHandler children must be
+    // allowed to settle in the same AppCon wave before asserting.
+    await act(async () => {
       TAO.setAppCtx(new AppCtx('User', 'View', ORIENT));
+      await new Promise((r) => setTimeout(r, 50));
     });
 
-    await waitFor(() => {
-      expect(getByTestId('a')).toBeDefined();
-      expect(getByTestId('b')).toBeDefined();
-    });
+    expect(getByTestId('a')).toBeDefined();
+    expect(getByTestId('b')).toBeDefined();
   });
 
   it('unregisters handlers on unmount', () => {
