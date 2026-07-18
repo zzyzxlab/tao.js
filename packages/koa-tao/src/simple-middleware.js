@@ -9,7 +9,7 @@ const TRANSPONDER_NAME_TYPE = 'transponder';
 const DEFAULT_TIMEOUT = 3000;
 
 function getNameId(type, name) {
-  return newId => {
+  return (newId) => {
     return `${name}-${type}-${newId}`;
   };
 }
@@ -21,7 +21,7 @@ function buildCtxTao(transponder) {
     },
     setAppCtx(ac) {
       return transponder.setAppCtx(ac);
-    }
+    },
   };
 }
 
@@ -45,11 +45,11 @@ export default function simpleMiddleware(TAO, opt = {}) {
   return {
     middleware() {
       return (ctx, next) => {
-        const transponder = new Transponder(
+        let transponder = new Transponder(
           channel,
           getNameId(TRANSPONDER_NAME_TYPE, opt.name),
           opt.timeout || DEFAULT_TIMEOUT,
-          opt.promise
+          opt.promise,
         );
         ctx.tao = buildCtxTao(transponder);
         next();
@@ -60,7 +60,7 @@ export default function simpleMiddleware(TAO, opt = {}) {
     },
     addResponseHandler({ t, term, a, action, o, orient }, handler = noop) {
       const trigrams = cleanInput(
-        normalizeAC({ t, term, a, action, o, orient })
+        normalizeAC({ t, term, a, action, o, orient }),
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
@@ -71,12 +71,12 @@ export default function simpleMiddleware(TAO, opt = {}) {
     },
     removeResponseHandler({ t, term, a, action, o, orient }, handler = noop) {
       const trigrams = cleanInput(
-        normalizeAC({ t, term, a, action, o, orient })
+        normalizeAC({ t, term, a, action, o, orient }),
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
         channel.removeInlineHandler(trigram, handler);
       }
-    }
+    },
   };
 }

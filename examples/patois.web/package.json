@@ -7,6 +7,7 @@
     "@tao.js/react": "file:../../packages/react-tao",
     "@tao.js/router": "file:../../packages/tao-router",
     "@tao.js/socket.io": "file:../../packages/tao-socket-io",
+    "@tao.js/utils": "file:../../packages/tao-utils",
     "axios": "^0.18.1",
     "lodash.isempty": "^4.4.0",
     "lodash.merge": "^4.6.2",
@@ -28,8 +29,7 @@
     ],
     "production": [
       ">0.25%",
-      "not op_mini all",
-      "ie 11"
+      "not op_mini all"
     ]
   }
 }

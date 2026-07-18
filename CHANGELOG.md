@@ -1,3 +1,15 @@
+## 0.16.3-alpha.nx23 (2026-07-18)
+
+This was a version bump only, there were no code changes.
+
+## 0.16.3-alpha.nx22 (2026-07-18)
+
+This was a version bump only, there were no code changes.
+
+## 0.16.3-alpha.nx21 (2026-07-18)
+
+This was a version bump only, there were no code changes.
+
 ## [0.16.2](https://github.com/zzyzxlab/tao.js/compare/v0.16.1...v0.16.2) (2024-03-11)
 
 ### Bug Fixes

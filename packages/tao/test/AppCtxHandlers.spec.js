@@ -113,13 +113,13 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc);
       // Assert
-      expect(handler).toBeCalledWith(
+      expect(handler).toHaveBeenCalledWith(
         expect.objectContaining({
           t: TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         }),
-        {}
+        {},
       );
     });
 
@@ -136,14 +136,14 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       const callingArg = expect.objectContaining({
         t: TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Act
       await uut.handleAppCon(matchAc);
       // Assert
-      expect(handler1).toBeCalledWith(callingArg, {});
-      expect(handler2).toBeCalledWith(callingArg, {});
-      expect(handler3).toBeCalledWith(callingArg, {});
+      expect(handler1).toHaveBeenCalledWith(callingArg, {});
+      expect(handler2).toHaveBeenCalledWith(callingArg, {});
+      expect(handler3).toHaveBeenCalledWith(callingArg, {});
     });
 
     it('should not call a removed inline handler when asked to handle App Con', async () => {
@@ -156,7 +156,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       uut.removeInlineHandler(handler);
       await uut.handleAppCon(matchAc);
       // Assert
-      expect(handler).not.toBeCalled();
+      expect(handler).not.toHaveBeenCalled();
     });
 
     it('should not call all removed inline handlers when asked to handle App Con', async () => {
@@ -172,7 +172,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       const callingArg = expect.objectContaining({
         t: TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Act
       uut.removeInlineHandler(handler1);
@@ -180,9 +180,9 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       uut.removeInlineHandler(handler3);
       await uut.handleAppCon(matchAc);
       // Assert
-      expect(handler1).not.toBeCalled();
-      expect(handler2).not.toBeCalled();
-      expect(handler3).not.toBeCalled();
+      expect(handler1).not.toHaveBeenCalled();
+      expect(handler2).not.toHaveBeenCalled();
+      expect(handler3).not.toHaveBeenCalled();
     });
 
     it('should call setAppCtx if handler returns an AppCtx', async () => {
@@ -197,7 +197,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // await
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).toBeCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
     });
 
     it('should not call setAppCtx if handler returns nothing', async () => {
@@ -211,7 +211,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).not.toBeCalled();
+      expect(setAppCtx).not.toHaveBeenCalled();
     });
 
     it('should not call setAppCtx if handler returns anything other than an AppCtx', async () => {
@@ -225,7 +225,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).not.toBeCalled();
+      expect(setAppCtx).not.toHaveBeenCalled();
     });
 
     it('should prevent setAppCtx Errors from bubbling:', async () => {
@@ -247,8 +247,8 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Assert
       expect(setAppCtx).toThrow();
       await expect(wontThrow()).resolves.not.toThrow();
-      expect(handler).toBeCalled();
-      expect(setAppCtx).toBeCalledWith(nextAc, undefined);
+      expect(handler).toHaveBeenCalled();
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
     });
   });
 
@@ -320,13 +320,13 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       uut.handleAppCon(matchAc);
       // Assert
-      expect(handler).toBeCalledWith(
+      expect(handler).toHaveBeenCalledWith(
         expect.objectContaining({
           t: TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         }),
-        {}
+        {},
       );
     });
 
@@ -337,21 +337,21 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       const handler1 = jest.fn().mockName('handler_one');
       const handler2 = jest
         .fn(() => {
-          return new Promise(resolve =>
+          return new Promise((resolve) =>
             setImmediate(() => {
               // console.log('async 2');
               resolve();
-            })
+            }),
           );
         })
         .mockName('handler_two');
       const handler3 = jest
         .fn(() => {
-          return new Promise(resolve =>
+          return new Promise((resolve) =>
             setTimeout(() => {
               // console.log('async 3');
               resolve();
-            }, 1000)
+            }, 1000),
           );
         })
         .mockName('handler_three');
@@ -368,15 +368,15 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       const callingArg = expect.objectContaining({
         t: TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Act
       uut.handleAppCon(matchAc);
       jest.runAllTimers();
       // Assert
-      expect(handler1).toBeCalledWith(callingArg, {});
-      expect(handler2).toBeCalledWith(callingArg, {});
-      expect(handler3).toBeCalledWith(callingArg, {});
+      expect(handler1).toHaveBeenCalledWith(callingArg, {});
+      expect(handler2).toHaveBeenCalledWith(callingArg, {});
+      expect(handler3).toHaveBeenCalledWith(callingArg, {});
     });
 
     it('should not call a removed async handler when asked to handle App Con', async () => {
@@ -390,7 +390,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // await
       uut.handleAppCon(matchAc);
       // Assert
-      expect(handler).not.toBeCalled();
+      expect(handler).not.toHaveBeenCalled();
     });
 
     it('should not call all removed async handlers when asked to handle App Con', async () => {
@@ -406,7 +406,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       const callingArg = expect.objectContaining({
         t: TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Act
       uut.removeAsyncHandler(handler1);
@@ -415,9 +415,9 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // await
       uut.handleAppCon(matchAc);
       // Assert
-      expect(handler1).not.toBeCalled();
-      expect(handler2).not.toBeCalled();
-      expect(handler3).not.toBeCalled();
+      expect(handler1).not.toHaveBeenCalled();
+      expect(handler2).not.toHaveBeenCalled();
+      expect(handler3).not.toHaveBeenCalled();
     });
 
     it('should call setAppCtx if handler returns an AppCtx', async () => {
@@ -433,7 +433,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // await
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).toBeCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
     });
 
     it('should not call setAppCtx if handler returns nothing', async () => {
@@ -447,7 +447,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).not.toBeCalled();
+      expect(setAppCtx).not.toHaveBeenCalled();
     });
 
     it('should not call setAppCtx if handler returns anything other than an AppCtx', async () => {
@@ -461,7 +461,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).not.toBeCalled();
+      expect(setAppCtx).not.toHaveBeenCalled();
     });
 
     it('should prevent setAppCtx Errors from bubbling:', async () => {
@@ -483,8 +483,8 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Assert
       expect(setAppCtx).toThrow();
       await expect(wontThrow()).resolves.not.toThrow();
-      expect(handler).toBeCalled();
-      expect(setAppCtx).toBeCalledWith(nextAc, undefined);
+      expect(handler).toHaveBeenCalled();
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
     });
   });
 
@@ -556,13 +556,13 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc);
       // Assert
-      expect(handler).toBeCalledWith(
+      expect(handler).toHaveBeenCalledWith(
         expect.objectContaining({
           t: TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         }),
-        {}
+        {},
       );
     });
 
@@ -579,14 +579,14 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       const callingArg = expect.objectContaining({
         t: TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Act
       await uut.handleAppCon(matchAc);
       // Assert
-      expect(handler1).toBeCalledWith(callingArg, {});
-      expect(handler2).toBeCalledWith(callingArg, {});
-      expect(handler3).toBeCalledWith(callingArg, {});
+      expect(handler1).toHaveBeenCalledWith(callingArg, {});
+      expect(handler2).toHaveBeenCalledWith(callingArg, {});
+      expect(handler3).toHaveBeenCalledWith(callingArg, {});
     });
 
     it('should not call a removed intercept handler when asked to handle App Con', async () => {
@@ -599,7 +599,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       uut.removeInterceptHandler(handler);
       await uut.handleAppCon(matchAc);
       // Assert
-      expect(handler).not.toBeCalled();
+      expect(handler).not.toHaveBeenCalled();
     });
 
     it('should not call all removed intercept handlers when asked to handle App Con', async () => {
@@ -615,7 +615,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       const callingArg = expect.objectContaining({
         t: TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Act
       uut.removeInterceptHandler(handler1);
@@ -623,9 +623,9 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       uut.removeInterceptHandler(handler3);
       await uut.handleAppCon(matchAc);
       // Assert
-      expect(handler1).not.toBeCalled();
-      expect(handler2).not.toBeCalled();
-      expect(handler3).not.toBeCalled();
+      expect(handler1).not.toHaveBeenCalled();
+      expect(handler2).not.toHaveBeenCalled();
+      expect(handler3).not.toHaveBeenCalled();
     });
 
     it('should call setAppCtx if handler returns an AppCtx', async () => {
@@ -639,7 +639,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).toBeCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
     });
 
     it('should not call setAppCtx if handler returns nothing', async () => {
@@ -653,7 +653,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).not.toBeCalled();
+      expect(setAppCtx).not.toHaveBeenCalled();
     });
 
     it('should not call setAppCtx if handler returns anything other than an AppCtx', async () => {
@@ -667,7 +667,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).not.toBeCalled();
+      expect(setAppCtx).not.toHaveBeenCalled();
     });
 
     it('should prevent setAppCtx Errors from bubbling:', async () => {
@@ -689,8 +689,8 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Assert
       expect(setAppCtx).toThrow();
       await expect(wontThrow()).resolves.not.toThrow();
-      expect(handler).toBeCalled();
-      expect(setAppCtx).toBeCalledWith(nextAc, undefined);
+      expect(handler).toHaveBeenCalled();
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
     });
 
     it('should not call inlineHander if handler returns truthy value', async () => {
@@ -707,7 +707,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
       // expect(setAppCtx).toBeCalledWith(nextAc);
-      expect(inlineHandler).not.toBeCalled();
+      expect(inlineHandler).not.toHaveBeenCalled();
     });
 
     it('should call inlineHandler if handler returns falsey value', async () => {
@@ -723,8 +723,8 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).not.toBeCalled();
-      expect(inlineHandler).toBeCalled();
+      expect(setAppCtx).not.toHaveBeenCalled();
+      expect(inlineHandler).toHaveBeenCalled();
     });
 
     it('should not call asyncHander if handler returns truthy value', async () => {
@@ -741,7 +741,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
       // expect(setAppCtx).toBeCalledWith(nextAc);
-      expect(asyncHandler).not.toBeCalled();
+      expect(asyncHandler).not.toHaveBeenCalled();
     });
 
     it('should not call subsequent interceptHander if handler returns truthy value', async () => {
@@ -758,7 +758,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
       // expect(setAppCtx).toBeCalledWith(nextAc);
-      expect(interceptHandler).not.toBeCalled();
+      expect(interceptHandler).not.toHaveBeenCalled();
     });
   });
 });
@@ -777,7 +777,7 @@ describe('AppCtxHandlers can be linked to create a tree of handlers', () => {
     // Act
     // Assert
     expect(() => uut.addLeafHandler({})).toThrow(
-      "'leafAch' is not an instance of AppCtxHandlers"
+      "'leafAch' is not an instance of AppCtxHandlers",
     );
   });
 

@@ -4,3 +4,5 @@ docs
 node_modules
 dist
 build
+
+.nx/self-healing

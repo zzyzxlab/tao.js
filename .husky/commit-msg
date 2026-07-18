@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Validates Commitizen-compatible messages for both humans and agents.
+# See scripts/validate-commit-msg.js and AGENTS.md (Commit messages).
+pnpm exec node scripts/validate-commit-msg.js "$1"

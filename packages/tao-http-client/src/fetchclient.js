@@ -9,10 +9,11 @@ const ALWAYS_SEND_OPTIONS = {
 };
 
 const SET_HEADERS = {
-  'content-type': 'application/json'
+  'content-type': 'application/json',
 };
 
 const fetchClient = (url, options = {}) =>
+  // eslint-disable-next-line no-async-promise-executor
   new Promise(async (resolve, reject) => {
     log('making call using:', { url, options });
     const headersToSend = new Headers();
@@ -39,7 +40,7 @@ const fetchClient = (url, options = {}) =>
       // }
       const sendOptions = {
         ...ALWAYS_SEND_OPTIONS,
-        ...otherOpts
+        ...otherOpts,
       };
       if (sendOptions.body) {
         sendOptions.body = JSON.stringify(sendOptions.body);
@@ -72,7 +73,7 @@ const fetchClient = (url, options = {}) =>
       return resolve(response);
     } catch (reqError) {
       reqError.meta = {
-        fullUrl: url
+        fullUrl: url,
       };
       return reject(reqError);
     }

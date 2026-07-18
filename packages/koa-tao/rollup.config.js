@@ -1,8 +1,11 @@
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
-import babel from 'rollup-plugin-babel';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import { babel } from '@rollup/plugin-babel';
 import external from 'rollup-plugin-peer-deps-external';
-import pkg from './package.json';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
 
 export default [
   // CommonJS (for Node) and ES module (for bundlers) build.
@@ -13,28 +16,31 @@ export default [
   // `file` and `format` for each target)
   {
     input: {
-      index: 'src/index.js'
+      index: 'src/index.js',
     },
     output: [
       {
         dir: pkg.main,
         format: 'cjs',
-        sourcemap: true
+        sourcemap: true,
+        exports: 'named',
       },
       {
         dir: pkg.module,
         format: 'esm',
-        sourcemap: true
-      }
+        sourcemap: true,
+        exports: 'named',
+      },
     ],
+    external: ['koa', '@tao.js/core', '@tao.js/utils'],
     plugins: [
       external(),
       babel({
-        runtimeHelpers: true,
-        exclude: ['node_modules/**']
+        babelHelpers: 'bundled',
+        exclude: ['node_modules/**'],
       }),
-      resolve(),
-      commonjs()
-    ]
-  }
+      nodeResolve(),
+      commonjs(),
+    ],
+  },
 ];

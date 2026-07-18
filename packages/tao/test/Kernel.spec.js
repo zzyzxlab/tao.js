@@ -38,7 +38,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       uut.addInlineHandler({}, wildH);
       uut.addInlineHandler(
         { term: '', action: ACTION, orient: ORIENT },
-        wildTermH
+        wildTermH,
       );
       uut.addInlineHandler({ orient: ORIENT }, wildPartialH);
       uut.addInlineHandler({ term: TERM, o: ORIENT }, wildActionH);
@@ -48,12 +48,12 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       // Assert
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          expect(leafH).toBeCalled();
-          expect(wildH).toBeCalled();
-          expect(wildTermH).toBeCalled();
-          expect(wildActionH).toBeCalled();
-          expect(wildOrientH).toBeCalled();
-          expect(wildPartialH).toBeCalled();
+          expect(leafH).toHaveBeenCalled();
+          expect(wildH).toHaveBeenCalled();
+          expect(wildTermH).toHaveBeenCalled();
+          expect(wildActionH).toHaveBeenCalled();
+          expect(wildOrientH).toHaveBeenCalled();
+          expect(wildPartialH).toHaveBeenCalled();
           resolve();
         }, 300);
       });
@@ -72,7 +72,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       uut.addAsyncHandler({}, wildH);
       uut.addAsyncHandler(
         { term: '', action: ACTION, orient: ORIENT },
-        wildTermH
+        wildTermH,
       );
       uut.addAsyncHandler({ term: TERM, o: ORIENT }, wildActionH);
       uut.addAsyncHandler({ t: TERM, action: ACTION, o: '' }, wildOrientH);
@@ -81,11 +81,11 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       // Assert
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          expect(leafH).toBeCalled();
-          expect(wildH).toBeCalled();
-          expect(wildTermH).toBeCalled();
-          expect(wildActionH).toBeCalled();
-          expect(wildOrientH).toBeCalled();
+          expect(leafH).toHaveBeenCalled();
+          expect(wildH).toHaveBeenCalled();
+          expect(wildTermH).toHaveBeenCalled();
+          expect(wildActionH).toHaveBeenCalled();
+          expect(wildOrientH).toHaveBeenCalled();
           resolve();
         }, 300);
       });
@@ -105,7 +105,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       uut.addInterceptHandler({}, wildH);
       uut.addInterceptHandler(
         { term: '', action: ACTION, orient: ORIENT },
-        wildTermH
+        wildTermH,
       );
       uut.addInterceptHandler({ term: TERM, o: ORIENT }, wildActionH);
       uut.addInterceptHandler({ t: TERM, action: ACTION, o: '' }, wildOrientH);
@@ -113,11 +113,11 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       // Assert
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          expect(leafH).toBeCalled();
-          expect(wildH).toBeCalled();
-          expect(wildTermH).toBeCalled();
-          expect(wildActionH).toBeCalled();
-          expect(wildOrientH).toBeCalled();
+          expect(leafH).toHaveBeenCalled();
+          expect(wildH).toHaveBeenCalled();
+          expect(wildTermH).toHaveBeenCalled();
+          expect(wildActionH).toHaveBeenCalled();
+          expect(wildOrientH).toHaveBeenCalled();
           resolve();
         }, 300);
       });
@@ -139,15 +139,15 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
 
       // Assert
       expect(inlineThrowsEmpty).toThrow(
-        'cannot do anything with missing handler'
+        'cannot do anything with missing handler',
       );
       expect(inlineThrowsFunc).toThrow('handler must be a function');
       expect(asyncThrowsEmpty).toThrow(
-        'cannot do anything with missing handler'
+        'cannot do anything with missing handler',
       );
       expect(asyncThrowsFunc).toThrow('handler must be a function');
       expect(interceptThrowsEmpty).toThrow(
-        'cannot do anything with missing handler'
+        'cannot do anything with missing handler',
       );
       expect(interceptThrowsFunc).toThrow('handler must be a function');
     });
@@ -182,7 +182,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       uut.setAppCtx(ac);
 
       // Assert
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
           expect(inlineConcrete.mock.calls.length).toBe(1);
           expect(asyncConcrete.mock.calls.length).toBe(1);
@@ -213,9 +213,9 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       // Assert
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          expect(indlineWildH).not.toBeCalled();
-          expect(asyncWildH).not.toBeCalled();
-          expect(interceptWildH).not.toBeCalled();
+          expect(indlineWildH).not.toHaveBeenCalled();
+          expect(asyncWildH).not.toHaveBeenCalled();
+          expect(interceptWildH).not.toHaveBeenCalled();
           resolve();
         }, 300);
       });
@@ -238,9 +238,9 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       // Assert
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          expect(indlineWildH).toBeCalled();
-          expect(asyncWildH).toBeCalled();
-          expect(interceptWildH).toBeCalled();
+          expect(indlineWildH).toHaveBeenCalled();
+          expect(asyncWildH).toHaveBeenCalled();
+          expect(interceptWildH).toHaveBeenCalled();
           resolve();
         }, 300);
       });
@@ -331,14 +331,14 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       uut.setAppCtx(ac);
 
       // Assert
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
-          expect(inlineConcrete).not.toBeCalled();
-          expect(asyncConcrete).not.toBeCalled();
-          expect(interceptConcrete).not.toBeCalled();
-          expect(inlineWild).not.toBeCalled();
-          expect(asyncWild).not.toBeCalled();
-          expect(interceptWild).not.toBeCalled();
+          expect(inlineConcrete).not.toHaveBeenCalled();
+          expect(asyncConcrete).not.toHaveBeenCalled();
+          expect(interceptConcrete).not.toHaveBeenCalled();
+          expect(inlineWild).not.toHaveBeenCalled();
+          expect(asyncWild).not.toHaveBeenCalled();
+          expect(interceptWild).not.toHaveBeenCalled();
           resolve();
         }, 30);
       });
@@ -360,15 +360,15 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
 
       // Assert
       expect(inlineThrowsEmpty).toThrow(
-        'cannot do anything with missing handler'
+        'cannot do anything with missing handler',
       );
       expect(inlineThrowsFunc).toThrow('handler must be a function');
       expect(asyncThrowsEmpty).toThrow(
-        'cannot do anything with missing handler'
+        'cannot do anything with missing handler',
       );
       expect(asyncThrowsFunc).toThrow('handler must be a function');
       expect(interceptThrowsEmpty).toThrow(
-        'cannot do anything with missing handler'
+        'cannot do anything with missing handler',
       );
       expect(interceptThrowsFunc).toThrow('handler must be a function');
     });
@@ -443,18 +443,18 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       uut.setCtx(one.unwrapCtx());
 
       // Assert
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         setTimeout(() => {
-          expect(interceptToAsync).toBeCalled();
-          expect(asyncToInline).toBeCalled();
-          expect(asyncToAsync).toBeCalled();
-          expect(inlineToIntercept).toBeCalled();
-          expect(interceptToInline).toBeCalled();
-          expect(inlineToAsync).toBeCalled();
-          expect(inlineToInline).toBeCalled();
-          expect(asyncToInterceptAndAsync).toBeCalled();
-          expect(interceptToIntercept).toBeCalled();
-          expect(interceptEnd).toBeCalled();
+          expect(interceptToAsync).toHaveBeenCalled();
+          expect(asyncToInline).toHaveBeenCalled();
+          expect(asyncToAsync).toHaveBeenCalled();
+          expect(inlineToIntercept).toHaveBeenCalled();
+          expect(interceptToInline).toHaveBeenCalled();
+          expect(inlineToAsync).toHaveBeenCalled();
+          expect(inlineToInline).toHaveBeenCalled();
+          expect(asyncToInterceptAndAsync).toHaveBeenCalled();
+          expect(interceptToIntercept).toHaveBeenCalled();
+          expect(interceptEnd).toHaveBeenCalled();
           resolve();
         }, 300);
       });
@@ -468,7 +468,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       // Act
       const actual = uut.asPromiseHook({
         resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
       });
       // Assert
       expect(actual).toBeDefined();
@@ -504,25 +504,25 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook({
         resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
       });
       expect.assertions(1);
       // Act
       const resolvingPromise = promiseSetCtx({
         t: ALT_TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Assert
       return expect(resolvingPromise).resolves.toMatchObject({
         tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data
+        data: expectedAc.data,
       });
     });
 
@@ -530,7 +530,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       // Assemble
       const uut = new Kernel();
       const expectedAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT, [
-        { a: 1 }
+        { a: 1 },
       ]);
       const handler = jest
         .fn(() => expectedAc)
@@ -539,25 +539,25 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook({
         resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
       });
       expect.assertions(1);
       // Act
       const rejectingPromise = promiseSetCtx({
         t: ALT_TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Assert
       return expect(rejectingPromise).rejects.toMatchObject({
         tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data
+        data: expectedAc.data,
       });
     });
 
@@ -572,28 +572,28 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook({
         resolveOn: [{ t: TERM, a: ACTION, o: ORIENT }, expectedAc.unwrapCtx()],
         rejectOn: [
           { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-          { t: ALT_TERM, a: ALT_ACTION, o: ORIENT }
-        ]
+          { t: ALT_TERM, a: ALT_ACTION, o: ORIENT },
+        ],
       });
       expect.assertions(1);
       // Act
       const resolvingPromise = promiseSetCtx({
         t: ALT_TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Assert
       return expect(resolvingPromise).resolves.toMatchObject({
         tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data
+        data: expectedAc.data,
       });
     });
 
@@ -608,31 +608,31 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook({
         resolveOn: [
           { t: TERM, a: ACTION, o: ORIENT },
-          { t: TERM, a: ALT_ACTION, o: ORIENT }
+          { t: TERM, a: ALT_ACTION, o: ORIENT },
         ],
         rejectOn: [
           { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-          expectedAc.unwrapCtx()
-        ]
+          expectedAc.unwrapCtx(),
+        ],
       });
       expect.assertions(1);
       // Act
       const rejectingPromise = promiseSetCtx({
         t: ALT_TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Assert
       return expect(rejectingPromise).rejects.toMatchObject({
         tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data
+        data: expectedAc.data,
       });
     });
 
@@ -647,25 +647,25 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook({
         resolveOn: { t: TERM, a: '', o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
       });
       expect.assertions(1);
       // Act
       const resolvingPromise = promiseSetCtx({
         t: ALT_TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Assert
       return expect(resolvingPromise).resolves.toMatchObject({
         tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data
+        data: expectedAc.data,
       });
     });
 
@@ -673,7 +673,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       // Assemble
       const uut = new Kernel();
       const expectedAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT, [
-        { a: 1 }
+        { a: 1 },
       ]);
       const handler = jest
         .fn(() => expectedAc)
@@ -682,25 +682,25 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook({
         resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { o: ALT_ORIENT }
+        rejectOn: { o: ALT_ORIENT },
       });
       expect.assertions(1);
       // Act
       const rejectingPromise = promiseSetCtx({
         t: ALT_TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Assert
       return expect(rejectingPromise).rejects.toMatchObject({
         tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data
+        data: expectedAc.data,
       });
     });
 
@@ -715,28 +715,31 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: [{ t: TERM, o: ALT_ORIENT }, { a: ALT_ACTION, o: ORIENT }],
+        resolveOn: [
+          { t: TERM, o: ALT_ORIENT },
+          { a: ALT_ACTION, o: ORIENT },
+        ],
         rejectOn: [
           { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-          { t: TERM, a: ACTION, o: ALT_ORIENT }
-        ]
+          { t: TERM, a: ACTION, o: ALT_ORIENT },
+        ],
       });
       expect.assertions(1);
       // Act
       const resolvingPromise = promiseSetCtx({
         t: ALT_TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Assert
       return expect(resolvingPromise).resolves.toMatchObject({
         tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data
+        data: expectedAc.data,
       });
     });
 
@@ -751,31 +754,31 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook({
         resolveOn: [
           { t: TERM, a: ACTION, o: ORIENT },
-          { t: TERM, a: ALT_ACTION, o: ORIENT }
+          { t: TERM, a: ALT_ACTION, o: ORIENT },
         ],
         rejectOn: [
           { t: ALT_TERM, a: ALT_ACTION },
-          { t: ALT_TERM, o: ALT_ORIENT }
-        ]
+          { t: ALT_TERM, o: ALT_ORIENT },
+        ],
       });
       expect.assertions(1);
       // Act
       const rejectingPromise = promiseSetCtx({
         t: ALT_TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Assert
       return expect(rejectingPromise).rejects.toMatchObject({
         tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data
+        data: expectedAc.data,
       });
     });
 
@@ -790,23 +793,23 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook(
         {
           resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-          rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+          rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
         },
-        100
+        100,
       );
       expect.assertions(1);
       // Act
       const rejectingPromise = promiseSetCtx({
         t: TERM,
         a: ALT_ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Assert
       return expect(rejectingPromise).rejects.toBe(TIMEOUT_REJECT);
@@ -823,13 +826,13 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook({
         resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
       });
       expect.assertions(1);
       // Act
@@ -837,14 +840,14 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        100
+        100,
       );
       // Assert
       return expect(resolvingPromise).resolves.toMatchObject({
         tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data
+        data: expectedAc.data,
       });
     });
 
@@ -852,7 +855,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       // Assemble
       const uut = new Kernel();
       const expectedAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT, [
-        { a: 1 }
+        { a: 1 },
       ]);
       const handler = jest
         .fn(() => expectedAc)
@@ -861,28 +864,28 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook(
         {
           resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-          rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+          rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
         },
-        100
+        100,
       );
       expect.assertions(1);
       // Act
       const rejectingPromise = promiseSetCtx({
         t: ALT_TERM,
         a: ACTION,
-        o: ORIENT
+        o: ORIENT,
       });
       // Assert
       return expect(rejectingPromise).rejects.toMatchObject({
         tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data
+        data: expectedAc.data,
       });
     });
 
@@ -897,13 +900,13 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        handler
+        handler,
       );
       const promiseSetCtx = uut.asPromiseHook({
         resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT }
+        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
       });
       expect.assertions(1);
       // Act
@@ -911,14 +914,14 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
         {
           t: ALT_TERM,
           a: ACTION,
-          o: ORIENT
+          o: ORIENT,
         },
-        -1
+        -1,
       );
       // Assert
       return expect(resolvingPromise).resolves.toMatchObject({
         tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data
+        data: expectedAc.data,
       });
     });
 
@@ -934,7 +937,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       uut.addInlineHandler(triggeringAc.unwrapCtx(), handler);
       const promiseSetCtx = uut.asPromiseHook({
         resolveOn: resolveOnAc.unwrapCtx(),
-        rejectOn: rejectOnAc.unwrapCtx()
+        rejectOn: rejectOnAc.unwrapCtx(),
       });
       // expect.assertions(1);
       // Act
@@ -969,7 +972,7 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       uut.addInlineHandler(triggeringAc.unwrapCtx(), handler);
       const promiseSetCtx = uut.asPromiseHook({
         resolveOn: resolveOnAc.unwrapCtx(),
-        rejectOn: rejectOnAc.unwrapCtx()
+        rejectOn: rejectOnAc.unwrapCtx(),
       });
       // expect.assertions(1);
       // Act

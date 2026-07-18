@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+# prepare-commit-msg: optionally open the interactive Commitizen-like wizard.
+#
+# This is a normal Git/husky hook (not Cursor-specific). Agents and other
+# non-interactive environments have no usable TTY, so we skip the wizard and
+# rely on commit-msg validation of the message supplied via `git commit -m`.
+
+MSG_FILE="$1"
+SOURCE="${2:-}"
+
+case "$SOURCE" in
+  merge|squash)
+    exit 0
+    ;;
+esac
+
+# Message already matches our contract — do not overwrite (agents / -m / amend).
+if [ -f "$MSG_FILE" ] && grep -q '^Affected packages:' "$MSG_FILE"; then
+  exit 0
+fi
+
+# Interactive wizard only when a human has a TTY and did not pass -m/-F.
+if [ "$SOURCE" = "message" ]; then
+  exit 0
+fi
+
+if [ ! -c /dev/tty ]; then
+  exit 0
+fi
+
+# Attach the controlling terminal for inquirer prompts.
+if ! exec < /dev/tty; then
+  exit 0
+fi
+
+echo "Opening commit message wizard (pnpm run commit)..."
+pnpm run commit "$MSG_FILE"

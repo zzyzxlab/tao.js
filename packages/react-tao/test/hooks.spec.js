@@ -1,16 +1,11 @@
 import React from 'react';
-import { renderHook, act } from '@testing-library/react-hooks';
-import { default as TAODefault, Kernel } from '@tao.js/core';
+import { renderHook } from '@testing-library/react-hooks';
+import { Kernel } from '@tao.js/core';
 import Provider from '../src/Provider';
 import * as hooks from '../src/hooks';
 
 const TERM = 'colleague';
-const ACTION = 'hug';
-const ORIENT = 'justfriends';
-
 const ALT_TERM = 'dude';
-const ALT_ACTION = 'fistbump';
-const ALT_ORIENT = 'bros';
 
 let TAO = null;
 function initTAO() {
@@ -25,13 +20,16 @@ afterEach(clearTAO);
 
 const NOOP = () => {};
 
+const withProvider = ({ children }) => (
+  <Provider TAO={TAO}>{children}</Provider>
+);
+
 describe('provides a set of react hooks for interacting with tao.js in functional components', () => {
   describe('useTaoContext', () => {
     it('should return a TAO Network', () => {
-      const wrapper = ({ children }) => (
-        <Provider TAO={TAO}>{children}</Provider>
-      );
-      const { result } = renderHook(() => hooks.useTaoContext(), { wrapper });
+      const { result } = renderHook(() => hooks.useTaoContext(), {
+        wrapper: withProvider,
+      });
 
       expect(result.current).toBe(TAO);
       expect(result.current).toBeInstanceOf(Kernel);
@@ -40,13 +38,42 @@ describe('provides a set of react hooks for interacting with tao.js in functiona
 
   describe('useTaoInlineHandler', () => {
     it('should take a trigram + handler', () => {
-      const wrapper = ({ children }) => (
-        <Provider TAO={TAO}>{children}</Provider>
-      );
       const { result } = renderHook(
         () => hooks.useTaoInlineHandler({ t: [TERM, ALT_TERM] }, NOOP),
-        { wrapper }
+        { wrapper: withProvider },
       );
+
+      expect(result.current).toBe(undefined);
+    });
+  });
+
+  describe('useTaoAsyncHandler', () => {
+    it('should take a trigram + handler', () => {
+      const { result } = renderHook(
+        () => hooks.useTaoAsyncHandler({ t: [TERM, ALT_TERM] }, NOOP),
+        { wrapper: withProvider },
+      );
+
+      expect(result.current).toBe(undefined);
+    });
+  });
+
+  describe('useTaoInterceptHandler', () => {
+    it('should take a trigram + handler', () => {
+      const { result } = renderHook(
+        () => hooks.useTaoInterceptHandler({ t: [TERM, ALT_TERM] }, NOOP),
+        { wrapper: withProvider },
+      );
+
+      expect(result.current).toBe(undefined);
+    });
+  });
+
+  describe('useTaoDataContext', () => {
+    it('should return undefined when the named data context is missing', () => {
+      const { result } = renderHook(() => hooks.useTaoDataContext('missing'), {
+        wrapper: withProvider,
+      });
 
       expect(result.current).toBe(undefined);
     });

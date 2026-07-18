@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Runs before a commit is created. Safe for agents / CI (no TTY required).
+echo "Running lint-staged..."
+pnpm exec lint-staged

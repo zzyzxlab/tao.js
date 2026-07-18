@@ -11,83 +11,48 @@
   "license": "Apache-2.0",
   "description": "",
   "scripts": {
-    "build": "lerna run build --ignore=docs --ignore=patois* --stream",
-    "clean:build": "lerna run build:clean --ignore=docs --ignore=patois*",
-    "test": "jest",
-    "test:coverage": "BABEL_ENV=test jest --coverage",
+    "build": "nx run-many --target=build --all --exclude=patois.*",
+    "clean:build": "nx run-many --target=build:clean --all",
+    "test": "nx run-many --target=test --all --exclude=patois.*",
+    "test:coverage": "nx run-many --target=test --all --exclude=patois.* --coverage",
     "test:coverage:view": "open packages/docs/src/content/coverage/index.html",
-    "test:watch": "jest --watch",
-    "lint:packages": "eslint 'packages/*/src/*'",
+    "test:watch": "nx run-many --target=test:watch --all --exclude=patois.*",
+    "lint": "nx run-many --target=lint --all --exclude=patois.*",
+    "lint:packages": "nx run-many --target=lint --all",
     "docs:clean": "ls docs | grep -v \"CNAME\" | awk '{print \"docs/\"$1}' | xargs rimraf",
-    "docs:build": "lerna run make --scope=docs",
-    "docs:edit": "lerna run book:edit --scope=docs --stream",
+    "docs:build": "nx run docs:build",
+    "docs:edit": "nx run docs:book:edit",
     "docs:edits": "$(cd packages/docs && npm run book:edit)",
-    "docs:coverage": "npm run test:coverage && lerna run coverage --scope=docs && npm run docs:publish",
+    "docs:coverage": "npm run test:coverage && nx run docs:coverage && npm run docs:publish",
     "docs:publish": "npm run docs:clean && cp -a packages/docs/dist/ docs",
     "docs:clean:md": "rimraf docs/**/*.md",
     "docs:make": "npm run test:coverage && npm run docs:build && npm run docs:publish && npm run docs:clean:md",
     "docs:make:no-coverage": "npm run docs:build && npm run docs:publish && npm run docs:clean:md",
     "docs:open": "open docs/index.html",
-    "chore:clean": "lerna clean --ignore=docs --ignore=patois* && rimraf ./node_modules && npm install && lerna bootstrap --hoist",
-    "chore:dependencies:packages": "lerna exec --concurrency=1 --scope=@tao.js/* -- npm update --dev --save",
+    "chore:clean": "nx run-many --target=clean --all && rimraf ./node_modules && npm install",
+    "chore:dependencies:packages": "nx run-many --target=update-deps --all",
     "chore:dependencies:root": "npm update --dev --save",
-    "chore:dependencies": "lerna clean --ignore=docs --ignore=patois* && npm run chore:dependencies:root && npm run chore:dependencies:packages && lerna bootstrap --hoist",
+    "chore:dependencies": "npm run chore:clean && npm run chore:dependencies:root && npm run chore:dependencies:packages",
     "chore:changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
-    "chore:publish": "lerna publish"
+    "release": "nx release",
+    "release:dry": "nx release 0.16.3 --dry-run --first-release --skip-publish",
+    "release:publish": "nx release publish",
+    "commit": "node scripts/commit.js",
+    "commit:validate": "node scripts/validate-commit-msg.js",
+    "version": "cz bump",
+    "prepare": "husky"
   },
+  "type": "module",
   "config": {
     "commitizen": {
-      "path": "cz-lerna-changelog"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true",
-      "pre-commit": "lint-staged"
+      "path": "./scripts/commit.js"
     }
   },
   "lint-staged": {
     "*.{js,json,css,md}": [
       "prettier --write",
-      "git add",
-      "jest --bail --findRelatedTests"
+      "jest --bail --findRelatedTests --passWithNoTests"
     ]
-  },
-  "jest": {
-    "collectCoverageFrom": [
-      "packages/*/src/**/*.{js,jsx}",
-      "!**/*.story.{js,jsx}",
-      "!**/node_modules/**",
-      "!**/docs/**",
-      "!config/**/*.js",
-      "!packages/*/lib/**",
-      "!packages/*/test/**"
-    ],
-    "testRegex": "./(packages|examples)/[^/]+/test/.+\\.m?js$",
-    "coverageReporters": [
-      "html"
-    ],
-    "coverageDirectory": "packages/docs/src/content/coverage",
-    "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "example.js"
-    ],
-    "setupFiles": [
-      "<rootDir>/config/jest.js"
-    ],
-    "setupTestFrameworkScriptFile": "<rootDir>/config/setup.js",
-    "transformIgnorePatterns": [
-      "/node_modules/",
-      "<rootDir>/(packages|examples)/[^/]+/lib/"
-    ],
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ],
-    "testURL": "http://localhost",
-    "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/config/__mocks__/fileMock.js",
-      "\\.(css|less)$": "identity-obj-proxy"
-    }
   },
   "dependencies": {
     "@tao.js/connect": "file:packages/tao-connect",
@@ -105,42 +70,54 @@
   },
   "devDependencies": {
     "@babel/cli": "7.1.5",
-    "@babel/core": "7.1.5",
+    "@babel/core": "7.28.0",
+    "@babel/eslint-parser": "^7.28.0",
     "@babel/node": "7.2.2",
-    "@babel/plugin-proposal-class-properties": "7.1.0",
-    "@babel/plugin-proposal-object-rest-spread": "7.0.0",
     "@babel/plugin-syntax-class-properties": "7.0.0",
+    "@babel/plugin-transform-class-properties": "^7.27.1",
     "@babel/plugin-transform-modules-commonjs": "7.1.0",
-    "@babel/plugin-transform-runtime": "7.1.0",
-    "@babel/preset-env": "7.1.5",
-    "@babel/preset-react": "7.0.0",
-    "@testing-library/react-hooks": "^5.1.3",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^23.6.0",
+    "@babel/plugin-transform-object-rest-spread": "^7.28.0",
+    "@babel/preset-env": "7.28.0",
+    "@babel/preset-react": "7.27.1",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.32.0",
+    "@jest/globals": "^30.1.2",
+    "@nx/eslint": "23.1.0",
+    "@nx/jest": "23.1.0",
+    "@nx/js": "23.1.0",
+    "@nx/rollup": "23.1.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^8.0.9",
+    "@testing-library/react-hooks": "^7.0.2",
+    "babel-jest": "30.3.0",
     "babel-plugin-istanbul": "^5.2.0",
     "better-npm-run": "^0.1.1",
+    "cheerio": "1.0.0-rc.12",
     "commitizen": "^3.1.2",
     "conventional-changelog": "^3.1.25",
     "conventional-changelog-cli": "^2.2.2",
-    "cz-lerna-changelog": "^2.0.3",
     "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.6",
+    "enzyme-adapter-react-16": "^1.15.8",
     "enzyme-to-json": "^3.6.2",
-    "eslint": "^5.16.0",
-    "eslint-config-prettier": "^3.6.0",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-babel": "^5.3.1",
-    "eslint-plugin-prettier": "^3.4.1",
+    "eslint-plugin-prettier": "^5.5.3",
     "gitbook-updated-cli": "^2.3.4",
-    "husky": "^0.15.0-rc.13",
-    "jest": "^23.6.0",
+    "husky": "^9.1.7",
+    "inquirer": "12.9.4",
+    "jest": "^30.1.3",
+    "jest-environment-jsdom": "^30.1.2",
     "jest-enzyme": "^7.1.2",
-    "lerna": "^3.22.1",
-    "lerna-update-wizard": "^0.9.4",
-    "lint-staged": "^7.3.0",
+    "lint-staged": "^16.1.5",
     "nodemon": "^1.19.4",
+    "nx": "23.1.0",
     "plop": "^2.7.6",
-    "prettier": "^1.19.1",
+    "prettier": "^3.6.2",
     "prop-types": "^15.8.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
@@ -148,13 +125,10 @@
     "react-testing-library": "^5.9.0",
     "regenerator-runtime": "^0.12.1",
     "rimraf": "^2.7.1",
-    "rollup": "1.12.3",
-    "rollup-plugin-babel": "^4.4.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-json": "^4.0.0",
+    "rollup": "4.62.2",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.4"
-  }
+  },
+  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
 }

@@ -1,0 +1,83 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "test": {
+      "cache": true
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/lib",
+        "{projectRoot}/bundles"
+      ],
+      "cache": true
+    },
+    "build:clean": {
+      "dependsOn": ["^build:clean"],
+      "cache": true
+    },
+    "build:package": {
+      "dependsOn": ["^build:package"],
+      "outputs": ["{projectRoot}/packages/tao/dist"],
+      "cache": true
+    },
+    "book:prep": {
+      "outputs": ["{projectRoot}/packages/docs/src/_book"],
+      "cache": true
+    },
+    "book:build": {
+      "outputs": ["{projectRoot}/packages/docs/dist"],
+      "cache": true
+    },
+    "coverage": {
+      "outputs": ["{projectRoot}/dist/coverage"],
+      "cache": true
+    },
+    "book:clean": {
+      "cache": true
+    }
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "test"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    }
+  ],
+  "nxCloudId": "6886c6b53390a1156e50748c",
+  "release": {
+    "projects": [
+      "@tao.js/core",
+      "@tao.js/utils",
+      "@tao.js/react",
+      "@tao.js/router",
+      "@tao.js/socket.io",
+      "@tao.js/koa"
+    ],
+    "projectsRelationship": "fixed",
+    "version": {
+      "preserveLocalDependencyProtocols": true,
+      "versionActions": "./tools/release/version-actions.cjs"
+    },
+    "changelog": {
+      "workspaceChangelog": true,
+      "projectChangelogs": false
+    },
+    "git": {
+      "commit": true,
+      "tag": true,
+      "commitMessage": "chore(release): publish {version}"
+    },
+    "releaseTag": {
+      "pattern": "v{version}"
+    }
+  }
+}
