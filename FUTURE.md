@@ -13,7 +13,7 @@ This repo’s agent guide is `AGENTS.md` (how to work on the tao.js library itse
 
 TODO
 
-- [ ] finish the transformation to nx.js
+- [x] finish the transformation to nx.js (Nx 23.1.0; alpha ladder `0.16.3-alpha.nx{21,22,23}` on npm `alpha` tag)
 - [ ] implement the TypeScript library wrapper
 - [ ] complete all tests for 100% code coverage
 - [ ] create a mutation test suite and exercise it

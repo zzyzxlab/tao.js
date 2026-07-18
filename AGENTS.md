@@ -237,6 +237,7 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
+- **2026-07-17** — Alpha ladder published: `0.16.3-alpha.nx21` → migrate 22.7.7 → `…nx22` → migrate 23.1.0 → `…nx23` (npm dist-tag `alpha`). Keep custom `tools/release/version-actions.cjs`: Nx 22+ `preserveMatchingDependencyRanges` treats `*` as `>=0.0.0`, which does **not** match prereleases. npm publish with passkey MFA needs a granular token with Bypass 2FA (no TOTP/`--otp`). `patois.web` needs `file:` dep on `@tao.js/utils` for lockfile updates during release.
 - **2026-07-17** — Commit hooks are standard husky/Git (not Cursor-specific). Interactive Commitizen needs a TTY; agents use `git commit -m` with `Affected packages:` and `scripts/validate-commit-msg.js` enforces the contract.
 - **2026-07-16** — Renamed this file from `TAO.md` → `AGENTS.md`. Reserve `TAO.md` for app repos that document their message protocol; see `FUTURE.md`.
 - **2026-07-16** — `@tao.js/core` default export is a shared `Kernel` instance named `TAO`. `Network` is lower-level; app code and most adapters should use `Kernel` / `TAO`. Wildcard AppCons are ignored on `setCtx`/`setAppCtx` unless `new Kernel(true)`.
