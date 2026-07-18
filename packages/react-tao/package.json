@@ -44,9 +44,9 @@
   },
   "devDependencies": {
     "@tao.js/core": "file:../tao",
-    "prop-types": "file:../../node_modules/prop-types",
-    "react": "file:../../node_modules/react",
-    "react-dom": "file:../../node_modules/react-dom"
+    "prop-types": "^15.8.1",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "dependencies": {
     "cartesian": "^1.0.1"
