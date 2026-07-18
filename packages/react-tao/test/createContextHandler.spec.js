@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { render, cleanup, act, waitFor } from '@testing-library/react';
 import { AppCtx, Kernel } from '@tao.js/core';
 import Provider from '../src/Provider';
@@ -47,9 +47,7 @@ describe('createContextHandler', () => {
       const actual = createContextHandler();
 
       expect(actual.Provider).toBeDefined();
-      expect(new actual.Provider()).toBeInstanceOf(actual.Provider);
-      expect(new actual.Provider()).not.toBeInstanceOf(Function);
-      expect(new actual.Provider()).toBeInstanceOf(Component);
+      expect(actual.Provider).toBeInstanceOf(Function);
     });
 
     it('should return an object with a Consumer', () => {
@@ -85,6 +83,26 @@ describe('createContextHandler', () => {
       );
 
       expect(getByTestId('out').textContent).toBe('yes');
+    });
+
+    it('accepts a null trigram arg and still provides default state', () => {
+      const { Provider: CtxProvider, Consumer } = createContextHandler(null);
+
+      const { getByTestId } = render(
+        <Provider TAO={TAO}>
+          <CtxProvider>
+            <Consumer>
+              {(value) => (
+                <div data-testid="out">
+                  {value && Object.keys(value).length === 0 ? 'empty' : 'full'}
+                </div>
+              )}
+            </Consumer>
+          </CtxProvider>
+        </Provider>,
+      );
+
+      expect(getByTestId('out').textContent).toBe('empty');
     });
 
     it('defaults state to {} when defaultValue is omitted', () => {

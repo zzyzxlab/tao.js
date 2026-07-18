@@ -127,6 +127,16 @@ describe('helpers provide functions used across the package', () => {
       expect(getPermutations({})).toEqual([{}]);
     });
 
+    it('getPermutations falls back to [{}] when cartesian yields an empty list', () => {
+      jest.resetModules();
+      jest.doMock('cartesian', () => () => []);
+      // eslint-disable-next-line global-require
+      const { getPermutations: getPerms } = require('../src/helpers');
+      expect(getPerms({ term: 'X' })).toEqual([{}]);
+      jest.dontMock('cartesian');
+      jest.resetModules();
+    });
+
     it('handlerHash encodes missing, scalar, and array trigram parts', () => {
       expect(handlerHash({})).toBe('%|%|%');
       expect(handlerHash({ term: TERM, action: ACTION, orient: ORIENT })).toBe(

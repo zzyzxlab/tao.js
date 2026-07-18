@@ -68,6 +68,15 @@ package may want to use the simplified original API which has only 2 exports.
 The Current API provides a React-like developer experience using the Context API and
 hooks. Peer dependency: **React 18 or 19** (`react` / `react-dom` `^18.2.0 || ^19.0.0`).
 
+### 0.17 data context (tree-scoped names)
+
+- Prefer **`useTaoData('name')`** (or `useTaoData()` for the nearest `DataHandler`) in any
+  descendant component. Lookups walk the React ancestor chain — sibling subtrees are isolated.
+- **`RenderHandler` `context` prop** and **`DataConsumer`** still work for one release window but
+  are **deprecated** (dev-only once warning). Migrate render props to `(tao, data) => …` and read
+  data with `useTaoData` inside a child component.
+- `useTaoDataContext(name)` remains as a deprecated alias of `useTaoData(name)`.
+
 Because of this, `@tao.js/react` builds 3 different versions of bundles for CommonJS and
 UMD for the current, original and all (both).
 

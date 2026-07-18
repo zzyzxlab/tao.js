@@ -29,9 +29,7 @@ describe('@tao.js/react all.js exports both the current and original APIs to use
 
   it('should export a Provider Component', () => {
     expect(Provider).toBeDefined();
-    expect(new Provider()).toBeInstanceOf(Provider);
-    expect(new Provider()).toBeInstanceOf(Component);
-    expect(new Provider()).not.toBeInstanceOf(Function);
+    expect(Provider).toBeInstanceOf(Function);
   });
 
   it('should export a RenderHandler Component', () => {
@@ -47,9 +45,7 @@ describe('@tao.js/react all.js exports both the current and original APIs to use
 
   it('should export a DataHandler Component', () => {
     expect(DataHandler).toBeDefined();
-    expect(new DataHandler({})).toBeInstanceOf(DataHandler);
-    expect(new DataHandler({})).toBeInstanceOf(Component);
-    expect(new DataHandler({})).not.toBeInstanceOf(Function);
+    expect(DataHandler).toBeInstanceOf(Function);
   });
 
   it('should export an withContext HOC', () => {

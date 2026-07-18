@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Context } from './Provider';
+import { useDataLayers } from './DataLayerContext';
 import { getPermutations } from './helpers';
 
 export function useTaoContext() {
@@ -67,10 +68,29 @@ export function useTaoInterceptHandler(
   );
 }
 
-export function useTaoDataContext(name) {
-  const { data } = React.useContext(Context);
-  if (data == null || !Object.prototype.hasOwnProperty.call(data, name)) {
+/**
+ * Tree-scoped named data from ancestor DataHandlers.
+ * @param {string} [name] — when omitted, returns the nearest DataHandler value
+ */
+export function useTaoData(name) {
+  const layers = useDataLayers();
+  if (!layers || !layers.length) {
     return;
   }
-  return data[name];
+  if (name == null || name === '') {
+    return layers[layers.length - 1].value;
+  }
+  for (let i = layers.length - 1; i >= 0; i -= 1) {
+    if (layers[i].name === name) {
+      return layers[i].value;
+    }
+  }
+}
+
+/**
+ * @deprecated Since 0.17 — alias of `useTaoData`; prefer `useTaoData(name)`.
+ * Still reads the tree-scoped layer (same as useTaoData) for a named slot.
+ */
+export function useTaoDataContext(name) {
+  return useTaoData(name);
 }

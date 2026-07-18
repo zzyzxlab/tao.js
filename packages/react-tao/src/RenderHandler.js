@@ -11,6 +11,7 @@ import cartesian from 'cartesian';
 import { normalizeClean, getPermutations } from './helpers';
 import { Context } from './Provider';
 import useTaoInlineSubscription from './useTaoInlineSubscription';
+import { warnDeprecated } from './deprecations';
 
 function readNamedData(dataBag, ctxName) {
   // Stryker disable all: dataBag==null short-circuit redundant with Provider {}; console is diagnostic
@@ -130,6 +131,10 @@ function RenderHandler({
   if (!context) {
     return <React.Fragment>{children(tao, data)}</React.Fragment>;
   }
+  warnDeprecated(
+    'RenderHandler.context',
+    '[@tao.js/react] RenderHandler `context` prop is deprecated and will be removed in a future release. Use useTaoData(name) in a child component instead of positional render-prop args.',
+  );
   const ctxList = Array.isArray(context) ? context : [context];
   const ctxArgs = ctxList.map((ctxName) => readNamedData(dataBag, ctxName));
   return <React.Fragment>{children(tao, data, ...ctxArgs)}</React.Fragment>;

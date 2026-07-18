@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import { Context } from './Provider';
+import { warnDeprecated } from './deprecations';
 
 function readNamedData(data, ctxName) {
   // Stryker disable next-line ConditionalExpression: missing key still yields undefined≈null for consumers that only check truthiness; warn path is asserted separately
@@ -17,22 +18,29 @@ function readNamedData(data, ctxName) {
   return data[ctxName];
 }
 
-export default class DataConsumer extends React.Component {
-  static contextType = Context;
+/**
+ * @deprecated Since 0.17 — prefer `useTaoData('name')` in function components.
+ */
+function DataConsumer({ context, children }) {
+  warnDeprecated(
+    'DataConsumer',
+    '[@tao.js/react] DataConsumer is deprecated and will be removed in a future release. Use useTaoData(name) instead.',
+  );
 
-  static propTypes = {
-    context: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.arrayOf(PropTypes.string),
-    ]).isRequired,
-    children: PropTypes.func.isRequired,
-  };
-
-  render() {
-    const { context, children } = this.props;
-    const { data } = this.context;
-    const ctxList = Array.isArray(context) ? context : [context];
-    const args = ctxList.map((ctxName) => readNamedData(data, ctxName));
-    return children(...args);
-  }
+  const { data } = useContext(Context);
+  const ctxList = Array.isArray(context) ? context : [context];
+  const args = ctxList.map((ctxName) => readNamedData(data, ctxName));
+  return children(...args);
 }
+
+DataConsumer.displayName = 'DataConsumer';
+
+DataConsumer.propTypes = {
+  context: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string),
+  ]).isRequired,
+  children: PropTypes.func.isRequired,
+};
+
+export default DataConsumer;
