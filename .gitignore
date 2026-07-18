@@ -80,3 +80,10 @@ build
 .nx/polygraph
 .nx/self-healing
 .nx/migrate-runs
+
+# Stryker mutation testing
+stryker-tmp/
+reports/mutation/
+packages/*/stryker-tmp/
+packages/*/reports/mutation/
+.stryker-tmp/

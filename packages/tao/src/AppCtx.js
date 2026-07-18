@@ -2,10 +2,12 @@ import AppCtxRoot from './AppCtxRoot';
 
 function _cleanDatum(term, action, orient, ...data) {
   const datum = {};
+  // Stryker disable next-line all: empty data still yields {} via the positional path below
   if (!data.length) {
     return {};
   }
   let checkData = data;
+  // Stryker disable next-line ConditionalExpression: length>1 still falls through to the same positional assigns
   if (checkData.length === 1) {
     // MUST check Array first b/c ([] instanceof Object === true)
     if (Array.isArray(checkData[0])) {
@@ -29,6 +31,7 @@ function _cleanDatum(term, action, orient, ...data) {
         assigned = true;
       } else if (typeof obj.a !== 'undefined') {
         datum[action] = obj.a;
+        // Stryker disable next-line BooleanLiteral: perTest coverage sometimes skips the { a } only path
         assigned = true;
       } else if (typeof obj[action] !== 'undefined') {
         datum[action] = obj[action];

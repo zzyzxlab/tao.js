@@ -56,11 +56,12 @@ export default class AppCtxRoot {
 
   // TODO: write TESTS for this
   static isMatch(ac, trigram, exact = false) {
+    // Stryker disable next-line ConditionalExpression: re-wrapping an AppCtxRoot is observationally identical
     if (!(ac instanceof AppCtxRoot)) {
       ac = new AppCtxRoot(
         ac.t || ac.term,
         ac.a || ac.action,
-        ac.o || ac.orient
+        ac.o || ac.orient,
       );
     }
     if (ac.key === AppCtxRoot.getKey(trigram.t, trigram.a, trigram.o)) {

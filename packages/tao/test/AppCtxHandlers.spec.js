@@ -63,7 +63,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       const willThrow = () => uut.addInlineHandler({});
       // Assert
-      expect(willThrow).toThrow();
+      expect(willThrow).toThrow('An InlineHandler can only be a function');
     });
 
     it('should attach an inline handler', () => {
@@ -271,7 +271,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       const willThrow = () => uut.addAsyncHandler({});
       // Assert
-      expect(willThrow).toThrow();
+      expect(willThrow).toThrow('An AsyncHandler can only be a function');
     });
 
     it('should attach an async handler', () => {
@@ -507,7 +507,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       const willThrow = () => uut.addInterceptHandler({});
       // Assert
-      expect(willThrow).toThrow();
+      expect(willThrow).toThrow('An InterceptHandler can only be a function');
     });
 
     it('should attach an intercept handler', () => {

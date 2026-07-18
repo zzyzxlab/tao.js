@@ -188,4 +188,36 @@ describe('concatIterables returns an Iterable made of concatenating all iterable
     // expect(actual.length).toBe(expected.length);
     expect(actual).toEqual(expected);
   });
+
+  it('uses Map values rather than map entry tuples', () => {
+    const map = new Map([
+      ['one', 1],
+      ['two', 2],
+    ]);
+
+    expect(concatIterables(map)).toEqual([1, 2]);
+  });
+
+  it('iterates custom iterables that do not expose a values() method', () => {
+    const custom = {
+      *[Symbol.iterator]() {
+        yield 10;
+        yield 20;
+      },
+    };
+
+    expect(concatIterables(custom)).toEqual([10, 20]);
+  });
+
+  it('ignores a non-function values property and uses the iterator', () => {
+    const weird = {
+      values: 123,
+      *[Symbol.iterator]() {
+        yield 'x';
+        yield 'y';
+      },
+    };
+
+    expect(concatIterables(weird)).toEqual(['x', 'y']);
+  });
 });
