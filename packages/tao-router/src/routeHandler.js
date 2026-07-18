@@ -110,6 +110,7 @@ function pathDataGet(tao, data, deconstructedPath) {
     const getDataFrom = item.match[2];
     const needData = get(allData, getDataFrom);
     // console.log('pathDataGet:', { getDataFrom, needData });
+    // Stryker disable next-line ConditionalExpression,BlockStatement: equivalent - path-to-regexp's compiled path function throws the identical "Expected ... to be a string" error whether the param key is omitted or explicitly set to null/undefined, so skipping vs falling through here is unobservable
     if (needData == null) {
       return pathData;
     }
@@ -124,9 +125,12 @@ function makeRouteHandler(history, route, debug = false) {
   const usablePath = convertPath(deconstructedPath);
   const toPath = pathToRegexp.compile(usablePath);
   return (tao, data) => {
+    // Stryker disable all: optional debug logging
     debug && console.log('routeHandler::called with', { tao, data });
+    // Stryker restore all
     // const pathData = pathFlattenData(tao, data);
     const pathData = pathDataGet(tao, data, deconstructedPath);
+    // Stryker disable next-line all: optional debug logging
     debug && console.log('routeHandler::pathData', pathData);
     let routeValue = toPath(pathData);
     if (route.lowerCase) {

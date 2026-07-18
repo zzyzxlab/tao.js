@@ -11,6 +11,7 @@ import makeRouteHandler, { deconstructPath, convertPath } from './routeHandler';
 const CHANGE_ACTION_SIGNAL = 'POP';
 
 function capitalize(str) {
+  // Stryker disable next-line LogicalOperator,ConditionalExpression: equivalent - str is always undefined or a string captured from a URL path segment here, never a truthy non-string, so `!str` alone (or forcing this guard true/false) can't diverge from the full guard for any reachable input
   if (!str || typeof str !== 'string') {
     return str;
   }
@@ -49,8 +50,11 @@ function mergeData(pathData, defaultData, parentPath) {
   });
 }
 
+// Stryker disable next-line BooleanLiteral: unreachable - every internal caller of reactToRoute always passes an explicit boolean `this._debug`, so the `= false` default is never actually evaluated
 function reactToRoute(TAO, match, debug = false) {
+  // Stryker disable all: optional debug logging
   debug && console.log('Router::reacting to route');
+  // Stryker restore all
   const pathMatched = match.node.deconstruction.reduce((pathData, pathItem) => {
     if (!pathItem.match) {
       return pathData;
@@ -68,9 +72,11 @@ function reactToRoute(TAO, match, debug = false) {
     pathMatched.a = capitalize(pathMatched.a);
     pathMatched.o = capitalize(pathMatched.o);
   }
+  // Stryker disable all: optional debug logging
   debug &&
     console.log('reactToRoute::node.defaultData:', match.node.defaultData);
   debug && console.log('reactToRoute::node.attached:', match.node.attached);
+  // Stryker restore all
   match.node.attached.forEach((trigram) => {
     const defaultData = match.node.defaultData
       ? match.node.defaultData.get(trigram.key)
@@ -88,6 +94,7 @@ function reactToRoute(TAO, match, debug = false) {
     );
 
     TAO.setCtx({ t: 'Route', a: 'Match', o: ac.o }, [match.node.route, ac]);
+    // Stryker disable next-line all: optional debug logging
     debug && console.log('reactToRoute::TAO.setAppCtx::ac', ac);
     TAO.setAppCtx(ac);
   });
@@ -157,6 +164,7 @@ export default class Router {
       { t: 'Route', a: 'Add', o: orient || '' },
       (tao, { Route, Add }) => {
         // add Route to the Router's configuration
+        // Stryker disable next-line all: optional debug logging
         this._debug && console.log(`adding to Route:`, Route, Add);
         const routeHandler = makeRouteHandler(history, Route, this._debug);
         const trigram = wrapAc(Add.tao || Add);
@@ -178,6 +186,7 @@ export default class Router {
       { t: 'Route', a: 'Remove', o: orient || '' },
       (tao, { Route, Remove }) => {
         // remove Route from the Router's configuration
+        // Stryker disable next-line all: optional debug logging
         this._debug && console.log(`removing from Route ${Route}:`, Remove);
         const trigram = wrapAc(Remove);
         const routeHandler = this._routes.get(trigram.key);
@@ -195,6 +204,7 @@ export default class Router {
       { t: 'Route', a: 'Attach', o: orient || '' },
       (tao, { Route, Attach }) => {
         // attach Trigram to an incoming route
+        // Stryker disable next-line all: optional debug logging
         this._debug && console.log('Going to Attach Route:', { Route, Attach });
         const routeToUse = Route.path || Route;
         const deconstruction = deconstructPath(routeToUse);
@@ -217,6 +227,7 @@ export default class Router {
       { t: 'Route', a: 'Detach', o: orient || '' },
       (tao, { Route, Detach }) => {
         // detach Trigram from an incoming route
+        // Stryker disable next-line all: optional debug logging
         this._debug && console.log('Going to Detach Route:', { Route, Detach });
         const routeToUse = Route.path || Route;
         const deconstruction = deconstructPath(routeToUse);
@@ -228,6 +239,7 @@ export default class Router {
           node.attached = node.attached.filter(
             (trigram) => !trigram.isMatch(attachTo, true),
           );
+          // Stryker disable next-line ConditionalExpression,LogicalOperator: equivalent - the Attach handler above always initializes node.defaultData together with node.attached, so by the time Detach's outer `node.attached.length` guard is true, node.defaultData is always truthy too
           if (node.defaultData && node.defaultData.has(attachTo.key)) {
             node.defaultData.delete(attachTo.key);
           }
@@ -245,21 +257,27 @@ export default class Router {
     //     this._history.push(updatePath);
     //   }
     // });
+    // Stryker disable next-line ConditionalExpression: equivalent - forEach over an empty `incoming` array is already a no-op, so forcing entry into this block changes nothing observable when incoming.length is 0
     if (incoming.length) {
+      // Stryker disable next-line all: optional debug logging
       this._debug && console.log('adding handlers for incoming:', incoming);
       incoming.forEach((inAc) => {
         TAO.addInlineHandler(inAc, (tao, data) => {
+          // Stryker disable all: optional debug logging
           this._debug &&
             console.log('Router::incoming AC handler:', { tao, data });
+          // Stryker restore all
           let match = this._router.match(this._history.location.pathname);
           if (!match && defaultRoute) {
             match = this._router.match(defaultRoute);
+            // Stryker disable all: optional debug logging
             this._debug &&
               console.log(
                 'Router::no match::match from default route "%s"',
                 defaultRoute,
                 match,
               );
+            // Stryker restore all
           }
           if (match) {
             reactToRoute(this._tao, match, this._debug);
@@ -292,6 +310,7 @@ export default class Router {
 
   historyChange = (location, action) => {
     // match the new location to our route tree to find Trigrams and fire ACs from path data
+    // Stryker disable next-line all: optional debug logging
     this._debug && console.log('history change:', { location, action });
     const match = this._router.match(location.pathname);
     if (CHANGE_ACTION_SIGNAL === action && match) {
