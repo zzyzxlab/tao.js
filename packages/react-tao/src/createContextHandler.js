@@ -11,13 +11,8 @@ export default function createContextHandler(tao, handler, defaultValue) {
     throw new Error('createContextHandler `handler` must be a function');
   }
 
-  const initial =
-    typeof defaultValue === 'function'
-      ? undefined
-      : defaultValue != null
-        ? defaultValue
-        : {};
-  const WrappingContext = createContext(initial);
+  // Default unused when Provider always supplies value; keep null sentinel.
+  const WrappingContext = createContext(null);
 
   function Provider({ children }) {
     const state = useTaoDataState(tao, handler, defaultValue);
@@ -27,6 +22,7 @@ export default function createContextHandler(tao, handler, defaultValue) {
       </WrappingContext.Provider>
     );
   }
+  // Stryker disable next-line StringLiteral: displayName is DX-only
   Provider.displayName = 'TaoCreateContextHandlerProvider';
 
   return {

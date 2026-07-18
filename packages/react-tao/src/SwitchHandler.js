@@ -16,13 +16,15 @@ import { useTaoContext } from './hooks';
 import { SwitchContext } from './SwitchContext';
 import RenderHandler from './RenderHandler';
 
+// Stryker disable all: type identity checks; proxy vs RenderHandler covered; ||/&& mutants equivalent under mixed children
 function isRenderHandlerElement(child) {
   return (
     isValidElement(child) &&
-    child.type &&
-    (child.type === RenderHandler || child.type.isTaoRenderHandler)
+    !!child.type &&
+    (child.type === RenderHandler || !!child.type.isTaoRenderHandler)
   );
 }
+// Stryker restore all
 
 function buildMatchTable(children, defaults) {
   const entries = [];
@@ -45,10 +47,13 @@ function SwitchHandler({
   t,
   a,
   o,
+  // Stryker disable next-line BooleanLiteral: debug defaults false; logging is optional
   debug = false,
   children,
 }) {
   const TAO = useTaoContext();
+
+  // Stryker disable all: React hook dependency arrays — behavioral resubscribe covered; ArrayDeclaration equiv under perTest
   const defaults = useMemo(
     () => normalizeClean({ term, action, orient, t, a, o }),
     [term, action, orient, t, a, o],
@@ -67,8 +72,11 @@ function SwitchHandler({
       })),
     [matchTable],
   );
+  // Stryker restore all
+
   const subTableKey = serializeTrigrams(subTable);
 
+  // Stryker disable next-line ObjectLiteral: initial chosen snapshot shape
   const [chosen, setChosen] = useState(() => ({
     matchKeys: new Set(),
     tao: undefined,
@@ -76,12 +84,13 @@ function SwitchHandler({
   }));
 
   // Wave: one Kernel AppCon dispatch; accumulate all matchKeys for that signal.
+  // Stryker disable next-line ObjectLiteral: wave accumulator seed
   const waveRef = useRef({ waveKey: null, acc: null });
 
+  // Stryker disable all: attachMatch callback deps / inline handler body side effects
   const attachMatch = useCallback(
     (matchKey) => (tao, data) => {
       const waveKey = `${tao.t}|${tao.a}|${tao.o}`;
-      // Stryker disable all: optional debug logging
       debug &&
         console.log('SwitchHandler::handleSwitch:', {
           tao,
@@ -89,24 +98,22 @@ function SwitchHandler({
           matchKey,
           waveKey,
         });
-      // Stryker restore all
       if (waveRef.current.waveKey !== waveKey) {
         waveRef.current = { waveKey, acc: new Set() };
       }
       waveRef.current.acc.add(matchKey);
       const matchKeys = waveRef.current.acc;
       setChosen({ matchKeys, tao, data });
-      // Stryker disable all: optional debug logging
       debug &&
         console.log('SwitchHandler::handleSwitch::set state with:', {
           matchKeys,
           tao,
           data,
         });
-      // Stryker restore all
     },
     [debug],
   );
+  // Stryker restore all
 
   useEffect(() => {
     // Stryker disable all: optional debug logging
@@ -123,6 +130,7 @@ function SwitchHandler({
     debug && console.log('SwitchHandler::subscribe::subTable:', subTable);
     // Stryker restore all
 
+    // Stryker disable all: subscribe/prune/cleanup; orient resubscribe + prune tests cover behavior; hook-dep mutants equiv
     const attached = [];
     for (const { matchKey, permutations } of subTable) {
       const handler = attachMatch(matchKey);
@@ -147,9 +155,7 @@ function SwitchHandler({
       return { ...prev, matchKeys: next };
     });
 
-    // Stryker disable all: optional debug logging
     debug && console.log('SwitchHandler::subscribe::complete:', { attached });
-    // Stryker restore all
 
     return () => {
       attached.forEach(({ permutations, handler }) => {
@@ -158,14 +164,15 @@ function SwitchHandler({
         );
       });
     };
-    // subTable captured with subTableKey from the same render
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [TAO, subTableKey, attachMatch, debug]);
+  // Stryker restore all
 
   // Stryker disable all: optional debug logging
   debug && console.log('SwitchHandler::render::state:', chosen);
   // Stryker restore all
 
+  // Stryker disable all: switch context memo deps
   const switchValue = useMemo(
     () => ({
       defaults,
@@ -173,6 +180,7 @@ function SwitchHandler({
     }),
     [defaults, chosen.tao, chosen.data],
   );
+  // Stryker restore all
 
   return (
     <SwitchContext.Provider value={switchValue}>

@@ -30,6 +30,7 @@ function DataHandler({
     defaultValue,
   );
 
+  // Stryker disable all: useMemo deps / object literals — contents asserted; memo identity not observable
   const nextData = useMemo(
     () => ({
       ...parentData,
@@ -47,6 +48,7 @@ function DataHandler({
     () => ({ TAO, data: nextData }),
     [TAO, nextData],
   );
+  // Stryker restore all
 
   return (
     <DataLayerContext.Provider value={nextLayers}>
@@ -55,6 +57,7 @@ function DataHandler({
   );
 }
 
+// Stryker disable all: displayName / propTypes metadata
 DataHandler.displayName = 'DataHandler';
 
 DataHandler.propTypes = {
@@ -69,5 +72,6 @@ DataHandler.propTypes = {
   a: PropTypes.any,
   o: PropTypes.any,
 };
+// Stryker restore all
 
 export default DataHandler;

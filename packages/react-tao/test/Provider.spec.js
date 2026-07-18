@@ -76,6 +76,17 @@ describe('Provider', () => {
     );
   });
 
+  it('should expose an empty data layer stack for useDataLayers', () => {
+    const { useDataLayers } = require('../src/DataLayerContext');
+    const { renderHook } = require('@testing-library/react');
+    const kernel = new Kernel();
+    const { result } = renderHook(() => useDataLayers(), {
+      wrapper: ({ children }) => <Provider TAO={kernel}>{children}</Provider>,
+    });
+    expect(result.current).toEqual([]);
+    expect(result.current).toHaveLength(0);
+  });
+
   it('should expose TAO and data on the default Context value', () => {
     expect(Context._currentValue.TAO).toBeDefined();
     expect(Context._currentValue.data).toEqual({});

@@ -200,8 +200,11 @@ describe('SwitchHandler', () => {
       <Harness orient="Portal" />,
     );
 
-    const addedForPortal = addSpy.mock.calls.length;
-    expect(addedForPortal).toBeGreaterThan(0);
+    const portalAdds = addSpy.mock.calls.filter(([trigram]) => {
+      const o = trigram.o || trigram.orient;
+      return o === 'Portal';
+    });
+    expect(portalAdds.length).toBeGreaterThan(0);
 
     act(() => {
       TAO.setAppCtx(new AppCtx('User', 'View', 'Portal'));
@@ -210,9 +213,22 @@ describe('SwitchHandler', () => {
       expect(getByTestId('view')).toBeDefined();
     });
 
+    const removesBefore = removeSpy.mock.calls.length;
     rerender(<Harness orient="Admin" />);
 
-    expect(removeSpy.mock.calls.length).toBeGreaterThanOrEqual(addedForPortal);
+    const portalRemoves = removeSpy.mock.calls
+      .slice(removesBefore)
+      .filter(([trigram]) => {
+        const o = trigram.o || trigram.orient;
+        return o === 'Portal';
+      });
+    expect(portalRemoves.length).toBeGreaterThan(0);
+
+    const adminAdds = addSpy.mock.calls.filter(([trigram]) => {
+      const o = trigram.o || trigram.orient;
+      return o === 'Admin';
+    });
+    expect(adminAdds.length).toBeGreaterThan(0);
 
     act(() => {
       TAO.setAppCtx(new AppCtx('User', 'View', 'Admin'));
@@ -221,12 +237,9 @@ describe('SwitchHandler', () => {
       expect(getByTestId('view')).toBeDefined();
     });
 
-    // Previous Portal match should not keep the Admin tree blank; latest wins.
     act(() => {
       TAO.setAppCtx(new AppCtx('User', 'View', 'Portal'));
     });
-    // Portal is no longer subscribed — chosen set may clear or stay until Admin rematch.
-    // Ensure Admin orient still works after Portal noise:
     act(() => {
       TAO.setAppCtx(new AppCtx('User', 'View', 'Admin'));
     });

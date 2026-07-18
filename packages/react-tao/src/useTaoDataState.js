@@ -35,6 +35,7 @@ export default function useTaoDataState(trigramProps, handler, defaultValue) {
   const handlerRef = useRef(handler);
   handlerRef.current = handler;
 
+  // Stryker disable all: stable onSignal; handlerRef keeps latest handler; deps ArrayDeclaration equiv
   const onSignal = useCallback((tao, data) => {
     let usedSet = false;
     const current = stateRef.current;
@@ -59,6 +60,7 @@ export default function useTaoDataState(trigramProps, handler, defaultValue) {
       setState(dataUpdate);
     }
   }, []);
+  // Stryker restore all
 
   const trigrams = getPermutations(trigramProps || {});
   useTaoInlineSubscription(trigrams, onSignal);

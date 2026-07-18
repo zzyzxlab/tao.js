@@ -13,6 +13,7 @@ export default function useTaoInlineSubscription(trigrams, handler) {
   handlerRef.current = handler;
 
   const stableRef = useRef(null);
+  // Stryker disable next-line ConditionalExpression: init-once; re-assigning same wrapper each render is equivalent
   if (stableRef.current == null) {
     stableRef.current = (tao, data) => handlerRef.current(tao, data);
   }

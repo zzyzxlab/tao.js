@@ -17,15 +17,18 @@ const Context = React.createContext({
 export { Context };
 
 function Provider({ TAO: kernel, children }) {
+  // Root layer stack must be empty so useTaoData() is undefined until a DataHandler pushes.
+  const emptyLayers = [];
   return (
     <Context.Provider value={{ TAO: kernel, data: {} }}>
-      <DataLayerContext.Provider value={[]}>
+      <DataLayerContext.Provider value={emptyLayers}>
         {children}
       </DataLayerContext.Provider>
     </Context.Provider>
   );
 }
 
+// Stryker disable next-line StringLiteral: displayName is DX-only
 Provider.displayName = 'Provider';
 
 Provider.propTypes = {

@@ -38,6 +38,7 @@ function RenderHandler({
   o,
   context,
   refreshOn,
+  // Stryker disable next-line BooleanLiteral: debug defaults false; logging is optional
   debug = false,
   shouldRender: shouldRenderProp,
   initialTao,
@@ -46,6 +47,7 @@ function RenderHandler({
 }) {
   const { data: dataBag } = useContext(Context);
 
+  // Stryker disable next-line ObjectLiteral: initial snap shape
   const [snap, setSnap] = useState(() => ({
     shouldRender: !!shouldRenderProp,
     tao: initialTao,

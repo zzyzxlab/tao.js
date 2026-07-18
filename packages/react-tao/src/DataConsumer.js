@@ -22,10 +22,12 @@ function readNamedData(data, ctxName) {
  * @deprecated Since 0.17 — prefer `useTaoData('name')` in function components.
  */
 function DataConsumer({ context, children }) {
+  // Stryker disable all: deprecation copy; asserted via stringContaining in tests
   warnDeprecated(
     'DataConsumer',
     '[@tao.js/react] DataConsumer is deprecated and will be removed in a future release. Use useTaoData(name) instead.',
   );
+  // Stryker restore all
 
   const { data } = useContext(Context);
   const ctxList = Array.isArray(context) ? context : [context];
