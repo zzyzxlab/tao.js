@@ -117,10 +117,9 @@ export default function taoMiddleware(TAO, opt = {}) {
             transponder.detach();
             transponder = null;
             return next();
-          default:
-            ctx.status = 404;
-            return next();
         }
+        ctx.status = 404;
+        return next();
       };
     },
     addResponseHandler({ t, term, a, action, o, orient }, handler = noop) {

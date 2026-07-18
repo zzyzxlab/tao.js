@@ -7,14 +7,13 @@ const ON_EVENT = IS_SERVER ? 1 : 0;
 const EVENTS = ['fromServer', 'fromClient'];
 
 const NOOP = () => {};
-const IDENTITY = v => v;
 
-const socketHandler = socket => (tao, data) => {
+const socketHandler = (socket) => (tao, data) => {
   socket.emit(EVENTS[EMIT_EVENT], { tao, data });
 };
 
 function decorateNetwork(TAO, socket) {
-  const fromHandler = handler =>
+  const fromHandler = (handler) =>
     socket.on(EVENTS[ON_EVENT], ({ tao, data }) => handler(tao, data));
   const toEmit = (tao, data) => socket.emit(EVENTS[EMIT_EVENT], { tao, data });
   const source = new Source(TAO, toEmit, fromHandler);
@@ -48,28 +47,27 @@ function decorateSocket(TAO, socket, authTransform) {
 }
 
 // change, options object now instead of just onConnect
-const ioMiddleware = (TAO, { onConnect, authTransform } = {}) => (
-  socket,
-  next
-) => {
-  let clientTAO = new Channel(TAO, socket.id);
-  let onDisconnect = NOOP;
-  decorateSocket(clientTAO, socket, authTransform);
-  if (onConnect && typeof onConnect === 'function') {
-    // change: pass the whole socket to onConnect
-    onDisconnect = onConnect(clientTAO, socket);
-    onDisconnect = typeof onDisconnect === 'function' ? onDisconnect : NOOP;
-  }
-  socket.on('disconnect', reason => {
-    onDisconnect(reason);
-    clientTAO = null;
-    onDisconnect = null;
-  });
+const ioMiddleware =
+  (TAO, { onConnect, authTransform } = {}) =>
+  (socket, next) => {
+    let clientTAO = new Channel(TAO, socket.id);
+    let onDisconnect = NOOP;
+    decorateSocket(clientTAO, socket, authTransform);
+    if (onConnect && typeof onConnect === 'function') {
+      // change: pass the whole socket to onConnect
+      onDisconnect = onConnect(clientTAO, socket);
+      onDisconnect = typeof onDisconnect === 'function' ? onDisconnect : NOOP;
+    }
+    socket.on('disconnect', (reason) => {
+      onDisconnect(reason);
+      clientTAO = null;
+      onDisconnect = null;
+    });
 
-  if (next && typeof next === 'function') {
-    return next();
-  }
-};
+    if (next && typeof next === 'function') {
+      return next();
+    }
+  };
 
 export default function wireTaoJsToSocketIO(TAO, io, opts = {}) {
   const ns = opts.namespace || opts.ns || DEFAULT_NAMESPACE;

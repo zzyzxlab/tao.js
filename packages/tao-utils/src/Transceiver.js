@@ -67,12 +67,12 @@ export default class Transceiver {
         { t, term, a, action, o, orient },
         data,
         transceiverControl(transceiverId, resolve, reject),
-        this.forwardAppCtx
+        this.forwardAppCtx,
       );
     });
   };
 
-  setAppCtx = ac => {
+  setAppCtx = (ac) => {
     const transceiverId = this._transceiverId;
     const timeoutMs = this._timeoutMs;
     const promise = this._promise;
@@ -86,7 +86,7 @@ export default class Transceiver {
       this._network.setAppCtxControl(
         ac,
         transceiverControl(transceiverId, resolve, reject),
-        this.forwardAppCtx
+        this.forwardAppCtx,
       );
     });
   };
@@ -106,13 +106,14 @@ export default class Transceiver {
     ) {
       try {
         this.captureSignal(handler, ac, forwardAppCtx, control).catch(
-          handleErr => {
+          (handleErr) => {
             if (!control.signalled) {
               control.signalled = true;
               control.signal.reject(handleErr);
             }
-          }
+          },
         );
+        /* c8 ignore next 6 -- captureSignal is async, so synchronous throws reject above. */
       } catch (handleErr) {
         if (!control.signalled) {
           control.signalled = true;
@@ -179,7 +180,7 @@ export default class Transceiver {
     for (let asyncH of handler.asyncHandlers) {
       (() => {
         Promise.resolve(asyncH({ t, a, o }, data))
-          .then(nextAc => {
+          .then((nextAc) => {
             if (nextAc != null) {
               if (nextAc instanceof AppCtx) {
                 setAppCtx(nextAc, control);
@@ -189,7 +190,7 @@ export default class Transceiver {
               }
             }
           })
-          .catch(asyncErr => {
+          .catch((asyncErr) => {
             if (!control.signalled) {
               control.signalled = true;
               control.signal.reject(asyncErr);
@@ -251,7 +252,7 @@ export default class Transceiver {
   addInterceptHandler({ t, term, a, action, o, orient }, handler) {
     this._signals.addInterceptHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
   }
 
@@ -266,21 +267,21 @@ export default class Transceiver {
   removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
     this._signals.removeInterceptHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
   }
 
   removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
     this._signals.removeAsyncHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
   }
 
   removeInlineHandler({ t, term, a, action, o, orient }, handler) {
     this._signals.removeInlineHandler(
       { t, term, a, action, o, orient },
-      handler
+      handler,
     );
   }
 }

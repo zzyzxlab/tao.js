@@ -5,7 +5,8 @@ const log = debug('api:request');
 
 const MIME_JSON = 'application/json';
 const MIME_APPLICATION_VND_RE = /application\/vnd\./i;
-const MIME_TEXT_TYPE_RE = /^(text\/.*|application\/(javascript|ecmascript|typescript|x-sh)|.*xml)/i;
+const MIME_TEXT_TYPE_RE =
+  /^(text\/.*|application\/(javascript|ecmascript|typescript|x-sh)|.*xml)/i;
 
 export default async function request(url, options) {
   log('requesting...', { url, options });
@@ -50,7 +51,7 @@ export default async function request(url, options) {
 
   if (response.status >= 400) {
     const errorMsg =
-      body.message ||
+      body?.message ||
       body ||
       `Response error: ${url} resulted in ${response.status}`;
     const err = new Error(errorMsg);
@@ -63,6 +64,6 @@ export default async function request(url, options) {
     ? body
     : {
         success: true,
-        message: response.statusText
+        message: response.statusText,
       };
 }

@@ -26,6 +26,7 @@ function filteredForwardHandler(destination, filter) {
 }
 
 function bridge(type, source, destination, filters) {
+  /* c8 ignore next 3 -- public bridge factories always provide a valid phase. */
   if (type !== INTERCEPT && type !== ASYNC && type !== INLINE) {
     return NOOP;
   }
@@ -44,9 +45,9 @@ function bridge(type, source, destination, filters) {
   if (Array.isArray(filters[0])) {
     filters = filters[0];
   }
-  filters.forEach(trigram => source[attachment](trigram, handler));
+  filters.forEach((trigram) => source[attachment](trigram, handler));
   return () =>
-    filters.forEach(trigrams => source[detachment](trigrams, handler));
+    filters.forEach((trigrams) => source[detachment](trigrams, handler));
 }
 
 export function interceptBridge(source, destination, ...filters) {
