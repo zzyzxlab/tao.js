@@ -1,3 +1,20 @@
+## 0.17.0 (2026-07-18)
+
+### 🚀 Features
+
+- **react:** support React 19; fix data context hierarchy ([9f23ada](https://github.com/zzyzxlab/tao.js/commit/9f23ada))
+- **react:** cover handlers + add React 19 Vite smoke ([adb127b](https://github.com/zzyzxlab/tao.js/commit/adb127b))
+- **react:** 0.17 tree-scoped data context and functional DataHandler ([6f8f9ff](https://github.com/zzyzxlab/tao.js/commit/6f8f9ff))
+
+### 🩹 Fixes
+
+- **react:** nest named data in Context for useTaoDataContext ([b8b22ca](https://github.com/zzyzxlab/tao.js/commit/b8b22ca))
+
+### ❤️ Thank You
+
+- Cursor @cursoragent
+- eudaimos @tao-land
+
 ## 0.16.3 (2026-07-18)
 
 This was a version bump only, there were no code changes.
