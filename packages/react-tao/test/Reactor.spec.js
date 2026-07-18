@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { render, cleanup, act } from 'react-testing-library';
+import { render, cleanup, act } from '@testing-library/react';
 import { AppCtx, Kernel } from '../../tao/src';
 import Adapter from '../src/Adapter';
 import Reactor from '../src/Reactor';

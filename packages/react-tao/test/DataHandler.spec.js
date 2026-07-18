@@ -1,6 +1,11 @@
 import React from 'react';
-import { render, cleanup, waitForElement } from 'react-testing-library';
-import { renderHook, act } from '@testing-library/react-hooks';
+import {
+  render,
+  cleanup,
+  waitFor,
+  renderHook,
+  act,
+} from '@testing-library/react';
 import { AppCtx, Kernel } from '@tao.js/core';
 import Provider from '../src/Provider';
 import DataHandler from '../src/DataHandler';
@@ -66,8 +71,9 @@ describe('DataHandler', () => {
       TAO.setAppCtx(new AppCtx(TERM, ACTION, ORIENT, { User: { id: 'u-42' } }));
     });
 
-    await waitForElement(() => getByTestId('user-id').textContent === 'u-42');
-    expect(getByTestId('user-id').textContent).toBe('u-42');
+    await waitFor(() => {
+      expect(getByTestId('user-id').textContent).toBe('u-42');
+    });
   });
 
   it('nests named data so inner handlers override outer keys of the same name', () => {

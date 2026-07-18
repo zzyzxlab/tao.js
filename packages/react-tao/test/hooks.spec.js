@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { Kernel } from '@tao.js/core';
 import Provider from '../src/Provider';
 import * as hooks from '../src/hooks';

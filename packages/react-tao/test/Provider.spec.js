@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { render, cleanup } from 'react-testing-library';
+import { render, cleanup } from '@testing-library/react';
 import { Kernel } from '@tao.js/core';
 import Provider, { Context } from '../src/Provider';
 
