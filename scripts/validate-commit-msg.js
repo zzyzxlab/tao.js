@@ -110,6 +110,12 @@ function main() {
   }
 
   const header = lines[0];
+
+  // Nx Release machine commits: chore(release): publish {version}
+  if (/^chore\(release\): /.test(header)) {
+    process.exit(0);
+  }
+
   if (!HEADER_RE.test(header)) {
     usageAndFail(
       `invalid header "${header}". Use type(scope): subject (conventional commits).`,
