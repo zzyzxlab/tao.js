@@ -7,6 +7,13 @@ const rootReactDom = path.resolve(__dirname, '../../node_modules/react-dom');
 
 module.exports = {
   preset: '../../jest.preset.cjs',
+  // Pure re-export barrels — exclude so package coverage reflects executable source.
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx}',
+    '!src/all.js',
+    '!src/orig.js',
+    '!src/index.js',
+  ],
   moduleNameMapper: {
     '^react$': rootReact,
     '^react-dom$': rootReactDom,

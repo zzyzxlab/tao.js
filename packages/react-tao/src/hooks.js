@@ -70,7 +70,7 @@ export function useTaoInterceptHandler(
 export function useTaoDataContext(name) {
   const { data } = React.useContext(Context);
   if (data == null || !Object.prototype.hasOwnProperty.call(data, name)) {
-    return undefined;
+    return;
   }
   return data[name];
 }

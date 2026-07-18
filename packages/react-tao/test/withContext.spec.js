@@ -23,6 +23,19 @@ describe('withContext', () => {
     );
   });
 
+  it('sets a displayName on the wrapped component', () => {
+    function Named() {
+      return null;
+    }
+    Named.displayName = 'NamedView';
+    const Wrapped = withContext(
+      { term: TERM, action: ACTION, orient: ORIENT },
+      () => ({}),
+      {},
+    )(Named);
+    expect(Wrapped.displayName).toBe('withContext(NamedView)');
+  });
+
   it('injects data from TAO handlers into the wrapped component', async () => {
     const Wrapped = withContext(
       { term: TERM, action: ACTION, orient: ORIENT },

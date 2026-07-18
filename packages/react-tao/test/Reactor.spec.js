@@ -45,6 +45,14 @@ describe('Reactor exports a React Component for reacting to TAO App Contexts', (
     expect(new Reactor()).toBeInstanceOf(Component);
   });
 
+  it('exposes propTypes requiring an Adapter', () => {
+    expect(Reactor.propTypes).toEqual(
+      expect.objectContaining({
+        adapter: expect.anything(),
+      }),
+    );
+  });
+
   it('should require one property called `adapter` that must be a Adapter', () => {
     const adapter = new Adapter(TAO);
     const notAAdapter = 'call me maybe';

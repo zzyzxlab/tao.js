@@ -3,10 +3,14 @@ import {
   Adapter,
   Reactor,
   Provider,
+  DataConsumer,
   RenderHandler,
   SwitchHandler,
   DataHandler,
-  withContext
+  createContextHandler,
+  withContext,
+  useTaoContext,
+  useTaoDataContext,
 } from '../src/all';
 
 describe('@tao.js/react all.js exports both the current and original APIs to use tao.js with React', () => {
@@ -58,9 +62,14 @@ describe('@tao.js/react all.js exports both the current and original APIs to use
     expect(new withContext({}, () => {})).not.toBeInstanceOf(Component);
     expect(new withContext({}, () => {})(Component)).toBeInstanceOf(Function);
     expect(new withContext({}, () => {})(Component)).not.toBeInstanceOf(
-      Component
+      Component,
     );
-    // expect(new withContext({}, () => {})(Component)()).toBeInstanceOf(Component);
-    // expect(new withContext({}, () => {})(Component)()).not.toBeInstanceOf(Function);
+  });
+
+  it('should export DataConsumer, createContextHandler, and hooks', () => {
+    expect(DataConsumer).toBeDefined();
+    expect(createContextHandler).toBeInstanceOf(Function);
+    expect(useTaoContext).toBeInstanceOf(Function);
+    expect(useTaoDataContext).toBeInstanceOf(Function);
   });
 });
