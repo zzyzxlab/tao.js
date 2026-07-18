@@ -1,143 +1,228 @@
-import React from 'react';
+import React, {
+  Children,
+  cloneElement,
+  isValidElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import cartesian from 'cartesian';
 
-import { normalizeClean, handlerHash } from './helpers';
-
-import { Context } from './Provider';
+import { normalizeClean, handlerHash, serializeTrigrams } from './helpers';
+import { useTaoContext } from './hooks';
+import { SwitchContext } from './SwitchContext';
 import RenderHandler from './RenderHandler';
 
-export default class SwitchHandler extends React.Component {
-  static contextType = Context;
+function isRenderHandlerElement(child) {
+  return (
+    isValidElement(child) &&
+    child.type &&
+    (child.type === RenderHandler || child.type.isTaoRenderHandler)
+  );
+}
 
-  static propTypes = {
-    term: PropTypes.any,
-    action: PropTypes.any,
-    orient: PropTypes.any,
-    debug: PropTypes.bool,
-    children: PropTypes.node.isRequired,
-  };
-
-  constructor(props) {
-    super(props);
-    this._adaptedChildren = new Map();
-    // Wave key for the AppCon currently being handled (inline handlers only).
-    // Avoid intercept+setState: Kernel awaits intercepts, which yields before
-    // inline handlers and can leave the UI stuck on an empty chosenList.
-    this._currentWave = null;
-    this._chosenAccumulator = null;
-    this.state = { chosenList: new Set() };
-  }
-
-  componentDidMount() {
-    // Stryker disable next-line BooleanLiteral: debug defaults false; logging is optional
-    const { debug = false } = this.props;
-    // Stryker disable all: optional debug logging
-    debug &&
-      console.log('SwitchHandler::componentDidMount::props:', this.props);
-    // Stryker restore all
-    const { TAO } = this.context;
-    const defaultTrigram = normalizeClean(this.props);
-    React.Children.forEach(this.props.children, (child) => {
-      if (child.type === RenderHandler) {
-        const childTrigram = normalizeClean(child.props);
-        const childHash = handlerHash(childTrigram);
-        const handler = this.handleSwitch(childHash);
-        const trigrams = { ...defaultTrigram, ...childTrigram };
-        // Stryker disable all: optional debug logging
-        debug && console.log('trigrams:', trigrams);
-        // Stryker restore all
-        const permutations = cartesian(trigrams);
-        // Stryker disable all: optional debug logging
-        debug && console.log('permutations:', permutations);
-        // Stryker restore all
-        this._adaptedChildren.set(child, { permutations, handler });
-        permutations.forEach((trigram) => {
-          TAO.addInlineHandler(trigram, handler);
-        });
-      }
-    });
-    // Stryker disable all: optional debug logging
-    debug &&
-      console.log('SwitchHandler::componentDidMount::complete:', {
-        adaptedChildren: this._adaptedChildren,
-      });
-    // Stryker restore all
-  }
-
-  componentWillUnmount() {
-    const { TAO } = this.context;
-    this._adaptedChildren.forEach(({ permutations, handler }) => {
-      permutations.forEach((trigram) => {
-        TAO.removeInlineHandler(trigram, handler);
-      });
-    });
-  }
-
-  handleSwitch = (childHash) => (tao, data) => {
-    // Stryker disable next-line BooleanLiteral: debug defaults false; logging is optional
-    const { debug = false } = this.props;
-    const waveKey = `${tao.t}|${tao.a}|${tao.o}`;
-    // Stryker disable all: optional debug logging
-    debug &&
-      console.log('SwitchHandler::handleSwitch:', {
-        tao,
-        data,
-        childHash,
-        waveKey,
-      });
-    // Stryker restore all
-    if (this._currentWave !== waveKey) {
-      this._currentWave = waveKey;
-      this._chosenAccumulator = new Set();
+function buildMatchTable(children, defaults) {
+  const entries = [];
+  Children.forEach(children, (child) => {
+    if (!isRenderHandlerElement(child)) {
+      return;
     }
-    this._chosenAccumulator.add(childHash);
-    const chosenList = this._chosenAccumulator;
-    this.setState({ chosenList, tao, data });
+    const childTrigram = normalizeClean(child.props);
+    const matchKey = handlerHash(childTrigram);
+    const permutations = cartesian({ ...defaults, ...childTrigram });
+    entries.push({ matchKey, permutations, child });
+  });
+  return entries;
+}
+
+function SwitchHandler({
+  term,
+  action,
+  orient,
+  t,
+  a,
+  o,
+  debug = false,
+  children,
+}) {
+  const TAO = useTaoContext();
+  const defaults = useMemo(
+    () => normalizeClean({ term, action, orient, t, a, o }),
+    [term, action, orient, t, a, o],
+  );
+
+  const matchTable = useMemo(
+    () => buildMatchTable(children, defaults),
+    [children, defaults],
+  );
+
+  const subTable = useMemo(
+    () =>
+      matchTable.map(({ matchKey, permutations }) => ({
+        matchKey,
+        permutations,
+      })),
+    [matchTable],
+  );
+  const subTableKey = serializeTrigrams(subTable);
+
+  const [chosen, setChosen] = useState(() => ({
+    matchKeys: new Set(),
+    tao: undefined,
+    data: undefined,
+  }));
+
+  // Wave: one Kernel AppCon dispatch; accumulate all matchKeys for that signal.
+  const waveRef = useRef({ waveKey: null, acc: null });
+
+  const attachMatch = useCallback(
+    (matchKey) => (tao, data) => {
+      const waveKey = `${tao.t}|${tao.a}|${tao.o}`;
+      // Stryker disable all: optional debug logging
+      debug &&
+        console.log('SwitchHandler::handleSwitch:', {
+          tao,
+          data,
+          matchKey,
+          waveKey,
+        });
+      // Stryker restore all
+      if (waveRef.current.waveKey !== waveKey) {
+        waveRef.current = { waveKey, acc: new Set() };
+      }
+      waveRef.current.acc.add(matchKey);
+      const matchKeys = waveRef.current.acc;
+      setChosen({ matchKeys, tao, data });
+      // Stryker disable all: optional debug logging
+      debug &&
+        console.log('SwitchHandler::handleSwitch::set state with:', {
+          matchKeys,
+          tao,
+          data,
+        });
+      // Stryker restore all
+    },
+    [debug],
+  );
+
+  useEffect(() => {
     // Stryker disable all: optional debug logging
     debug &&
-      console.log('SwitchHandler::handleSwitch::set state with:', {
-        chosenList,
-        tao,
-        data,
+      console.log('SwitchHandler::subscribe::props:', {
+        term,
+        action,
+        orient,
+        t,
+        a,
+        o,
+        debug,
       });
+    debug && console.log('SwitchHandler::subscribe::subTable:', subTable);
     // Stryker restore all
-  };
 
-  render() {
-    // Stryker disable next-line BooleanLiteral: debug defaults false; logging is optional
-    const { debug = false } = this.props;
-    // Stryker disable all: optional debug logging
-    debug && console.log('SwitchHandler::render::state:', this.state);
-    // Stryker restore all
-    const { term, action, orient, children } = this.props;
-    const { chosenList } = this.state;
-    return React.Children.map(children, (child) => {
-      if (!React.isValidElement(child) || child.type !== RenderHandler) {
-        // Stryker disable all: optional debug logging
-        debug && console.log('SwitchHandler::render:returning child');
-        // Stryker restore all
-        return child;
+    const attached = [];
+    for (const { matchKey, permutations } of subTable) {
+      const handler = attachMatch(matchKey);
+      permutations.forEach((trigram) => TAO.addInlineHandler(trigram, handler));
+      attached.push({ permutations, handler });
+    }
+
+    const allowed = new Set(subTable.map((entry) => entry.matchKey));
+    setChosen((prev) => {
+      let changed = false;
+      const next = new Set();
+      prev.matchKeys.forEach((key) => {
+        if (allowed.has(key)) {
+          next.add(key);
+        } else {
+          changed = true;
+        }
+      });
+      if (!changed && next.size === prev.matchKeys.size) {
+        return prev;
       }
-      // Stryker disable all: optional debug logging
-      debug && console.log('SwitchHandler::render:testing child');
-      // Stryker restore all
-      const childHash = handlerHash(normalizeClean(child.props));
-      if (chosenList.has(childHash)) {
+      return { ...prev, matchKeys: next };
+    });
+
+    // Stryker disable all: optional debug logging
+    debug && console.log('SwitchHandler::subscribe::complete:', { attached });
+    // Stryker restore all
+
+    return () => {
+      attached.forEach(({ permutations, handler }) => {
+        permutations.forEach((trigram) =>
+          TAO.removeInlineHandler(trigram, handler),
+        );
+      });
+    };
+    // subTable captured with subTableKey from the same render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [TAO, subTableKey, attachMatch, debug]);
+
+  // Stryker disable all: optional debug logging
+  debug && console.log('SwitchHandler::render::state:', chosen);
+  // Stryker restore all
+
+  const switchValue = useMemo(
+    () => ({
+      defaults,
+      signal: { tao: chosen.tao, data: chosen.data },
+    }),
+    [defaults, chosen.tao, chosen.data],
+  );
+
+  return (
+    <SwitchContext.Provider value={switchValue}>
+      {Children.map(children, (child) => {
+        if (!isRenderHandlerElement(child)) {
+          // Stryker disable all: optional debug logging
+          debug && console.log('SwitchHandler::render:returning child');
+          // Stryker restore all
+          return child;
+        }
+        // Stryker disable all: optional debug logging
+        debug && console.log('SwitchHandler::render:testing child');
+        // Stryker restore all
+        const matchKey = handlerHash(normalizeClean(child.props));
+        if (!chosen.matchKeys.has(matchKey)) {
+          return null;
+        }
         // Stryker disable all: optional debug logging
         debug && console.log('SwitchHandler::render:cloning child');
         // Stryker restore all
-        // shouldRender: the matching AppCon already fired; freshly mounted
+        // shouldRender: matching AppCon already fired; freshly mounted
         // RenderHandlers would otherwise miss it and stay blank.
-        return React.cloneElement(child, {
+        return cloneElement(child, {
           term,
           action,
           orient,
+          t,
+          a,
+          o,
           ...child.props,
           shouldRender: true,
+          initialTao: chosen.tao,
+          initialData: chosen.data,
         });
-      }
-      return null;
-    });
-  }
+      })}
+    </SwitchContext.Provider>
+  );
 }
+
+SwitchHandler.displayName = 'SwitchHandler';
+
+SwitchHandler.propTypes = {
+  term: PropTypes.any,
+  action: PropTypes.any,
+  orient: PropTypes.any,
+  t: PropTypes.any,
+  a: PropTypes.any,
+  o: PropTypes.any,
+  debug: PropTypes.bool,
+  children: PropTypes.node.isRequired,
+};
+
+export default SwitchHandler;

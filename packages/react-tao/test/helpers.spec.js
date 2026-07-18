@@ -4,6 +4,7 @@ import {
   normalizeClean,
   getPermutations,
   handlerHash,
+  serializeTrigrams,
   noop,
 } from '../src/helpers';
 
@@ -134,6 +135,13 @@ describe('helpers provide functions used across the package', () => {
       expect(
         handlerHash({ term: [TERM, 'other'], action: ACTION, orient: null }),
       ).toBe(`${TERM},other|${ACTION}|%`);
+    });
+
+    it('serializeTrigrams produces a stable JSON dep key', () => {
+      expect(serializeTrigrams([{ term: TERM, action: ACTION }])).toBe(
+        JSON.stringify([{ term: TERM, action: ACTION }]),
+      );
+      expect(serializeTrigrams()).toBe('[]');
     });
 
     it('noop is a callable empty function', () => {

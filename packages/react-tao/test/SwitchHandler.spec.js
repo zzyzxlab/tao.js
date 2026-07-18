@@ -179,4 +179,122 @@ describe('SwitchHandler', () => {
 
     logSpy.mockRestore();
   });
+
+  it('resubscribes when Switch trigram defaults change', async () => {
+    const addSpy = jest.spyOn(TAO, 'addInlineHandler');
+    const removeSpy = jest.spyOn(TAO, 'removeInlineHandler');
+
+    function Harness({ orient }) {
+      return (
+        <Provider TAO={TAO}>
+          <SwitchHandler term="User" orient={orient}>
+            <RenderHandler action="View">
+              {() => <div data-testid="view">view</div>}
+            </RenderHandler>
+          </SwitchHandler>
+        </Provider>
+      );
+    }
+
+    const { getByTestId, rerender, queryByTestId } = render(
+      <Harness orient="Portal" />,
+    );
+
+    const addedForPortal = addSpy.mock.calls.length;
+    expect(addedForPortal).toBeGreaterThan(0);
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', 'Portal'));
+    });
+    await waitFor(() => {
+      expect(getByTestId('view')).toBeDefined();
+    });
+
+    rerender(<Harness orient="Admin" />);
+
+    expect(removeSpy.mock.calls.length).toBeGreaterThanOrEqual(addedForPortal);
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', 'Admin'));
+    });
+    await waitFor(() => {
+      expect(getByTestId('view')).toBeDefined();
+    });
+
+    // Previous Portal match should not keep the Admin tree blank; latest wins.
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', 'Portal'));
+    });
+    // Portal is no longer subscribed — chosen set may clear or stay until Admin rematch.
+    // Ensure Admin orient still works after Portal noise:
+    act(() => {
+      TAO.setAppCtx(new AppCtx('User', 'View', 'Admin'));
+    });
+    await waitFor(() => {
+      expect(queryByTestId('view')).not.toBeNull();
+    });
+
+    addSpy.mockRestore();
+    removeSpy.mockRestore();
+  });
+
+  it('supports array trigram props via cartesian permutations', async () => {
+    const { getByTestId, queryByTestId } = render(
+      <Provider TAO={TAO}>
+        <SwitchHandler term="Space" orient={ORIENT}>
+          <RenderHandler action={['New', 'Edit']}>
+            {() => <div data-testid="form">form</div>}
+          </RenderHandler>
+          <RenderHandler action="View">
+            {() => <div data-testid="view">view</div>}
+          </RenderHandler>
+        </SwitchHandler>
+      </Provider>,
+    );
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('Space', 'New', ORIENT));
+    });
+    await waitFor(() => {
+      expect(getByTestId('form')).toBeDefined();
+    });
+    expect(queryByTestId('view')).toBeNull();
+
+    act(() => {
+      TAO.setAppCtx(new AppCtx('Space', 'Edit', ORIENT));
+    });
+    await waitFor(() => {
+      expect(getByTestId('form')).toBeDefined();
+    });
+  });
+
+  it('keeps the latest AppCon match set across a settle chain (not union)', async () => {
+    const { getByTestId, queryByTestId } = render(
+      <Provider TAO={TAO}>
+        <SwitchHandler term="Space" orient={ORIENT}>
+          <RenderHandler action="Enter">
+            {() => <div data-testid="enter">enter</div>}
+          </RenderHandler>
+          <RenderHandler action="View">
+            {() => <div data-testid="view">view</div>}
+          </RenderHandler>
+        </SwitchHandler>
+      </Provider>,
+    );
+
+    TAO.addInlineHandler(
+      { term: 'Space', action: 'Enter', orient: ORIENT },
+      () => new AppCtx('Space', 'View', ORIENT),
+    );
+
+    await act(async () => {
+      TAO.setAppCtx(new AppCtx('Space', 'Enter', ORIENT));
+      await new Promise((r) => setTimeout(r, 50));
+    });
+
+    await waitFor(() => {
+      expect(getByTestId('view')).toBeDefined();
+    });
+    expect(queryByTestId('enter')).toBeNull();
+  });
 });
