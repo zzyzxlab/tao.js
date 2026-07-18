@@ -1,13 +1,15 @@
 # Signal Envelope & Network Decoration — Design Spec
 
-Status: **draft → implementing** on `feat/network-envelope`.
+Status: **implemented** on `feat/network-envelope` (see §11 for the
+verification record; end-to-end proof at
+`tools/smoke/socketio-envelope-smoke.cjs`).
 Scope: `@tao.js/core` internals, `@tao.js/utils` adapters, new `@tao.js/trace` +
 `@tao.js/opentelemetry`. **Zero changes** to the app-facing TAO surface.
 
 This is the final hardening of the JS implementation's signal plane. It also
 serves as the reference model for cross-process transports and future
 implementations in other languages: the envelope scopes + trigram + handler
-phases defined here *are* the protocol.
+phases defined here _are_ the protocol.
 
 ---
 
@@ -20,7 +22,7 @@ adapters like `Channel` and `Transponder` can make client-server topologies
 work without exposing any of it to TAO consumers. The intended end state was a
 Network that adapters could **decorate additively** — non-competitively.
 
-Decoration is already non-competitive for *observation* (`network.use()`
+Decoration is already non-competitive for _observation_ (`network.use()`
 middleware coexist freely). It is competitive for exactly one resource: **the
 single `forwardAppCtx` slot per dispatch**. Whoever enters a signal owns
 forwarding for the entire cascade. Every adapter reimplements the threading
@@ -48,11 +50,11 @@ Evidence this implicit contract is error-prone (all in-repo):
 Every use of `control` across core, utils, koa, socket.io, router, react,
 http-client, and the examples falls into exactly three lifetimes:
 
-| lifetime | needed by | mechanism today |
-| --- | --- | --- |
-| **cascade** — one shared mutable object per cascade | `Channel.channelId`; `Transponder`/`Transceiver` `signal` + `signalled` (resolve-once **requires** shared mutation); `seive` tag | forwarder passes the same object every hop |
-| **hop** — visible on the entry dispatch only | `Source.source` (echo suppression must apply to the first hop only; chained responses **must** flow back out) | falls out of plain `Kernel` *dropping* control between hops |
-| **chain** — derived parent → child each hop | trace context; nothing else yet | does not exist |
+| lifetime                                            | needed by                                                                                                                        | mechanism today                                             |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| **cascade** — one shared mutable object per cascade | `Channel.channelId`; `Transponder`/`Transceiver` `signal` + `signalled` (resolve-once **requires** shared mutation); `seive` tag | forwarder passes the same object every hop                  |
+| **hop** — visible on the entry dispatch only        | `Source.source` (echo suppression must apply to the first hop only; chained responses **must** flow back out)                    | falls out of plain `Kernel` _dropping_ control between hops |
+| **chain** — derived parent → child each hop         | trace context; nothing else yet                                                                                                  | does not exist                                              |
 
 Load-bearing consequence: `Kernel`'s control-drop is **not a bug** — Source
 semantics (the socket.io bidirectional reflex) depend on it. `Channel`'s
@@ -100,7 +102,7 @@ Three additions to `Network`, one to `AppCtxHandlers`; nothing removed:
   cascade exactly as now. Third-party code on this path is untouched.
 - `setCtxControl` / `setAppCtxControl` **without a forward**: also frozen
   (forward = NOOP, chains do not propagate — today's behavior, which
-  Transponder-on-Channel relies on being *supplied by Channel*, not core).
+  Transponder-on-Channel relies on being _supplied by Channel_, not core).
 - **`network.enter(ac, { data, cascade, hop })`** — the new, only gate into
   the v2 hop engine. `Kernel.setCtx`/`setAppCtx` and the migrated utils
   adapters switch to it internally.
@@ -169,12 +171,12 @@ const dispose = network.decorate({
 
 Composition laws (what "non-competitive" means, normatively):
 
-| capability | law |
-| --- | --- |
-| `onDispatch` | commutes freely (pure observation) |
-| envelope keys | commute iff namespaced: cascade keys owned by their adapter; chain keys by reducer namespace |
-| `onForward` | commutes because mirrors are self-filtered by cascade keys and **never** re-enter main dispatch |
-| `onReturn` | first-settlement-wins per entry, self-scoped by cascade key (`transceiverId`) |
+| capability    | law                                                                                             |
+| ------------- | ----------------------------------------------------------------------------------------------- |
+| `onDispatch`  | commutes freely (pure observation)                                                              |
+| envelope keys | commute iff namespaced: cascade keys owned by their adapter; chain keys by reducer namespace    |
+| `onForward`   | commutes because mirrors are self-filtered by cascade keys and **never** re-enter main dispatch |
+| `onReturn`    | first-settlement-wins per entry, self-scoped by cascade key (`transceiverId`)                   |
 
 `network.use()` remains supported unchanged (an `onDispatch`-only decorator
 in legacy clothing).
@@ -201,16 +203,16 @@ Public constructors, methods, and observable semantics are frozen; only
 internals move. Each row lands as its own commit against the existing test +
 mutation suites.
 
-| adapter | today | becomes |
-| --- | --- | --- |
-| `Channel` | entry stamps `channelId`; hand forward shares control, mirrors to `_channel`, re-dispatches main | `enter()` with cascade `{channelId}`; decorator `onForward` mirrors matching cascades to `_channel`; core dispatches main. Internal re-entry `(a) => this.setAppCtx(a)` replaced by envelope-preserving path — closes the channel-handler-chain gap |
-| `Source` | entry stamps `source` in control; middleware suppresses echo; relies on Kernel hop-drop | `enter()` with hop `{source}`; `onDispatch` checks `envelope.hop.source` (legacy fallback: `cascade.source`). Reflex semantics identical |
-| `Relay` | unexported; unbound `forwardAppCtx` bug | fixed alongside Source (same shape); stays unexported |
-| `Transponder` | entry-only; control `{transponderId, signal}`; resolve-once via shared mutation; relies on wrapper (Channel) for forwarding | `enter()` on the wrapped surface with cascade `{transponderId, signal}`; `onDispatch` settles. Attached to a bare Kernel it now participates in v2 forwarding (documented improvement: chains propagate; resolve-once semantics unchanged) |
-| `Transceiver` | own forward (shares control) + full dispatch fork (`captureSignal`) | `enter()` with cascade key; `onForward` mirrors to `_signals`; `onReturn` settlement; fork deleted |
-| `seive` | middleware clone-and-redirect | unchanged behavior; becomes `onDispatch` + mirror using the same clone semantics |
-| bridges / forward-chain / transfer / TaoLogger / trigramFilter | handler-level or pure | untouched (bridge cross-kernel envelope threading is a future option, default off) |
-| koa / socket.io / router / react / http-client / examples | public APIs only | untouched; suites re-run as regression gate |
+| adapter                                                        | today                                                                                                                       | becomes                                                                                                                                                                                                                                             |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Channel`                                                      | entry stamps `channelId`; hand forward shares control, mirrors to `_channel`, re-dispatches main                            | `enter()` with cascade `{channelId}`; decorator `onForward` mirrors matching cascades to `_channel`; core dispatches main. Internal re-entry `(a) => this.setAppCtx(a)` replaced by envelope-preserving path — closes the channel-handler-chain gap |
+| `Source`                                                       | entry stamps `source` in control; middleware suppresses echo; relies on Kernel hop-drop                                     | `enter()` with hop `{source}`; `onDispatch` checks `envelope.hop.source` (legacy fallback: `cascade.source`). Reflex semantics identical                                                                                                            |
+| `Relay`                                                        | unexported; unbound `forwardAppCtx` bug                                                                                     | fixed alongside Source (same shape); stays unexported                                                                                                                                                                                               |
+| `Transponder`                                                  | entry-only; control `{transponderId, signal}`; resolve-once via shared mutation; relies on wrapper (Channel) for forwarding | `enter()` on the wrapped surface with cascade `{transponderId, signal}`; `onDispatch` settles. Attached to a bare Kernel it now participates in v2 forwarding (documented improvement: chains propagate; resolve-once semantics unchanged)          |
+| `Transceiver`                                                  | own forward (shares control) + full dispatch fork (`captureSignal`)                                                         | `enter()` with cascade key; `onForward` mirrors to `_signals`; `onReturn` settlement; fork deleted                                                                                                                                                  |
+| `seive`                                                        | middleware clone-and-redirect                                                                                               | unchanged behavior; becomes `onDispatch` + mirror using the same clone semantics                                                                                                                                                                    |
+| bridges / forward-chain / transfer / TaoLogger / trigramFilter | handler-level or pure                                                                                                       | untouched (bridge cross-kernel envelope threading is a future option, default off)                                                                                                                                                                  |
+| koa / socket.io / router / react / http-client / examples      | public APIs only                                                                                                            | untouched; suites re-run as regression gate                                                                                                                                                                                                         |
 
 `asPromiseHook`: frozen legacy (predates Network + Transponder; no in-repo
 consumers). Kept working via its existing inline-handler implementation.
@@ -279,7 +281,7 @@ cores lack; therefore utils (and socket.io/koa via utils) must declare a
 fail fast with a clear error when attached to a pre-envelope core rather
 than misbehave.
 
-### kettleos (all @tao.js/* pinned 0.15.0; 306 files import core across 11 apps)
+### kettleos (all @tao.js/\* pinned 0.15.0; 306 files import core across 11 apps)
 
 App code is **exclusively public API**: no `control`, no middleware, no
 underscore access, no monkey-patching, no deep internal imports (only
@@ -293,7 +295,7 @@ Express request on the same global kernel** the socket bridge wires;
 `Transceiver(TAO, false, 100)` in batch scripts awaits multi-hop chains
 (`script → set → … → finish`) and tears down with `remove*Handler`.
 `asPromiseHook`, `Transponder`, `Source`, `seive`, bridges: never used
-directly. (The repo also contains three name-colliding *reimplementations*
+directly. (The repo also contains three name-colliding _reimplementations_
 of utils' forward-chain/TaoLogger built on public API only.)
 
 Normative invariants added by this survey:

@@ -106,6 +106,35 @@ TAO.setAppCtx(new AppCtx('User', 'Find', 'Portal', { User: { id: '42' } }));
 
 `Kernel` wires itself into its Network via middleware that calls `AppCtxHandlers.handleAppCon`. Prefer **Kernel** APIs in application code; use **Network** when building adapters (utils, bridges).
 
+### Envelope & decorations (the signal plane)
+
+Read **ENVELOPE-SPEC.md** before touching Network/Kernel internals or any
+utils adapter. Summary of the contract:
+
+- Every v2 cascade carries an **envelope** with three scopes: `cascade`
+  (the legacy `control` object, one shared reference for the whole cascade
+  — `channelId`, transponder `signal`/`signalled` live here), `hop` (reset
+  every hop — `Source`'s echo-suppression marker), and `chain` (derived per
+  hop by registered reducers — trace context).
+- `network.enter(appCtx, { cascade, hop, chain })` is the v2 entry gate;
+  the Network owns forwarding (chained AppCons dispatch **exactly once** in
+  core). `Kernel.setCtx/setAppCtx` and the utils adapters enter this way.
+- `network.decorate({ name, onDispatch, onForward, onReturn, chain })` is
+  the additive adapter interface: observe dispatches, mirror chained
+  AppCons (never re-enter main dispatch), settle non-AppCtx handler
+  returns, derive namespaced chain state. Throwing decorations never break
+  dispatch. Returns a dispose fn.
+- `setCtxControl`/`setAppCtxControl` **with an explicit `forwardAppCtx`**
+  is the frozen legacy path — bit-for-bit pre-envelope behavior.
+- `AppCtxHandlers.handleAppCon(ac, setAppCtx, control, hooks)` — optional
+  `hooks.onReturn(phase, value, ac)` receives non-AppCtx handler returns
+  and errors (phases INTERCEPT/ASYNC/INLINE/ERROR); without hooks the loop
+  is bit-for-bit legacy (errors rethrow).
+- End-to-end proof lives at `tools/smoke/socketio-envelope-smoke.cjs`
+  (real socket.io round-trip: per-client reply routing, no cross-client
+  leak, bidirectional reflex, tracer linkage). Run with
+  `node tools/smoke/socketio-envelope-smoke.cjs` after `pnpm build`.
+
 ---
 
 ## 3. Minimal usage (matches `@tao.js/core`)
@@ -161,6 +190,8 @@ For isolated tests, prefer `new Kernel()` over the shared default `TAO`.
 | `@tao.js/routing-react-router`    | `packages/tao-routing-react-router` | React Router adapter (`importLoader`, `useLoaderSignal`)                                                                                                                     |
 | `@tao.js/routing-tanstack-router` | `packages/tao-routing-tanstack`     | TanStack Router adapter (`importLoader`, `useLoaderSignal`)                                                                                                                  |
 | `@tao.js/routing-next`            | `packages/tao-routing-next`         | Next.js adapter (`importLoader`, `enterRoute`, `useRouteSignal`)                                                                                                             |
+| `@tao.js/trace`                   | `packages/tao-trace`                | Causal signal tracer as a pure Network decoration (chain reducer + observer); W3C traceparent helpers; `InMemorySink`/`ConsoleSink`                          |
+| `@tao.js/opentelemetry`          | `packages/tao-opentelemetry`        | OpenTelemetry exporter sink for `@tao.js/trace` records (spans with causal parentage; api-only dependency)                                                   |
 | `@tao.js/socket.io`               | `packages/tao-socket-io`            | Wire a Kernel to socket.io (`wireTaoJsToSocketIO`)                                                                                                                           |
 | `@tao.js/koa`                     | `packages/koa-tao`                  | Expose a TAO network over HTTP via Koa middleware                                                                                                                            |
 | `@tao.js/http-client`             | `packages/tao-http-client`          | HTTP client for a TAO HTTP server (`TaoHttpClient`) — private                                                                                                                |
@@ -288,6 +319,8 @@ _Append learnings for the next agent. Newest first._
 
 - **2026-07-19** — `@tao.js/react`: prefer named export `TaoProvider`; `Provider` remains a deprecated alias (dev once-warning via `deprecations.js`). Default export of `src/Provider.js` is `TaoProvider`.
 - **2026-07-18** — Host-router adapters: `@tao.js/routing-core` (signal apply + `createImportLoader` + React hook factories without importing React) and peer adapters `@tao.js/routing-react-router`, `@tao.js/routing-tanstack-router`, `@tao.js/routing-next`. Prefer these over investing in legacy `@tao.js/router`. Mutation: `pnpm test:mutation:routing-*`.
+- **2026-07-18** — Envelope/decoration redesign implemented on `feat/network-envelope` per ENVELOPE-SPEC.md (spec committed first; production surveys of kettleos + tidy.dev embedded in §10 with eight normative invariants). Core: `Network.enter` hop engine (dispatch-once, cascade/hop/chain scopes), `Network.decorate`, `AppCtxHandlers` settlement hook, legacy `setCtxControl`+forward path frozen. Utils adapters migrated (Channel = cascade + onForward mirror; Source/Relay = hop-scope origin marker, Relay's unbound-forward bug fixed; Transponder = cascade entry, chains now propagate on bare kernels; Transceiver = settlement hook, `captureSignal` fork deleted). Adapters throw a clear error on pre-envelope cores (mixed-version installs are real — tidy.dev runs core 0.16.0 with utils 0.16.2; set the peerDependency floor when versions are cut at release). New `@tao.js/trace` + `@tao.js/opentelemetry`: tracing is a pure decoration — full causal trees for kernel/channel/transponder entries with ZERO instrumentation; one tracer per network (chain key exclusivity). Gotchas learned: white-box utils tests assert threading mechanics, not just semantics — rewrite intent, don't delete; Stryker `inPlace: true` mutates sources during runs (don't git-operate or run other suites on that package concurrently); jest 30 fails tests on unhandled rejections (assert legacy rethrow via the dispatch promise instead); channel-attached handler chains still re-enter with a fresh cascade (frozen Channel semantic — trace shows them as new roots).
+
 - **2026-07-18** — `@tao.js/react@0.17.0` on `modernize-react-handlers`: DataHandler/Provider/DataConsumer/createContextHandler are function components; tree-scoped `DataLayerContext` + `useTaoData(name?)`; bag merge kept for deprecated `RenderHandler.context` / `DataConsumer`; dev once-warnings via `deprecations.js`. See §5 migration (steps 1–3 shipped; removal still future).
 - **2026-07-18** — `@tao.js/react` `SwitchHandler` / `RenderHandler` modernized to function components (`modernize-react-handlers`). Match table from children each render; Kernel inline subs reconciled via `useTaoInlineSubscription`. Selection by trigram `matchKey` (multi-match / wildcards / array cartesian). Wave = one AppCon (latest wins, not settle-chain union). `shouldRender` stays public; non-RH children always pass through. DataHandler still class — next (migration plan in §5).
 - **2026-07-18** — Mutation testing on `@tao.js/koa`: `pnpm test:mutation:koa` (`packages/koa-tao/stryker.config.json`, `inPlace: true`). Score raised from 65.15% → **100%** (203 killed, 0 survived, 0 errors). Key techniques: import the mocked `Channel`/`Transponder`/`Transceiver` directly in the test file to assert exact constructor args (e.g. `Transponder.mock.calls[i][2]` for the `opt.timeout || DEFAULT_TIMEOUT` value) since that value never surfaces in a return value; use the inner `mockTransponderSetCtx` jest.fn (decoupled from its fixed mocked resolved value) to assert the exact `(tao, data)` args `getBodyData` computed, which is otherwise invisible because `ctx.body` only reflects the canned mock return; `getBodyData`'s cascading `if (!data && ...)` guards make most "missing field" tests equivalent-looking (any JS falsy value short-circuits identically) — need a genuinely falsy key (e.g. `opt.json = ''`) paired with a _truthy_ value at that key to make `if(bodyProp && ...)` vs `if(true)`/`||` mutants diverge. Found and fixed a real production bug this way: `handleContext` destructured `getBodyData`'s result without a null-guard, so a body-less `POST /tao/context` (no json/body/configured field) crashed the process on `const { tao, data } = await getBodyData(...)` — fixed with `(await getBodyData(...)) || {}` rather than working around it in tests.
