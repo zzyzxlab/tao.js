@@ -540,3 +540,113 @@ describe('Settlement hook (onReturn)', () => {
     ).rejects.toThrow('legacy boom');
   });
 });
+
+describe('compatibility and defensive coverage', () => {
+  it('should keep Kernel.forwardAppCtx working for legacy adapters', async () => {
+    // Assemble — old-utils Source/Relay call kernel.forwardAppCtx directly;
+    // it must dispatch like setAppCtx (dropping any legacy control)
+    const handler = jest.fn();
+    TAO.addInlineHandler(TRIGRAM, handler);
+    // Act
+    TAO.forwardAppCtx(new AppCtx(TERM, ACTION, ORIENT, { [TERM]: { id: 3 } }), {
+      source: 'legacy',
+    });
+    await flush();
+    // Assert
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledWith(expect.objectContaining(TRIGRAM), {
+      [TERM]: { id: 3 },
+    });
+  });
+
+  it('should ignore non-AppCtx values passed to the core forward', () => {
+    // Assemble — middleware receives the core forward as forwardAppCtx and
+    // may call it with anything (legacy NOOP-forward parity)
+    let coreForward = null;
+    TAO._network.use((handler, ac, forward) => {
+      coreForward = forward;
+    });
+    const seen = [];
+    TAO._network.decorate({ onDispatch: (ac) => seen.push(ac.key) });
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    // Assert
+    expect(() => coreForward(42)).not.toThrow();
+    expect(() => coreForward({ t: TERM })).not.toThrow();
+    expect(seen).toEqual([`${TERM}|${ACTION}|${ORIENT}`]);
+    // and no phantom handler registrations from the junk values
+    expect(TAO._network._handlers.has('*|*|*')).toBe(false);
+    expect(TAO._network._handlers.has(undefined)).toBe(false);
+  });
+
+  it('should never let a throwing onReturn decoration break settlement', async () => {
+    // Assemble
+    const settled = [];
+    TAO._network.decorate({
+      onReturn: () => {
+        throw new Error('settler boom');
+      },
+    });
+    TAO._network.decorate({
+      onReturn: (phase, value) => settled.push(`${phase}:${value}`),
+    });
+    TAO.addInlineHandler(TRIGRAM, () => 'settle-me');
+    // Act
+    // Assert
+    expect(() => TAO.setCtx(TRIGRAM, {})).not.toThrow();
+    await flush();
+    expect(settled).toEqual([`${INLINE}:settle-me`]);
+  });
+
+  it('should settle forward errors from an intercept redirect as ERROR', async () => {
+    // Assemble — direct dispatch with a throwing setAppCtx callback (the
+    // legacy-forward shape Transceiver relies on)
+    const returns = [];
+    const hooks = {
+      onReturn: (phase, value) => returns.push({ phase, value }),
+    };
+    TAO.addInterceptHandler(
+      TRIGRAM,
+      () => new AppCtx(TERM, NEXT_ACTION, ORIENT),
+    );
+    const ach = TAO._network._handlers.get(`${TERM}|${ACTION}|${ORIENT}`);
+    const throwingForward = () => {
+      throw new Error('redirect forward failed');
+    };
+    // Act
+    await ach.handleAppCon(
+      new AppCtx(TERM, ACTION, ORIENT),
+      throwingForward,
+      {},
+      hooks,
+    );
+    // Assert
+    expect(returns).toHaveLength(1);
+    expect(returns[0].phase).toBe(ERROR);
+    expect(returns[0].value.message).toBe('redirect forward failed');
+  });
+
+  it('should settle forward errors from the inline spool as ERROR', async () => {
+    // Assemble
+    const returns = [];
+    const hooks = {
+      onReturn: (phase, value) => returns.push({ phase, value }),
+    };
+    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
+    const ach = TAO._network._handlers.get(`${TERM}|${ACTION}|${ORIENT}`);
+    const throwingForward = () => {
+      throw new Error('spool forward failed');
+    };
+    // Act
+    await ach.handleAppCon(
+      new AppCtx(TERM, ACTION, ORIENT),
+      throwingForward,
+      {},
+      hooks,
+    );
+    // Assert
+    expect(returns).toHaveLength(1);
+    expect(returns[0].phase).toBe(ERROR);
+    expect(returns[0].value.message).toBe('spool forward failed');
+  });
+});

@@ -254,3 +254,43 @@ describe('Tracer records legacy-mode dispatches as unlinked roots', () => {
     expect(record.traceId).toMatch(TRACE_ID_RX);
   });
 });
+
+describe('Tracer sink management and entry defaults', () => {
+  it('should remove a sink', () => {
+    // Assemble
+    const tracer = new Tracer(TAO, { sinks: [sink] });
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    expect(tracer.removeSink(sink)).toBe(tracer);
+    TAO.setCtx(TRIGRAM, {});
+    // Assert
+    expect(sink.size).toBe(1);
+  });
+
+  it('should start fresh traces for entries without (or with empty) trace context', () => {
+    // Assemble
+    const tracer = new Tracer(TAO, { sinks: [sink] });
+    // Act
+    tracer.setCtx(TRIGRAM, {});
+    tracer.setCtx(TRIGRAM, {}, {});
+    // Assert
+    expect(sink.size).toBe(2);
+    for (const record of sink.records) {
+      expect(record.traceId).toMatch(TRACE_ID_RX);
+      expect(record.parentId).toBeNull();
+    }
+    expect(sink.records[1].traceId).not.toBe(sink.records[0].traceId);
+  });
+});
+
+describe('Tracer records built from duck-typed dispatch notifications', () => {
+  it('should omit handler counts when no handler accompanies the dispatch', () => {
+    // Assemble
+    const tracer = new Tracer(TAO, { sinks: [sink] });
+    // Act — decoration contract allows dispatch notification without a handler
+    tracer._record(new AppCtx(TERM, ACTION, ORIENT), { chain: {} }, undefined);
+    // Assert
+    expect(sink.size).toBe(1);
+    expect(sink.records[0].handlers).toBeUndefined();
+  });
+});

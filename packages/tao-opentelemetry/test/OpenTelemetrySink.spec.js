@@ -196,3 +196,20 @@ describe('OpenTelemetrySink maps signal records to spans', () => {
     expect(otelTrace.getSpanContext(third.ctx)).toBeUndefined();
   });
 });
+
+describe('OpenTelemetrySink duck-typed records', () => {
+  it('should export records without handler counts', () => {
+    // Assemble
+    const tracer = mkFakeTracer();
+    const sink = new OpenTelemetrySink(tracer);
+    const record = mkRecord({ id: 'bare' });
+    delete record.handlers;
+    // Act
+    sink.signal(record);
+    // Assert
+    const { attributes } = tracer.spans[0].options;
+    expect(attributes['tao.handlers.intercept']).toBeUndefined();
+    expect(attributes['tao.handlers.async']).toBeUndefined();
+    expect(attributes['tao.handlers.inline']).toBeUndefined();
+  });
+});

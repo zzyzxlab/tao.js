@@ -301,7 +301,8 @@ export default class Network {
   }
 
   _forwardNext(nextAc, prevEnvelope) {
-    // Stryker disable next-line ConditionalExpression: guard parity with legacy NOOP forward for non-AppCtx values
+    // guard parity with the legacy NOOP forward: middleware may invoke the
+    // core forward with non-AppCtx values
     if (!(nextAc instanceof AppCtx)) {
       return;
     }

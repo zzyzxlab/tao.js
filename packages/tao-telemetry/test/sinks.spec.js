@@ -264,3 +264,16 @@ describe('ConsoleSink streams signals with causal indentation', () => {
     expect(logger.info).toHaveBeenNthCalledWith(3, '☯{Term, Act, Or}');
   });
 });
+
+describe('ConsoleSink defaults', () => {
+  it('should construct with no options and log via the global console', () => {
+    // Assemble
+    const info = jest.spyOn(console, 'info').mockImplementation(() => {});
+    const sink = new ConsoleSink();
+    // Act
+    sink.signal(mkRecord({ id: 'default-root' }));
+    // Assert
+    expect(info).toHaveBeenCalledWith('☯{Term, Act, Or}');
+    info.mockRestore();
+  });
+});

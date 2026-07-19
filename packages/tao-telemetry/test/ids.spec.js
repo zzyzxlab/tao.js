@@ -79,3 +79,30 @@ describe('traceparent formatting and parsing', () => {
     expect(parseTraceparent(header)).toBeNull();
   });
 });
+
+describe('id generation without WebCrypto', () => {
+  it('should fall back to Math.random-based hex when crypto is unavailable', () => {
+    // Assemble — jsdom exposes crypto as an accessor, so shadow it with an
+    // own configurable property instead of jest.replaceProperty
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+    Object.defineProperty(globalThis, 'crypto', {
+      value: undefined,
+      configurable: true,
+      writable: true,
+    });
+    try {
+      // Act
+      const traceId = newTraceId();
+      const signalId = newSignalId();
+      // Assert
+      expect(traceId).toMatch(/^[0-9a-f]{32}$/);
+      expect(signalId).toMatch(/^[0-9a-f]{16}$/);
+    } finally {
+      if (descriptor) {
+        Object.defineProperty(globalThis, 'crypto', descriptor);
+      } else {
+        delete globalThis.crypto;
+      }
+    }
+  });
+});
