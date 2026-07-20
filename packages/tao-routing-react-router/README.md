@@ -1,26 +1,29 @@
 # `@tao.js/routing-react-router`
 
-React Router adapter: **route loaders as TAO AppCon entry points**.
+React Router adapter for the [`@tao.js/routing-core`](../tao-routing-core/README.md) contract: **data-router loaders** as TAO feature entry points.
 
-Host React Router owns URLs and layouts. This package:
+**Read routing-core first** for philosophy (feature modules, code splitting, nested `skipInit` / `skipLoad`), signal shapes, and `createImportLoader` options. This README only shows how to apply that contract with React Router.
 
-1. dynamic-imports a TAO feature module from a route `loader` (`importLoader`)
-2. returns `{ signal }` as loader data
-3. applies that signal to the Kernel on the client (`useLoaderSignal`)
+## What this adapter does
 
-Shared contract details live in [`@tao.js/routing-core`](../tao-routing-core/README.md).
+| Step | React Router API                        | This package                          |
+| ---- | --------------------------------------- | ------------------------------------- |
+| 1    | Route `loader` runs on navigation       | `importLoader(TAO)` inside the loader |
+| 2    | Loader data is `{ signal }` (or `null`) | same bag as core                      |
+| 3    | Route element mounts                    | `useLoaderSignal()` → Kernel          |
+| 4    | UI                                      | `@tao.js/react` `RenderHandler` etc.  |
+
+`useLoaderSignal` is `createUseSignalEffect` wired to `react-router`’s `useLoaderData` + `@tao.js/react`’s `useTaoContext`.
 
 ## Install
 
 ```sh
 pnpm add @tao.js/routing-react-router @tao.js/routing-core @tao.js/core @tao.js/react react react-router react-dom
-# browser apps also typically need:
+# often also:
 pnpm add react-router-dom
 ```
 
-**Peer dependencies**
-
-| Package                | Constraint                         |
+| Peer                   | Constraint                         |
 | ---------------------- | ---------------------------------- |
 | `@tao.js/routing-core` | `*`                                |
 | `@tao.js/core`         | `*`                                |
@@ -28,92 +31,20 @@ pnpm add react-router-dom
 | `react`                | `>=16.8.0`                         |
 | `react-router`         | `>=6.4.0` (data routers / loaders) |
 
-`useLoaderSignal` reads loader data via `react-router`’s `useLoaderData`. Use a data router (`createBrowserRouter` / `RouterProvider`).
+Use `createBrowserRouter` / `RouterProvider` (or another data router).
 
-## End-to-end happy path
+## Implement the philosophy with React Router
 
-### 1. Feature module (`initialize` + `load`)
+### 1. Feature modules
 
-A feature module is a normal ESM file. Default export registers handlers; named `load` is the route-entry value (or a bag of helpers).
+Author `tao/*.js` as in [routing-core — Feature module contract](../tao-routing-core/README.md#feature-module-contract). No React Router types required.
 
-```js
-// src/tao/home.js
-import { AppCtx } from '@tao.js/core';
-
-const enterHome = new AppCtx('Home', 'Enter', 'Portal');
-let initialized = false;
-
-export default function initialize(TAO) {
-  if (initialized) return;
-  initialized = true;
-
-  TAO.addInlineHandler({ t: 'Home', a: 'Enter', o: 'Portal' }, (tao, data) => {
-    return new AppCtx('Home', 'View', 'Portal', data);
-  });
-
-  // Optional: return a function — importLoader calls it immediately after initialize.
-  return () => {
-    TAO.setAppCtx(new AppCtx('Home', 'Init', 'Portal'));
-  };
-}
-
-export const load = enterHome;
-```
-
-Nested routes often share one module and export several load helpers:
-
-```js
-// src/tao/product.js
-import { AppCtx } from '@tao.js/core';
-
-let initialized = false;
-
-export default function initialize(TAO) {
-  if (initialized) return;
-  initialized = true;
-
-  TAO.addInlineHandler(
-    { t: 'Product', a: 'Find', o: 'Portal' },
-    (tao, data) => {
-      // …fetch list…
-      return new AppCtx('Product', 'Browse', 'Portal', {
-        Product: { items: [] },
-      });
-    },
-  );
-
-  TAO.addInlineHandler(
-    { t: 'Product', a: 'Select', o: 'Portal' },
-    (tao, data) => {
-      // …fetch one…
-      return new AppCtx('Product', 'View', 'Portal', {
-        Product: { id: data.Select?.id },
-      });
-    },
-  );
-}
-
-export function fetchProducts() {
-  return new AppCtx('Product', 'Find', 'Portal');
-}
-
-export function locateProduct({ id }) {
-  return new AppCtx('Product', 'Select', 'Portal', { Select: { id } });
-}
-
-export const load = { fetchProducts, locateProduct };
-```
-
-### 2. Kernel + Provider
-
-Create (or reuse) a Kernel and wrap the tree with `@tao.js/react` `Provider` so `useLoaderSignal` / `RenderHandler` see the same network.
+### 2. Shared Kernel + Provider
 
 ```js
 // src/tao.js
 import { Kernel } from '@tao.js/core';
-
 export const TAO = new Kernel();
-// or: import TAO from '@tao.js/core';
 ```
 
 ```jsx
@@ -134,9 +65,11 @@ createRoot(document.getElementById('root')).render(
 );
 ```
 
-Pass the **same** Kernel into `importLoader(TAO, …)` when defining routes and into `<Provider TAO={TAO}>`.
+Pass this same `TAO` into every `importLoader(TAO, …)`.
 
-### 3. Routes: `importLoader` + nested `skipInit` / `skipLoad` / `loadSignal`
+### 3. Put `importLoader` on route `loader`s
+
+Code-split boundary = `import('./tao/…')` inside the loader (React Router already defers loader work until the route matches / prefetches).
 
 ```js
 // src/router.js
@@ -150,15 +83,14 @@ import { ProductDetailsPage } from './pages/ProductDetailsPage';
 
 const homeLoader = importLoader(TAO);
 
-// Parent: initialize the feature once; do not emit a load signal here.
+// Parent: initialize Product feature once; no enter signal.
 const productBaseLoader = importLoader(TAO, { skipLoad: true });
 
-// Children: module already initialized on the parent; pick a load helper + args.
+// Children: skipInit; choose load helper (+ params).
 const productListLoader = importLoader(TAO, {
   skipInit: true,
   loadSignal: ({ fetchProducts }) => fetchProducts(),
 });
-
 const productDetailsLoader = importLoader(TAO, {
   skipInit: true,
   loadSignal: ({ locateProduct }, params) => locateProduct(params),
@@ -176,7 +108,6 @@ export const router = createBrowserRouter([
       },
       {
         path: 'products',
-        // initialize product handlers; return null (no signal)
         loader: () => productBaseLoader(import('./tao/product')),
         children: [
           {
@@ -187,7 +118,6 @@ export const router = createBrowserRouter([
           {
             path: ':id',
             element: <ProductDetailsPage />,
-            // extra loader args after the module promise are forwarded to loadSignal
             loader: ({ params }) =>
               productDetailsLoader(import('./tao/product'), params),
           },
@@ -198,39 +128,9 @@ export const router = createBrowserRouter([
 ]);
 ```
 
-`importLoader(TAO, options)` returns an async helper:
+Options (`skipInit`, `skipLoad`, `loadSignal`): [routing-core](../tao-routing-core/README.md#createimportloadertao-options).
 
-```text
-(modulePromise, ...args) => Promise<{ signal } | null>
-```
-
-| Option       | Default          | Meaning                                                                  |
-| ------------ | ---------------- | ------------------------------------------------------------------------ |
-| `skipInit`   | `false`          | Skip calling `default` export (`initialize`)                             |
-| `skipLoad`   | `false`          | After init, return `null` (no `{ signal }`)                              |
-| `loadSignal` | `(load) => load` | `(load, ...args) => signal` — map `mod.load` (+ loader args) to a signal |
-
-When `skipInit` is false, `default` must be a function or the loader throws.
-
-### 4. Page: `useLoaderSignal` + `RenderHandler`
-
-Call `useLoaderSignal()` in the route element that should enter the TAO network. It reads `{ signal }` from `useLoaderData()` and applies it once per signal identity (StrictMode-safe).
-
-```jsx
-// src/pages/HomePage.jsx
-import { RenderHandler } from '@tao.js/react';
-import { useLoaderSignal } from '@tao.js/routing-react-router';
-
-export function HomePage() {
-  useLoaderSignal();
-
-  return (
-    <RenderHandler t="Home" a="View" o="Portal">
-      {(tao, data) => <h1>Home</h1>}
-    </RenderHandler>
-  );
-}
-```
+### 4. Enter TAO in the route element
 
 ```jsx
 // src/pages/ProductDetailsPage.jsx
@@ -238,7 +138,7 @@ import { RenderHandler } from '@tao.js/react';
 import { useLoaderSignal } from '@tao.js/routing-react-router';
 
 export function ProductDetailsPage() {
-  useLoaderSignal();
+  useLoaderSignal(); // reads useLoaderData().signal → applySignal(TAO, signal)
 
   return (
     <RenderHandler t="Product" a="View" o="Portal">
@@ -248,43 +148,12 @@ export function ProductDetailsPage() {
 }
 ```
 
-Flow:
-
 ```text
-navigate → React Router loader → importLoader → { signal }
-  → render route element → useLoaderSignal → Kernel.setAppCtx / setCtx
-  → handlers run → RenderHandler paints matching AppCon
+navigate → RR loader → importLoader → { signal }
+  → element render → useLoaderSignal → Kernel → RenderHandler
 ```
 
-## Accepted signal shapes
-
-Whatever `loadSignal` returns (or `load` itself when using the default) must be one of:
-
-| Shape                           | Applied as                 |
-| ------------------------------- | -------------------------- |
-| `AppCtx`                        | `kernel.setAppCtx(signal)` |
-| `[tao, data?]` (non-empty)      | `kernel.setCtx(...signal)` |
-| `{ tao, data? }` (`tao` truthy) | `kernel.setCtx(tao, data)` |
-
-Examples:
-
-```js
-import { AppCtx } from '@tao.js/core';
-
-// AppCtx
-new AppCtx('Home', 'Enter', 'Portal');
-
-// tuple
-[{ t: 'Home', a: 'Enter', o: 'Portal' }, { Home: { id: '1' } }];
-
-// object
-{
-  tao: { t: 'Home', a: 'Enter', o: 'Portal' },
-  data: { Home: { id: '1' } },
-}
-```
-
-`null` / `undefined` / empty array / object without `tao` → no Kernel update.
+SSR with React Router frameworks (Remix, RR7 SSR): same loader → `{ signal }` idea; prefer serializable signal shapes if the payload crosses a server/client boundary ([routing-core](../tao-routing-core/README.md#accepted-signal-shapes)).
 
 ## Exports
 
@@ -292,15 +161,8 @@ new AppCtx('Home', 'Enter', 'Portal');
 import {
   importLoader,
   useLoaderSignal,
-  // also re-exported from @tao.js/routing-core:
   applySignal,
   getSignal,
   createImportLoader,
 } from '@tao.js/routing-react-router';
 ```
-
-## Notes
-
-- Prefer a dedicated `new Kernel()` per app (or tests) over relying on accidental global singleton sharing.
-- Parent `skipLoad: true` + child `skipInit: true` is the usual pattern when several routes share one feature module.
-- This package does not replace React Router; it only bridges loader data into TAO.
