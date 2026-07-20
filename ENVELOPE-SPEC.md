@@ -327,3 +327,69 @@ Normative invariants added by this survey:
 6. Mutation runs for every changed package; survivors killed or annotated as
    equivalent per repo convention.
 7. Docs: AGENTS.md envelope contract section, package READMEs, FUTURE.md.
+
+## 12. Legacy retirement (the 0.19 cutover)
+
+The compatibility freeze in §3 was calibrated to production constraints
+that turned out not to bind: kettleos is retired, tidy.dev was a local
+prototype, and a full sweep (GitHub dependents graph, GitHub-wide code
+search for `@tao.js/*` in `package.json` outside the org, per-version npm
+download distribution) found **no external consumers** — download traffic
+is registry mirrors and scanners. The freeze's real value is already
+banked: it made the envelope migration verifiable against unmodified
+tests, proving semantic preservation. Pre-1.0 minors may break, and the
+1.0 foundation should not carry dual-mode dispatch.
+
+### Release sequencing
+
+- **0.18.0** ships this branch as-is — dual-mode, fully backward
+  compatible — as insurance and as the last on-ramp for any undetected
+  consumer. Its changelog announces the 0.19 removals explicitly.
+- **0.19.0** (the cutover, a separate PR) removes legacy mode entirely.
+  Nothing new builds on the dual-mode core: the cross-process chain
+  transport and the envelope-powered routing features land after 0.19,
+  on the clean foundation, followed by 1.0.
+
+### What 0.19 removes
+
+| surface                                                                                         | disposition                                                                                                            |
+| ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `Network.setCtxControl` / `setAppCtxControl` (caller-owned `forwardAppCtx`)                     | **removed** — `enter()` is the only gate                                                                               |
+| `Network.use` / `stop` (raw middleware)                                                         | **removed** — `decorate({ onDispatch })` is strictly more capable; one way to do things                                |
+| `Kernel.forwardAppCtx`                                                                          | **removed** (compat-only dead code)                                                                                    |
+| `Kernel.asPromiseHook`                                                                          | **removed** (pre-Network relic; Transponder/Transceiver are the replacements)                                          |
+| `Kernel.channel()` unfinished sketch                                                            | **removed**                                                                                                            |
+| legacy dispatch loop, `envelope.legacy` flag, NOOP-forward defaults, middleware-arity threading | **removed** with the paths that need them                                                                              |
+| Tracer's unlinked-root degraded mode                                                            | **removed** (no legacy dispatches left to degrade for)                                                                 |
+| adapter fail-fast version guards                                                                | **kept** (still useful against npm-history installs)                                                                   |
+| all behavioral/invariant tests (§10)                                                            | **kept** — they encode semantics, not compat; only tests pinning the frozen mechanics are deleted with those mechanics |
+
+### Cutover steps
+
+1. **Network owns handler execution** — the keystone. `_dispatch` invokes
+   the matched `AppCtxHandlers` directly; the Kernel stops registering
+   dispatch middleware and becomes a thin veneer over `enter()`.
+2. **Collapse to one dispatch path** — delete the legacy methods and loop;
+   `enter()` + `decorate()` are the entire Network surface.
+3. **Adapters become pure decorations** — Transceiver goes full-v2
+   (`enter` + `onForward` mirror + `onReturn` settlement; the
+   `_signals`-before-main mirror ordering pinned by an explicit test);
+   Transponder's resolver and Source/Relay's observers move to
+   `onDispatch` (Transponder's pre-envelope fallback branch goes); seive
+   becomes a decoration; Channel deletes `forwardAppCtx` and its legacy
+   `*Control` branches.
+4. **One semantic fix, now that semantics are ours to set**: chained
+   AppCons from **channel-attached** handlers continue the cascade
+   envelope instead of re-entering with a fresh one — closing the last
+   trace-root gap (§8 note) and making channel cascades fully causal.
+5. **Same verification bar**: all suites green, 100% mutation on every
+   touched package, the socket.io smoke (its invariants are behavioral
+   and survive unchanged), spec and AGENTS.md updated to record the
+   retirement.
+
+### Non-goals of 0.19
+
+Cross-process `envelope.chain` transport, envelope-powered routing
+features, and the TypeScript surface remain separate follow-ups — 0.19 is
+purely subtractive plus the one channel-chain semantic fix, to keep its
+diff reviewable against this spec's table above.
