@@ -35,7 +35,7 @@ pnpm add @tao.js/routing-tanstack-router @tao.js/routing-core @tao.js/core @tao.
 
 Author `tao/*.js` as in [routing-core — Feature module contract](../tao-routing-core/README.md#feature-module-contract).
 
-### 2. Shared Kernel + Provider
+### 2. Shared Kernel + TaoProvider
 
 ```js
 // src/tao.js
@@ -47,16 +47,16 @@ export const TAO = new Kernel();
 // src/main.jsx
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Provider } from '@tao.js/react';
+import { TaoProvider } from '@tao.js/react';
 import { RouterProvider } from '@tanstack/react-router';
 import { TAO } from './tao';
 import { router } from './router';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Provider TAO={TAO}>
+    <TaoProvider TAO={TAO}>
       <RouterProvider router={router} />
-    </Provider>
+    </TaoProvider>
   </StrictMode>,
 );
 ```

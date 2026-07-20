@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { Kernel, AppCtx } from '@tao.js/core';
-import { Provider } from '@tao.js/react';
+import { TaoProvider } from '@tao.js/react';
 import { useRouteSignal } from '../src/use-route-signal';
 
 describe('useRouteSignal', () => {
@@ -19,7 +19,7 @@ describe('useRouteSignal', () => {
 
   const wrapper =
     (kernel) =>
-    ({ children }) => <Provider TAO={kernel}>{children}</Provider>;
+    ({ children }) => <TaoProvider TAO={kernel}>{children}</TaoProvider>;
 
   it('applies an explicit AppCtx signal', () => {
     const signal = new AppCtx('Page', 'Enter', 'Portal');

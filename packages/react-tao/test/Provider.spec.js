@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 // Component still used by createConsumerChild class below
 import { render, cleanup } from '@testing-library/react';
 import { Kernel } from '@tao.js/core';
-import Provider, { Context } from '../src/Provider';
+import TaoProvider, { Context, Provider } from '../src/Provider';
+import { warnDeprecated, _resetDeprecationWarnings } from '../src/deprecations';
 
-describe('Provider', () => {
+describe('TaoProvider', () => {
   afterEach(cleanup);
 
   const createConsumerChild = (ctxAssertions = () => {}) => {
@@ -24,28 +25,28 @@ describe('Provider', () => {
     return ConsumerChild;
   };
 
-  it('should export a Provider function component', () => {
-    expect(Provider).toBeDefined();
-    expect(Provider).toBeInstanceOf(Function);
+  it('should export a TaoProvider function component', () => {
+    expect(TaoProvider).toBeDefined();
+    expect(TaoProvider).toBeInstanceOf(Function);
   });
 
   it('should not enforce a single child', () => {
     const kernel = new Kernel();
-    expect(() => render(<Provider TAO={kernel} />)).not.toThrow();
+    expect(() => render(<TaoProvider TAO={kernel} />)).not.toThrow();
     expect(() =>
       render(
-        <Provider TAO={kernel}>
+        <TaoProvider TAO={kernel}>
           <div />
-        </Provider>,
+        </TaoProvider>,
       ),
     ).not.toThrow();
     expect(() =>
       render(
-        <Provider TAO={kernel}>
+        <TaoProvider TAO={kernel}>
           <div />
           <div />
           <div />
-        </Provider>,
+        </TaoProvider>,
       ),
     ).not.toThrow();
   });
@@ -57,9 +58,9 @@ describe('Provider', () => {
     });
     expect(() =>
       render(
-        <Provider TAO={kernel}>
+        <TaoProvider TAO={kernel}>
           <Child />
-        </Provider>,
+        </TaoProvider>,
       ),
     ).not.toThrow();
   });
@@ -70,9 +71,9 @@ describe('Provider', () => {
       expect(data).toEqual({});
     });
     render(
-      <Provider TAO={kernel}>
+      <TaoProvider TAO={kernel}>
         <Child />
-      </Provider>,
+      </TaoProvider>,
     );
   });
 
@@ -81,7 +82,9 @@ describe('Provider', () => {
     const { renderHook } = require('@testing-library/react');
     const kernel = new Kernel();
     const { result } = renderHook(() => useDataLayers(), {
-      wrapper: ({ children }) => <Provider TAO={kernel}>{children}</Provider>,
+      wrapper: ({ children }) => (
+        <TaoProvider TAO={kernel}>{children}</TaoProvider>
+      ),
     });
     expect(result.current).toEqual([]);
     expect(result.current).toHaveLength(0);
@@ -90,5 +93,41 @@ describe('Provider', () => {
   it('should expose TAO and data on the default Context value', () => {
     expect(Context._currentValue.TAO).toBeDefined();
     expect(Context._currentValue.data).toEqual({});
+  });
+
+  it('Provider alias still provides the Kernel and warns once in development', () => {
+    _resetDeprecationWarnings();
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const kernel = new Kernel();
+    const Child = createConsumerChild(({ TAO }) => {
+      expect(TAO).toBe(kernel);
+    });
+
+    render(
+      <Provider TAO={kernel}>
+        <Child />
+      </Provider>,
+    );
+    render(
+      <Provider TAO={kernel}>
+        <Child />
+      </Provider>,
+    );
+
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('`Provider` is deprecated'),
+    );
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('TaoProvider'),
+    );
+
+    // Deprecation key must be 'Provider' (not '') so a distinct empty key still warns.
+    warnDeprecated('', 'empty-key-msg');
+    expect(warnSpy).toHaveBeenCalledTimes(2);
+    expect(warnSpy).toHaveBeenCalledWith('empty-key-msg');
+
+    warnSpy.mockRestore();
+    _resetDeprecationWarnings();
   });
 });

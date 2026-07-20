@@ -233,11 +233,11 @@ const signal = getSignal(loaderData); // loaderData?.signal
 
 ---
 
-## Kernel, Provider, and UI
+## Kernel, TaoProvider, and UI
 
 - Prefer a dedicated `new Kernel()` for the interactive app (and a separate one in tests).
-- Wrap the React tree that uses handlers/hooks in `@tao.js/react` `<Provider TAO={TAO}>`.
-- Pass the **same** Kernel into `createImportLoader` / `importLoader` that the UI Provider uses (on that heap).
+- Wrap the React tree that uses handlers/hooks in `@tao.js/react` `<TaoProvider TAO={TAO}>`.
+- Pass the **same** Kernel into `createImportLoader` / `importLoader` that the UI `TaoProvider` uses (on that heap).
 - After the signal is applied, paint with `RenderHandler` (or data hooks) matching the View AppCon your handlers emit — not the Enter/Find alone, unless you intentionally render on those.
 
 Server heaps (RSC, `getServerSideProps`) are **not** the browser Kernel. Initializing or `enterRoute`-ing on the server does not register handlers on the client; see the Next adapter for the dual-Kernel recipe.

@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import {
+  TaoProvider,
   Provider,
   DataConsumer,
   DataHandler,
@@ -16,9 +17,15 @@ import {
 } from '../src';
 
 describe('@tao.js/react exports convenience tools to use tao.js with React', () => {
-  it('should export a Provider Component', () => {
+  it('should export a TaoProvider Component', () => {
+    expect(TaoProvider).toBeDefined();
+    expect(TaoProvider).toBeInstanceOf(Function);
+  });
+
+  it('should export Provider as a deprecated alias of TaoProvider', () => {
     expect(Provider).toBeDefined();
     expect(Provider).toBeInstanceOf(Function);
+    expect(Provider).not.toBe(TaoProvider);
   });
 
   it('should export a DataConsumer Component', () => {

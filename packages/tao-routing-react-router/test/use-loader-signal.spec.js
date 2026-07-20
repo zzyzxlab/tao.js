@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { Kernel, AppCtx } from '@tao.js/core';
-import { Provider } from '@tao.js/react';
+import { TaoProvider } from '@tao.js/react';
 import { useLoaderSignal } from '../src/use-loader-signal';
 
 const mockUseLoaderData = jest.fn();
@@ -26,7 +26,7 @@ describe('useLoaderSignal', () => {
 
   const wrapper =
     (kernel) =>
-    ({ children }) => <Provider TAO={kernel}>{children}</Provider>;
+    ({ children }) => <TaoProvider TAO={kernel}>{children}</TaoProvider>;
 
   it('applies AppCtx signal from loader data', () => {
     const signal = new AppCtx('User', 'Find', 'Portal');

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import TAO, { Kernel } from '@tao.js/core';
 
 import { DataLayerContext } from './DataLayerContext';
+import { warnDeprecated } from './deprecations';
 
 /**
  * Root TAO + empty data bag / data-layer stack.
@@ -16,7 +17,7 @@ const Context = React.createContext({
 
 export { Context };
 
-function Provider({ TAO: kernel, children }) {
+function TaoProvider({ TAO: kernel, children }) {
   // Root layer stack must be empty so useTaoData() is undefined until a DataHandler pushes.
   const emptyLayers = [];
   return (
@@ -29,11 +30,27 @@ function Provider({ TAO: kernel, children }) {
 }
 
 // Stryker disable next-line StringLiteral: displayName is DX-only
-Provider.displayName = 'Provider';
+TaoProvider.displayName = 'TaoProvider';
 
-Provider.propTypes = {
+TaoProvider.propTypes = {
   TAO: PropTypes.instanceOf(Kernel).isRequired,
   children: PropTypes.node,
 };
 
-export default Provider;
+/**
+ * @deprecated Use {@link TaoProvider} instead.
+ */
+function Provider(props) {
+  warnDeprecated(
+    'Provider',
+    '[@tao.js/react] `Provider` is deprecated; import `TaoProvider` instead.',
+  );
+  return <TaoProvider {...props} />;
+}
+
+// Stryker disable next-line StringLiteral: displayName is DX-only
+Provider.displayName = 'Provider';
+Provider.propTypes = TaoProvider.propTypes;
+
+export { TaoProvider, Provider };
+export default TaoProvider;

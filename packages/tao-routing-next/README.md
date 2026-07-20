@@ -33,16 +33,16 @@ For anything that crosses RSC → client props, export **serializable** `load` /
 
 ### 2. Mental model (Next-specific)
 
-| Heap    | Kernel                         | Typical use                                       |
-| ------- | ------------------------------ | ------------------------------------------------- |
-| Server  | Optional `new Kernel()` in RSC | `importLoader` + optional `enterRoute` for SSR    |
-| Browser | One Kernel in client Provider  | `initialize` + `useRouteSignal` + `RenderHandler` |
+| Heap    | Kernel                             | Typical use                                       |
+| ------- | ---------------------------------- | ------------------------------------------------- |
+| Server  | Optional `new Kernel()` in RSC     | `importLoader` + optional `enterRoute` for SSR    |
+| Browser | One Kernel in client `TaoProvider` | `initialize` + `useRouteSignal` + `RenderHandler` |
 
 Initializing on the server does **not** install handlers on the client. Interactive UI almost always needs client `initialize` (e.g. `importLoader(clientTAO, { skipLoad: true })` in a client layout/effect).
 
 Code splitting still comes from `import('./tao/…')` inside the server page / layout / `getServerSideProps` — Next’s async Server Components and data APIs are the host “loader.”
 
-### 3. Client Kernel + root Provider
+### 3. Client Kernel + root TaoProvider
 
 ```js
 // lib/tao-client.js
@@ -54,11 +54,11 @@ export const TAO = new Kernel();
 ```jsx
 // app/providers.jsx
 'use client';
-import { Provider } from '@tao.js/react';
+import { TaoProvider } from '@tao.js/react';
 import { TAO } from '../lib/tao-client';
 
 export function AppProviders({ children }) {
-  return <Provider TAO={TAO}>{children}</Provider>;
+  return <TaoProvider TAO={TAO}>{children}</TaoProvider>;
 }
 ```
 
@@ -217,7 +217,7 @@ export default async function ProductDetailsPage({ params }) {
 
 ### 7. Pages Router (short)
 
-`getServerSideProps` / `getStaticProps` = host loader: `importLoader` → serializable `props.signal` → same client `useRouteSignal` pattern. Put `<Provider>` in `_app.js`.
+`getServerSideProps` / `getStaticProps` = host loader: `importLoader` → serializable `props.signal` → same client `useRouteSignal` pattern. Put `<TaoProvider>` in `_app.js`.
 
 ### 8. Route handlers / Server Actions
 
@@ -227,7 +227,7 @@ export default async function ProductDetailsPage({ params }) {
 
 | Question               | Guidance                                             |
 | ---------------------- | ---------------------------------------------------- |
-| Interactive UI Kernel? | Client `Provider`                                    |
+| Interactive UI Kernel? | Client `TaoProvider`                                 |
 | SSR handlers needed?   | Server Kernel + `enterRoute`                         |
 | `initialize` on both?  | Expected if both heaps need handlers; guard per heap |
 | What crosses RSC?      | `{ tao, data }` or `[tao, data]` only                |
