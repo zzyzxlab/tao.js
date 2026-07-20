@@ -213,3 +213,28 @@ describe('OpenTelemetrySink duck-typed records', () => {
     expect(attributes['tao.handlers.inline']).toBeUndefined();
   });
 });
+
+describe('OpenTelemetrySink assertion tightening (mutation)', () => {
+  it('should give root spans no links at all', () => {
+    const tracer = mkFakeTracer();
+    const sink = new OpenTelemetrySink(tracer);
+    sink.signal(mkRecord({ id: 'root' }));
+    expect(tracer.spans[0].options.links).toBeUndefined();
+    expect(otelTrace.getSpanContext(tracer.spans[0].ctx)).toBeUndefined();
+  });
+
+  it('should retain span contexts for sibling fan-out parentage', () => {
+    const tracer = mkFakeTracer();
+    const sink = new OpenTelemetrySink(tracer);
+    sink.signal(mkRecord({ id: 'root' }));
+    sink.signal(mkRecord({ id: 'childA', parentId: 'root' }));
+    sink.signal(mkRecord({ id: 'childB', parentId: 'root' }));
+    const [rootSpan, , childBSpan] = tracer.spans;
+    // childB must still parent under root (no premature eviction)…
+    expect(otelTrace.getSpanContext(childBSpan.ctx)).toBe(
+      rootSpan.spanContext(),
+    );
+    // …with no link fallback
+    expect(childBSpan.options.links).toBeUndefined();
+  });
+});

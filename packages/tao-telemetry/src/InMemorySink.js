@@ -104,6 +104,7 @@ export default class InMemorySink {
       const siblings = this._children
         .get(evicted.parentId)
         .filter((record) => record !== evicted);
+      // Stryker disable next-line ConditionalExpression: keeping an empty siblings list is observationally identical to deleting it
       if (siblings.length) {
         this._children.set(evicted.parentId, siblings);
       } else {

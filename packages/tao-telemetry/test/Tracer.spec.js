@@ -294,3 +294,76 @@ describe('Tracer records built from duck-typed dispatch notifications', () => {
     expect(sink.records[0].handlers).toBeUndefined();
   });
 });
+
+describe('Tracer constructor and entry guards (mutation)', () => {
+  it('should reject kernels with neither use() nor a network', () => {
+    expect(() => new Tracer({})).toThrow(/must provide `kernel`/);
+  });
+
+  it('should reject cores with enter but no decorate', () => {
+    const halfCore = {
+      use: () => {},
+      setCtxControl: () => {},
+      enter: () => {},
+    };
+    expect(() => new Tracer(halfCore)).toThrow(/envelope support/);
+  });
+
+  it('should stamp timestamps from the default clock', () => {
+    new Tracer(TAO, { sinks: [sink] });
+    TAO.setCtx(TRIGRAM, {});
+    expect(sink.records[0].timestamp).toEqual(expect.any(Number));
+    expect(sink.records[0].timestamp).toBeGreaterThan(0);
+  });
+
+  it('should trace wildcard entries on a wildcard-enabled kernel', () => {
+    const wildKernel = new Kernel(true);
+    const wildSink = new InMemorySink();
+    const tracer = new Tracer(wildKernel, { sinks: [wildSink] });
+    wildKernel.addInlineHandler({ t: TERM }, jest.fn());
+    tracer.setCtx({ t: TERM }, {});
+    expect(wildSink.size).toBe(1);
+    expect(wildSink.records[0].a).toBe('*');
+  });
+
+  it('should drop wildcard entries on a plain kernel even when a wildcard handler exists', () => {
+    const tracer = new Tracer(TAO, { sinks: [sink] });
+    const wildcardHandler = jest.fn();
+    TAO.addInlineHandler({ t: TERM }, wildcardHandler);
+    tracer.setCtx({ t: TERM }, {});
+    tracer.setAppCtx(new AppCtx(TERM));
+    expect(sink.size).toBe(0);
+    expect(wildcardHandler).not.toHaveBeenCalled();
+  });
+
+  it('should prefer a string traceparent and fall back past a non-string one', () => {
+    const tracer = new Tracer(TAO, { sinks: [sink] });
+    const remoteTraceId = 'ab'.repeat(16);
+    // non-string traceparent is ignored; explicit traceId wins
+    tracer.setCtx(TRIGRAM, {}, { traceparent: 42, traceId: remoteTraceId });
+    expect(sink.records[0].traceId).toBe(remoteTraceId);
+  });
+
+  it('should continue explicit remote parent ids', () => {
+    const tracer = new Tracer(TAO, { sinks: [sink] });
+    const remoteTraceId = 'ef'.repeat(16);
+    const remoteParent = '12'.repeat(8);
+    tracer.setCtx(
+      TRIGRAM,
+      {},
+      { traceId: remoteTraceId, parentId: remoteParent },
+    );
+    expect(sink.records[0].parentId).toBe(remoteParent);
+  });
+});
+
+describe('Tracer guard completeness (mutation)', () => {
+  it('should reject cores with decorate but no enter', () => {
+    const halfCore = {
+      use: () => {},
+      setCtxControl: () => {},
+      decorate: () => () => {},
+    };
+    expect(() => new Tracer(halfCore)).toThrow(/envelope support/);
+  });
+});

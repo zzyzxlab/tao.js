@@ -106,3 +106,105 @@ describe('id generation without WebCrypto', () => {
     }
   });
 });
+
+describe('id generation entropy sources (mutation)', () => {
+  it('should use WebCrypto when available', () => {
+    const getRandomValues = jest.spyOn(globalThis.crypto, 'getRandomValues');
+    const random = jest.spyOn(Math, 'random');
+    newTraceId();
+    expect(getRandomValues).toHaveBeenCalledTimes(1);
+    expect(random).not.toHaveBeenCalled();
+    getRandomValues.mockRestore();
+    random.mockRestore();
+  });
+
+  it('should regenerate when the RNG yields an all-zero id', () => {
+    const getRandomValues = jest
+      .spyOn(globalThis.crypto, 'getRandomValues')
+      .mockImplementationOnce((bytes) => {
+        bytes.fill(0);
+        return bytes;
+      });
+    const id = newSignalId();
+    expect(id).toMatch(/^[0-9a-f]{16}$/);
+    expect(id).not.toMatch(/^0+$/);
+    expect(getRandomValues.mock.calls.length).toBeGreaterThanOrEqual(2);
+    getRandomValues.mockRestore();
+  });
+
+  it('should use Math.random in the fallback path', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+    Object.defineProperty(globalThis, 'crypto', {
+      value: undefined,
+      configurable: true,
+      writable: true,
+    });
+    const random = jest.spyOn(Math, 'random');
+    try {
+      newSignalId();
+      expect(random).toHaveBeenCalled();
+    } finally {
+      random.mockRestore();
+      if (descriptor) {
+        Object.defineProperty(globalThis, 'crypto', descriptor);
+      } else {
+        delete globalThis.crypto;
+      }
+    }
+  });
+});
+
+describe('traceparent parsing details (mutation)', () => {
+  it('should trim surrounding whitespace', () => {
+    const traceId = 'ab'.repeat(16);
+    const parentId = 'cd'.repeat(8);
+    expect(parseTraceparent(`  00-${traceId}-${parentId}-01\n`)).toEqual({
+      traceId,
+      parentId,
+    });
+  });
+
+  it('should reject a three-segment header even with valid ids', () => {
+    const traceId = 'ab'.repeat(16);
+    const parentId = 'cd'.repeat(8);
+    expect(parseTraceparent(`00-${traceId}-${parentId}`)).toBeNull();
+  });
+});
+
+describe('entropy edge cases (mutation)', () => {
+  it('should fall back to Math.random when crypto lacks getRandomValues', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+    Object.defineProperty(globalThis, 'crypto', {
+      value: {},
+      configurable: true,
+      writable: true,
+    });
+    const random = jest.spyOn(Math, 'random');
+    try {
+      const id = newSignalId();
+      expect(id).toMatch(/^[0-9a-f]{16}$/);
+      expect(random).toHaveBeenCalled();
+    } finally {
+      random.mockRestore();
+      if (descriptor) {
+        Object.defineProperty(globalThis, 'crypto', descriptor);
+      } else {
+        delete globalThis.crypto;
+      }
+    }
+  });
+
+  it('should regenerate all-zero trace ids too', () => {
+    const getRandomValues = jest
+      .spyOn(globalThis.crypto, 'getRandomValues')
+      .mockImplementationOnce((bytes) => {
+        bytes.fill(0);
+        return bytes;
+      });
+    const id = newTraceId();
+    expect(id).toMatch(/^[0-9a-f]{32}$/);
+    expect(id).not.toMatch(/^0+$/);
+    expect(getRandomValues.mock.calls.length).toBeGreaterThanOrEqual(2);
+    getRandomValues.mockRestore();
+  });
+});

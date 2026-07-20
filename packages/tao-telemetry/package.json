@@ -25,7 +25,8 @@
   "scripts": {
     "build:clean": "rimraf dist lib bundles",
     "build:package": "rollup --config",
-    "build": "npm run build:clean && npm run build:package"
+    "build": "npm run build:clean && npm run build:package",
+    "test:mutation": "stryker run"
   },
   "author": "eudaimos",
   "license": "Apache-2.0",

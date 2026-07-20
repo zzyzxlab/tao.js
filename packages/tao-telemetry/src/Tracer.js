@@ -42,6 +42,7 @@ export default class Tracer {
    *        its return value is attached (use to redact / clone)
    * @memberof Tracer
    */
+  // Stryker disable next-line ArrayDeclaration: junk entries in the sinks default are call-guarded by the per-sink try
   constructor(kernel, { sinks = [], clock, captureData = false } = {}) {
     if (!kernel || (typeof kernel.use !== 'function' && !kernel._network)) {
       throw new Error(
@@ -62,6 +63,7 @@ export default class Tracer {
     this._clock = typeof clock === 'function' ? clock : () => Date.now();
     this._captureData = captureData;
     this._undecorate = this._network.decorate({
+      // Stryker disable next-line StringLiteral: decoration name is a diagnostic label with no observable behavior
       name: 'tracer',
       chain: {
         key: TRACE_CHAIN,

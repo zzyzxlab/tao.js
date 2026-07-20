@@ -5,6 +5,7 @@ const SPAN_ID_RX = /^[0-9a-f]{16}$/;
 const VERSION_RX = /^[0-9a-f]{2}$/;
 
 function randomHex(chars) {
+  // Stryker disable next-line ConditionalExpression,StringLiteral: equivalent - globalThis always exists in every runnable JS environment we can test; the guard is for exotic embedders
   const cryptoObj = typeof globalThis !== 'undefined' && globalThis.crypto;
   if (cryptoObj && typeof cryptoObj.getRandomValues === 'function') {
     const bytes = new Uint8Array(chars / 2);

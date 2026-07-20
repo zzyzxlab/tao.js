@@ -277,3 +277,99 @@ describe('ConsoleSink defaults', () => {
     info.mockRestore();
   });
 });
+
+describe('ConsoleSink assertion tightening (mutation)', () => {
+  it('should log exactly one line per signal when showData is off', () => {
+    const info = jest.spyOn(console, 'info').mockImplementation(() => {});
+    const sink = new ConsoleSink();
+    sink.signal(mkRecord({ id: 'with-data', data: { Term: { id: 1 } } }));
+    expect(info).toHaveBeenCalledTimes(1);
+    info.mockRestore();
+  });
+
+  it('should log exactly one line for data-less records even with showData on', () => {
+    const logger = { info: jest.fn() };
+    const sink = new ConsoleSink({ logger, showData: true });
+    sink.signal(mkRecord({ id: 'no-data' }));
+    expect(logger.info).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not build depth from an unseen truthy parent', () => {
+    const logger = { info: jest.fn() };
+    const sink = new ConsoleSink({ logger });
+    sink.signal(mkRecord({ id: 'orphan', parentId: 'never-seen' }));
+    sink.signal(
+      mkRecord({ id: 'child-of-orphan', parentId: 'orphan', a: 'Deep' }),
+    );
+    // the orphan is depth 0; its child must be depth 1
+    expect(logger.info).toHaveBeenNthCalledWith(1, '☯{Term, Act, Or}');
+    expect(logger.info).toHaveBeenNthCalledWith(2, '  ↳ ☯{Term, Deep, Or}');
+  });
+
+  it('should keep sibling depths without evicting fresh parents', () => {
+    const logger = { info: jest.fn() };
+    const sink = new ConsoleSink({ logger });
+    sink.signal(mkRecord({ id: 'root' }));
+    sink.signal(mkRecord({ id: 'sib-a', parentId: 'root', a: 'First' }));
+    sink.signal(mkRecord({ id: 'sib-b', parentId: 'root', a: 'Second' }));
+    expect(logger.info).toHaveBeenNthCalledWith(2, '  ↳ ☯{Term, First, Or}');
+    expect(logger.info).toHaveBeenNthCalledWith(3, '  ↳ ☯{Term, Second, Or}');
+  });
+});
+
+describe('InMemorySink assertion tightening (mutation)', () => {
+  it('should not index parentless records under a null parent', () => {
+    const sink = new InMemorySink();
+    sink.signal(mkRecord({ id: 'root' }));
+    expect(sink.childrenOf(null)).toEqual([]);
+    expect(sink.childrenOf(undefined)).toEqual([]);
+  });
+
+  it('should omit data from format() by default even when records carry data', () => {
+    const sink = new InMemorySink();
+    sink.signal(
+      mkRecord({
+        id: 'root',
+        t: 'Space',
+        a: 'Enter',
+        o: 'Portal',
+        data: { x: 1 },
+      }),
+    );
+    expect(sink.format()).toBe('☯ {Space, Enter, Portal}');
+  });
+
+  it('should continue last-child subtrees with blank prefixes', () => {
+    const sink = new InMemorySink();
+    sink.signal(mkRecord({ id: 'root', t: 'S', a: 'A', o: 'O' }));
+    sink.signal(
+      mkRecord({ id: 'last', parentId: 'root', t: 'S', a: 'B', o: 'O' }),
+    );
+    sink.signal(
+      mkRecord({ id: 'deep', parentId: 'last', t: 'S', a: 'C', o: 'O' }),
+    );
+    expect(sink.format()).toBe(
+      ['☯ {S, A, O}', '└── ☯ {S, B, O}', '    └── ☯ {S, C, O}'].join('\n'),
+    );
+  });
+
+  it('should survive evicting a record whose parent index was already dropped', () => {
+    const sink = new InMemorySink({ limit: 2 });
+    sink.signal(mkRecord({ id: 'gp' }));
+    sink.signal(mkRecord({ id: 'p', parentId: 'gp' }));
+    // evicts gp, which also drops gp's children index
+    sink.signal(mkRecord({ id: 'x1' }));
+    // evicts p, whose parent index no longer exists
+    expect(() => sink.signal(mkRecord({ id: 'x2' }))).not.toThrow();
+    expect(sink.size).toBe(2);
+    expect(sink.byId('p')).toBeUndefined();
+  });
+});
+
+describe('format showData with data-less records (mutation)', () => {
+  it('should not append anything for records without data even when showData is on', () => {
+    const sink = new InMemorySink();
+    sink.signal(mkRecord({ id: 'root', t: 'S', a: 'A', o: 'O' }));
+    expect(sink.format({ showData: true })).toBe('☯ {S, A, O}');
+  });
+});
