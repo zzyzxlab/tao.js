@@ -1,4 +1,4 @@
-export { default as Provider } from './Provider';
+export { TaoProvider, Provider } from './Provider';
 export { default as DataConsumer } from './DataConsumer';
 export { default as DataHandler } from './DataHandler';
 export { default as RenderHandler } from './RenderHandler';

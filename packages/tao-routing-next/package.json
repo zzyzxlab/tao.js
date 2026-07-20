@@ -1,0 +1,48 @@
+{
+  "name": "@tao.js/routing-next",
+  "version": "0.17.0",
+  "description": "Next.js adapter: route entry signals into a TAO Kernel",
+  "homepage": "https://tao.js.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzyzxlab/tao.js.git",
+    "directory": "packages/tao-routing-next"
+  },
+  "main": "lib",
+  "module": "dist",
+  "sideEffects": false,
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "scripts": {
+    "build:clean": "rimraf dist lib",
+    "build:package": "rollup --config",
+    "build": "npm run build:clean && npm run build:package",
+    "test:mutation": "stryker run"
+  },
+  "author": "eudaimos",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@tao.js/core": "*",
+    "@tao.js/react": "*",
+    "@tao.js/routing-core": "*",
+    "next": ">=13.0.0",
+    "react": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@tao.js/core": "file:../tao",
+    "@tao.js/react": "file:../react-tao",
+    "@tao.js/routing-core": "file:../tao-routing-core",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}

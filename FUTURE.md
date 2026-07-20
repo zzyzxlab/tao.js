@@ -21,6 +21,7 @@ TODO
 - [x] update to React 19 implementation for @taojs/react
 - [x] `@tao.js/react` data-context 0.17: hooks modernize + tree-scoped `useTaoData` + soft-deprecate `RenderHandler.context`/`DataConsumer` (see `AGENTS.md` §5; removal still open)
 - [ ] `@tao.js/react` remove deprecated data consume APIs (`RenderHandler.context`, `DataConsumer`) after overlap window
+- [ ] host-router adapters (`@tao.js/routing-core` + react-router / tanstack / next) — first PR open for review; publish into fixed release group when approved
 - [ ] transfer ownership to tao-land
 - [ ] implement TAO.md (spec/template + tooling for consuming apps)
 - [ ] implement a Go lib for the network

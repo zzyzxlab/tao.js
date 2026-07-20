@@ -2,6 +2,7 @@ import { Component } from 'react';
 import {
   Adapter,
   Reactor,
+  TaoProvider,
   Provider,
   DataConsumer,
   RenderHandler,
@@ -27,9 +28,15 @@ describe('@tao.js/react all.js exports both the current and original APIs to use
     expect(new Reactor()).not.toBeInstanceOf(Function);
   });
 
-  it('should export a Provider Component', () => {
+  it('should export a TaoProvider Component', () => {
+    expect(TaoProvider).toBeDefined();
+    expect(TaoProvider).toBeInstanceOf(Function);
+  });
+
+  it('should export Provider as a deprecated alias of TaoProvider', () => {
     expect(Provider).toBeDefined();
     expect(Provider).toBeInstanceOf(Function);
+    expect(Provider).not.toBe(TaoProvider);
   });
 
   it('should export a RenderHandler Component', () => {

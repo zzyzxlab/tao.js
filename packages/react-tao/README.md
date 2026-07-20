@@ -53,7 +53,7 @@ you only import and use parts of the package library.
 In this circumstance, even if you do what you think is correct and:
 
 ```javascript
-import { Provider } from '@tao.js/react';
+import { TaoProvider } from '@tao.js/react';
 ```
 
 in your file, because webpack is using the UMD bundle, it will import the whole
@@ -76,6 +76,7 @@ hooks. Peer dependency: **React 18 or 19** (`react` / `react-dom` `^18.2.0 || ^1
   are **deprecated** (dev-only once warning). Migrate render props to `(tao, data) => …` and read
   data with `useTaoData` inside a child component.
 - `useTaoDataContext(name)` remains as a deprecated alias of `useTaoData(name)`.
+- Prefer **`TaoProvider`** over **`Provider`** (deprecated alias; same component, dev-only once warning).
 
 Because of this, `@tao.js/react` builds 3 different versions of bundles for CommonJS and
 UMD for the current, original and all (both).
@@ -90,7 +91,8 @@ When using ES Modules, there is no `default` export, so anything imported from `
 must be a named import, e.g.:
 
 ```javascript
-import { Provider } from '@tao.js/react';
+import { TaoProvider } from '@tao.js/react';
+// deprecated alias (still works): import { Provider } from '@tao.js/react';
 ```
 
 Because ES Modules rely on static import and export statements, they are designed for tree-shaking,
@@ -110,14 +112,14 @@ When using CommonJS, there is no `default` exports, so anything imported from `@
 must be used by its key, e.g.:
 
 ```javascript
-const { Provider } = require('@tao.js/react');
+const { TaoProvider } = require('@tao.js/react');
 
 // OR
-const Provider = require('@tao.js/react').Provider;
+const TaoProvider = require('@tao.js/react').TaoProvider;
 
 // OR
 const TaoReact = require('@tao.js/react');
-TaoReact.Provider;
+TaoReact.TaoProvider;
 ```
 
 #### Current API
@@ -152,12 +154,12 @@ find the bundles in the `bundles` folder (also identified in the `bundles` key i
 - `bundles/all.umd.js` - this is both the current & original API bundled together as global `tao.react.all`
 
 ```javascript
-tao.react.Provider
+tao.react.TaoProvider
 
 // OR
-<tao.react.Provider TAO={tao.TAO}>
+<tao.react.TaoProvider TAO={tao.TAO}>
   …
-</tao.react.Provider>
+</tao.react.TaoProvider>
 
 // OR
 tao.react.orig.Adapter

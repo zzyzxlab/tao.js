@@ -1,0 +1,35 @@
+{
+  "name": "@tao.js/routing-core",
+  "version": "0.17.0",
+  "description": "Framework-agnostic route-entry → AppCon contract for tao.js adapters",
+  "homepage": "https://tao.js.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzyzxlab/tao.js.git",
+    "directory": "packages/tao-routing-core"
+  },
+  "main": "lib",
+  "module": "dist",
+  "sideEffects": false,
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "scripts": {
+    "build:clean": "rimraf dist lib",
+    "build:package": "rollup --config",
+    "build": "npm run build:clean && npm run build:package",
+    "test:mutation": "stryker run"
+  },
+  "author": "eudaimos",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@tao.js/core": "*"
+  },
+  "devDependencies": {
+    "@tao.js/core": "file:../tao"
+  }
+}

@@ -94,6 +94,7 @@ export default [
     input: {
       index: 'src/all.js',
       Provider: 'src/Provider.js',
+      TaoProvider: 'src/Provider.js',
       RenderHandler: 'src/RenderHandler.js',
       SwitchHandler: 'src/SwitchHandler.js',
       withContext: 'src/withContext.js',
@@ -123,6 +124,7 @@ export default [
     input: {
       index: 'src/index.js',
       Provider: 'src/Provider.js',
+      TaoProvider: 'src/Provider.js',
       RenderHandler: 'src/RenderHandler.js',
       SwitchHandler: 'src/SwitchHandler.js',
       withContext: 'src/withContext.js',
