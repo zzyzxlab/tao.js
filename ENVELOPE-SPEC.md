@@ -63,7 +63,7 @@ that lifetime is implicit and forwarder-defined. The redesign makes lifetime
 explicit per envelope section and moves hop transitions into the Network.
 
 External surface actually used by consumers (in-repo survey; production-app
-surveys of kettleos and tidy.dev appended in §10):
+surveys of two reference applications appended in §10):
 
 - Kernel: `setCtx`, `setAppCtx`, `add*/remove*Handler`, `clone`. No in-repo
   consumer uses `asPromiseHook` (early implementation superseded by
@@ -240,7 +240,7 @@ Go/Rust/Python implementation must honor, plus the phase semantics
 
 ## 10. Production-app survey findings
 
-### tidy.dev (apps/clients/prototype + apps/apis/primary)
+### Reference app A — local client-server prototype (react-router SPA + socket.io API)
 
 App code uses **only public APIs**: Kernel singleton, `AppCtx`,
 `setCtx`/`setAppCtx` (including spread-array form `setCtx(...signal)`),
@@ -281,7 +281,7 @@ cores lack; therefore utils (and socket.io/koa via utils) must declare a
 fail fast with a clear error when attached to a pre-envelope core rather
 than misbehave.
 
-### kettleos (all @tao.js/\* pinned 0.15.0; 306 files import core across 11 apps)
+### Reference app B — retired production platform (all @tao.js/\* pinned 0.15.0; 306 files import core across 11 apps)
 
 App code is **exclusively public API**: no `control`, no middleware, no
 underscore access, no monkey-patching, no deep internal imports (only
@@ -331,8 +331,8 @@ Normative invariants added by this survey:
 ## 12. Legacy retirement (the 0.19 cutover)
 
 The compatibility freeze in §3 was calibrated to production constraints
-that turned out not to bind: kettleos is retired, tidy.dev was a local
-prototype, and a full sweep (GitHub dependents graph, GitHub-wide code
+that turned out not to bind: both reference applications surveyed in §10
+are out of service (one retired, one a local prototype), and a full sweep (GitHub dependents graph, GitHub-wide code
 search for `@tao.js/*` in `package.json` outside the org, per-version npm
 download distribution) found **no external consumers** — download traffic
 is registry mirrors and scanners. The freeze's real value is already
