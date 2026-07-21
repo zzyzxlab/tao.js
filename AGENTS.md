@@ -4,6 +4,8 @@ Living notes for AI agents working on **this** monorepo (`tao.js` — the librar
 
 This is not `TAO.md`. In apps that _use_ `@tao.js/*`, `TAO.md` is the intentional artifact that documents that app’s TAO messages, their purpose, and the protocol between them. An app’s `AGENTS.md` should point agents at that app’s `TAO.md`.
 
+For the case that TAO fits agentic programming — and the checklist to fully deliver on it — see `AGENTIC.md`.
+
 Canonical docs site content lives under `packages/docs` (published as [tao.js.org](https://tao.js.org)). Prefer **source + tests** over marketing copy when APIs disagree.
 
 ---
@@ -190,8 +192,8 @@ For isolated tests, prefer `new Kernel()` over the shared default `TAO`.
 | `@tao.js/routing-react-router`    | `packages/tao-routing-react-router` | React Router adapter (`importLoader`, `useLoaderSignal`)                                                                                                                     |
 | `@tao.js/routing-tanstack-router` | `packages/tao-routing-tanstack`     | TanStack Router adapter (`importLoader`, `useLoaderSignal`)                                                                                                                  |
 | `@tao.js/routing-next`            | `packages/tao-routing-next`         | Next.js adapter (`importLoader`, `enterRoute`, `useRouteSignal`)                                                                                                             |
-| `@tao.js/telemetry`               | `packages/tao-telemetry`            | Telemetry: causal `Tracer` (pure Network decoration), `TaoLogger` (moved from utils; deprecated re-export remains), sinks, W3C traceparent helpers          |
-| `@tao.js/opentelemetry`          | `packages/tao-opentelemetry`        | OpenTelemetry exporter sink for `@tao.js/telemetry` records (spans with causal parentage; api-only dependency)                                                   |
+| `@tao.js/telemetry`               | `packages/tao-telemetry`            | Telemetry: causal `Tracer` (pure Network decoration), `TaoLogger` (moved from utils; deprecated re-export remains), sinks, W3C traceparent helpers                           |
+| `@tao.js/opentelemetry`           | `packages/tao-opentelemetry`        | OpenTelemetry exporter sink for `@tao.js/telemetry` records (spans with causal parentage; api-only dependency)                                                               |
 | `@tao.js/socket.io`               | `packages/tao-socket-io`            | Wire a Kernel to socket.io (`wireTaoJsToSocketIO`)                                                                                                                           |
 | `@tao.js/koa`                     | `packages/koa-tao`                  | Expose a TAO network over HTTP via Koa middleware                                                                                                                            |
 | `@tao.js/http-client`             | `packages/tao-http-client`          | HTTP client for a TAO HTTP server (`TaoHttpClient`) — private                                                                                                                |
