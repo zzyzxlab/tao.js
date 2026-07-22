@@ -60,7 +60,13 @@
       "@tao.js/react",
       "@tao.js/router",
       "@tao.js/socket.io",
-      "@tao.js/koa"
+      "@tao.js/koa",
+      "@tao.js/telemetry",
+      "@tao.js/opentelemetry",
+      "@tao.js/routing-core",
+      "@tao.js/routing-next",
+      "@tao.js/routing-react-router",
+      "@tao.js/routing-tanstack-router"
     ],
     "projectsRelationship": "fixed",
     "version": {
@@ -68,7 +74,10 @@
       "versionActions": "./tools/release/version-actions.cjs"
     },
     "changelog": {
-      "workspaceChangelog": true,
+      "workspaceChangelog": {
+        "file": "CHANGELOG.md",
+        "createRelease": "github"
+      },
       "projectChangelogs": false
     },
     "git": {

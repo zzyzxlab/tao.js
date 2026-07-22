@@ -19,9 +19,10 @@ export default [
       exports: 'named',
       globals: {
         '@tao.js/core': 'tao',
+        '@tao.js/telemetry': 'tao.telemetry',
       },
     },
-    external: ['@tao.js/core'],
+    external: ['@tao.js/core', '@tao.js/telemetry'],
     plugins: [
       external(),
       babel({
@@ -57,7 +58,7 @@ export default [
         exports: 'named',
       },
     ],
-    external: ['@tao.js/core'],
+    external: ['@tao.js/core', '@tao.js/telemetry'],
     plugins: [
       external(),
       babel({

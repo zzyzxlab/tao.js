@@ -28,5 +28,8 @@
     "lodash.merge": "^4.6.2",
     "mongodb": "^3.7.3",
     "socket.io": "^2.4.1"
+  },
+  "devDependencies": {
+    "@tao.js/telemetry": "file:../../packages/tao-telemetry"
   }
 }

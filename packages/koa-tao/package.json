@@ -26,12 +26,13 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@tao.js/core": "*",
+    "@tao.js/core": ">=0.18.0",
     "@tao.js/utils": "*"
   },
   "devDependencies": {
     "@tao.js/core": "file:../tao",
-    "@tao.js/utils": "file:../tao-utils"
+    "@tao.js/utils": "file:../tao-utils",
+    "@tao.js/telemetry": "file:../tao-telemetry"
   },
   "dependencies": {
     "cartesian": "^1.0.1"

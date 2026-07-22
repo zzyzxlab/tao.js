@@ -31,5 +31,8 @@
       ">0.25%",
       "not op_mini all"
     ]
+  },
+  "devDependencies": {
+    "@tao.js/telemetry": "file:../../packages/tao-telemetry"
   }
 }

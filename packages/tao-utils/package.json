@@ -34,12 +34,11 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@tao.js/core": "*"
+    "@tao.js/core": ">=0.18.0",
+    "@tao.js/telemetry": "*"
   },
   "devDependencies": {
-    "@tao.js/core": "file:../tao"
-  },
-  "dependencies": {
+    "@tao.js/core": "file:../tao",
     "@tao.js/telemetry": "file:../tao-telemetry"
   }
 }

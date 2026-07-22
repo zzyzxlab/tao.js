@@ -80,7 +80,14 @@ class PreserveStarPeerVersionActions extends JsVersionActions {
 }
 
 function shouldPreserveDependencyRange(specifier) {
-  return specifier === '*' || specifier === 'x' || specifier === 'X';
+  return (
+    specifier === '*' ||
+    specifier === 'x' ||
+    specifier === 'X' ||
+    // floor-only ranges (e.g. `>=0.18.0`) express a minimum capability
+    // (envelope-aware core), not a pin — leave them alone across releases
+    specifier.startsWith('>=')
+  );
 }
 
 module.exports = PreserveStarPeerVersionActions;

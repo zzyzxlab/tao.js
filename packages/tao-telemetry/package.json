@@ -34,7 +34,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@tao.js/core": "*"
+    "@tao.js/core": ">=0.18.0"
   },
   "devDependencies": {
     "@tao.js/core": "file:../tao"
