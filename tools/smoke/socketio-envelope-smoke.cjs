@@ -1,5 +1,5 @@
 /* End-to-end smoke: real socket.io round-trip over the BUILT libs on
- * feat/network-envelope, verifying the field-surveyed invariants (ENVELOPE-SPEC.md §10):
+ * feat/network-envelope, verifying the behavioral invariants of ENVELOPE-SPEC.md §10:
  *  1. chained AppCons still reach the Source middleware every hop (client->server forwarding)
  *  2. channel-entered cascades keep per-client reply scoping end-to-end
  *  3. no cross-client broadcast of another client's replies

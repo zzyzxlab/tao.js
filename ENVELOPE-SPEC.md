@@ -62,8 +62,8 @@ control-share is also not a bug — resolve-once depends on it. The defect is
 that lifetime is implicit and forwarder-defined. The redesign makes lifetime
 explicit per envelope section and moves hop transitions into the Network.
 
-External surface actually used by consumers (in-repo survey; production-app
-surveys of two reference applications appended in §10):
+External surface actually used by consumers (in-repo and field surveys;
+the behavioral invariants they yielded are §10):
 
 - Kernel: `setCtx`, `setAppCtx`, `add*/remove*Handler`, `clone`. No in-repo
   consumer uses `asPromiseHook` (early implementation superseded by
@@ -115,9 +115,8 @@ Three additions to `Network`, one to `AppCtxHandlers`; nothing removed:
 Observable difference of Kernel entries moving to v2: the (empty) cascade
 object is now shared across hops instead of reset. The only in-repo observer
 of that distinction is `Source`, which migrates to hop scope in the same
-change (behavior preserved: suppress echo on the stamped hop only). §10
-records whether any external consumer depends on per-hop reset of custom
-cascade keys.
+change (behavior preserved: suppress echo on the stamped hop only). No surveyed consumer depended on per-hop reset
+of custom cascade keys.
 
 ## 4. Dispatch flow (v2 mode)
 
@@ -238,82 +237,47 @@ sections never cross. This three-scope contract — not the JS API — is what a
 Go/Rust/Python implementation must honor, plus the phase semantics
 (intercept-halt, async-fork, inline-spool) already documented in AGENTS.md.
 
-## 10. Production-app survey findings
+## 10. Behavioral invariants
 
-### Reference app A — local client-server prototype (react-router SPA + socket.io API)
+Distilled from field surveys of real tao.js applications during design;
+normative for this redesign, the §12 cutover, and any future
+implementation of the signal plane. Executable forms live in the package
+test suites and `tools/smoke/socketio-envelope-smoke.cjs`.
 
-App code uses **only public APIs**: Kernel singleton, `AppCtx`,
-`setCtx`/`setAppCtx` (including spread-array form `setCtx(...signal)`),
-`addInline/InterceptHandler` (wildcard `{}` and partial `{a:'fail'}`
-trigrams), react `Provider`/`RenderHandler`/`DataHandler`/
-`useTaoInlineHandler` (whose handler chains by returning an AppCtx),
-utils `forwardInline`/`forwardAsync`/`transferToAppCtx`/`transferError`/
-`TaoLogger`, socket.io wiring both sides. No `control`, no underscore
-access, no middleware, no `@tao.js/router` (routing is a novel
-react-router-data-API integration: loaders return deferred signals,
-dispatched on mount; registration is code-split per route; init chains are
-guarded by intercept handlers returning truthy).
-
-The **transitive** contract via `@tao.js/socket.io` (client `Source`,
-per-socket server `Channel` + per-client wildcard `{}` inline emit handler)
-yields these normative invariants — the v2 self-check list:
-
-1. Every chained AppCon passes network middleware on **every hop** (the
-   client Source's emit middleware must see chained signals, or
-   client→server forwarding of `app/init → app/load → app/view` breaks).
+1. Every chained AppCon is observable on **every hop** (a Source's emit
+   middleware must see chained signals, or client→server forwarding of
+   multi-hop chains breaks).
 2. Channel-entered cascades retain `channelId` scoping **end-to-end**
    (per-client reply routing; loss = silent request/response death,
    over-broadcast = cross-client data leak).
-3. Kernel-entered cascades remain **unscoped** (empty cascade must never
-   acquire channel/source tagging, or server-internal chains like
-   `app/init ⇒ keycloak/*` would be emitted to connected clients).
+3. Kernel-entered cascades remain **unscoped** (an empty cascade must
+   never acquire channel/source tagging, or server-internal chains would
+   be emitted to connected clients).
 4. Descendants of a **server-received** signal must be re-emitted to the
    server (Source's `source` marker applies to the stamped hop only —
    hop scope, not cascade scope).
 5. Intercept-halt (truthy return) suppresses the signal for **all** later
    phases including wildcard `{}` inline handlers (the socket emit path).
+6. **Handler-return semantics and phase order are load-bearing**:
+   intercept AppCtx-divert suppresses remaining handlers; intercept
+   truthy halts; intercept undefined observes; inline/async AppCtx
+   chains — all preserved exactly, including wildcard-intercept loggers
+   firing first.
+7. **Chain affinity is exact**: a cascade entered on a per-request
+   Channel keeps that channel's scoping for all hops; a kernel-entered
+   cascade never acquires scoping; a Transponder/Transceiver cascade tag
+   survives multi-hop chains so its awaited promise settles.
+8. **No added macrotask hops in dispatch**: chained dispatch stays on
+   the same synchronous/microtask schedule — consumers legitimately
+   drain pending async work with a single `setImmediate`, and UI code
+   assumes inline completion ordering.
 
-Additional constraint: the app's lockfile runs **core 0.16.0 with
-utils/socket.io 0.16.2** — mixed patch versions are a real deployment
-pattern. v2 utils adapters call `network.enter()`/`decorate()`, which old
-cores lack; therefore utils (and socket.io/koa via utils) must declare a
-**peerDependency floor on the new core version**, and adapters should
-fail fast with a clear error when attached to a pre-envelope core rather
-than misbehave.
-
-### Reference app B — retired production platform (all @tao.js/\* pinned 0.15.0; 306 files import core across 11 apps)
-
-App code is **exclusively public API**: no `control`, no middleware, no
-underscore access, no monkey-patching, no deep internal imports (only
-`@tao.js/react/lib` — a public re-export path that must stay resolvable).
-Load-bearing surface: handler add/remove at scale (565 inline / 251
-intercept / 135 async sites), `setCtx`/`setAppCtx` fire-and-forget,
-wildcard + partial + **array** trigrams, 4-arg and 6-arg `AppCtx`,
-`unwrapCtx()` round-tripped into registration, `instanceof AppCtx` checks,
-full react surface, socket.io both sides. `Channel` constructed **per
-Express request on the same global kernel** the socket bridge wires;
-`Transceiver(TAO, false, 100)` in batch scripts awaits multi-hop chains
-(`script → set → … → finish`) and tears down with `remove*Handler`.
-`asPromiseHook`, `Transponder`, `Source`, `seive`, bridges: never used
-directly. (The repo also contains three name-colliding _reimplementations_
-of utils' forward-chain/TaoLogger built on public API only.)
-
-Normative invariants added by this survey:
-
-6. **Handler-return semantics and phase order are the fleet's backbone**:
-   intercept AppCtx-divert suppresses remaining handlers; intercept truthy
-   halts; intercept undefined observes; inline/async AppCtx chains — all
-   preserved exactly, including wildcard-intercept loggers firing first.
-7. **Chain affinity is implicit and must be exact**: a cascade entered on a
-   per-request Channel keeps that channel's scoping for all hops; a
-   kernel-entered cascade never acquires scoping. (Same as invariants 2–3,
-   independently confirmed.) The Transceiver's cascade tag must survive
-   multi-hop `forwardInline` chains for its awaited promise to settle.
-8. **No added macrotask hops in dispatch**: chained dispatch stays on the
-   same synchronous/microtask schedule as today — batch scripts drain
-   pending async work with a single `setImmediate` between iterations, and
-   UI code assumes inline completion ordering. The v2 hop engine must not
-   defer forwarding beyond where the legacy closures ran.
+Deployment note: field lockfiles showed mixed patch versions in practice
+(core 0.16.0 running under utils/socket.io 0.16.2). v2 adapters call
+`network.enter()`/`decorate()`, which old cores lack — so utils (and
+socket.io/koa via utils) must declare a peerDependency floor on the new
+core at release, and adapters fail fast with a clear error on a
+pre-envelope core rather than misbehave.
 
 ## 11. Rollout & verification
 
@@ -331,8 +295,8 @@ Normative invariants added by this survey:
 ## 12. Legacy retirement (the 0.19 cutover)
 
 The compatibility freeze in §3 was calibrated to production constraints
-that turned out not to bind: both reference applications surveyed in §10
-are out of service (one retired, one a local prototype), and a full sweep (GitHub dependents graph, GitHub-wide code
+that turned out not to bind: the applications surveyed during design are
+out of service, and a full sweep (GitHub dependents graph, GitHub-wide code
 search for `@tao.js/*` in `package.json` outside the org, per-version npm
 download distribution) found **no external consumers** — download traffic
 is registry mirrors and scanners. The freeze's real value is already
