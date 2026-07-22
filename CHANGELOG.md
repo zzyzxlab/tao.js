@@ -5,6 +5,18 @@
 - **core:** signal envelope, network decorations, and @tao.js/telemetry ([#59](https://github.com/zzyzxlab/tao.js/pull/59))
 - **routing:** routing-core + host-router adapters ([#58](https://github.com/zzyzxlab/tao.js/pull/58))
 
+### ⚠️ Deprecations — removed in 0.19.0
+
+0.18.0 is the last release carrying the legacy dispatch surface. It is fully
+backward compatible; 0.19.0 removes:
+
+- `Network.use` / `Network.stop` — replaced by `Network.decorate({ onDispatch })`
+- `Network.setCtxControl` / `Network.setAppCtxControl` — replaced by `Network.enter()`
+- `Kernel.forwardAppCtx` and `Kernel.asPromiseHook` (pre-Network relics)
+- the unfinished `Kernel.channel()` sketch and the legacy dispatch loop
+
+See [`ENVELOPE-SPEC.md` §12](https://github.com/zzyzxlab/tao.js/blob/main/ENVELOPE-SPEC.md#12-legacy-retirement-the-019-cutover) for the full disposition table and rationale.
+
 ### ❤️ Thank You
 
 - Claude Fable 5
