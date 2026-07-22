@@ -1,49 +1,11 @@
-// need this when running in Node.js environment
-import { clearTimeout } from 'timers';
-import {
-  // WILDCARD,
-  // INTERCEPT,
-  // ASYNC,
-  INLINE,
-  TIMEOUT_REJECT,
-} from './constants';
 import Network from './Network';
 import AppCtxRoot from './AppCtxRoot';
 import AppCtx from './AppCtx';
-// import AppCtxHandlers from './AppCtxHandlers';
-import { isIterable, concatIterables, _cleanAC } from './utils';
-
-function _removeHandlers(network, acList, handlers, type) {
-  handlers.forEach((handler) =>
-    acList.forEach((ac) => network.removeHandler(ac, handler, type)),
-  );
-}
-
-function _createPromiseHandler(
-  network,
-  acList,
-  promiseFn,
-  timeoutHook,
-  handlerType,
-) {
-  let owner = this;
-  if (!owner.handlers) {
-    owner.handlers = [];
-  }
-  const acHandler = (ac, data) => {
-    // Stryker disable next-line all: timeoutHook is always the clearTO fn when provided
-    timeoutHook && timeoutHook();
-    _removeHandlers(network, acList, owner.handlers, handlerType);
-    promiseFn({ tao: ac, data });
-  };
-  owner.handlers.push(acHandler);
-  return acHandler;
-}
+import { _cleanAC } from './utils';
 
 export default class Kernel {
   constructor(canSetWildcard = false) {
     this._network = new Network(canSetWildcard);
-    this._network.use(this.handleAppCon);
     this._canSetWildcard = canSetWildcard;
   }
 
@@ -60,43 +22,6 @@ export default class Kernel {
     cloned._network = this._network.clone();
     return cloned;
   }
-
-  /**
-   * Unfinished sketch — prefer `@tao.js/utils` `Channel` for real channeling.
-   * Excluded from coverage / mutation until implemented.
-   *
-   * @returns
-   * @memberof Kernel
-   */
-  /* c8 ignore start */
-  // Stryker disable all
-  channel(id, bridge) {
-    const network = this;
-    const channel = new Kernel();
-    // QQQ: does this mean Kernel has to keep track of all bridges?
-    let debridge = network.inlineBridge(
-      channel,
-      (control) => control.channelId === id,
-      bridge,
-    );
-    return {
-      setCtx({ t, a, o }, data) {
-        network.setAppCtxControl(new AppCtx(t, a, o, data), { channelId: id });
-      },
-      dispose() {
-        debridge();
-      },
-    };
-
-    // const channelled = new Kernel();
-    // channelled._handlers = this._handlers;
-    // channelled._leaves = this._leaves;
-    // channelled._wildcards = this._wildcards;
-    // channelled._canSetWildcard = this._canSetWildcard;
-    // return channelled;
-  }
-  // Stryker restore all
-  /* c8 ignore stop */
 
   setCtx({ t, term, a, action, o, orient }, data) {
     // get the hash for the ac
@@ -120,76 +45,6 @@ export default class Kernel {
       return;
     }
     this._network.enter(appCtx);
-  }
-
-  forwardAppCtx(ac, control) {
-    this.setAppCtx(ac, control);
-  }
-
-  handleAppCon(handler, ac, forwardAppCtx, control, envelope, hooks) {
-    return handler.handleAppCon(ac, forwardAppCtx, control, hooks);
-  }
-
-  asPromiseHook({ resolveOn = [], rejectOn = [] }, timeoutMs = 0) {
-    // return this._network.asPromiseHook({ resolveOn, rejectOn }, timeoutMs);
-    const resolvers = isIterable(resolveOn)
-      ? resolveOn
-      : resolveOn
-        ? [resolveOn]
-        : [];
-    const rejectors = isIterable(rejectOn)
-      ? rejectOn
-      : rejectOn
-        ? [rejectOn]
-        : [];
-    if (
-      !resolvers.length &&
-      !resolvers.size &&
-      !rejectors.length &&
-      !rejectors.size
-    ) {
-      throw new Error(
-        'asPromiseHook must be provided with a way to settle the Promise: `resolveOn` or `rejectOn` must have a value',
-      );
-    }
-    const allAcs = concatIterables(resolvers, rejectors);
-    return ({ t, term, a, action, o, orient }, data) =>
-      new Promise((resolve, reject) => {
-        let to = null;
-        // Stryker disable next-line all: clearTimeout is a named import; hard to observe without timer mocks
-        const clearTO = () => to && clearTimeout(to);
-        const handlerOwner = {};
-        const resolveHandler = _createPromiseHandler.call(
-          handlerOwner,
-          this._network,
-          allAcs,
-          resolve,
-          clearTO,
-          INLINE,
-        );
-        resolvers.forEach((ac) => this.addInlineHandler(ac, resolveHandler));
-        const rejectHandler = _createPromiseHandler.call(
-          handlerOwner,
-          this._network,
-          allAcs,
-          reject,
-          clearTO,
-          INLINE,
-        );
-        rejectors.forEach((ac) => this.addInlineHandler(ac, rejectHandler));
-        if (timeoutMs > 0) {
-          to = setTimeout(() => {
-            _removeHandlers(
-              this._network,
-              allAcs,
-              handlerOwner.handlers,
-              INLINE,
-            );
-            reject(TIMEOUT_REJECT);
-          }, timeoutMs);
-        }
-        this.setCtx({ t, term, a, action, o, orient }, data);
-      });
   }
 
   addInterceptHandler({ t, term, a, action, o, orient }, handler) {

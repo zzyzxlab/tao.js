@@ -30,10 +30,9 @@ console.log(memory.format());
 // └── ☯ {User, Track, Admin}
 ```
 
-Fidelity: every envelope-mode cascade traces as a full causal tree. The
-only degraded case is third-party code on the frozen legacy path
-(`setCtxControl` with its own `forwardAppCtx`), which records as unlinked
-roots — never corrupted linkage.
+Fidelity: every cascade traces as a full causal tree — as of
+`@tao.js/core` 0.19 the envelope hop engine is the only dispatch path, so
+there is no degraded mode.
 
 ## Records
 

@@ -262,15 +262,19 @@ describe('bridges and seives', () => {
       (ac, control) => control.allow,
       SOURCE,
     );
+    const enter = (allow) =>
+      source._network.enter(new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA), {
+        cascade: { allow },
+      });
     // order matters here: a disallowed signal must not forward *before* an
     // allowed one does, otherwise a negation-dropping mutant that swaps which
     // of the two forwards would still leave the total call count unchanged
-    source._network.setCtxControl(SOURCE, DATA, { allow: false });
+    enter(false);
     expect(received).not.toHaveBeenCalled();
-    source._network.setCtxControl(SOURCE, DATA, { allow: true });
+    enter(true);
     expect(received).toHaveBeenCalledTimes(1);
     stop();
-    source._network.setCtxControl(SOURCE, DATA, { allow: true });
+    enter(true);
     expect(received).toHaveBeenCalledTimes(1);
     expect(seive('bad', {}, {})()).toBeUndefined();
   });
@@ -288,16 +292,26 @@ describe('bridges and seives', () => {
     expect(seive('invalid-source', {}, validDestinationShim)()).toBeUndefined();
     expect(seive('missing-destination', validSource, null)()).toBeUndefined();
     expect(seive('invalid-destination', validSource, {})()).toBeUndefined();
+    // a destination network alone is not enough: seives enter the
+    // destination's CHANNEL network
+    expect(
+      seive('channel-less-destination', validSource, {
+        _network: validSource._network,
+      })(),
+    ).toBeUndefined();
   });
 
-  it('merges the seive name into the forwarded control for the destination', () => {
+  it('merges the seive name into the forwarded cascade for the destination', () => {
     const source = new Kernel();
     const destination = new Kernel();
     const received = jest.fn();
     let capturedControl;
     destination.addInlineHandler(SOURCE, received);
-    destination._network.use((handler, ac, forwardAppCtx, control) => {
-      capturedControl = control;
+    destination._network.decorate({
+      name: 'control-probe',
+      onDispatch: (ac, envelope) => {
+        capturedControl = envelope.cascade;
+      },
     });
 
     const stop = seive(
@@ -308,10 +322,37 @@ describe('bridges and seives', () => {
     );
     source.setCtx(SOURCE, DATA);
 
-    expect(capturedControl).toEqual(
-      expect.objectContaining({ seive: 'naming-seive' }),
-    );
+    expect(capturedControl).toEqual({ seive: 'naming-seive' });
     expect(received).toHaveBeenCalledWith(SOURCE, DATA);
+    stop();
+  });
+
+  it('continues chains from destination handlers on the source network cascade', async () => {
+    const source = new Kernel();
+    const destination = new Kernel();
+    const sourceSaw = jest.fn();
+    const destinationSaw = jest.fn();
+    destination.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+    destination.addInlineHandler(TARGET, destinationSaw);
+    source.addInlineHandler(TARGET, sourceSaw);
+
+    const stop = seive(
+      'chaining-seive',
+      source,
+      { _network: destination._network, _channel: destination._network },
+      SOURCE,
+    );
+    source.setCtx(SOURCE, DATA);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // the chained AppCtx dispatched through the SOURCE hop engine
+    expect(sourceSaw).toHaveBeenCalledTimes(1);
+    expect(sourceSaw).toHaveBeenCalledWith(TARGET, { Page: DATA.Page });
+    // and not through the destination's own hop engine
+    expect(destinationSaw).not.toHaveBeenCalled();
     stop();
   });
 

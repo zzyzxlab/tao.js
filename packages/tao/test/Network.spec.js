@@ -1,4 +1,4 @@
-import { INTERCEPT, ASYNC, INLINE } from '../src/constants';
+import { INLINE } from '../src/constants';
 import AppCtx from '../src/AppCtx';
 import AppCtxRoot from '../src/AppCtxRoot';
 import Network from '../src/Network';
@@ -14,32 +14,70 @@ describe('Network', () => {
     expect(new Network()).toBeInstanceOf(Network);
   });
 
-  describe('middleware', () => {
-    it('throws when use is given a non-function', () => {
+  describe('enter', () => {
+    it('throws when not given an AppCtx', () => {
       const n = new Network();
-      expect(() => n.use(null)).toThrow('middleware must be a function');
-      expect(() => n.use({})).toThrow('middleware must be a function');
+      expect(() => n.enter({})).toThrow("'appCtx' not an instance of AppCtx");
+      expect(() => n.enter()).toThrow("'appCtx' not an instance of AppCtx");
     });
 
-    it('ignores duplicate use of the same middleware function', () => {
+    it('dispatches registered handlers for the entered AppCtx', async () => {
       const n = new Network();
-      const mw = jest.fn();
-      n.use(mw);
-      n.use(mw);
-      n.addInlineHandler(TRIGRAM, () => {});
-      n.setCtxControl(TRIGRAM, {}, {}, () => {});
-      expect(mw).toHaveBeenCalledTimes(1);
+      const intercept = jest.fn();
+      const asyncH = jest.fn();
+      const inline = jest.fn();
+      n.addInterceptHandler(TRIGRAM, intercept);
+      n.addAsyncHandler(TRIGRAM, asyncH);
+      n.addInlineHandler(TRIGRAM, inline);
+
+      n.enter(new AppCtx(TERM, ACTION, ORIENT, { [TERM]: { id: 1 } }));
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(intercept).toHaveBeenCalledTimes(1);
+      expect(asyncH).toHaveBeenCalledTimes(1);
+      expect(inline).toHaveBeenCalledTimes(1);
+      expect(inline).toHaveBeenCalledWith(
+        { t: TERM, a: ACTION, o: ORIENT },
+        { [TERM]: { id: 1 } },
+      );
     });
 
-    it('stop removes registered middleware and is a no-op otherwise', () => {
+    it('lazily creates concrete handlers but never creates wildcard handlers', () => {
       const n = new Network();
-      const mw = jest.fn();
-      n.use(mw);
-      n.stop(mw);
-      n.stop(() => {});
-      n.addInlineHandler(TRIGRAM, () => {});
-      n.setCtxControl(TRIGRAM, {}, {}, () => {});
-      expect(mw).not.toHaveBeenCalled();
+      const concrete = AppCtxRoot.getKey(TERM, ACTION, ORIENT);
+      const wildcard = AppCtxRoot.getKey('', ACTION, ORIENT);
+      const onDispatch = jest.fn();
+
+      n.decorate({ onDispatch });
+      n.enter(new AppCtx(TERM, ACTION, ORIENT));
+      n.enter(new AppCtx('', ACTION, ORIENT));
+
+      expect(n._handlers.has(concrete)).toBe(true);
+      expect(n._handlers.has(wildcard)).toBe(false);
+      // dispatch must not run for unset wildcards (would get an undefined handler)
+      expect(onDispatch).toHaveBeenCalledTimes(1);
+      expect(onDispatch.mock.calls[0][2]).toBe(n._handlers.get(concrete));
+    });
+
+    it('attaches later wildcards to every prior leaf sharing an axis', async () => {
+      const n = new Network();
+      const h1 = jest.fn();
+      const h2 = jest.fn();
+      const wild = jest.fn();
+      const altAction = 'handshake';
+
+      n.addInlineHandler(TRIGRAM, h1);
+      n.addInlineHandler({ t: TERM, a: altAction, o: ORIENT }, h2);
+      // wildcard added after leaves — must index both leaves under term
+      n.addInlineHandler({ t: TERM }, wild);
+
+      n.enter(new AppCtx(TERM, ACTION, ORIENT));
+      n.enter(new AppCtx(TERM, altAction, ORIENT));
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(h1).toHaveBeenCalledTimes(1);
+      expect(h2).toHaveBeenCalledTimes(1);
+      expect(wild).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -57,108 +95,42 @@ describe('Network', () => {
       expect(cloned).toBeInstanceOf(Network);
       expect(cloned).not.toBe(n);
 
-      const seen = [];
-      cloned.use((handler, appCtx, forward) => {
-        seen.push(handler);
-        return handler.handleAppCon(appCtx, forward, {});
-      });
-      cloned.setAppCtxControl(new AppCtx(TERM, ACTION, ORIENT));
+      cloned.enter(new AppCtx(TERM, ACTION, ORIENT));
 
       return new Promise((resolve) => {
         setTimeout(() => {
-          expect(intercept).toHaveBeenCalled();
-          expect(asyncH).toHaveBeenCalled();
-          expect(inline).toHaveBeenCalled();
-          expect(seen.length).toBe(1);
+          expect(intercept).toHaveBeenCalledTimes(1);
+          expect(asyncH).toHaveBeenCalledTimes(1);
+          expect(inline).toHaveBeenCalledTimes(1);
           resolve();
         }, 50);
       });
     });
 
-    it('does not copy middleware into the cloned network', () => {
+    it('does not copy decorations into the cloned network', () => {
       const n = new Network();
-      const middleware = jest.fn();
-      n.use(middleware);
+      const onDispatch = jest.fn();
+      n.decorate({ onDispatch });
 
       const cloned = n.clone();
       cloned.addInlineHandler(TRIGRAM, () => {});
-      cloned.setCtxControl(TRIGRAM, {}, {}, () => {});
+      cloned.enter(new AppCtx(TERM, ACTION, ORIENT));
 
-      expect(middleware).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('setCtxControl / setAppCtxControl', () => {
-    it('coerces a non-function forwardAppCtx to a no-op on setCtxControl', () => {
-      const n = new Network();
-      let forwardedType;
-      n.use((handler, appCtx, forward) => {
-        forwardedType = typeof forward;
-        expect(() => forward(appCtx)).not.toThrow();
-      });
-      n.addInlineHandler(TRIGRAM, () => {});
-      n.setCtxControl(TRIGRAM, {}, {}, 'not-a-function');
-      expect(forwardedType).toBe('function');
+      expect(onDispatch).not.toHaveBeenCalled();
     });
 
-    it('throws when setAppCtxControl is not given an AppCtx', () => {
-      const n = new Network();
-      expect(() => n.setAppCtxControl({})).toThrow(
-        "'appCtx' not an instance of AppCtx",
-      );
-    });
+    it('carries the wildcard policy onto the cloned network', async () => {
+      const wildNetwork = new Network(true);
+      const seen = [];
+      const cloned = wildNetwork.clone();
+      cloned.decorate({ onDispatch: (ac) => seen.push(ac.key) });
+      cloned.addInlineHandler(TRIGRAM, () => new AppCtx(TERM));
+      cloned.addInlineHandler({ t: TERM }, jest.fn());
 
-    it('coerces a missing forwardAppCtx to a no-op on setAppCtxControl', () => {
-      const n = new Network();
-      let forwardedType;
-      n.use((handler, appCtx, forward) => {
-        forwardedType = typeof forward;
-      });
-      n.addInlineHandler(TRIGRAM, () => {});
-      n.setAppCtxControl(new AppCtx(TERM, ACTION, ORIENT));
-      expect(forwardedType).toBe('function');
-    });
-
-    it('lazily creates concrete handlers but never creates wildcard handlers', () => {
-      const n = new Network();
-      const concrete = AppCtxRoot.getKey(TERM, ACTION, ORIENT);
-      const wildcard = AppCtxRoot.getKey('', ACTION, ORIENT);
-      const mw = jest.fn();
-
-      n.use(mw);
-      n.setCtxControl(TRIGRAM, {}, {}, () => {});
-      n.setCtxControl({ t: '', a: ACTION, o: ORIENT }, {}, {}, () => {});
-      n.setAppCtxControl(new AppCtx('', ACTION, ORIENT));
-
-      expect(n._handlers.has(concrete)).toBe(true);
-      expect(n._handlers.has(wildcard)).toBe(false);
-      // middleware must not run for unset wildcards (would get an undefined handler)
-      expect(mw).toHaveBeenCalledTimes(1);
-      expect(mw.mock.calls[0][0]).toBeDefined();
-    });
-
-    it('attaches later wildcards to every prior leaf sharing an axis', async () => {
-      const n = new Network();
-      const h1 = jest.fn();
-      const h2 = jest.fn();
-      const wild = jest.fn();
-      const altAction = 'handshake';
-
-      n.addInlineHandler(TRIGRAM, h1);
-      n.addInlineHandler({ t: TERM, a: altAction, o: ORIENT }, h2);
-      // wildcard added after leaves — must index both leaves under term
-      n.addInlineHandler({ t: TERM }, wild);
-
-      n.use((handler, appCtx, forward) =>
-        handler.handleAppCon(appCtx, forward, {}),
-      );
-      n.setAppCtxControl(new AppCtx(TERM, ACTION, ORIENT));
-      n.setAppCtxControl(new AppCtx(TERM, altAction, ORIENT));
+      cloned.enter(new AppCtx(TERM, ACTION, ORIENT));
 
       await new Promise((resolve) => setTimeout(resolve, 50));
-      expect(h1).toHaveBeenCalledTimes(1);
-      expect(h2).toHaveBeenCalledTimes(1);
-      expect(wild).toHaveBeenCalledTimes(2);
+      expect(seen).toEqual([`${TERM}|${ACTION}|${ORIENT}`, `${TERM}|*|*`]);
     });
   });
 
@@ -171,8 +143,7 @@ describe('Network', () => {
       n.addInlineHandler(TRIGRAM, handler);
       n.removeHandler(TRIGRAM, handler);
 
-      n.use((h, appCtx, forward) => h.handleAppCon(appCtx, forward, {}));
-      n.setAppCtxControl(new AppCtx(TERM, ACTION, ORIENT));
+      n.enter(new AppCtx(TERM, ACTION, ORIENT));
 
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -189,8 +160,7 @@ describe('Network', () => {
       n.addAsyncHandler(TRIGRAM, handler);
       n.removeHandler(TRIGRAM, handler, INLINE);
 
-      n.use((h, appCtx, forward) => h.handleAppCon(appCtx, forward, {}));
-      n.setAppCtxControl(new AppCtx(TERM, ACTION, ORIENT));
+      n.enter(new AppCtx(TERM, ACTION, ORIENT));
 
       return new Promise((resolve) => {
         setTimeout(() => {

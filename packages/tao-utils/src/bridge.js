@@ -26,7 +26,7 @@ function filteredForwardHandler(destination, filter) {
 }
 
 function bridge(type, source, destination, filters) {
-  /* c8 ignore next 3 -- public bridge factories always provide a valid phase. */
+  /* c8 ignore next 4 -- public bridge factories always provide a valid phase. */
   // Stryker disable next-line all: unreachable via the exported bridge factories, which always pass a valid phase constant
   if (type !== INTERCEPT && type !== ASYNC && type !== INLINE) {
     return NOOP;
