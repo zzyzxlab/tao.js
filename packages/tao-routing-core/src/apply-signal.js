@@ -3,7 +3,7 @@ import { AppCtx } from '@tao.js/core';
 /**
  * Apply a route-entry signal to a Kernel.
  *
- * Accepted shapes (same as tidy.dev / useLoaderSignal):
+ * Accepted shapes (the useLoaderSignal route-entry contract):
  * - `AppCtx` → `setAppCtx`
  * - `[tao, data?]` → `setCtx(...signal)` when non-empty
  * - `{ tao, data? }` → `setCtx(tao, data)` when `tao` is truthy

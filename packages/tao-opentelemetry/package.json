@@ -1,12 +1,12 @@
 {
-  "name": "@tao.js/utils",
+  "name": "@tao.js/opentelemetry",
   "version": "0.17.0",
-  "description": "set of useful utilities for tao.js",
+  "description": "OpenTelemetry exporter for tao.js signal traces — maps @tao.js/telemetry records to OTel spans with causal parentage",
   "homepage": "https://tao.js.org/",
   "repository": {
     "type": "git",
     "url": "https://github.com/zzyzxlab/tao.js.git",
-    "directory": "packages/tao-utils"
+    "directory": "packages/tao-opentelemetry"
   },
   "main": "lib",
   "module": "dist",
@@ -34,12 +34,11 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@tao.js/core": "*"
+    "@opentelemetry/api": "^1.3.0"
   },
   "devDependencies": {
-    "@tao.js/core": "file:../tao"
-  },
-  "dependencies": {
+    "@opentelemetry/api": "^1.9.1",
+    "@tao.js/core": "file:../tao",
     "@tao.js/telemetry": "file:../tao-telemetry"
   }
 }

@@ -26,6 +26,8 @@
     "test:mutation:routing-react-router": "pnpm --filter @tao.js/routing-react-router test:mutation",
     "test:mutation:routing-tanstack-router": "pnpm --filter @tao.js/routing-tanstack-router test:mutation",
     "test:mutation:routing-next": "pnpm --filter @tao.js/routing-next test:mutation",
+    "test:mutation:telemetry": "pnpm --filter @tao.js/telemetry test:mutation",
+    "test:mutation:opentelemetry": "pnpm --filter @tao.js/opentelemetry test:mutation",
     "test:watch": "nx run-many --target=test:watch --all --exclude=patois.*,react19-smoke",
     "lint": "nx run-many --target=lint --all --exclude=patois.*,react19-smoke",
     "lint:packages": "nx run-many --target=lint --all",
@@ -72,6 +74,7 @@
     "@tao.js/path": "file:packages/tao-path",
     "@tao.js/react": "file:packages/react-tao",
     "@tao.js/router": "file:packages/tao-router",
+    "@tao.js/opentelemetry": "file:packages/tao-opentelemetry",
     "@tao.js/routing-core": "file:packages/tao-routing-core",
     "@tao.js/routing-next": "file:packages/tao-routing-next",
     "@tao.js/routing-react-router": "file:packages/tao-routing-react-router",
@@ -80,7 +83,8 @@
     "@tao.js/utils": "file:packages/tao-utils",
     "docs": "file:packages/docs",
     "patois.api": "file:examples/patois.api",
-    "patois.web": "file:examples/patois.web"
+    "patois.web": "file:examples/patois.web",
+    "@tao.js/telemetry": "file:packages/tao-telemetry"
   },
   "devDependencies": {
     "@babel/cli": "7.1.5",

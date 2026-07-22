@@ -1,4 +1,12 @@
-import { AppCtx, Kernel, Network } from '@tao.js/core';
+import {
+  AppCtx,
+  Kernel,
+  Network,
+  INTERCEPT,
+  ASYNC,
+  INLINE,
+  ERROR,
+} from '@tao.js/core';
 import Channel from '../src/Channel';
 import Source from '../src/Source';
 import Relay from '../src/Relay';
@@ -18,6 +26,8 @@ const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 describe('Channel', () => {
   it('delegates public signal methods to its wrapped network', () => {
     const network = {
+      enter: jest.fn(),
+      decorate: jest.fn(() => () => {}),
       setCtxControl: jest.fn(),
       setAppCtxControl: jest.fn(),
     };
@@ -30,27 +40,32 @@ describe('Channel', () => {
     channel.setAppCtx(appCtx);
     channel.setAppCtxControl(appCtx, { existing: true }, forward);
 
-    expect(network.setCtxControl).toHaveBeenCalledTimes(2);
-    expect(network.setAppCtxControl).toHaveBeenCalledTimes(2);
+    // v2 entries route through the envelope hop engine with channel cascade
+    expect(network.enter).toHaveBeenCalledTimes(2);
+    expect(network.enter).toHaveBeenNthCalledWith(1, expect.any(AppCtx), {
+      cascade: { channelId: 'delegating' },
+    });
+    expect(network.enter).toHaveBeenNthCalledWith(2, appCtx, {
+      cascade: { channelId: 'delegating' },
+    });
+
+    // caller-owned forwarding stays on the frozen legacy control path
+    expect(network.setCtxControl).toHaveBeenCalledTimes(1);
+    expect(network.setAppCtxControl).toHaveBeenCalledTimes(1);
     expect(network.setCtxControl).toHaveBeenCalledWith(
       expect.objectContaining(SOURCE),
       DATA,
-      { channelId: 'delegating' },
-      expect.any(Function),
-    );
-    expect(network.setAppCtxControl).toHaveBeenCalledWith(
-      appCtx,
-      { channelId: 'delegating' },
+      { existing: true, channelId: 'delegating' },
       expect.any(Function),
     );
 
-    const ctxForward = network.setCtxControl.mock.calls[1][3];
+    const ctxForward = network.setCtxControl.mock.calls[0][3];
     ctxForward(appCtx, { channelId: 'delegating' });
     expect(forward).toHaveBeenCalledWith(appCtx, {
       channelId: 'delegating',
     });
 
-    const appCtxForward = network.setAppCtxControl.mock.calls[1][2];
+    const appCtxForward = network.setAppCtxControl.mock.calls[0][2];
     appCtxForward(appCtx, { channelId: 'delegating' });
     expect(forward).toHaveBeenCalledTimes(2);
   });
@@ -144,7 +159,11 @@ describe('Channel', () => {
   });
 
   it('logs debug forwarding and only handles its own signals', () => {
-    const network = { setAppCtxControl: jest.fn() };
+    const network = {
+      setAppCtxControl: jest.fn(),
+      enter: jest.fn(),
+      decorate: jest.fn(() => () => {}),
+    };
     const channel = new Channel({ _network: network }, 'debug', true);
     const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
     const log = jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -167,7 +186,11 @@ describe('Channel', () => {
   });
 
   it('does not log by default when debug is left unset', () => {
-    const network = { setAppCtxControl: jest.fn() };
+    const network = {
+      setAppCtxControl: jest.fn(),
+      enter: jest.fn(),
+      decorate: jest.fn(() => () => {}),
+    };
     const channel = new Channel({ _network: network }, 'quiet');
     const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
     const log = jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -179,7 +202,11 @@ describe('Channel', () => {
   });
 
   it('only forwards into its own channel when the control channelId matches', () => {
-    const network = { setAppCtxControl: jest.fn() };
+    const network = {
+      setAppCtxControl: jest.fn(),
+      enter: jest.fn(),
+      decorate: jest.fn(() => () => {}),
+    };
     const channel = new Channel({ _network: network }, 'match-only');
     const innerSpy = jest.spyOn(channel._channel, 'setAppCtxControl');
     const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
@@ -192,7 +219,11 @@ describe('Channel', () => {
   });
 
   it('routes the internal channel setAppCtxControl callback through setAppCtx', () => {
-    const network = { setAppCtxControl: jest.fn() };
+    const network = {
+      setAppCtxControl: jest.fn(),
+      enter: jest.fn(),
+      decorate: jest.fn(() => () => {}),
+    };
     const channel = new Channel({ _network: network }, 'inner-callback');
     const innerSpy = jest.spyOn(channel._channel, 'setAppCtxControl');
     const setAppCtx = jest
@@ -207,40 +238,61 @@ describe('Channel', () => {
     setAppCtx.mockRestore();
   });
 
-  it('wires setCtx and setAppCtx forwarding callbacks to forwardAppCtx', () => {
-    const network = {
-      setCtxControl: jest.fn(),
-      setAppCtxControl: jest.fn(),
-    };
-    const channel = new Channel({ _network: network }, 'wiring');
-    const forwardSpy = jest.spyOn(channel, 'forwardAppCtx');
-    const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
+  it('mirrors chained AppCons to channel handlers through the network decoration', async () => {
+    const kernel = new Kernel();
+    const channel = new Channel(kernel, 'wiring');
+    const other = new Channel(kernel, 'other-channel');
+    const mirrored = jest.fn();
+    const leaked = jest.fn();
+    const kernelSeen = jest.fn();
+    channel.addInlineHandler(TARGET, mirrored);
+    other.addInlineHandler(TARGET, leaked);
+    kernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+    kernel.addInlineHandler(TARGET, kernelSeen);
 
     channel.setCtx(SOURCE, DATA);
-    const ctxForward = network.setCtxControl.mock.calls[0][3];
-    ctxForward(appCtx, { channelId: 'wiring' });
-    expect(forwardSpy).toHaveBeenCalledTimes(1);
-    expect(forwardSpy).toHaveBeenNthCalledWith(1, appCtx, {
-      channelId: 'wiring',
-    });
+    await tick();
 
-    forwardSpy.mockClear();
-    network.setAppCtxControl.mockClear();
-    channel.setAppCtx(appCtx);
-    // setAppCtx's own call to network.setAppCtxControl - not to be confused
-    // with the recursive call forwardAppCtx makes to itself above
-    expect(network.setAppCtxControl).toHaveBeenCalledTimes(1);
-    const appCtxForward = network.setAppCtxControl.mock.calls[0][2];
-    appCtxForward(appCtx, { channelId: 'wiring' });
-    expect(forwardSpy).toHaveBeenCalledTimes(1);
-    expect(forwardSpy).toHaveBeenNthCalledWith(1, appCtx, {
-      channelId: 'wiring',
-    });
-    forwardSpy.mockRestore();
+    // the chained AppCon reached main-network handlers AND this channel's
+    expect(kernelSeen).toHaveBeenCalledTimes(1);
+    expect(mirrored).toHaveBeenCalledWith(TARGET, { Page: DATA.Page });
+    // but never another channel's handlers
+    expect(leaked).not.toHaveBeenCalled();
+
+    // kernel-entered cascades never mirror into channels
+    mirrored.mockClear();
+    kernel.setCtx(SOURCE, DATA);
+    await tick();
+    expect(mirrored).not.toHaveBeenCalled();
+  });
+
+  it('stops mirroring after dispose', async () => {
+    const kernel = new Kernel();
+    const channel = new Channel(kernel, 'disposable');
+    const mirrored = jest.fn();
+    channel.addInlineHandler(TARGET, mirrored);
+    kernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+
+    channel.setCtx(SOURCE, DATA);
+    await tick();
+    expect(mirrored).toHaveBeenCalledTimes(1);
+
+    channel.dispose();
+    channel.setCtx(SOURCE, DATA);
+    await tick();
+    expect(mirrored).toHaveBeenCalledTimes(1);
   });
 
   it('merges channel control into setCtxControl/setAppCtxControl calls and forwards optionally', () => {
     const network = {
+      enter: jest.fn(),
+      decorate: jest.fn(() => () => {}),
       setCtxControl: jest.fn(),
       setAppCtxControl: jest.fn(),
     };
@@ -260,12 +312,12 @@ describe('Channel', () => {
     ctxCallback(appCtx, { channelId: 'merging' });
     expect(forward).toHaveBeenCalledWith(appCtx, { channelId: 'merging' });
 
-    // calling without an optional forwardAppCtx must not throw and must not invoke anything extra
+    // calling without an optional forwardAppCtx routes through the hop engine
     channel.setCtxControl(SOURCE, DATA, { existing: true });
-    const ctxCallbackNoForward = network.setCtxControl.mock.calls[1][3];
-    expect(() =>
-      ctxCallbackNoForward(appCtx, { channelId: 'merging' }),
-    ).not.toThrow();
+    expect(network.setCtxControl).toHaveBeenCalledTimes(1);
+    expect(network.enter).toHaveBeenCalledWith(expect.any(AppCtx), {
+      cascade: { existing: true, channelId: 'merging' },
+    });
 
     // invoking the ctx callbacks above also drives forwardAppCtx, which calls
     // network.setAppCtxControl - clear that unrelated noise before asserting below
@@ -285,15 +337,15 @@ describe('Channel', () => {
     expect(forward).toHaveBeenCalledWith(appCtx, { channelId: 'merging' });
 
     // invoking appCtxCallback above also drives forwardAppCtx, which calls
-    // network.setAppCtxControl again - clear that noise so the next call we
-    // read back below is unambiguously the one from setAppCtxControl itself
+    // network.setAppCtxControl again - clear that noise before the v2 check
     network.setAppCtxControl.mockClear();
+    network.enter.mockClear();
 
     channel.setAppCtxControl(appCtx, { existing: true });
-    const appCtxCallbackNoForward = network.setAppCtxControl.mock.calls[0][2];
-    expect(() =>
-      appCtxCallbackNoForward(appCtx, { channelId: 'merging' }),
-    ).not.toThrow();
+    expect(network.setAppCtxControl).not.toHaveBeenCalled();
+    expect(network.enter).toHaveBeenCalledWith(appCtx, {
+      cascade: { existing: true, channelId: 'merging' },
+    });
   });
 
   it('scopes add*Handler registrations to the trigram they were given', async () => {
@@ -675,118 +727,152 @@ describe('Transponder', () => {
 });
 
 describe('Transceiver', () => {
-  it('captures direct intercept, async, and inline handler outcomes', async () => {
-    const transceiver = new Transceiver(new Kernel(), 'capture');
-    const next = new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA);
-    const setAppCtx = jest.fn();
-    const signal = { resolve: jest.fn(), reject: jest.fn() };
-
-    await transceiver.captureSignal(
-      {
-        interceptHandlers: [() => next],
-        asyncHandlers: [],
-        inlineHandlers: [],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      setAppCtx,
-      { signal },
+  it('captures intercept, async, and inline signal handler outcomes end to end', async () => {
+    // intercept returning an AppCtx chains it into the signal network
+    const chainKernel = new Kernel();
+    const chainTransceiver = new Transceiver(chainKernel, 'capture-chain');
+    const CHAINED = { t: 'chainlink', a: 'follow', o: 'jest' };
+    chainKernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
     );
-    expect(setAppCtx).toHaveBeenCalledWith(next, expect.any(Object));
-
-    const asyncControl = { signal: { resolve: jest.fn(), reject: jest.fn() } };
-    await transceiver.captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [() => 'async result'],
-        inlineHandlers: [() => next, () => 'inline result'],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      setAppCtx,
-      asyncControl,
+    chainTransceiver.addInterceptHandler(
+      TARGET,
+      () => new AppCtx(CHAINED.t, CHAINED.a, CHAINED.o, DATA),
     );
-    await tick();
-    expect(asyncControl.signal.resolve).toHaveBeenCalledWith('async result');
-    expect(setAppCtx).toHaveBeenCalledWith(next, asyncControl);
+    chainTransceiver.addInlineHandler(CHAINED, () => 'chained complete');
+    await expect(chainTransceiver.setCtx(SOURCE, DATA)).resolves.toBe(
+      'chained complete',
+    );
+
+    // async result resolves even while an inline handler chains an AppCtx
+    const asyncKernel = new Kernel();
+    const asyncTransceiver = new Transceiver(asyncKernel, 'capture-async');
+    asyncKernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+    asyncTransceiver.addAsyncHandler(TARGET, () => 'async result');
+    await expect(asyncTransceiver.setCtx(SOURCE, DATA)).resolves.toBe(
+      'async result',
+    );
   });
 
-  it('captures rejected handlers and forwarding errors', async () => {
-    const transceiver = new Transceiver(new Kernel(), (id) => `capture-${id}`);
-    const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
-    const setAppCtx = jest.fn(() => {
-      throw new Error('forward failed');
+  it('rejects when signal handlers throw in any phase', async () => {
+    // a throwing inline signal handler rejects the promise
+    const inlineKernel = new Kernel();
+    const inlineTransceiver = new Transceiver(inlineKernel, 'throw-inline');
+    inlineKernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+    inlineTransceiver.addInlineHandler(TARGET, () => {
+      throw new Error('handler failed');
     });
+    await expect(inlineTransceiver.setCtx(SOURCE, DATA)).rejects.toThrow(
+      'handler failed',
+    );
 
+    // a rejecting async signal handler rejects the promise
+    const asyncKernel = new Kernel();
+    const asyncTransceiver = new Transceiver(asyncKernel, 'throw-async');
+    asyncKernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+    asyncTransceiver.addAsyncHandler(TARGET, () =>
+      Promise.reject(new Error('async failed')),
+    );
+    await expect(asyncTransceiver.setCtx(SOURCE, DATA)).rejects.toThrow(
+      'async failed',
+    );
+
+    // a throwing intercept signal handler rejects the promise
+    const interceptKernel = new Kernel();
+    const interceptTransceiver = new Transceiver(
+      interceptKernel,
+      'throw-intercept',
+    );
+    interceptKernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+    interceptTransceiver.addInterceptHandler(TARGET, () => {
+      throw new Error('intercept failed');
+    });
+    await expect(interceptTransceiver.setCtx(SOURCE, DATA)).rejects.toThrow(
+      'intercept failed',
+    );
+  });
+
+  it('maps settlement phases onto the signal promise', () => {
+    const transceiver = new Transceiver(new Kernel(), 'mapping');
+    const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
+    const capture = (control) => {
+      let hooks = null;
+      transceiver.handleSignalAppCon(
+        { handleAppCon: (ac, fwd, ctl, h) => (hooks = h) },
+        appCtx,
+        jest.fn(),
+        control,
+      );
+      return hooks;
+    };
+
+    // intercept phase rejects
     const interceptControl = {
+      transceiverId: 'mapping',
       signal: { resolve: jest.fn(), reject: jest.fn() },
     };
-    await transceiver.captureSignal(
-      {
-        interceptHandlers: [() => null, () => appCtx],
-        asyncHandlers: [],
-        inlineHandlers: [],
-      },
-      appCtx,
-      setAppCtx,
-      interceptControl,
-    );
-    expect(interceptControl.signal.reject).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'forward failed' }),
-    );
+    capture(interceptControl).onReturn(INTERCEPT, 'stopped', appCtx);
+    expect(interceptControl.signal.reject).toHaveBeenCalledWith('stopped');
+    expect(interceptControl.signalled).toBe(true);
 
-    const asyncControl = {
+    // error phase rejects
+    const errorControl = {
+      transceiverId: 'mapping',
       signal: { resolve: jest.fn(), reject: jest.fn() },
     };
-    const setAsyncAppCtx = jest.fn();
-    await transceiver.captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [() => Promise.reject(new Error('async failed'))],
-        inlineHandlers: [() => appCtx],
-      },
-      appCtx,
-      setAsyncAppCtx,
-      asyncControl,
-    );
-    await tick();
-    expect(asyncControl.signal.reject).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'async failed' }),
-    );
+    const failure = new Error('dispatch failed');
+    capture(errorControl).onReturn(ERROR, failure, appCtx);
+    expect(errorControl.signal.reject).toHaveBeenCalledWith(failure);
+
+    // async and inline phases resolve
+    const asyncControl = {
+      transceiverId: 'mapping',
+      signal: { resolve: jest.fn(), reject: jest.fn() },
+    };
+    capture(asyncControl).onReturn(ASYNC, 'async value', appCtx);
+    expect(asyncControl.signal.resolve).toHaveBeenCalledWith('async value');
 
     const inlineControl = {
+      transceiverId: 'mapping',
       signal: { resolve: jest.fn(), reject: jest.fn() },
     };
-    await transceiver.captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [],
-        inlineHandlers: [() => appCtx],
-      },
-      appCtx,
-      setAppCtx,
-      inlineControl,
-    );
-    expect(inlineControl.signal.reject).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'forward failed' }),
-    );
+    capture(inlineControl).onReturn(INLINE, 'inline value', appCtx);
+    expect(inlineControl.signal.resolve).toHaveBeenCalledWith('inline value');
   });
 
-  it('rejects signals when capture fails asynchronously', async () => {
+  it('rejects signals when dispatch fails asynchronously', async () => {
     const transceiver = new Transceiver(new Kernel(), 'capture-error');
     const reject = jest.fn();
-    transceiver.captureSignal = jest.fn(() =>
-      Promise.reject(new Error('capture failed')),
-    );
     const control = {
       transceiverId: transceiver._transceiverId,
-      signal: { reject },
+      signal: { resolve: jest.fn(), reject },
     };
 
     transceiver.handleSignalAppCon(
-      {},
+      {
+        handleAppCon: async (ac, fwd, ctl, hooks) => {
+          await tick();
+          hooks.onReturn(ERROR, new Error('capture failed'), ac);
+        },
+      },
       new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
       jest.fn(),
       control,
     );
+    await tick();
     await tick();
 
     expect(reject).toHaveBeenCalledWith(
@@ -795,27 +881,27 @@ describe('Transceiver', () => {
     expect(control.signalled).toBe(true);
   });
 
-  it('does not re-reject an async capture failure once the control was already signalled', async () => {
+  it('does not settle a late failure once the control was already signalled', async () => {
     const transceiver = new Transceiver(
       new Kernel(),
       'capture-error-signalled',
     );
     const reject = jest.fn();
-    transceiver.captureSignal = jest.fn((_handler, _ac, _fwd, control) => {
-      control.signalled = true;
-      return Promise.reject(new Error('capture failed'));
-    });
+    const control = {
+      transceiverId: transceiver._transceiverId,
+      signal: { resolve: jest.fn(), reject },
+    };
+    let hooks = null;
 
     transceiver.handleSignalAppCon(
-      {},
+      { handleAppCon: (ac, fwd, ctl, h) => (hooks = h) },
       new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
       jest.fn(),
-      {
-        transceiverId: transceiver._transceiverId,
-        signal: { reject },
-      },
+      control,
     );
-    await tick();
+    // settled elsewhere while dispatch was in flight
+    control.signalled = true;
+    hooks.onReturn(ERROR, new Error('capture failed'));
 
     expect(reject).not.toHaveBeenCalled();
   });
@@ -838,24 +924,23 @@ describe('Transceiver', () => {
     transceiver.removeInterceptHandler(TARGET, signalHandler);
   });
 
-  it('chains AppCtx values returned by async handlers', async () => {
-    const transceiver = new Transceiver(new Kernel(), 'async-appctx');
-    const next = new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA);
-    const setAppCtx = jest.fn();
-
-    await transceiver.captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [() => next],
-        inlineHandlers: [],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      setAppCtx,
-      { signal: { resolve: jest.fn(), reject: jest.fn() } },
+  it('chains AppCtx values returned by async signal handlers', async () => {
+    const kernel = new Kernel();
+    const transceiver = new Transceiver(kernel, 'async-appctx');
+    const CHAINED = { t: 'asynclink', a: 'follow', o: 'jest' };
+    kernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
     );
-    await tick();
+    transceiver.addAsyncHandler(
+      TARGET,
+      () => new AppCtx(CHAINED.t, CHAINED.a, CHAINED.o, DATA),
+    );
+    transceiver.addInlineHandler(CHAINED, () => 'async chained');
 
-    expect(setAppCtx).toHaveBeenCalledWith(next, expect.any(Object));
+    await expect(transceiver.setCtx(SOURCE, DATA)).resolves.toBe(
+      'async chained',
+    );
   });
 
   it('rejects truthy intercept results and supports AppCtx chaining', async () => {
@@ -921,7 +1006,7 @@ describe('Transceiver', () => {
   });
 
   it('only relays into its own signal network when the transceiverId matches', () => {
-    const network = { setAppCtxControl: jest.fn() };
+    const network = { setAppCtxControl: jest.fn(), enter: jest.fn() };
     const transceiver = new Transceiver(
       { _network: network },
       'scoped-forward',
@@ -937,50 +1022,51 @@ describe('Transceiver', () => {
     expect(network.setAppCtxControl).toHaveBeenCalledTimes(2);
   });
 
-  it('only invokes captureSignal when control matches and has not already signalled', () => {
+  it('only dispatches settlement when control matches and has not already signalled', () => {
     const transceiver = new Transceiver(new Kernel(), 'guarded');
-    const captureSpy = jest
-      .spyOn(transceiver, 'captureSignal')
-      .mockResolvedValue();
+    const handler = { handleAppCon: jest.fn() };
     const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
     const forward = jest.fn();
 
-    transceiver.handleSignalAppCon({}, appCtx, forward, {
+    transceiver.handleSignalAppCon(handler, appCtx, forward, {
       transceiverId: 'someone-else',
       signal: {},
     });
-    expect(captureSpy).not.toHaveBeenCalled();
+    expect(handler.handleAppCon).not.toHaveBeenCalled();
 
-    transceiver.handleSignalAppCon({}, appCtx, forward, {
+    transceiver.handleSignalAppCon(handler, appCtx, forward, {
       transceiverId: 'guarded',
       signal: null,
     });
-    expect(captureSpy).not.toHaveBeenCalled();
+    expect(handler.handleAppCon).not.toHaveBeenCalled();
 
-    transceiver.handleSignalAppCon({}, appCtx, forward, {
+    transceiver.handleSignalAppCon(handler, appCtx, forward, {
       transceiverId: 'guarded',
       signal: {},
       signalled: true,
     });
-    expect(captureSpy).not.toHaveBeenCalled();
+    expect(handler.handleAppCon).not.toHaveBeenCalled();
 
-    transceiver.handleSignalAppCon({}, appCtx, forward, {
-      transceiverId: 'guarded',
-      signal: {},
-    });
-    expect(captureSpy).toHaveBeenCalledTimes(1);
-    captureSpy.mockRestore();
+    const control = { transceiverId: 'guarded', signal: {} };
+    transceiver.handleSignalAppCon(handler, appCtx, forward, control);
+    expect(handler.handleAppCon).toHaveBeenCalledTimes(1);
+    expect(handler.handleAppCon).toHaveBeenCalledWith(
+      appCtx,
+      forward,
+      control,
+      expect.objectContaining({ onReturn: expect.any(Function) }),
+    );
   });
 
-  it('rejects synchronously if captureSignal cannot be invoked', () => {
+  it('rejects synchronously if the handler cannot be dispatched', () => {
     const transceiver = new Transceiver(new Kernel(), 'sync-throw');
-    transceiver.captureSignal = undefined;
     const reject = jest.fn();
     const control = {
       transceiverId: transceiver._transceiverId,
-      signal: { reject },
+      signal: { resolve: jest.fn(), reject },
     };
 
+    // a malformed handler with no handleAppCon throws synchronously
     transceiver.handleSignalAppCon(
       {},
       new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
@@ -992,256 +1078,118 @@ describe('Transceiver', () => {
     expect(control.signalled).toBe(true);
   });
 
-  it('passes the exact trigram to intercept and async handlers, not a stray object', async () => {
-    const transceiver = new Transceiver(new Kernel(), 'trigram-shape');
+  it('passes the exact trigram to signal handlers, not a stray object', async () => {
+    const kernel = new Kernel();
+    const transceiver = new Transceiver(kernel, 'trigram-shape');
     const seenIntercept = [];
-    const seenAsync = [];
-
-    await transceiver.captureSignal(
-      {
-        interceptHandlers: [
-          (tao) => {
-            seenIntercept.push(tao);
-            return null;
-          },
-        ],
-        asyncHandlers: [
-          (tao) => {
-            seenAsync.push(tao);
-            return undefined;
-          },
-        ],
-        inlineHandlers: [],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      jest.fn(),
-      { signal: { resolve: jest.fn(), reject: jest.fn() } },
+    const seenInline = [];
+    kernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
     );
+    transceiver.addInterceptHandler(TARGET, (tao) => {
+      seenIntercept.push(tao);
+      return null;
+    });
+    transceiver.addInlineHandler(TARGET, (tao) => {
+      seenInline.push(tao);
+      return 'shape-checked';
+    });
 
-    expect(seenIntercept).toEqual([{ t: SOURCE.t, a: SOURCE.a, o: SOURCE.o }]);
-    expect(seenAsync).toEqual([{ t: SOURCE.t, a: SOURCE.a, o: SOURCE.o }]);
+    await expect(transceiver.setCtx(SOURCE, DATA)).resolves.toBe(
+      'shape-checked',
+    );
+    expect(seenIntercept).toEqual([{ t: TARGET.t, a: TARGET.a, o: TARGET.o }]);
+    expect(seenInline).toEqual([{ t: TARGET.t, a: TARGET.a, o: TARGET.o }]);
   });
 
-  it('does not resolve or forward when an async handler returns nullish', async () => {
-    const transceiver = new Transceiver(new Kernel(), 'async-null');
-    const setAppCtx = jest.fn();
-    const resolve = jest.fn();
-
-    await transceiver.captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [() => null],
-        inlineHandlers: [],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      setAppCtx,
-      { signal: { resolve, reject: jest.fn() } },
+  it('does not settle when signal handlers return nullish', async () => {
+    const kernel = new Kernel();
+    const transceiver = new Transceiver(kernel, 'nullish');
+    const settled = jest.fn();
+    kernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
     );
+    transceiver.addAsyncHandler(TARGET, () => null);
+    transceiver.addInlineHandler(TARGET, () => undefined);
+
+    transceiver.setCtx(SOURCE, DATA).then(settled, settled);
+    await tick();
     await tick();
 
-    expect(setAppCtx).not.toHaveBeenCalled();
-    expect(resolve).not.toHaveBeenCalled();
-  });
-
-  it('ignores nullish inline handler results without resolving or spooling', async () => {
-    const transceiver = new Transceiver(new Kernel(), 'inline-null');
-    const setAppCtx = jest.fn();
-    const resolve = jest.fn();
-
-    await transceiver.captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [],
-        inlineHandlers: [() => null, () => undefined],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      setAppCtx,
-      { signal: { resolve, reject: jest.fn() } },
-    );
-
-    expect(setAppCtx).not.toHaveBeenCalled();
-    expect(resolve).not.toHaveBeenCalled();
+    expect(settled).not.toHaveBeenCalled();
   });
 
   it('resolves using only the first non-AppCtx inline result', async () => {
-    const transceiver = new Transceiver(new Kernel(), 'inline-first');
-    const resolve = jest.fn();
-
-    await transceiver.captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [],
-        inlineHandlers: [() => 'first', () => 'second'],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      jest.fn(),
-      { signal: { resolve, reject: jest.fn() } },
+    const kernel = new Kernel();
+    const transceiver = new Transceiver(kernel, 'inline-first');
+    kernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
     );
+    transceiver.addInlineHandler(TARGET, () => 'first');
+    transceiver.addInlineHandler(TARGET, () => 'second');
 
-    expect(resolve).toHaveBeenCalledTimes(1);
-    expect(resolve).toHaveBeenCalledWith('first');
+    await expect(transceiver.setCtx(SOURCE, DATA)).resolves.toBe('first');
   });
 
-  it('marks the control as signalled the first time each branch resolves or rejects', async () => {
-    const next = new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA);
-    const throwingSetAppCtx = jest.fn(() => {
-      throw new Error('boom');
-    });
+  it('marks the control as signalled on the first settlement of either outcome', () => {
+    const transceiver = new Transceiver(new Kernel(), 'signalled');
+    const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
+    const capture = (control) => {
+      let hooks = null;
+      transceiver.handleSignalAppCon(
+        { handleAppCon: (ac, fwd, ctl, h) => (hooks = h) },
+        appCtx,
+        jest.fn(),
+        control,
+      );
+      return hooks;
+    };
 
-    const interceptRejectControl = {
+    const resolveControl = {
+      transceiverId: 'signalled',
       signal: { resolve: jest.fn(), reject: jest.fn() },
     };
-    await new Transceiver(new Kernel(), 'signalled-1').captureSignal(
-      {
-        interceptHandlers: [() => 'blocked'],
-        asyncHandlers: [],
-        inlineHandlers: [],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      jest.fn(),
-      interceptRejectControl,
-    );
-    expect(interceptRejectControl.signalled).toBe(true);
+    capture(resolveControl).onReturn(INLINE, 'ok', appCtx);
+    expect(resolveControl.signalled).toBe(true);
+    expect(resolveControl.signal.resolve).toHaveBeenCalledWith('ok');
 
-    const interceptThrowControl = {
+    const rejectControl = {
+      transceiverId: 'signalled',
       signal: { resolve: jest.fn(), reject: jest.fn() },
     };
-    await new Transceiver(new Kernel(), 'signalled-2').captureSignal(
-      {
-        interceptHandlers: [() => next],
-        asyncHandlers: [],
-        inlineHandlers: [],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      throwingSetAppCtx,
-      interceptThrowControl,
+    capture(rejectControl).onReturn(ERROR, new Error('nope'), appCtx);
+    expect(rejectControl.signalled).toBe(true);
+    expect(rejectControl.signal.reject).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'nope' }),
     );
-    expect(interceptThrowControl.signalled).toBe(true);
-
-    const asyncResolveControl = {
-      signal: { resolve: jest.fn(), reject: jest.fn() },
-    };
-    await new Transceiver(new Kernel(), 'signalled-3').captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [() => 'ok'],
-        inlineHandlers: [],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      jest.fn(),
-      asyncResolveControl,
-    );
-    await tick();
-    expect(asyncResolveControl.signalled).toBe(true);
-
-    const asyncRejectControl = {
-      signal: { resolve: jest.fn(), reject: jest.fn() },
-    };
-    await new Transceiver(new Kernel(), 'signalled-4').captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [() => Promise.reject(new Error('nope'))],
-        inlineHandlers: [],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      jest.fn(),
-      asyncRejectControl,
-    );
-    await tick();
-    expect(asyncRejectControl.signalled).toBe(true);
-
-    const inlineResolveControl = {
-      signal: { resolve: jest.fn(), reject: jest.fn() },
-    };
-    await new Transceiver(new Kernel(), 'signalled-5').captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [],
-        inlineHandlers: [() => 'inline-ok'],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      jest.fn(),
-      inlineResolveControl,
-    );
-    expect(inlineResolveControl.signalled).toBe(true);
-
-    const inlineThrowControl = {
-      signal: { resolve: jest.fn(), reject: jest.fn() },
-    };
-    await new Transceiver(new Kernel(), 'signalled-6').captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [],
-        inlineHandlers: [() => next],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      throwingSetAppCtx,
-      inlineThrowControl,
-    );
-    expect(inlineThrowControl.signalled).toBe(true);
   });
 
-  it('does not re-signal any branch once the control has already been signalled', async () => {
-    const next = new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA);
-    const throwingSetAppCtx = jest.fn(() => {
-      throw new Error('boom');
-    });
-    const resolve = jest.fn();
-    const reject = jest.fn();
-
-    await new Transceiver(new Kernel(), 'presignalled-1').captureSignal(
-      {
-        interceptHandlers: [() => 'blocked'],
-        asyncHandlers: [],
-        inlineHandlers: [],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
+  it('does not re-signal any branch once the control has already been signalled', () => {
+    const transceiver = new Transceiver(new Kernel(), 'settle-once');
+    const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
+    const control = {
+      transceiverId: 'settle-once',
+      signal: { resolve: jest.fn(), reject: jest.fn() },
+    };
+    let hooks = null;
+    transceiver.handleSignalAppCon(
+      { handleAppCon: (ac, fwd, ctl, h) => (hooks = h) },
+      appCtx,
       jest.fn(),
-      { signal: { resolve, reject }, signalled: true },
+      control,
     );
-    expect(reject).not.toHaveBeenCalled();
 
-    await new Transceiver(new Kernel(), 'presignalled-2').captureSignal(
-      {
-        interceptHandlers: [() => next],
-        asyncHandlers: [],
-        inlineHandlers: [],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      throwingSetAppCtx,
-      { signal: { resolve, reject }, signalled: true },
-    );
-    expect(reject).not.toHaveBeenCalled();
+    hooks.onReturn(INLINE, 'first', appCtx);
+    hooks.onReturn(ERROR, new Error('late failure'), appCtx);
+    hooks.onReturn(ASYNC, 'late value', appCtx);
+    hooks.onReturn(INTERCEPT, 'late halt', appCtx);
 
-    await new Transceiver(new Kernel(), 'presignalled-3').captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [
-          () => 'resolved',
-          () => Promise.reject(new Error('async fail')),
-        ],
-        inlineHandlers: [],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      jest.fn(),
-      { signal: { resolve, reject }, signalled: true },
-    );
-    await tick();
-    expect(resolve).not.toHaveBeenCalled();
-    expect(reject).not.toHaveBeenCalled();
-
-    await new Transceiver(new Kernel(), 'presignalled-4').captureSignal(
-      {
-        interceptHandlers: [],
-        asyncHandlers: [],
-        inlineHandlers: [() => 'inline-result', () => next],
-      },
-      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
-      throwingSetAppCtx,
-      { signal: { resolve, reject }, signalled: true },
-    );
-    expect(resolve).not.toHaveBeenCalled();
-    expect(reject).not.toHaveBeenCalled();
+    expect(control.signal.resolve).toHaveBeenCalledTimes(1);
+    expect(control.signal.resolve).toHaveBeenCalledWith('first');
+    expect(control.signal.reject).not.toHaveBeenCalled();
   });
 
   it('scopes addSignalHandler to its trigram and can be triggered through the signal network', async () => {
@@ -1306,5 +1254,155 @@ describe('Transceiver', () => {
     expect(intercept).toHaveBeenCalledTimes(1);
     expect(asyncHandler).toHaveBeenCalledTimes(1);
     expect(inline).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('envelope version guards', () => {
+  const OLD_CORE_NETWORK = () => ({
+    use: () => {},
+    stop: () => {},
+    setCtxControl: () => {},
+    setAppCtxControl: () => {},
+  });
+
+  it('Channel throws a clear error on a pre-envelope core', () => {
+    expect(() => new Channel({ _network: OLD_CORE_NETWORK() }, 'old')).toThrow(
+      /envelope support/,
+    );
+  });
+
+  it('Source throws a clear error on a pre-envelope core', () => {
+    expect(
+      () => new Source({ _network: OLD_CORE_NETWORK() }, jest.fn()),
+    ).toThrow(/envelope support/);
+  });
+
+  it('Relay throws a clear error on a pre-envelope core', () => {
+    expect(
+      () =>
+        new Relay({ _network: OLD_CORE_NETWORK() }, jest.fn(), 'r', jest.fn()),
+    ).toThrow(/envelope support/);
+  });
+
+  it('Transceiver throws a clear error on a pre-envelope core', () => {
+    expect(() => new Transceiver({ _network: OLD_CORE_NETWORK() })).toThrow(
+      /envelope support/,
+    );
+  });
+});
+
+describe('Channel entry trigram normalization', () => {
+  it('builds the entered AppCtx from short or long trigram keys', () => {
+    const network = {
+      enter: jest.fn(),
+      decorate: jest.fn(() => () => {}),
+      setCtxControl: jest.fn(),
+      setAppCtxControl: jest.fn(),
+    };
+    const channel = new Channel({ _network: network }, 'normalizing');
+
+    channel.setCtxControl({ t: 'Short', a: 'Key', o: 'Form' }, DATA, {});
+    channel.setCtxControl(
+      { term: 'Long', action: 'Key', orient: 'Form' },
+      DATA,
+      {},
+    );
+
+    const [shortAc] = network.enter.mock.calls[0];
+    expect(shortAc.unwrapCtx()).toEqual({ t: 'Short', a: 'Key', o: 'Form' });
+    const [longAc] = network.enter.mock.calls[1];
+    expect(longAc.unwrapCtx()).toEqual({ t: 'Long', a: 'Key', o: 'Form' });
+  });
+});
+
+describe('Source under legacy dispatches', () => {
+  it('emits legacy-dispatched AppCons and suppresses its own legacy source marker', () => {
+    const kernel = new Kernel();
+    const toSrc = jest.fn();
+    const source = new Source(kernel, toSrc, 'legacy-source');
+
+    // legacy caller-owned dispatch without a source marker: emitted
+    kernel._network.setCtxControl(SOURCE, DATA, { other: true }, () => {});
+    expect(toSrc).toHaveBeenCalledTimes(1);
+
+    // legacy dispatch carrying this source's marker on control: suppressed
+    kernel._network.setCtxControl(
+      SOURCE,
+      DATA,
+      { source: 'legacy-source' },
+      () => {},
+    );
+    expect(toSrc).toHaveBeenCalledTimes(1);
+
+    // a different source name on control: emitted
+    kernel._network.setCtxControl(
+      SOURCE,
+      DATA,
+      { source: 'someone-else' },
+      () => {},
+    );
+    expect(toSrc).toHaveBeenCalledTimes(2);
+    source.dispose();
+  });
+});
+
+describe('Transponder entry modes', () => {
+  it('propagates chains when attached directly to a kernel network', async () => {
+    const kernel = new Kernel();
+    const transponder = new Transponder(kernel, 'direct-chains', 0);
+    const chained = jest.fn();
+    kernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+    kernel.addInlineHandler(TARGET, chained);
+
+    const viaCtx = await transponder.setCtx(SOURCE, DATA);
+    await tick();
+    expect(viaCtx).toBeInstanceOf(AppCtx);
+    expect(chained).toHaveBeenCalledTimes(1);
+
+    const viaAppCtx = await transponder.setAppCtx(
+      new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA),
+    );
+    await tick();
+    expect(viaAppCtx).toBeInstanceOf(AppCtx);
+    expect(chained).toHaveBeenCalledTimes(2);
+  });
+
+  it('resolves through a wrapped Channel with chains still propagating', async () => {
+    const kernel = new Kernel();
+    const channel = new Channel(kernel, 'transponder-channel');
+    const transponder = new Transponder(channel, 'via-channel', 0);
+    kernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+
+    const settled = await transponder.setCtx(SOURCE, DATA);
+    expect(settled).toBeInstanceOf(AppCtx);
+    expect(settled.unwrapCtx()).toEqual(TARGET);
+  });
+
+  it('falls back to legacy control entries on a pre-envelope network', () => {
+    const network = {
+      use: () => {},
+      setCtxControl: jest.fn(),
+      setAppCtxControl: jest.fn(),
+    };
+    const transponder = new Transponder({ _network: network }, 'old-net', 0);
+
+    transponder.setCtx(SOURCE, DATA);
+    expect(network.setCtxControl).toHaveBeenCalledWith(
+      expect.objectContaining(SOURCE),
+      DATA,
+      expect.objectContaining({ transponderId: 'old-net' }),
+    );
+
+    transponder.setAppCtx(new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA));
+    expect(network.setAppCtxControl).toHaveBeenCalledWith(
+      expect.any(AppCtx),
+      expect.objectContaining({ transponderId: 'old-net' }),
+    );
   });
 });

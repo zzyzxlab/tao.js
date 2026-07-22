@@ -1,5 +1,5 @@
 // import { Kernel } from '@tao.js/core';
-import { Network } from '@tao.js/core';
+import { AppCtx, Network } from '@tao.js/core';
 import seive from './seive';
 
 // for backwards compatibility
@@ -18,6 +18,11 @@ function channelControl(channelId) {
 /**
  * Filters handling of AppCons to the set of attached handlers of the Channel for only those
  * AppCons that had a preceding AppCon originate from this Channel.
+ *
+ * Implemented as a Network decoration (see ENVELOPE-SPEC.md): the Channel
+ * enters signals with a `{ channelId }` cascade and mirrors chained AppCons
+ * of matching cascades onto its private network, where channel-attached
+ * handlers run. Core owns main-network dispatch.
  *
  * @export
  * @class Channel
@@ -38,7 +43,19 @@ export default class Channel {
     this._channel = new Network();
     this._channel.use(this.handleAppCon);
     this._network = typeof kernel.use === 'function' ? kernel : kernel._network;
+    if (typeof this._network.enter !== 'function') {
+      throw new Error(
+        'Channel requires a @tao.js/core version with envelope support - upgrade @tao.js/core',
+      );
+    }
     this._cloneWithId = typeof id === 'function' ? id : undefined;
+    this._undecorate = this._network.decorate({
+      // Stryker disable next-line StringLiteral: decoration name is a diagnostic label with no observable behavior
+      name: `channel:${this._channelId}`,
+      onForward: (nextAc, envelope) => {
+        this._mirror(nextAc, envelope.cascade);
+      },
+    });
   }
 
   /**
@@ -67,13 +84,20 @@ export default class Channel {
     this._channel.stop(middleware);
   }
 
+  /**
+   * Detach this Channel's decoration from the shared network. Channel
+   * handlers stop receiving mirrored AppCons; entries still dispatch.
+   *
+   * @memberof Channel
+   */
+  dispose() {
+    this._undecorate();
+  }
+
   setCtx({ t, term, a, action, o, orient }, data) {
-    this._network.setCtxControl(
-      { t, term, a, action, o, orient },
-      data,
-      channelControl(this._channelId),
-      (ac, control) => this.forwardAppCtx(ac, control),
-    );
+    this._network.enter(new AppCtx(term || t, action || a, orient || o, data), {
+      cascade: channelControl(this._channelId),
+    });
   }
 
   setCtxControl(
@@ -83,41 +107,51 @@ export default class Channel {
     forwardAppCtx,
   ) {
     const chanCtrl = channelControl(this._channelId);
-    this._network.setCtxControl(
-      { t, term, a, action, o, orient },
-      data,
-      { ...control, ...chanCtrl },
-      (ac, control) => {
-        this.forwardAppCtx(ac, control);
-        if (typeof forwardAppCtx === 'function') {
-          forwardAppCtx(ac, control);
-        }
-      },
-    );
+    if (typeof forwardAppCtx === 'function') {
+      // legacy caller-owned forwarding - frozen path (see ENVELOPE-SPEC.md)
+      this._network.setCtxControl(
+        { t, term, a, action, o, orient },
+        data,
+        { ...control, ...chanCtrl },
+        (ac, fwdControl) => {
+          this.forwardAppCtx(ac, fwdControl);
+          forwardAppCtx(ac, fwdControl);
+        },
+      );
+      return;
+    }
+    this._network.enter(new AppCtx(term || t, action || a, orient || o, data), {
+      cascade: { ...control, ...chanCtrl },
+    });
   }
 
   setAppCtx(ac) {
-    this._network.setAppCtxControl(
-      ac,
-      channelControl(this._channelId),
-      (ac, control) => this.forwardAppCtx(ac, control),
-    );
+    this._network.enter(ac, { cascade: channelControl(this._channelId) });
   }
 
   setAppCtxControl(ac, control, forwardAppCtx) {
     const chanCtrl = channelControl(this._channelId);
-    this._network.setAppCtxControl(
-      ac,
-      { ...control, ...chanCtrl },
-      (ac, control) => {
-        this.forwardAppCtx(ac, control);
-        if (typeof forwardAppCtx === 'function') {
-          forwardAppCtx(ac, control);
-        }
-      },
-    );
+    if (typeof forwardAppCtx === 'function') {
+      // legacy caller-owned forwarding - frozen path (see ENVELOPE-SPEC.md)
+      this._network.setAppCtxControl(
+        ac,
+        { ...control, ...chanCtrl },
+        (fwdAc, fwdControl) => {
+          this.forwardAppCtx(fwdAc, fwdControl);
+          forwardAppCtx(fwdAc, fwdControl);
+        },
+      );
+      return;
+    }
+    this._network.enter(ac, { cascade: { ...control, ...chanCtrl } });
   }
 
+  /**
+   * Legacy-path forwarding (callers that own their `forwardAppCtx`). v2
+   * cascades are mirrored by the Channel's decoration instead.
+   *
+   * @memberof Channel
+   */
   forwardAppCtx(ac, control) {
     // Stryker disable all: optional debug logging
     this._debug &&
@@ -131,26 +165,23 @@ export default class Channel {
         control,
       );
     // Stryker restore all
+    this._mirror(ac, control);
+    this._network.setAppCtxControl(ac, control, (a, c) =>
+      this.forwardAppCtx(a, c),
+    );
+  }
+
+  _mirror(ac, control) {
     if (control.channelId === this._channelId) {
       // Stryker disable all: optional debug logging
       this._debug &&
         console.log(
-          `channel{${this._channelId}}::forwardAppCtx::control check passed`,
+          `channel{${this._channelId}}::mirroring::ac:`,
+          ac.unwrapCtx(),
         );
       // Stryker restore all
       this._channel.setAppCtxControl(ac, control, (a) => this.setAppCtx(a));
     }
-    // Stryker disable all: optional debug logging
-    this._debug &&
-      console.log(
-        `channel{${
-          this._channelId
-        }}::forwardAppCtx::calling network.setAppCtxControl`,
-      );
-    // Stryker restore all
-    this._network.setAppCtxControl(ac, control, (a, c) =>
-      this.forwardAppCtx(a, c),
-    );
   }
 
   handleAppCon(handler, ac, forwardAppCtx, control) {
