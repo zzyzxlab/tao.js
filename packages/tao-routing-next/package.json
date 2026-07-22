@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/routing-next",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Next.js adapter: route entry signals into a TAO Kernel",
   "homepage": "https://tao.js.org/",
   "repository": {

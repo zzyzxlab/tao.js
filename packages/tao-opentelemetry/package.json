@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/opentelemetry",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "OpenTelemetry exporter for tao.js signal traces — maps @tao.js/telemetry records to OTel spans with causal parentage",
   "homepage": "https://tao.js.org/",
   "repository": {

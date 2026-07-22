@@ -1,3 +1,16 @@
+## 0.18.0 (2026-07-22)
+
+### 🚀 Features
+
+- **core:** signal envelope, network decorations, and @tao.js/telemetry ([#59](https://github.com/zzyzxlab/tao.js/pull/59))
+- **routing:** routing-core + host-router adapters ([#58](https://github.com/zzyzxlab/tao.js/pull/58))
+
+### ❤️ Thank You
+
+- Claude Fable 5
+- Cursor @cursoragent
+- Jeff Hoffer @eudaimos
+
 ## 0.17.0 (2026-07-18)
 
 ### 🚀 Features
