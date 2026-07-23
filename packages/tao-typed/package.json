@@ -1,0 +1,37 @@
+{
+  "name": "@tao.js/typed",
+  "version": "0.19.1",
+  "description": "TypeScript-first wrapper for tao.js - typed trigram vocabularies: each protocol message is a typed signal fusing trigram + datagram; translation to the untyped Kernel underneath",
+  "homepage": "https://tao.js.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzyzxlab/tao.js.git",
+    "directory": "packages/tao-typed"
+  },
+  "main": "lib/index.js",
+  "module": "dist/index.js",
+  "types": "lib/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "scripts": {
+    "build:clean": "rimraf dist lib",
+    "build:package": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json",
+    "build": "npm run build:clean && npm run build:package",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
+  },
+  "author": "eudaimos",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@tao.js/core": ">=0.20.0"
+  },
+  "devDependencies": {
+    "@tao.js/core": "file:../tao",
+    "@tao.js/telemetry": "file:../tao-telemetry"
+  }
+}

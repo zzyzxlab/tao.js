@@ -72,21 +72,21 @@
     "@tao.js/core": "file:packages/tao",
     "@tao.js/feature": "file:packages/tao-feature",
     "@tao.js/koa": "file:packages/koa-tao",
+    "@tao.js/opentelemetry": "file:packages/tao-opentelemetry",
     "@tao.js/path": "file:packages/tao-path",
     "@tao.js/react": "file:packages/react-tao",
     "@tao.js/router": "file:packages/tao-router",
-    "@tao.js/opentelemetry": "file:packages/tao-opentelemetry",
     "@tao.js/routing-core": "file:packages/tao-routing-core",
     "@tao.js/routing-next": "file:packages/tao-routing-next",
     "@tao.js/routing-react-router": "file:packages/tao-routing-react-router",
     "@tao.js/routing-tanstack-router": "file:packages/tao-routing-tanstack",
     "@tao.js/socket.io": "file:packages/tao-socket-io",
+    "@tao.js/telemetry": "file:packages/tao-telemetry",
+    "@tao.js/transport-tck": "file:packages/tao-transport-tck",
     "@tao.js/utils": "file:packages/tao-utils",
     "docs": "file:packages/docs",
     "patois.api": "file:examples/patois.api",
-    "patois.web": "file:examples/patois.web",
-    "@tao.js/telemetry": "file:packages/tao-telemetry",
-    "@tao.js/transport-tck": "file:packages/tao-transport-tck"
+    "patois.web": "file:examples/patois.web"
   },
   "devDependencies": {
     "@babel/cli": "7.1.5",
@@ -99,6 +99,7 @@
     "@babel/plugin-transform-object-rest-spread": "^7.28.0",
     "@babel/preset-env": "7.28.0",
     "@babel/preset-react": "7.27.1",
+    "@babel/preset-typescript": "^8.0.1",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.32.0",
     "@jest/globals": "^30.1.2",
@@ -145,7 +146,9 @@
     "rollup": "4.62.2",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4"
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "ts-jest": "^29.4.12",
+    "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
 }
