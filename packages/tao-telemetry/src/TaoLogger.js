@@ -1,3 +1,44 @@
+/**
+ * Runtime control surface returned by {@link TaoLogger}. Every option is
+ * live-switchable after construction.
+ *
+ * @typedef {Object} TaoLoggerControls
+ * @property {function(Object, Object): void} handler - the signal handler to
+ *           attach (full-wildcard intercept idiom); receives `(tao, data)`
+ *           and always returns undefined — pure observation, never halts
+ * @property {function(boolean): void} doLogging - toggle logging entirely
+ * @property {function(boolean): void} verbose - toggle datagram logging
+ * @property {function(?number): void} depth - set the inspection depth
+ * @property {function(boolean): void} group - toggle grouped output
+ * @property {function(Object): void} setLogger - swap the console-like target
+ * @property {function(?function(*, number): *): void} setInspect - swap the
+ *           object formatter
+ */
+
+/**
+ * The classic live signal logger (moved here from `@tao.js/utils`): logs
+ * each signal's trigram — and, when verbose or grouped, the t/a/o portions
+ * of its datagram — as it dispatches. Attach the returned `handler` as a
+ * full-wildcard intercept: `TAO.addInterceptHandler({}, logger.handler)`.
+ *
+ * Shows the sequence of signals; the `Tracer` shows their causality.
+ *
+ * @export
+ * @param {boolean} [doLogging=true] - master switch; the handler is a no-op
+ *        when false
+ * @param {Object} [opts]
+ * @param {boolean} [opts.verbose=false] - also log the datagram portions
+ *        (grouped output always does)
+ * @param {?number} [opts.depth=0] - depth handed to `inspect`; when unset the
+ *        datagram portions are logged raw
+ * @param {boolean} [opts.group=false] - wrap each signal in
+ *        `logger.groupCollapsed` / `logger.groupEnd`
+ * @param {{ info: function, groupCollapsed?: function, groupEnd?: function }} [opts.logger=console] -
+ *        console-like target
+ * @param {?function(*, number): *} [opts.inspect] - object formatter (e.g.
+ *        `util.inspect`) applied to each datagram portion at `depth`
+ * @returns {TaoLoggerControls}
+ */
 export function TaoLogger(
   doLogging = true,
   {

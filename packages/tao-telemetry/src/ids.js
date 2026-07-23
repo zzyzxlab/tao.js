@@ -4,6 +4,14 @@ const TRACE_ID_RX = /^[0-9a-f]{32}$/;
 const SPAN_ID_RX = /^[0-9a-f]{16}$/;
 const VERSION_RX = /^[0-9a-f]{2}$/;
 
+/**
+ * Produce `chars` random lowercase hex characters, cryptographically strong
+ * when the platform provides `crypto.getRandomValues` (Math.random fallback
+ * for exotic embedders).
+ *
+ * @param {number} chars - even count of hex characters to produce
+ * @returns {string}
+ */
 function randomHex(chars) {
   // Stryker disable next-line ConditionalExpression,StringLiteral: equivalent - globalThis always exists in every runnable JS environment we can test; the guard is for exotic embedders
   const cryptoObj = typeof globalThis !== 'undefined' && globalThis.crypto;
@@ -24,7 +32,10 @@ function randomHex(chars) {
 }
 
 /**
- * Generate a new W3C-compatible trace id (32 lowercase hex chars, non-zero).
+ * Generate a new W3C-compatible trace id (32 lowercase hex chars; the
+ * all-zero id is invalid per Trace Context and is never produced).
+ *
+ * @returns {string}
  */
 export function newTraceId() {
   let id;
@@ -35,7 +46,10 @@ export function newTraceId() {
 }
 
 /**
- * Generate a new W3C-compatible span/signal id (16 lowercase hex chars, non-zero).
+ * Generate a new W3C-compatible span/signal id (16 lowercase hex chars; the
+ * all-zero id is invalid per Trace Context and is never produced).
+ *
+ * @returns {string}
  */
 export function newSignalId() {
   let id;
@@ -46,9 +60,11 @@ export function newSignalId() {
 }
 
 /**
- * Format a signal stamp or record as a W3C `traceparent` header value.
+ * Format a signal stamp or record as a W3C `traceparent` header value:
+ * `00-<traceId>-<signalId>-01` (version `00`, flags `01` = sampled).
  *
- * @param {{ traceId: string, signalId: string }} stamp
+ * @param {{ traceId: string, signalId: string }} stamp - a chain stamp or a
+ *        `TraceRecord` (structurally compatible)
  * @returns {string} e.g. `00-<32 hex>-<16 hex>-01`
  */
 export function toTraceparent({ traceId, signalId }) {
@@ -57,6 +73,12 @@ export function toTraceparent({ traceId, signalId }) {
 
 /**
  * Parse a W3C `traceparent` header value into trace continuation context.
+ *
+ * Tolerant per the Trace Context spec: case and surrounding whitespace are
+ * normalized, and future versions with extra dash-separated fields are
+ * accepted (at least 4 parts; extras ignored). Rejected as malformed: a
+ * non-hex or forbidden (`ff`) version, and non-hex, wrong-length, or
+ * all-zero trace/parent ids.
  *
  * @param {string} header
  * @returns {{ traceId: string, parentId: string } | null} null when malformed

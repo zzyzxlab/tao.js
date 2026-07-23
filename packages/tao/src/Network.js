@@ -4,7 +4,83 @@ import AppCtx from './AppCtx';
 import AppCtxHandlers from './AppCtxHandlers';
 import { _cleanAC, _validateHandler } from './utils';
 
+/** @typedef {import('./AppCtxRoot').Trigram} Trigram */
+/** @typedef {import('./AppCtxHandlers').Handler} Handler */
+
+/**
+ * The per-dispatch envelope (ENVELOPE-SPEC.md §4): three scopes with
+ * explicit lifetimes. Handlers never see it — only decorations and
+ * adapters do.
+ *
+ * @typedef {Object} Envelope
+ * @property {Object} cascade - cascade lifetime: one shared mutable
+ *           reference for the whole cascade (the `control` object).
+ *           Adapter affinity keys (`channelId`, transponder
+ *           `signal`/`signalled`, …) live here as top-level properties.
+ *           Never crosses a process boundary
+ * @property {Object} hop - single-hop lifetime, replaced on every hop:
+ *           entry hops carry caller-supplied values (e.g. `Source`'s
+ *           `source` echo-suppression marker) and never `via`; chained
+ *           hops carry `{ via }` — the phase constant that produced them.
+ *           Boundary-local
+ * @property {Object} chain - derived parent→child on each hop by the
+ *           registered reducers, keyed by reducer namespace.
+ *           JSON-serializable by design — the only scope that crosses a
+ *           process boundary (§9)
+ */
+
+/**
+ * Continuation that chains an AppCtx onto the current cascade — the hop
+ * engine's own forward, or the `enter()`/`mirror()` override. Handler
+ * returns are handed to it by `AppCtxHandlers.handleAppCon`; non-AppCtx
+ * values are ignored, and wildcard AppCtxs are dropped unless the network
+ * allows wildcards (parity with `Kernel.setAppCtx`).
+ *
+ * @callback Forward
+ * @param {AppCtx} chainedAc - the AppCtx to dispatch as the next hop
+ * @param {Object} [control] - legacy call-shape parity; ignored by the core
+ *        forward (the cascade is already threaded via the envelope)
+ * @param {string} [via] - the producing phase constant, stamped as
+ *        `hop.via` on the chained hop
+ * @returns {void}
+ */
+
+/**
+ * An additive, non-competitive Network decoration (ENVELOPE-SPEC.md §5).
+ * All capabilities are optional but at least one is required; a throwing
+ * decoration callback never breaks dispatch.
+ *
+ * @typedef {Object} DecorationSpec
+ * @property {string} [name] - diagnostic label
+ * @property {(ac: AppCtx, envelope: Envelope, handler: AppCtxHandlers, forward: Forward) => void} [onDispatch]
+ *           observe every dispatch; `forward(chainedAc)` continues this
+ *           hop's cascade through the core hop engine
+ * @property {(nextAc: AppCtx, envelope: Envelope, meta: {from: Envelope, forward: Forward}) => void} [onForward]
+ *           mirror/route a chained AppCon before core dispatches it;
+ *           `meta.from` is the producing hop's envelope and
+ *           `meta.forward(chainedAc)` continues the cascade from the
+ *           chained hop; must never re-enter the main dispatch
+ * @property {(phase: string, value: any, ac: AppCtx, envelope: Envelope) => void} [onReturn]
+ *           settle non-AppCtx handler returns and errors (phase is one of
+ *           the INTERCEPT/ASYNC/INLINE/ERROR constants)
+ * @property {(ac: AppCtx, envelope: Envelope) => void} [onProceed]
+ *           fires when the intercept phase passes without halting or
+ *           diverting, before async/inline run (veto-respecting emitters)
+ * @property {{key: string, next: (prev: any, ac: AppCtx, prevEnvelope: Envelope | null) => any}} [chain]
+ *           per-hop reducer for `envelope.chain[key]`; `next(prev, ac,
+ *           prevEnvelope)` receives the parent hop's value for `key` and
+ *           the parent hop's envelope (both empty/null at entry). Keys are
+ *           exclusive per network
+ */
+
 // Stryker disable all: multi-axis leaf/wildcard indexing is redundant; single-axis mutants are equivalent
+/**
+ * Collect leaf groups from one axis index into `leavesTo` — the groups
+ * under `taoism`, or every group when the part is wild.
+ * @param {Map<string, Set<AppCtxHandlers>>} leavesFrom - one axis of the leaf index
+ * @param {Set<AppCtxHandlers>} leavesTo - accumulator
+ * @param {string} [taoism] - the trigram part value (falsy = wild)
+ */
 function _appendLeaves(leavesFrom, leavesTo, taoism) {
   if (taoism) {
     if (leavesFrom.has(taoism) && leavesFrom.get(taoism).size) {
@@ -17,6 +93,13 @@ function _appendLeaves(leavesFrom, leavesTo, taoism) {
   }
 }
 
+/**
+ * Collect wildcard groups from one axis index into `wildcardsTo` — the
+ * groups under `taoism` plus the groups indexed under WILDCARD itself.
+ * @param {Map<string, Set<AppCtxHandlers>>} wildcardsFrom - one axis of the wildcard index
+ * @param {Set<AppCtxHandlers>} wildcardsTo - accumulator
+ * @param {string} taoism - the trigram part value
+ */
 function _appendWildcards(wildcardsFrom, wildcardsTo, taoism) {
   if (wildcardsFrom.has(taoism)) {
     wildcardsFrom.get(taoism).forEach((wc) => wildcardsTo.add(wc));
@@ -26,6 +109,12 @@ function _appendWildcards(wildcardsFrom, wildcardsTo, taoism) {
   }
 }
 
+/**
+ * Index a concrete group under one axis value of the leaf index.
+ * @param {Map<string, Set<AppCtxHandlers>>} leaves - one axis of the leaf index
+ * @param {string} taoism - the trigram part value
+ * @param {AppCtxHandlers} ach - the concrete group
+ */
 function _addLeaf(leaves, taoism, ach) {
   if (!leaves.has(taoism)) {
     leaves.set(taoism, new Set());
@@ -34,6 +123,12 @@ function _addLeaf(leaves, taoism, ach) {
 }
 // Stryker restore all
 
+/**
+ * Index a wildcard group under one axis value of the wildcard index.
+ * @param {Map<string, Set<AppCtxHandlers>>} wildcards - one axis of the wildcard index
+ * @param {string} taoism - the trigram part value (WILDCARD for a wild part)
+ * @param {AppCtxHandlers} ach - the wildcard group
+ */
 function _addWildcard(wildcards, taoism, ach) {
   if (!wildcards.has(taoism)) {
     wildcards.set(taoism, new Set());
@@ -41,6 +136,17 @@ function _addWildcard(wildcards, taoism, ach) {
   wildcards.get(taoism).add(ach);
 }
 
+/**
+ * Get or create the AppCtxHandlers group for a trigram, wiring the
+ * wildcard↔leaf cross-links on creation (a new wildcard group adopts all
+ * matching leaves; a new concrete group is adopted by matching wildcards).
+ * @param {Network} tao - the owning network (unused; kept for call-shape)
+ * @param {Map<string, AppCtxHandlers>} taoHandlers - groups by trigram key
+ * @param {{t: Map, a: Map, o: Map}} taoLeaves - per-axis leaf index
+ * @param {{t: Map, a: Map, o: Map}} taoWildcards - per-axis wildcard index
+ * @param {{term: (string|undefined), action: (string|undefined), orient: (string|undefined)}} trigram - long-key trigram (from `_cleanAC`)
+ * @returns {AppCtxHandlers}
+ */
 function _addACHandler(
   tao,
   taoHandlers,
@@ -86,6 +192,14 @@ function _addACHandler(
   return ach;
 }
 
+/**
+ * Remove a handler of the given phase from the group for a trigram, if
+ * that group exists.
+ * @param {Map<string, AppCtxHandlers>} taoHandlers - groups by trigram key
+ * @param {{term: (string|undefined), action: (string|undefined), orient: (string|undefined)}} trigram - long-key trigram (from `_cleanAC`)
+ * @param {Handler} handler
+ * @param {string} type - INTERCEPT, ASYNC, or INLINE constant
+ */
 function _removeHandler(taoHandlers, { term, action, orient }, handler, type) {
   _validateHandler(handler);
   // guard is currently impossible to hit so removing to get 100% test coverage
@@ -113,7 +227,19 @@ function _removeHandler(taoHandlers, { term, action, orient }, handler, type) {
 //   );
 // }
 
+/**
+ * The wiring surface of the TAO: a trigram-indexed handler registry plus
+ * the envelope hop engine. `enter()` is the only dispatch gate and
+ * `decorate()` the only extension surface (ENVELOPE-SPEC.md). Application
+ * code should use a Kernel; adapters (utils, bridges) compose against the
+ * Network.
+ */
 export default class Network {
+  /**
+   * @param {boolean} [canSetWildcard=false] - allow wildcard AppCtxs
+   *        chained by handlers to dispatch (parity with the owning
+   *        Kernel's setting); coerced to boolean
+   */
   constructor(canSetWildcard = false) {
     this._handlers = new Map();
     this._leaves = {
@@ -152,7 +278,10 @@ export default class Network {
    *
    * A throwing decorator callback never breaks dispatch.
    *
-   * @returns {function} dispose - removes the decoration
+   * @param {DecorationSpec} spec
+   * @returns {() => void} dispose - removes the decoration
+   * @throws {Error} on a malformed spec, a spec with no capability, or a
+   *         `chain.key` already reduced on this network
    * @memberof Network
    */
   decorate(spec) {
@@ -218,14 +347,17 @@ export default class Network {
    * @param {Object} [opts]
    * @param {Object} [opts.cascade] - shared for the whole cascade (the
    *        `control` object; same reference every hop)
-   * @param {Object} [opts.hop] - entry-hop values; hops after the entry get {}
-   * @param {Object} [opts.chain] - prior chain state to continue (e.g. from a
-   *        remote process); reducers derive the entry's chain from it
-   * @param {function} [opts.forward] - network-composition plumbing: routes
+   * @param {Object} [opts.hop] - entry-hop values; hops after the entry get
+   *        a fresh hop carrying only `via` (the producing phase)
+   * @param {?Object} [opts.chain] - prior chain state to continue (e.g.
+   *        from a remote process); reducers derive the entry's chain from it
+   * @param {Forward} [opts.forward] - network-composition plumbing: routes
    *        handler-returned AppCons to the given continuation instead of this
    *        network's own hop engine. Used by adapters that mirror a cascade
    *        onto a private network while its chains continue on the main one
    *        (Channel, Transceiver); not an application-level surface
+   * @returns {void}
+   * @throws {Error} when `appCtx` is not an AppCtx instance
    * @memberof Network
    */
   enter(appCtx, { cascade = {}, hop = {}, chain = null, forward } = {}) {
@@ -252,8 +384,10 @@ export default class Network {
    * should follow (normally the mirroring hop's `meta.forward`).
    *
    * @param {AppCtx} appCtx
-   * @param {Object} envelope - the observed `{ cascade, hop, chain }`
-   * @param {function} [forward]
+   * @param {Envelope} envelope - the observed `{ cascade, hop, chain }`
+   * @param {Forward} [forward]
+   * @returns {void}
+   * @throws {Error} when `appCtx` is not an AppCtx or `envelope` is missing
    * @memberof Network
    */
   mirror(appCtx, envelope, forward) {
@@ -270,6 +404,14 @@ export default class Network {
     );
   }
 
+  /**
+   * Run one hop: resolve (or lazily create) the handler group for the
+   * AppCtx's key, notify `onDispatch` decorations, then execute the phases.
+   * @param {AppCtx} appCtx
+   * @param {Envelope} envelope - this hop's envelope
+   * @param {Forward} [forward] - continuation override for chained AppCtxs;
+   *        defaults to this network's hop engine
+   */
   _dispatch(appCtx, envelope, forward) {
     const isWild = appCtx.isWildcard;
     if (!this._handlers.has(appCtx.key) && !isWild) {
@@ -293,6 +435,14 @@ export default class Network {
     handler.handleAppCon(appCtx, coreForward, envelope.cascade, hooks);
   }
 
+  /**
+   * The hop engine: derive the chained hop's envelope (shared cascade,
+   * `{ via }` hop, reduced chain), notify `onForward` decorations, then
+   * dispatch the chained AppCtx exactly once.
+   * @param {AppCtx} nextAc - the chained AppCtx (non-AppCtx values ignored)
+   * @param {Envelope} prevEnvelope - the producing hop's envelope
+   * @param {string} [via] - the phase constant that produced the chain
+   */
   _forwardNext(nextAc, prevEnvelope, via) {
     // guard parity with the legacy NOOP forward: handlers may hand the core
     // forward non-AppCtx values
@@ -327,6 +477,15 @@ export default class Network {
     this._dispatch(nextAc, nextEnvelope);
   }
 
+  /**
+   * Derive a hop's chain scope by running every registered reducer against
+   * the parent's value under its own key; a throwing reducer contributes
+   * nothing.
+   * @param {?Object} prevChain - the parent hop's chain (null at entry)
+   * @param {AppCtx} ac - the AppCtx being dispatched
+   * @param {?Envelope} prevEnvelope - the parent hop's envelope (null at entry)
+   * @returns {Object} the new chain, keyed by reducer namespace
+   */
   _reduceChain(prevChain, ac, prevEnvelope) {
     const next = {};
     for (const [key, reduceNext] of this._chainReducers) {
@@ -343,6 +502,15 @@ export default class Network {
     return next;
   }
 
+  /**
+   * Bridge `onReturn`/`onProceed` decorations into the settlement hooks
+   * `AppCtxHandlers.handleAppCon` accepts; undefined when no decoration
+   * needs them. Each decoration call is guarded — a throw never breaks
+   * dispatch.
+   * @param {AppCtx} appCtx - the AppCtx being dispatched
+   * @param {Envelope} envelope - this hop's envelope (appended to each call)
+   * @returns {{onReturn?: (phase: string, value: any, ac: AppCtx) => void, onProceed?: () => void}|undefined}
+   */
   _buildHooks(appCtx, envelope) {
     let settlers = null;
     let proceeders = null;
@@ -393,6 +561,14 @@ export default class Network {
     return hooks;
   }
 
+  /**
+   * Invoke every decoration's `onDispatch` in registration order, guarding
+   * against throws.
+   * @param {AppCtx} appCtx
+   * @param {Envelope} envelope
+   * @param {AppCtxHandlers} handler - the group about to execute
+   * @param {Forward} forward - the continuation for this hop's chains
+   */
   _notifyDispatch(appCtx, envelope, handler, forward) {
     for (const decorator of this._decorators) {
       // Stryker disable next-line ConditionalExpression: equivalent - calling a missing onDispatch throws inside the guarded try, so observable behavior is identical
@@ -406,6 +582,11 @@ export default class Network {
     }
   }
 
+  /**
+   * An independent Network with every handler registration copied across
+   * all three phases. Decorations and chain reducers are not copied.
+   * @returns {Network}
+   */
   clone() {
     const cloned = new Network(this._canSetWildcard);
     for (let trigram of this._handlers.values()) {
@@ -422,6 +603,14 @@ export default class Network {
     return cloned;
   }
 
+  /**
+   * Register an intercept-phase handler for a trigram (omitted parts are
+   * wildcards).
+   * @param {Trigram} trigram
+   * @param {Handler} handler
+   * @returns {Network} this
+   * @throws {Error} when `handler` is missing or not a function
+   */
   addInterceptHandler({ t, term, a, action, o, orient }, handler) {
     _validateHandler(handler);
     const ach = _addACHandler(
@@ -435,6 +624,14 @@ export default class Network {
     return this;
   }
 
+  /**
+   * Register an async-phase handler for a trigram (omitted parts are
+   * wildcards).
+   * @param {Trigram} trigram
+   * @param {Handler} handler
+   * @returns {Network} this
+   * @throws {Error} when `handler` is missing or not a function
+   */
   addAsyncHandler({ t, term, a, action, o, orient }, handler) {
     _validateHandler(handler);
     const ach = _addACHandler(
@@ -448,6 +645,14 @@ export default class Network {
     return this;
   }
 
+  /**
+   * Register an inline-phase handler for a trigram (omitted parts are
+   * wildcards).
+   * @param {Trigram} trigram
+   * @param {Handler} handler
+   * @returns {Network} this
+   * @throws {Error} when `handler` is missing or not a function
+   */
   addInlineHandler({ t, term, a, action, o, orient }, handler) {
     _validateHandler(handler);
     const ach = _addACHandler(
@@ -461,6 +666,15 @@ export default class Network {
     return this;
   }
 
+  /**
+   * Unregister a handler for a trigram from one phase, or from all three
+   * when `type` is omitted.
+   * @param {Trigram} trigram
+   * @param {Handler} handler
+   * @param {string} [type] - INTERCEPT, ASYNC, or INLINE constant
+   * @returns {Network} this
+   * @throws {Error} when `handler` is missing or not a function
+   */
   removeHandler({ t, term, a, action, o, orient }, handler, type) {
     const ac = _cleanAC({ t, term, a, action, o, orient });
     if (type) {
@@ -473,6 +687,13 @@ export default class Network {
     return this;
   }
 
+  /**
+   * Unregister an intercept-phase handler for a trigram.
+   * @param {Trigram} trigram
+   * @param {Handler} handler
+   * @returns {Network} this
+   * @throws {Error} when `handler` is missing or not a function
+   */
   removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
     _removeHandler(
       this._handlers,
@@ -483,6 +704,13 @@ export default class Network {
     return this;
   }
 
+  /**
+   * Unregister an async-phase handler for a trigram.
+   * @param {Trigram} trigram
+   * @param {Handler} handler
+   * @returns {Network} this
+   * @throws {Error} when `handler` is missing or not a function
+   */
   removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
     _removeHandler(
       this._handlers,
@@ -493,6 +721,13 @@ export default class Network {
     return this;
   }
 
+  /**
+   * Unregister an inline-phase handler for a trigram.
+   * @param {Trigram} trigram
+   * @param {Handler} handler
+   * @returns {Network} this
+   * @throws {Error} when `handler` is missing or not a function
+   */
   removeInlineHandler({ t, term, a, action, o, orient }, handler) {
     _removeHandler(
       this._handlers,

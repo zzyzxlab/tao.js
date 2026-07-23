@@ -3,12 +3,45 @@ import AppCtx from './AppCtx';
 import { INTERCEPT, ASYNC, INLINE, ERROR } from './constants';
 import { isIterable } from './utils';
 
+/** @typedef {import('./Network').Forward} Forward */
+
+/**
+ * A TAO handler: receives the concrete trigram (short keys) and the
+ * signal's data (always an object, possibly empty). Returning — or
+ * resolving to — an AppCtx chains that context onto the cascade. Other
+ * returns are phase-dependent: a truthy intercept return halts the signal;
+ * non-null async/inline returns go to settlement (`onReturn`) when hooks
+ * are attached, and are otherwise discarded.
+ *
+ * @callback Handler
+ * @param {{t: string, a: string, o: string}} tao - the trigram being handled
+ * @param {Object} data - the context data (never null/undefined)
+ * @returns {AppCtx|Promise<AppCtx>|*}
+ */
+
+/**
+ * Local no-op console standing in for the loop's debug logging.
+ * @type {{error: (...args: any[]) => void, log: (...args: any[]) => void}}
+ */
 const console = {
   error: () => 1,
   log: () => 1,
 };
 
+/**
+ * The handler group for one trigram key: holds the intercept/async/inline
+ * handler sets and runs the three-phase dispatch for matching AppCons.
+ * Wildcard groups track their concrete "leaf" groups and propagate handler
+ * add/remove to them, so dispatch only ever executes a concrete group.
+ */
 export default class AppCtxHandlers extends AppCtxRoot {
+  /**
+   * @param {string} [term] - the term (missing = WILDCARD)
+   * @param {string} [action] - the action (missing = WILDCARD)
+   * @param {string} [orient] - the orient (missing = WILDCARD)
+   * @param {Iterable<AppCtxHandlers>} [leafAppConHandlers] - initial concrete
+   *        leaf groups this (wildcard) group propagates its handlers to
+   */
   constructor(term, action, orient, leafAppConHandlers) {
     super(term, action, orient);
 
@@ -18,6 +51,13 @@ export default class AppCtxHandlers extends AppCtxRoot {
     this._inline = new Set();
   }
 
+  /**
+   * Track a concrete leaf group under this wildcard group (no-op unless this
+   * group is wild, the leaf is concrete, and the leaf matches this trigram)
+   * and copy this group's current handlers onto it.
+   * @param {AppCtxHandlers} leafAch
+   * @throws {Error} when `leafAch` is not an AppCtxHandlers
+   */
   addLeafHandler(leafAch) {
     if (!(leafAch instanceof AppCtxHandlers)) {
       throw new Error("'leafAch' is not an instance of AppCtxHandlers");
@@ -39,6 +79,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
     }
   }
 
+  /**
+   * Add one leaf group or an iterable of them via {@link AppCtxHandlers#addLeafHandler}.
+   * @param {AppCtxHandlers|Iterable<AppCtxHandlers>} leafAches
+   */
   addLeafHandlers(leafAches) {
     if (!isIterable(leafAches)) {
       this.addLeafHandler(leafAches);
@@ -49,6 +93,11 @@ export default class AppCtxHandlers extends AppCtxRoot {
     }
   }
 
+  /**
+   * Register an intercept-phase handler (propagates to leaf groups).
+   * @param {Handler} handler
+   * @throws {Error} when `handler` is not a function
+   */
   addInterceptHandler(handler) {
     if (typeof handler !== 'function') {
       throw new Error('An InterceptHandler can only be a function');
@@ -59,6 +108,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
     );
   }
 
+  /**
+   * Unregister an intercept-phase handler (propagates to leaf groups).
+   * @param {Handler} handler
+   */
   removeInterceptHandler(handler) {
     this._intercept.delete(handler);
     this._leafAppConHandlers.forEach((leafAch) =>
@@ -66,6 +119,11 @@ export default class AppCtxHandlers extends AppCtxRoot {
     );
   }
 
+  /**
+   * Register an async-phase handler (propagates to leaf groups).
+   * @param {Handler} handler
+   * @throws {Error} when `handler` is not a function
+   */
   addAsyncHandler(handler) {
     if (typeof handler !== 'function') {
       throw new Error('An AsyncHandler can only be a function');
@@ -76,6 +134,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
     );
   }
 
+  /**
+   * Unregister an async-phase handler (propagates to leaf groups).
+   * @param {Handler} handler
+   */
   removeAsyncHandler(handler) {
     this._async.delete(handler);
     this._leafAppConHandlers.forEach((leafAch) =>
@@ -83,6 +145,11 @@ export default class AppCtxHandlers extends AppCtxRoot {
     );
   }
 
+  /**
+   * Register an inline-phase handler (propagates to leaf groups).
+   * @param {Handler} handler
+   * @throws {Error} when `handler` is not a function
+   */
   addInlineHandler(handler) {
     if (typeof handler !== 'function') {
       throw new Error('An InlineHandler can only be a function');
@@ -93,6 +160,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
     );
   }
 
+  /**
+   * Unregister an inline-phase handler (propagates to leaf groups).
+   * @param {Handler} handler
+   */
   removeInlineHandler(handler) {
     this._inline.delete(handler);
     this._leafAppConHandlers.forEach((leafAch) =>
@@ -103,14 +174,17 @@ export default class AppCtxHandlers extends AppCtxRoot {
   // Might need but removing to have accurate code coverage metric
   // populateHandlersFromWildcards() {}
 
+  /** The registered intercept handlers. @returns {IterableIterator<Handler>} */
   get interceptHandlers() {
     return this._intercept.values();
   }
 
+  /** The registered async handlers. @returns {IterableIterator<Handler>} */
   get asyncHandlers() {
     return this._async.values();
   }
 
+  /** The registered inline handlers. @returns {IterableIterator<Handler>} */
   get inlineHandlers() {
     return this._inline.values();
   }
@@ -129,6 +203,18 @@ export default class AppCtxHandlers extends AppCtxRoot {
    *
    * `setAppCtx` receives the producing phase as a third argument so the
    * hop engine can stamp `hop.via` on chained hops (§4).
+   *
+   * @param {AppCtx} ac - the Application Context to handle
+   * @param {Forward} setAppCtx - continuation for handler-chained AppCtxs
+   *        (the hop engine's forward, or an adapter override); called as
+   *        `setAppCtx(nextAc, control, phase)`
+   * @param {Object} control - the cascade scope (`envelope.cascade`), passed
+   *        through to `setAppCtx`
+   * @param {{onReturn?: (phase: string, value: any, ac: AppCtx) => void, onProceed?: () => void}} [hooks]
+   *        settlement hooks built by the Network from decorations
+   * @returns {Promise<void>} settles after the intercept and inline phases
+   *        complete (async handlers are forked, not awaited); rejects on a
+   *        dispatch error only when no `onReturn` hook is present
    */
   async handleAppCon(ac, setAppCtx, control, hooks) {
     const { t, a, o, data } = ac;
@@ -157,6 +243,21 @@ export default class AppCtxHandlers extends AppCtxRoot {
     }
   }
 
+  /**
+   * Run the three phases in order: await intercepts (halt/divert
+   * short-circuits), fork async handlers, await inline handlers, settle
+   * inline returns, then set the spooled chained AppCtxs.
+   *
+   * @param {AppCtx} ac - the Application Context being handled
+   * @param {Forward} setAppCtx - continuation for chained AppCtxs
+   * @param {Object} control - the cascade scope, threaded to `setAppCtx`
+   * @param {((phase: string, value: any, ac: AppCtx) => void)|null} onReturn - settlement sink
+   * @param {(() => void)|null} onProceed - intercept-phase-passed hook
+   * @param {string} t - the term (from `ac`)
+   * @param {string} a - the action (from `ac`)
+   * @param {string} o - the orient (from `ac`)
+   * @param {Object} data - the context data (from `ac`)
+   */
   async _handlePhases(
     ac,
     setAppCtx,
