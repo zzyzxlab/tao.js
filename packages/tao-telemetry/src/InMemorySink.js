@@ -1,3 +1,22 @@
+/** @typedef {import('./Tracer').TraceRecord} TraceRecord */
+
+/**
+ * A node of the reassembled causal tree returned by
+ * {@link InMemorySink#toTree}.
+ *
+ * @typedef {Object} TraceTreeNode
+ * @property {TraceRecord} record
+ * @property {TraceTreeNode[]} children
+ */
+
+/**
+ * Render one record as a tree-node label: the trigram, its producing phase
+ * when present, and (optionally) its captured data.
+ *
+ * @param {TraceRecord} record
+ * @param {boolean} showData
+ * @returns {string}
+ */
 function nodeLabel(record, showData) {
   let label = `☯ {${record.t}, ${record.a}, ${record.o}}`;
   if (record.via) {
@@ -22,11 +41,26 @@ function nodeLabel(record, showData) {
  * @class InMemorySink
  */
 export default class InMemorySink {
+  /**
+   * Creates an instance of InMemorySink.
+   * @param {Object} [opts]
+   * @param {number} [opts.limit=10000] - ring-buffer capacity: at capacity
+   *        the oldest record is evicted, and its orphaned children surface
+   *        as roots
+   * @memberof InMemorySink
+   */
   constructor({ limit = 10000 } = {}) {
     this._limit = limit;
     this.clear();
   }
 
+  /**
+   * Sink interface: retain one dispatched signal and index it by id and by
+   * parent.
+   *
+   * @param {TraceRecord} record
+   * @memberof InMemorySink
+   */
   signal(record) {
     if (this._records.length >= this._limit) {
       this._evictOldest();
@@ -41,18 +75,47 @@ export default class InMemorySink {
     }
   }
 
+  /**
+   * All retained records in arrival order (a fresh copy).
+   *
+   * @type {TraceRecord[]}
+   * @readonly
+   * @memberof InMemorySink
+   */
   get records() {
     return [...this._records];
   }
 
+  /**
+   * Number of records currently retained.
+   *
+   * @type {number}
+   * @readonly
+   * @memberof InMemorySink
+   */
   get size() {
     return this._records.length;
   }
 
+  /**
+   * Look up a retained record by its signal id.
+   *
+   * @param {string} signalId
+   * @returns {TraceRecord|undefined} undefined when never seen or evicted
+   * @memberof InMemorySink
+   */
   byId(signalId) {
     return this._byId.get(signalId);
   }
 
+  /**
+   * Records chained by the given signal's handlers, in arrival order
+   * (a fresh copy).
+   *
+   * @param {string} signalId
+   * @returns {TraceRecord[]}
+   * @memberof InMemorySink
+   */
   childrenOf(signalId) {
     return [...(this._children.get(signalId) || [])];
   }
@@ -60,6 +123,9 @@ export default class InMemorySink {
   /**
    * Local roots: records with no parent, or whose parent was never seen
    * locally (remote continuation) or has been evicted.
+   *
+   * @returns {TraceRecord[]}
+   * @memberof InMemorySink
    */
   roots() {
     return this._records.filter(
@@ -67,6 +133,12 @@ export default class InMemorySink {
     );
   }
 
+  /**
+   * Reassemble the retained records into causal trees, one per local root.
+   *
+   * @returns {TraceTreeNode[]}
+   * @memberof InMemorySink
+   */
   toTree() {
     const toNode = (record) => ({
       record,
@@ -75,6 +147,15 @@ export default class InMemorySink {
     return this.roots().map(toNode);
   }
 
+  /**
+   * Render the causal trees as an ASCII tree, one line per signal.
+   *
+   * @param {Object} [opts]
+   * @param {boolean} [opts.showData=false] - append each record's captured
+   *        data to its label
+   * @returns {string}
+   * @memberof InMemorySink
+   */
   format({ showData = false } = {}) {
     const lines = [];
     const walk = (node, prefix, childPrefix) => {
@@ -94,12 +175,21 @@ export default class InMemorySink {
     return lines.join('\n');
   }
 
+  /**
+   * Drop every retained record and index.
+   *
+   * @memberof InMemorySink
+   */
   clear() {
     this._records = [];
     this._byId = new Map();
     this._children = new Map();
   }
 
+  /**
+   * Evict the oldest record (ring-buffer overflow), unindexing it from its
+   * parent's children and releasing its own child index.
+   */
   _evictOldest() {
     const evicted = this._records.shift();
     this._byId.delete(evicted.signalId);

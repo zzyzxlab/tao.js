@@ -2,11 +2,49 @@ import { AppCtx } from '@tao.js/core';
 import { newTraceId, newSignalId, parseTraceparent } from './ids';
 
 /**
+ * One traced signal, as delivered to every sink's `signal(record)`.
+ *
+ * A record describes a network dispatch, not a handler execution — a
+ * channel's mirrored dispatch of the same AppCon on its private registry is
+ * not a second record.
+ *
+ * @typedef {Object} TraceRecord
+ * @property {string} traceId - 32 lowercase hex chars (W3C trace id), shared
+ *           by every signal in the causal tree
+ * @property {string} signalId - 16 lowercase hex chars (W3C span id) naming
+ *           this signal
+ * @property {string|null} parentId - `signalId` of the signal whose handler
+ *           chained this one; null for a trace root
+ * @property {string} t - term of the signal's trigram
+ * @property {string} a - action of the signal's trigram
+ * @property {string} o - orient of the signal's trigram
+ * @property {string} key - the trigram's AppCtx key (`t|a|o`)
+ * @property {number} timestamp - ms-epoch time from the tracer's clock
+ * @property {'Intercept'|'Async'|'Inline'} [via] - handler phase that chained
+ *           this signal (ENVELOPE-SPEC.md §4); entry hops carry no `via`
+ * @property {{ intercept: number, async: number, inline: number }} [handlers] -
+ *           counts of handlers matching this trigram (wildcard registrations
+ *           included) on the decorated network at dispatch time; handlers
+ *           attached to Channels' private registries are not counted
+ * @property {*} [data] - the AppCon data, only with the `captureData` option
+ */
+
+/**
  * Namespaced chain key under which trace context is derived per hop by the
- * envelope engine (see ENVELOPE-SPEC.md).
+ * envelope engine (see ENVELOPE-SPEC.md). Chain keys are exclusive — a
+ * Network accepts one reducer per key — so constructing a second Tracer on
+ * the same network throws. This is also the key transports carry across
+ * process boundaries (§9): an inbound W3C `traceparent` maps to
+ * `chain: { [TRACE_CHAIN]: { traceId, signalId } }` on entry.
  */
 export const TRACE_CHAIN = 'taoTrace';
 
+/**
+ * Count a handler iterator without materializing it.
+ *
+ * @param {Iterable<function>} iterator
+ * @returns {number}
+ */
 function countHandlers(iterator) {
   let count = 0;
   for (const handler of iterator) {
@@ -30,13 +68,21 @@ function countHandlers(iterator) {
 export default class Tracer {
   /**
    * Creates an instance of Tracer.
-   * @param {Kernel|Network} kernel - Kernel (or raw Network) whose signals to trace
+   * @param {Object} kernel - Kernel (or Channel, or raw Network) whose signals
+   *        to trace; anything exposing the shared network via `_network`, or a
+   *        Network itself, is decorated
    * @param {Object} [opts]
-   * @param {Array<{signal: function}>} [opts.sinks] - sinks receiving one record per signal
-   * @param {function} [opts.clock] - returns a ms-epoch timestamp (defaults to Date.now)
-   * @param {boolean|function} [opts.captureData] - false (default) omits AppCon data;
-   *        true attaches `ac.data` by reference; a function receives `(data, ac)` and
-   *        its return value is attached (use to redact / clone)
+   * @param {Array<{signal: function(TraceRecord): void}>} [opts.sinks] - sinks
+   *        receiving one record per signal
+   * @param {function(): number} [opts.clock] - returns a ms-epoch timestamp
+   *        (defaults to Date.now)
+   * @param {boolean|function(*, AppCtx): *} [opts.captureData] - false (default)
+   *        omits AppCon data; true attaches `ac.data` by reference; a function
+   *        receives `(data, ac)` and its return value is attached (use to
+   *        redact / clone)
+   * @throws when `kernel` is absent, when the core predates envelope support,
+   *         or when the network's {@link TRACE_CHAIN} chain key is already
+   *         reduced by another decoration (one Tracer per network)
    * @memberof Tracer
    */
   // Stryker disable next-line ArrayDeclaration: junk entries in the sinks default are call-guarded by the per-sink try
@@ -77,6 +123,13 @@ export default class Tracer {
     });
   }
 
+  /**
+   * Attach a sink to receive one {@link TraceRecord} per signal.
+   *
+   * @param {{ signal: function(TraceRecord): void }} sink
+   * @returns {this}
+   * @memberof Tracer
+   */
   addSink(sink) {
     if (!sink || typeof sink.signal !== 'function') {
       throw new Error('a sink must implement signal(record)');
@@ -85,6 +138,13 @@ export default class Tracer {
     return this;
   }
 
+  /**
+   * Detach a previously attached sink (a no-op when not attached).
+   *
+   * @param {{ signal: function(TraceRecord): void }} sink
+   * @returns {this}
+   * @memberof Tracer
+   */
   removeSink(sink) {
     this._sinks.delete(sink);
     return this;
@@ -97,10 +157,15 @@ export default class Tracer {
    * Plain `kernel.setCtx` entries are traced identically — this entry point
    * only adds the continuation capability.
    *
-   * @param {Object} trigram - `{ t, a, o }` or `{ term, action, orient }`
-   * @param {Object} [data]
-   * @param {Object} [traceContext] - `{ traceparent }` (W3C header value) or
-   *        `{ traceId, parentId }` to continue a trace started elsewhere
+   * @param {{ t?: string, a?: string, o?: string, term?: string, action?: string, orient?: string }} trigram -
+   *        `{ t, a, o }` or `{ term, action, orient }` (long forms win when
+   *        both are present)
+   * @param {*} [data]
+   * @param {{ traceparent?: string, traceId?: string, parentId?: string|null }} [traceContext] -
+   *        `{ traceparent }` (W3C header value) or `{ traceId, parentId }` to
+   *        continue a trace started elsewhere: the entry keeps the remote
+   *        `traceId` and is parented to `parentId`. An absent or malformed
+   *        context starts a new root trace instead
    * @memberof Tracer
    */
   setCtx({ t, term, a, action, o, orient }, data, traceContext) {
@@ -113,8 +178,15 @@ export default class Tracer {
   /**
    * Set an AppCtx on the network, optionally continuing a remote trace.
    *
-   * @param {AppCtx} ac
-   * @param {Object} [traceContext]
+   * A continuation seeds the entry's chain with
+   * `{ [TRACE_CHAIN]: { traceId, signalId: parentId } }`, which the chain
+   * reducer treats exactly like a parent hop's stamp — the remote signal
+   * becomes the entry's parent.
+   *
+   * @param {AppCtx} ac - dropped silently when wildcard and the attached
+   *        kernel disallows wildcard entry (parity with `Kernel.setAppCtx`)
+   * @param {{ traceparent?: string, traceId?: string, parentId?: string|null }} [traceContext] -
+   *        see {@link Tracer#setCtx}
    * @memberof Tracer
    */
   setAppCtx(ac, traceContext) {
@@ -137,6 +209,14 @@ export default class Tracer {
     );
   }
 
+  /**
+   * Normalize a continuation context to `{ traceId, parentId }`, preferring
+   * a W3C `traceparent` header when given. Returns null (start a new root)
+   * when absent or malformed.
+   *
+   * @param {{ traceparent?: string, traceId?: string, parentId?: string|null }} [traceContext]
+   * @returns {{ traceId: string, parentId: string|null }|null}
+   */
   _remoteContext(traceContext) {
     if (!traceContext) {
       return null;
@@ -153,6 +233,17 @@ export default class Tracer {
     return null;
   }
 
+  /**
+   * The `onDispatch` observer: assemble one {@link TraceRecord} from the
+   * hop's {@link TRACE_CHAIN} chain stamp and fan it out to every sink.
+   * Handler counts are taken from the matched registry entry at dispatch
+   * time (the decorated main network only); a throwing sink is isolated so
+   * it never breaks signal dispatch.
+   *
+   * @param {AppCtx} ac
+   * @param {{ cascade: Object, hop: Object, chain: Object }} envelope
+   * @param {Object} handler - the matched AppCtxHandlers registry entry
+   */
   _record(ac, envelope, handler) {
     const stamp = envelope.chain[TRACE_CHAIN];
     const record = {

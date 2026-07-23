@@ -1,6 +1,29 @@
 import { AppCtx } from '@tao.js/core';
 import { Tracer, InMemorySink } from '@tao.js/telemetry';
 
+/**
+ * A connected pair of Kernels bridged by the transport under test —
+ * what the `makeLink` factory must produce (a fresh one per check).
+ *
+ * @typedef {Object} Link
+ * @property {Object} a - Kernel on the near side; each check enters signals here
+ * @property {Object} b - Kernel on the far side; entries on `a` must reach it
+ * @property {function(): (void|Promise<void>)} [close] - tear the link down;
+ *           awaited after the check when provided
+ */
+
+/**
+ * Outcome of a single conformance check.
+ *
+ * @typedef {Object} ComplianceResult
+ * @property {string} name - the check's name, stable across releases
+ *           ('delivery', 'echo suppression + bidirectional reflex',
+ *           'multi-hop emission', 'chain continuity', 'cascade scoping')
+ * @property {boolean} pass
+ * @property {string|null} detail - failure explanation (including a thrown
+ *           check's message); null on pass
+ */
+
 const DEFAULT_TIMEOUT = 2000;
 const SETTLE_MS = 25;
 
@@ -8,6 +31,13 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Poll the predicate every 10ms until truthy or the timeout elapses.
+ *
+ * @param {function(): boolean} predicate
+ * @param {number} timeoutMs
+ * @returns {Promise<boolean>} the predicate's final verdict
+ */
 async function waitUntil(predicate, timeoutMs) {
   const deadline = Date.now() + timeoutMs;
   // Stryker disable next-line EqualityOperator: off-by-one on the deadline only shifts the final poll by one interval
@@ -20,6 +50,14 @@ async function waitUntil(predicate, timeoutMs) {
   return predicate();
 }
 
+/**
+ * Like {@link waitUntil}, followed by a settle window so exactly-once
+ * assertions can catch late duplicate deliveries.
+ *
+ * @param {function(): boolean} predicate
+ * @param {number} timeoutMs
+ * @returns {Promise<boolean>}
+ */
 async function settled(predicate, timeoutMs) {
   // reach the condition, then give late (incorrect) deliveries time to land
   const reached = await waitUntil(predicate, timeoutMs);
@@ -27,10 +65,23 @@ async function settled(predicate, timeoutMs) {
   return reached;
 }
 
+/**
+ * Build a probe trigram in the kit's reserved `{ *, run, tck }` namespace.
+ *
+ * @param {string} t
+ * @returns {{ t: string, a: string, o: string }}
+ */
 function trigram(t) {
   return { t, a: 'run', o: 'tck' };
 }
 
+/**
+ * Resolve a link side to its envelope surface (`enter`/`decorate`): the
+ * Kernel's shared network, or the object itself when it already is one.
+ *
+ * @param {Object} kernel
+ * @returns {Object} the underlying Network
+ */
 function surfaceOf(kernel) {
   // Stryker disable next-line all: defensive resolution - the makeLink contract supplies Kernels (no enter), so only the _network branch is reachable
   return typeof kernel.enter === 'function' ? kernel : kernel._network;
@@ -38,7 +89,13 @@ function surfaceOf(kernel) {
 
 /**
  * Delivery: a signal entered on A reaches handlers on B with its trigram and
- * datagram intact.
+ * datagram intact, exactly once. The executable form of the §9 wire envelope
+ * itself — `{ tao: { t, a, o }, data, envelope }` crossing the boundary with
+ * trigram and datagram verbatim, delivered once per hop.
+ *
+ * @param {Link} link
+ * @param {number} timeoutMs
+ * @returns {Promise<string|null>} failure detail, or null on pass
  */
 async function checkDelivery({ a, b }, timeoutMs) {
   const seen = [];
@@ -70,6 +127,14 @@ async function checkDelivery({ a, b }, timeoutMs) {
 /**
  * Echo suppression + bidirectional reflex: the arriving signal is not sent
  * back to its origin, but descendants chained on the receiving side are.
+ * Verifies §10 invariant 4 — descendants of a received signal must be
+ * re-emitted to the sender, because the receiver's `hop.source` marker is
+ * hop-scoped (suppressing only the stamped arrival hop), never
+ * cascade-scoped.
+ *
+ * @param {Link} link
+ * @param {number} timeoutMs
+ * @returns {Promise<string|null>} failure detail, or null on pass
  */
 async function checkReflex({ a, b }, timeoutMs) {
   let aPingDispatches = 0;
@@ -103,7 +168,14 @@ async function checkReflex({ a, b }, timeoutMs) {
 
 /**
  * Multi-hop emission: every hop of a chain produced on the receiving side
- * crosses back, not just the first.
+ * crosses back, not just the first. Verifies §10 invariant 1 — every chained
+ * AppCon is observable on every hop, so the transport's emit path sees (and
+ * forwards) chained signals; losing later hops breaks forwarding of
+ * multi-hop chains.
+ *
+ * @param {Link} link
+ * @param {number} timeoutMs
+ * @returns {Promise<string|null>} failure detail, or null on pass
  */
 async function checkMultiHop({ a, b }, timeoutMs) {
   const arrivals = [];
@@ -140,6 +212,14 @@ async function checkMultiHop({ a, b }, timeoutMs) {
 /**
  * Chain continuity: with a Tracer on both ends, one cascade crossing
  * A→B→A carries one traceId end-to-end with exact cross-process parentage.
+ * Verifies the §9 chain rules — `envelope.chain` crosses the boundary
+ * verbatim and the receiver re-enters with it, so a reducer continues the
+ * `taoTrace` key it owns instead of re-rooting: B's entry parents to A's
+ * emitting hop, and A's continuation parents to B's reply hop.
+ *
+ * @param {Link} link
+ * @param {number} timeoutMs
+ * @returns {Promise<string|null>} failure detail, or null on pass
  */
 async function checkChainContinuity({ a, b }, timeoutMs) {
   const sinkA = new InMemorySink();
@@ -199,7 +279,14 @@ async function checkChainContinuity({ a, b }, timeoutMs) {
 
 /**
  * Cascade scoping: sender-side cascade tags (process-local affinity, live
- * references) must not appear in the receiver's cascade.
+ * references) must not appear in the receiver's cascade. Verifies the §9
+ * rule that `cascade` never crosses a process boundary — the transport must
+ * *translate* affinity, not copy it — which is what keeps the §10 scoping
+ * invariants (2, 3, 7) intact across processes.
+ *
+ * @param {Link} link
+ * @param {number} timeoutMs
+ * @returns {Promise<string|null>} failure detail, or null on pass
  */
 async function checkCascadeScoping({ a, b }, timeoutMs) {
   const cascades = [];
@@ -254,16 +341,18 @@ const CHECKS = [
 ];
 
 /**
- * Run the transport conformance kit (ENVELOPE-SPEC.md §9) against a
- * transport. Framework-agnostic: returns structured results for any test
- * runner.
+ * Run the transport conformance kit (ENVELOPE-SPEC.md §9 plus the
+ * transport-relevant §10 invariants) against a transport. Framework-agnostic:
+ * returns structured results for any test runner instead of throwing.
  *
- * @param {function} makeLink - async factory producing a connected pair
- *        `{ a, b, close }` of Kernels bridged by the transport under test
- *        (loopback in-process is fine). A fresh link is created per check.
+ * @param {function(): (Link|Promise<Link>)} makeLink - factory producing a
+ *        connected pair `{ a, b, close }` of Kernels bridged by the
+ *        transport under test (loopback in-process is fine). A fresh link is
+ *        created per check and closed after it.
  * @param {Object} [opts]
  * @param {number} [opts.timeoutMs=2000] - per-check delivery timeout
- * @returns {Promise<{ pass: boolean, results: Array<{name, pass, detail}> }>}
+ * @returns {Promise<{ pass: boolean, results: ComplianceResult[] }>} one
+ *          result per check, in the order run; `pass` is the conjunction
  */
 export async function runTransportCompliance(
   makeLink,
@@ -295,6 +384,12 @@ export async function runTransportCompliance(
 /**
  * Convenience for test suites: runs the kit and throws a formatted error
  * naming every failed check.
+ *
+ * @param {function(): (Link|Promise<Link>)} makeLink - see {@link runTransportCompliance}
+ * @param {Object} [opts]
+ * @param {number} [opts.timeoutMs=2000] - per-check delivery timeout
+ * @returns {Promise<ComplianceResult[]>} every check's result (all passing)
+ * @throws {Error} listing each failed check with its detail
  */
 export async function assertTransportCompliance(makeLink, opts) {
   const { pass, results } = await runTransportCompliance(makeLink, opts);
