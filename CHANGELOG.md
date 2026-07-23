@@ -1,3 +1,29 @@
+## 0.19.0 (2026-07-23)
+
+### 🚀 Features
+
+- ⚠️ **core:** retire the legacy dispatch surface (ENVELOPE-SPEC §12 cutover) ([#60](https://github.com/zzyzxlab/tao.js/pull/60))
+
+### ⚠️ Breaking Changes
+
+- **core:** retire the legacy dispatch surface (ENVELOPE-SPEC §12 cutover) ([#60](https://github.com/zzyzxlab/tao.js/pull/60))
+  removes Network.use/stop,
+  Network.setCtxControl/setAppCtxControl, Kernel.forwardAppCtx,
+  Kernel.asPromiseHook, Kernel.channel(), Channel.use/stop/
+  setCtxControl/setAppCtxControl/forwardAppCtx, and TIMEOUT_REJECT.
+  Replacements: decorate({ onDispatch }), enter(), Transponder/
+  Transceiver.
+  Affected packages:
+  - @tao.js/core
+  - @tao.js/utils
+  - @tao.js/telemetry
+  - docs
+
+### ❤️ Thank You
+
+- Claude Fable 5
+- Jeff Hoffer @eudaimos
+
 ## 0.18.0 (2026-07-22)
 
 ### 🚀 Features

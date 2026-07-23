@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/routing-tanstack-router",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "TanStack Router adapter: loaders as TAO AppCon entry points",
   "homepage": "https://tao.js.org/",
   "repository": {

@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/routing-core",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "Framework-agnostic route-entry → AppCon contract for tao.js adapters",
   "homepage": "https://tao.js.org/",
   "repository": {
