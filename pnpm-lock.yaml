@@ -2826,7 +2826,7 @@ packages:
   '@tao.js/koa@file:packages/koa-tao':
     resolution: {directory: packages/koa-tao, type: directory}
     peerDependencies:
-      '@tao.js/core': '>=0.18.0'
+      '@tao.js/core': '>=0.19.0'
       '@tao.js/utils': '*'
 
   '@tao.js/react@file:packages/react-tao':
@@ -2840,18 +2840,18 @@ packages:
   '@tao.js/socket.io@file:packages/tao-socket-io':
     resolution: {directory: packages/tao-socket-io, type: directory}
     peerDependencies:
-      '@tao.js/core': '>=0.18.0'
+      '@tao.js/core': '>=0.19.0'
       '@tao.js/utils': '*'
 
   '@tao.js/telemetry@file:packages/tao-telemetry':
     resolution: {directory: packages/tao-telemetry, type: directory}
     peerDependencies:
-      '@tao.js/core': '>=0.18.0'
+      '@tao.js/core': '>=0.19.0'
 
   '@tao.js/utils@file:packages/tao-utils':
     resolution: {directory: packages/tao-utils, type: directory}
     peerDependencies:
-      '@tao.js/core': '>=0.18.0'
+      '@tao.js/core': '>=0.19.0'
       '@tao.js/telemetry': '*'
 
   '@testing-library/dom@10.4.1':

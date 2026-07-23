@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/telemetry",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "Telemetry for tao.js signal networks - causal Tracer (a pure Network decoration), TaoLogger, sinks, and W3C trace context helpers",
   "homepage": "https://tao.js.org/",
   "repository": {

@@ -1,3 +1,14 @@
+## 0.19.1 (2026-07-23)
+
+### 🩹 Fixes
+
+- **deps:** require @tao.js/core >=0.19.0 in envelope-native adapters ([2c795d3](https://github.com/zzyzxlab/tao.js/commit/2c795d3))
+
+### ❤️ Thank You
+
+- Claude Fable 5
+- eudaimos @tao-land
+
 ## 0.19.0 (2026-07-23)
 
 ### 🚀 Features
