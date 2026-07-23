@@ -24,8 +24,9 @@ export default class ConsoleSink {
     this._depths.set(record.signalId, depth);
     const indent = '  '.repeat(depth);
     const link = depth > 0 ? '↳ ' : '';
+    const via = record.via ? ` ·${record.via}` : '';
     this._logger.info(
-      `${indent}${link}☯{${record.t}, ${record.a}, ${record.o}}`,
+      `${indent}${link}☯{${record.t}, ${record.a}, ${record.o}}${via}`,
     );
     if (this._showData && typeof record.data !== 'undefined') {
       this._logger.info(`${indent}  `, record.data);

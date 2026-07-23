@@ -68,4 +68,28 @@ describe('Tracer composes with Channel — full fidelity without instrumentation
     const [root, child] = sink.records;
     expect(child.parentId).toBe(root.signalId);
   });
+
+  it('should continue a remote trace given as the transponder entry chain', async () => {
+    // Assemble
+    new Tracer(TAO, { sinks: [sink] });
+    const transponder = new Transponder(TAO, 'chain-continuing', 0);
+    // Act — the chain shape a transport hands over (ENVELOPE-SPEC.md §9)
+    const settled = await transponder.setCtx(
+      TRIGRAM,
+      {},
+      {
+        chain: {
+          taoTrace: { traceId: 'remote-trace', signalId: 'remote-signal' },
+        },
+      },
+    );
+    await flush();
+    // Assert — the entry record continues the remote trace instead of
+    // rooting a fresh one, parent-linked to the remote emitting signal
+    expect(settled).toBeInstanceOf(AppCtx);
+    expect(sink.size).toBe(1);
+    const [entry] = sink.records;
+    expect(entry.traceId).toBe('remote-trace');
+    expect(entry.parentId).toBe('remote-signal');
+  });
 });

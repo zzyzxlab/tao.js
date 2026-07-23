@@ -164,7 +164,7 @@ function SwitchHandler({
         );
       });
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line -- react-hooks/exhaustive-deps (plugin not in flat config; deps list is intentional)
   }, [TAO, subTableKey, attachMatch, debug]);
   // Stryker restore all
 

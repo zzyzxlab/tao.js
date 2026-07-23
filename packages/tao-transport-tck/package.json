@@ -1,12 +1,12 @@
 {
-  "name": "@tao.js/utils",
+  "name": "@tao.js/transport-tck",
   "version": "0.19.1",
-  "description": "set of useful utilities for tao.js",
+  "description": "Transport conformance kit for tao.js - executable form of the ENVELOPE-SPEC wire contract and transport invariants",
   "homepage": "https://tao.js.org/",
   "repository": {
     "type": "git",
     "url": "https://github.com/zzyzxlab/tao.js.git",
-    "directory": "packages/tao-utils"
+    "directory": "packages/tao-transport-tck"
   },
   "main": "lib",
   "module": "dist",
@@ -34,11 +34,13 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@tao.js/core": ">=0.20.0",
-    "@tao.js/telemetry": "*"
+    "@tao.js/core": ">=0.20.0"
+  },
+  "dependencies": {
+    "@tao.js/telemetry": "file:../tao-telemetry"
   },
   "devDependencies": {
     "@tao.js/core": "file:../tao",
-    "@tao.js/telemetry": "file:../tao-telemetry"
+    "@tao.js/utils": "file:../tao-utils"
   }
 }

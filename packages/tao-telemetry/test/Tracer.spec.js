@@ -268,18 +268,21 @@ describe('Tracer sink management and entry defaults', () => {
 });
 
 describe('Tracer records built from duck-typed dispatch notifications', () => {
+  const mkStamp = () => ({
+    traceId: 'ab'.repeat(16),
+    signalId: 'cd'.repeat(8),
+    parentId: null,
+  });
+
   it('should omit handler counts when no handler accompanies the dispatch', () => {
     // Assemble
     const tracer = new Tracer(TAO, { sinks: [sink] });
-    const stamp = {
-      traceId: 'ab'.repeat(16),
-      signalId: 'cd'.repeat(8),
-      parentId: null,
-    };
-    // Act — decoration contract allows dispatch notification without a handler
+    const stamp = mkStamp();
+    // Act — decoration contract allows dispatch notification without a handler;
+    // real envelopes always carry a hop object (ENVELOPE-SPEC.md §4)
     tracer._record(
       new AppCtx(TERM, ACTION, ORIENT),
-      { chain: { [TRACE_CHAIN]: stamp } },
+      { chain: { [TRACE_CHAIN]: stamp }, hop: {} },
       undefined,
     );
     // Assert
@@ -291,6 +294,114 @@ describe('Tracer records built from duck-typed dispatch notifications', () => {
       signalId: stamp.signalId,
       parentId: null,
     });
+    // an entry hop carries no via — the key must be absent, not undefined
+    expect('via' in record).toBe(false);
+  });
+
+  it('should stamp via from hop.via and omit the key entirely without it', () => {
+    // Assemble
+    const tracer = new Tracer(TAO, { sinks: [sink] });
+    // Act
+    tracer._record(
+      new AppCtx(TERM, ACTION, ORIENT),
+      { chain: { [TRACE_CHAIN]: mkStamp() }, hop: { via: 'Inline' } },
+      undefined,
+    );
+    tracer._record(
+      new AppCtx(TERM, ACTION, ORIENT),
+      { chain: { [TRACE_CHAIN]: mkStamp() }, hop: {} },
+      undefined,
+    );
+    // Assert
+    expect(sink.size).toBe(2);
+    const [chained, entry] = sink.records;
+    expect(chained.via).toBe('Inline');
+    expect('via' in entry).toBe(false);
+    expect(entry).not.toHaveProperty('via');
+  });
+});
+
+describe('Tracer stamps the producing phase (hop.via) on chained hops', () => {
+  it('should stamp via from a mirrored envelope carrying hop.via verbatim', () => {
+    // Assemble — Network.mirror dispatches an observed envelope verbatim,
+    // including hop.via (ENVELOPE-SPEC.md §4) — the legitimate surface where
+    // a via-carrying envelope reaches the tracer decoration on a real network
+    new Tracer(TAO, { sinks: [sink] });
+    const stamp = {
+      traceId: 'ab'.repeat(16),
+      signalId: 'cd'.repeat(8),
+      parentId: '12'.repeat(8),
+    };
+    // Act
+    TAO._network.mirror(new AppCtx(TERM, NEXT_ACTION, ORIENT), {
+      cascade: {},
+      hop: { via: 'Async' },
+      chain: { [TRACE_CHAIN]: stamp },
+    });
+    // Assert
+    expect(sink.size).toBe(1);
+    const [record] = sink.records;
+    expect(record.via).toBe('Async');
+    expect(record.signalId).toBe(stamp.signalId);
+  });
+
+  // The three phase tests below pin the normative contract of
+  // ENVELOPE-SPEC.md §4 (`hop.via` — the producing phase, 0.20): chained
+  // hops carry 'Intercept' | 'Async' | 'Inline'; entry hops never do.
+  it('should mark inline-chained hops via Inline and leave entry hops bare', async () => {
+    // Assemble
+    new Tracer(TAO, { sinks: [sink] });
+    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
+    // Act — plain kernel entry, chained by the inline handler
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert
+    expect(sink.size).toBe(2);
+    const [root, child] = sink.records;
+    expect('via' in root).toBe(false);
+    expect(child.via).toBe('Inline');
+    expect(child.parentId).toBe(root.signalId);
+  });
+
+  it('should mark async-chained hops via Async', async () => {
+    // Assemble
+    new Tracer(TAO, { sinks: [sink] });
+    TAO.addAsyncHandler(
+      TRIGRAM,
+      async () => new AppCtx(TERM, NEXT_ACTION, ORIENT),
+    );
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    await flush();
+    // Assert
+    expect(sink.size).toBe(2);
+    const [root, child] = sink.records;
+    expect('via' in root).toBe(false);
+    expect(child.via).toBe('Async');
+    expect(child.a).toBe(NEXT_ACTION);
+  });
+
+  it('should mark intercept-diverted hops via Intercept', async () => {
+    // Assemble
+    new Tracer(TAO, { sinks: [sink] });
+    const swallowed = jest.fn();
+    TAO.addInterceptHandler(
+      TRIGRAM,
+      () => new AppCtx(TERM, THIRD_ACTION, ORIENT),
+    );
+    TAO.addInlineHandler(TRIGRAM, swallowed);
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert — the divert suppressed the inline phase and chained the new AC
+    expect(swallowed).not.toHaveBeenCalled();
+    expect(sink.size).toBe(2);
+    const [root, divert] = sink.records;
+    expect('via' in root).toBe(false);
+    expect(divert.via).toBe('Intercept');
+    expect(divert.a).toBe(THIRD_ACTION);
+    expect(divert.parentId).toBe(root.signalId);
   });
 });
 

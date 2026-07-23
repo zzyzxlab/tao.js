@@ -1,4 +1,4 @@
-import { WILDCARD } from '../src/constants';
+import { WILDCARD, INTERCEPT, ASYNC, INLINE } from '../src/constants';
 import AppCtxRoot from '../src/AppCtxRoot';
 import AppCtx from '../src/AppCtx';
 import AppCtxHandlers from '../src/AppCtxHandlers';
@@ -197,7 +197,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // await
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, INLINE);
     });
 
     it('should not call setAppCtx if handler returns nothing', async () => {
@@ -248,7 +248,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(setAppCtx).toThrow();
       await expect(wontThrow()).resolves.not.toThrow();
       expect(handler).toHaveBeenCalled();
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, INLINE);
     });
   });
 
@@ -433,7 +433,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // await
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, ASYNC);
     });
 
     it('should not call setAppCtx if handler returns nothing', async () => {
@@ -484,7 +484,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(setAppCtx).toThrow();
       await expect(wontThrow()).resolves.not.toThrow();
       expect(handler).toHaveBeenCalled();
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, ASYNC);
     });
   });
 
@@ -639,7 +639,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, INTERCEPT);
     });
 
     it('should not call setAppCtx if handler returns nothing', async () => {
@@ -690,7 +690,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(setAppCtx).toThrow();
       await expect(wontThrow()).resolves.not.toThrow();
       expect(handler).toHaveBeenCalled();
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, INTERCEPT);
     });
 
     it('should not call inlineHander if handler returns truthy value', async () => {

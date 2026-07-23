@@ -1,7 +1,7 @@
 import { AppCtx } from '@tao.js/core';
 import cartesian from 'cartesian';
 import { Channel, Transponder } from '@tao.js/utils';
-import { noop, normalizeAC, cleanInput } from './helpers';
+import { noop, normalizeAC, cleanInput, chainFromRequest } from './helpers';
 
 // const noop = () => {};
 
@@ -53,7 +53,9 @@ async function handleContext(transponder, bodyProp, ctx, next) {
   // present on the request; guard so a body-less POST can't crash the process.
   const { tao, data } = (await getBodyData(ctx, bodyProp)) || {};
   try {
-    const ac = await transponder.setCtx(tao, data);
+    const ac = await transponder.setCtx(tao, data, {
+      chain: chainFromRequest(ctx),
+    });
     ctx.body = {
       tao: ac.unwrapCtx(),
       data: ac.data,
@@ -115,7 +117,9 @@ export default function taoMiddleware(TAO, opt = {}) {
               opt.timeout || DEFAULT_TIMEOUT,
               opt.promise,
             );
-            handleContext(transponder, bodyProp, ctx, next);
+            // handleContext awaits the transponder's promise; detaching
+            // before it settles would strip the resolver mid-request
+            await handleContext(transponder, bodyProp, ctx, next);
             transponder.detach();
             transponder = null;
             return next();

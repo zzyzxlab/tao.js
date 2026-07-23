@@ -1,7 +1,7 @@
 // import { AppCtx } from '@tao.js/core';
 import cartesian from 'cartesian';
 import { Channel, Transponder } from '@tao.js/utils';
-import { noop, normalizeAC, cleanInput } from './helpers';
+import { noop, normalizeAC, cleanInput, chainFromRequest } from './helpers';
 
 const DEFAULT_CHANNEL_NAME = 'koa-simple-middleware';
 const CHANNEL_NAME_TYPE = 'channel';
@@ -14,13 +14,15 @@ function getNameId(type, name) {
   };
 }
 
-function buildCtxTao(transponder) {
+function buildCtxTao(transponder, chain) {
   return {
     setCtx({ t, term, a, action, o, orient }, data) {
-      return transponder.setCtx({ t, term, a, action, o, orient }, data);
+      return transponder.setCtx({ t, term, a, action, o, orient }, data, {
+        chain,
+      });
     },
     setAppCtx(ac) {
-      return transponder.setAppCtx(ac);
+      return transponder.setAppCtx(ac, { chain });
     },
   };
 }
@@ -44,15 +46,18 @@ export default function simpleMiddleware(TAO, opt = {}) {
   const channel = new Channel(TAO, namer);
   return {
     middleware() {
-      return (ctx, next) => {
+      return async (ctx, next) => {
         let transponder = new Transponder(
           channel,
           getNameId(TRANSPONDER_NAME_TYPE, opt.name),
           opt.timeout || DEFAULT_TIMEOUT,
           opt.promise,
         );
-        ctx.tao = buildCtxTao(transponder);
-        next();
+        ctx.tao = buildCtxTao(transponder, chainFromRequest(ctx));
+        // downstream middleware is async in any real koa app — detaching
+        // before it settles would strip the resolver while requests are
+        // still awaiting their signals
+        await next();
         transponder.detach();
         ctx.tao = null;
         transponder = null;

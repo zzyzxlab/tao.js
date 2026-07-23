@@ -76,6 +76,9 @@ export default class OpenTelemetrySink {
     if (record.parentId) {
       attributes['tao.signal.parent_id'] = record.parentId;
     }
+    if (record.via) {
+      attributes['tao.signal.via'] = record.via;
+    }
     if (record.handlers) {
       attributes['tao.handlers.intercept'] = record.handlers.intercept;
       attributes['tao.handlers.async'] = record.handlers.async;

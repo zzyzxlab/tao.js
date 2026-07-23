@@ -74,12 +74,10 @@ export default class Transceiver {
       name: `transceiver:${this._transceiverId}`,
       onForward: (nextAc, envelope, meta) => {
         if (envelope.cascade.transceiverId === this._transceiverId) {
-          // signals dispatch starts before core dispatches the hop on the
-          // main network; chains from signal handlers continue the cascade
-          this._signals.enter(nextAc, {
-            cascade: envelope.cascade,
-            forward: meta.forward,
-          });
+          // same-hop dispatch (envelope verbatim): signals dispatch starts
+          // before core dispatches the hop on the main network; chains from
+          // signal handlers continue the cascade
+          this._signals.mirror(nextAc, envelope, meta.forward);
         }
       },
     });
@@ -94,13 +92,22 @@ export default class Transceiver {
     this._cloneWithId = typeof id === 'function' ? id : undefined;
   }
 
-  setCtx = ({ t, term, a, action, o, orient }, data) => {
+  setCtx = ({ t, term, a, action, o, orient }, data, opts) => {
     return this.setAppCtx(
       new AppCtx(term || t, action || a, orient || o, data),
+      opts,
     );
   };
 
-  setAppCtx = (ac) => {
+  /**
+   * @param {AppCtx} ac
+   * @param {Object} [opts]
+   * @param {Object} [opts.chain] - prior chain state to continue (e.g. a
+   *        remote trace received over a transport — ENVELOPE-SPEC.md §9)
+   * @returns {Promise} settled by the attached signal handlers
+   * @memberof Transceiver
+   */
+  setAppCtx = (ac, { chain = null } = {}) => {
     const transceiverId = this._transceiverId;
     const timeoutMs = this._timeoutMs;
     const promise = this._promise;
@@ -113,6 +120,7 @@ export default class Transceiver {
       }
       this._surface.enter(ac, {
         cascade: transceiverControl(transceiverId, resolve, reject),
+        chain,
       });
     });
   };

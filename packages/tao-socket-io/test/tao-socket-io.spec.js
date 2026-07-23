@@ -1,22 +1,38 @@
-const mockSources = [];
 const mockChannels = [];
+const mockTransports = [];
+const mockUndecorate = jest.fn();
 
-jest.mock('@tao.js/utils', () => ({
-  Source: jest.fn().mockImplementation(function Source(tao, emit, listen) {
-    this.tao = tao;
-    this.emit = emit;
-    this.listen = listen;
-    mockSources.push(this);
-  }),
-  Channel: jest.fn().mockImplementation(function Channel(tao, id) {
-    this.tao = tao;
-    this.id = id;
-    this.setCtx = jest.fn();
-    this.addInlineHandler = jest.fn();
-    this.removeInlineHandler = jest.fn();
-    mockChannels.push(this);
-  }),
-}));
+jest.mock('@tao.js/utils', () => {
+  const actual = jest.requireActual('@tao.js/utils');
+  return {
+    ...actual,
+    Channel: jest.fn().mockImplementation(function Channel(tao, id) {
+      this.tao = tao;
+      this.id = id;
+      this.enter = jest.fn();
+      this.decorations = [];
+      this.decorate = jest.fn((spec) => {
+        this.decorations.push(spec);
+        return mockUndecorate;
+      });
+      mockChannels.push(this);
+    }),
+    createTransport: jest.fn((kernel, opts) => {
+      const transport = {
+        kernel,
+        opts,
+        name: 'MOCK-TRANSPORT',
+        receive: jest.fn(),
+        dispose: jest.fn(),
+      };
+      mockTransports.push(transport);
+      return transport;
+    }),
+  };
+});
+
+import { AppCtx } from '@tao.js/core';
+import { Channel, createTransport } from '@tao.js/utils';
 
 function makeSocket() {
   const events = {};
@@ -67,12 +83,15 @@ function loadWire({ browser } = {}) {
 
 describe('@tao.js/socket.io', () => {
   beforeEach(() => {
-    mockSources.length = 0;
     mockChannels.length = 0;
+    mockTransports.length = 0;
+    mockUndecorate.mockClear();
+    Channel.mockClear();
+    createTransport.mockClear();
   });
 
   describe('browser client (window defined)', () => {
-    it('wires a socket Source with host, namespace, and io options', () => {
+    it('wires a duplex transport with host, namespace, and io options', () => {
       const wireTaoJsToSocketIO = loadWire({ browser: true });
       const socket = makeSocket();
       const io = jest.fn(() => socket);
@@ -88,17 +107,44 @@ describe('@tao.js/socket.io', () => {
       expect(io).toHaveBeenCalledWith('https://example.test/events', {
         transports: ['websocket'],
       });
-      expect(mockSources).toHaveLength(1);
+      expect(createTransport).toHaveBeenCalledTimes(1);
+      const [kernel, opts] = createTransport.mock.calls[0];
+      expect(kernel).toBe(tao);
 
-      mockSources[0].emit({ t: 'User' }, { id: 1 });
+      // outbound: every hop is emitted with its wire envelope (§9)
+      opts.send(
+        { t: 'User' },
+        { id: 1 },
+        { v: 1, chain: { taoTrace: { traceId: 'abc' } } },
+      );
       expect(socket.emit).toHaveBeenCalledWith('fromClient', {
         tao: { t: 'User' },
         data: { id: 1 },
+        envelope: { v: 1, chain: { taoTrace: { traceId: 'abc' } } },
       });
-      const received = jest.fn();
-      mockSources[0].listen(received);
-      socket.events.fromServer({ tao: { t: 'User' }, data: { id: 2 } });
-      expect(received).toHaveBeenCalledWith({ t: 'User' }, { id: 2 });
+
+      // inbound: 'fromServer' payloads go through transport.receive with the
+      // wire envelope so the chain continues through the local reducers
+      const transport = mockTransports[0];
+      socket.events.fromServer({
+        tao: { t: 'User' },
+        data: { id: 2 },
+        envelope: { v: 1, chain: { taoTrace: { traceId: 'abc' } } },
+      });
+      expect(transport.receive).toHaveBeenCalledWith(
+        { t: 'User' },
+        { id: 2 },
+        { v: 1, chain: { taoTrace: { traceId: 'abc' } } },
+      );
+
+      // pre-0.20 server payloads have no envelope property; receive treats it
+      // as absent (one-sided backward compatibility)
+      socket.events.fromServer({ tao: { t: 'User' }, data: { id: 3 } });
+      expect(transport.receive).toHaveBeenLastCalledWith(
+        { t: 'User' },
+        { id: 3 },
+        undefined,
+      );
     });
 
     it('defaults host to empty string and namespace to tao', () => {
@@ -114,6 +160,7 @@ describe('@tao.js/socket.io', () => {
       const wireTaoJsToSocketIO = loadWire({ browser: true });
       expect(wireTaoJsToSocketIO({}, null)).toBeUndefined();
       expect(wireTaoJsToSocketIO({}, { of: jest.fn() })).toBeUndefined();
+      expect(createTransport).not.toHaveBeenCalled();
     });
   });
 
@@ -141,24 +188,62 @@ describe('@tao.js/socket.io', () => {
       expect(next).toHaveBeenCalled();
 
       const channel = mockChannels[0];
-      await socket.events.fromClient({ tao: { t: 'User' }, data: { id: 1 } });
+      expect(channel.id).toBe('client-1');
+
+      // inbound signals enter the client Channel with the continued chain
+      await socket.events.fromClient({
+        tao: { t: 'User', a: 'Add', o: 'Test' },
+        data: { id: 1 },
+        envelope: {
+          v: 1,
+          chain: { taoTrace: { traceId: 'abc', signalId: 'def' } },
+        },
+      });
       expect(transform).toHaveBeenCalledWith(
-        { t: 'User' },
+        { t: 'User', a: 'Add', o: 'Test' },
         { id: 1 },
         { token: 'secret' },
       );
-      expect(channel.setCtx).toHaveBeenCalledWith(
-        { t: 'User' },
-        { id: 1, auth: { token: 'secret' } },
-      );
-      const outbound = channel.addInlineHandler.mock.calls[0][1];
-      outbound({ t: 'User' }, { id: 3 });
-      expect(socket.emit).toHaveBeenCalledWith('fromServer', {
-        tao: { t: 'User' },
-        data: { id: 3 },
+      expect(channel.enter).toHaveBeenCalledTimes(1);
+      const [enteredAc, enterOpts] = channel.enter.mock.calls[0];
+      expect(enteredAc.unwrapCtx()).toEqual({ t: 'User', a: 'Add', o: 'Test' });
+      expect(enteredAc.data).toEqual({
+        User: { id: 1, auth: { token: 'secret' } },
       });
+      expect(enterOpts).toEqual({
+        hop: { source: 'socket:client-1' },
+        chain: { taoTrace: { traceId: 'abc', signalId: 'def' } },
+      });
+
+      // reply path: a veto-respecting onProceed decoration on the Channel
+      expect(channel.decorate).toHaveBeenCalledTimes(1);
+      const decoration = channel.decorations[0];
+      expect(decoration.name).toBe('socket:client-1');
+      expect(decoration.onProceed).toBeInstanceOf(Function);
+
+      // an emitted reply carries the dispatch envelope's chain as {v:1, chain}
+      const replyAc = new AppCtx('User', 'Added', 'Test', { User: { id: 3 } });
+      const dispatchEnvelope = {
+        cascade: { channelId: 'client-1' },
+        hop: { via: 'Inline' },
+        chain: {
+          taoTrace: { traceId: 'abc', signalId: 'ghi', parentId: 'def' },
+        },
+      };
+      decoration.onProceed(replyAc, dispatchEnvelope);
+      expect(socket.emit).toHaveBeenCalledWith('fromServer', {
+        tao: { t: 'User', a: 'Added', o: 'Test' },
+        data: { User: { id: 3 } },
+        envelope: {
+          v: 1,
+          chain: {
+            taoTrace: { traceId: 'abc', signalId: 'ghi', parentId: 'def' },
+          },
+        },
+      });
+
       socket.events.disconnect('gone');
-      expect(channel.removeInlineHandler).toHaveBeenCalled();
+      expect(mockUndecorate).toHaveBeenCalledTimes(1);
       expect(onDisconnect).toHaveBeenCalledWith('gone');
     });
 
@@ -172,6 +257,7 @@ describe('@tao.js/socket.io', () => {
       middleware(socket);
       expect(onConnect).toHaveBeenCalledWith(mockChannels[0], socket);
       expect(() => socket.events.disconnect('bye')).not.toThrow();
+      expect(mockUndecorate).toHaveBeenCalledTimes(1);
     });
 
     it('returns middleware when io.of exists but is not a function', () => {
@@ -181,16 +267,44 @@ describe('@tao.js/socket.io', () => {
       expect(() => middleware(makeSocket())).not.toThrow();
     });
 
-    it('accepts plain inbound events without authTransform', () => {
+    it('accepts plain inbound events without authTransform, with verbose trigrams and continued chains', () => {
       const wireTaoJsToSocketIO = loadWire({ browser: false });
       const socket = makeSocket();
       const middleware = wireTaoJsToSocketIO({}, null);
       middleware(socket);
-      socket.events.fromClient({ tao: { t: 'Public' }, data: { id: 2 } });
-      expect(mockChannels[0].setCtx).toHaveBeenCalledWith(
-        { t: 'Public' },
-        { id: 2 },
-      );
+      socket.events.fromClient({
+        tao: { term: 'Public', action: 'Read', orient: 'Feed' },
+        data: { id: 2 },
+        envelope: { v: 1, chain: { taoTrace: { traceId: 'xyz' } } },
+      });
+      const channel = mockChannels[0];
+      const [ac, opts] = channel.enter.mock.calls[0];
+      expect(ac.unwrapCtx()).toEqual({ t: 'Public', a: 'Read', o: 'Feed' });
+      expect(ac.data).toEqual({ Public: { id: 2 } });
+      expect(opts).toEqual({
+        hop: { source: 'socket:client-1' },
+        chain: { taoTrace: { traceId: 'xyz' } },
+      });
+    });
+
+    it('still dispatches inbound payloads without an envelope property (pre-0.20 client)', () => {
+      const wireTaoJsToSocketIO = loadWire({ browser: false });
+      const socket = makeSocket();
+      const middleware = wireTaoJsToSocketIO({}, null);
+      middleware(socket);
+      socket.events.fromClient({
+        tao: { t: 'Public', a: 'Read', o: 'Feed' },
+        data: { id: 9 },
+      });
+      const channel = mockChannels[0];
+      expect(channel.enter).toHaveBeenCalledTimes(1);
+      const [ac, opts] = channel.enter.mock.calls[0];
+      expect(ac.unwrapCtx()).toEqual({ t: 'Public', a: 'Read', o: 'Feed' });
+      // absent wire envelope enters with a fresh chain
+      expect(opts).toEqual({
+        hop: { source: 'socket:client-1' },
+        chain: null,
+      });
     });
 
     it('skips onConnect when it is not a function', () => {

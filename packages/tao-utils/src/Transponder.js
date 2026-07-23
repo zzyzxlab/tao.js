@@ -131,13 +131,22 @@ export default class Transponder {
     return this;
   }
 
-  setCtx({ t, term, a, action, o, orient }, data) {
+  setCtx({ t, term, a, action, o, orient }, data, opts) {
     return this.setAppCtx(
       new AppCtx(term || t, action || a, orient || o, data),
+      opts,
     );
   }
 
-  setAppCtx(ac) {
+  /**
+   * @param {AppCtx} ac
+   * @param {Object} [opts]
+   * @param {Object} [opts.chain] - prior chain state to continue (e.g. a
+   *        remote trace received over a transport — ENVELOPE-SPEC.md §9)
+   * @returns {Promise} resolves with the first handled AppCon of the cascade
+   * @memberof Transponder
+   */
+  setAppCtx(ac, { chain = null } = {}) {
     const transponderId = this._transponderId;
     const timeoutMs = this._timeoutMs;
     const promise = this._promise;
@@ -150,6 +159,7 @@ export default class Transponder {
       }
       this._network.enter(ac, {
         cascade: transponderControl(transponderId, resolve),
+        chain,
       });
     });
   }

@@ -66,7 +66,8 @@
       "@tao.js/routing-core",
       "@tao.js/routing-next",
       "@tao.js/routing-react-router",
-      "@tao.js/routing-tanstack-router"
+      "@tao.js/routing-tanstack-router",
+      "@tao.js/transport-tck"
     ],
     "projectsRelationship": "fixed",
     "version": {

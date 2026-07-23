@@ -119,18 +119,35 @@ export default class AppCtxHandlers extends AppCtxRoot {
    * Dispatch an AppCon through the three handler phases.
    *
    * `hooks` (optional, supplied by Network decorations — see ENVELOPE-SPEC.md
-   * §6) receives what the legacy loop discards: `hooks.onReturn(phase, value,
-   * ac)` is called for non-AppCtx truthy intercept returns (which still
-   * halt), non-null non-AppCtx async/inline returns, and thrown handler
-   * errors (phase = ERROR — which are rethrown when no hooks are present,
-   * preserving legacy behavior).
+   * §6) receives what the loop otherwise discards: `hooks.onReturn(phase,
+   * value, ac)` is called for non-AppCtx truthy intercept returns (which
+   * still halt), non-null non-AppCtx async/inline returns, and thrown
+   * handler errors (phase = ERROR — which are rethrown when no hooks are
+   * present, preserving pre-envelope behavior); `hooks.onProceed()` fires
+   * when the intercept phase passes without halting or diverting, before
+   * the async/inline phases run (§5 — veto-respecting emitters).
+   *
+   * `setAppCtx` receives the producing phase as a third argument so the
+   * hop engine can stamp `hop.via` on chained hops (§4).
    */
   async handleAppCon(ac, setAppCtx, control, hooks) {
     const { t, a, o, data } = ac;
     const onReturn =
       hooks && typeof hooks.onReturn === 'function' ? hooks.onReturn : null;
+    const onProceed =
+      hooks && typeof hooks.onProceed === 'function' ? hooks.onProceed : null;
     try {
-      await this._handlePhases(ac, setAppCtx, control, onReturn, t, a, o, data);
+      await this._handlePhases(
+        ac,
+        setAppCtx,
+        control,
+        onReturn,
+        onProceed,
+        t,
+        a,
+        o,
+        data,
+      );
     } catch (dispatchErr) {
       if (onReturn) {
         onReturn(ERROR, dispatchErr, ac);
@@ -140,7 +157,17 @@ export default class AppCtxHandlers extends AppCtxRoot {
     }
   }
 
-  async _handlePhases(ac, setAppCtx, control, onReturn, t, a, o, data) {
+  async _handlePhases(
+    ac,
+    setAppCtx,
+    control,
+    onReturn,
+    onProceed,
+    t,
+    a,
+    o,
+    data,
+  ) {
     /*
      * Intercept Handlers
      * always occur first
@@ -156,7 +183,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
       if (intercepted instanceof AppCtx) {
         // Stryker disable all: local console is a noop; catch only swallows
         try {
-          setAppCtx(intercepted, control);
+          setAppCtx(intercepted, control, INTERCEPT);
         } catch (interceptErr) {
           if (onReturn) {
             onReturn(ERROR, interceptErr, ac);
@@ -172,6 +199,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
         onReturn(INTERCEPT, intercepted, ac);
       }
       return;
+    }
+    if (onProceed) {
+      // the intercept phase passed without halt or divert
+      onProceed();
     }
     /*
      * Async Handlers
@@ -193,7 +224,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
         Promise.resolve(asyncH({ t, a, o }, data))
           .then((nextAc) => {
             if (nextAc instanceof AppCtx) {
-              setAppCtx(nextAc, control);
+              setAppCtx(nextAc, control, ASYNC);
             } else if (onReturn && nextAc != null) {
               onReturn(ASYNC, nextAc, ac);
             }
@@ -243,7 +274,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
     if (nextSpool.length) {
       for (let nextAc of nextSpool) {
         try {
-          setAppCtx(nextAc, control);
+          setAppCtx(nextAc, control, INLINE);
         } catch (inlineErr) {
           if (onReturn) {
             onReturn(ERROR, inlineErr, ac);
