@@ -1,36 +1,8 @@
-// need this when running in Node.js environment
-// import { clearTimeout } from 'timers';
-import {
-  WILDCARD,
-  INTERCEPT,
-  ASYNC,
-  INLINE,
-  // TIMEOUT_REJECT
-} from './constants';
+import { WILDCARD, INTERCEPT, ASYNC, INLINE } from './constants';
 import AppCtxRoot from './AppCtxRoot';
 import AppCtx from './AppCtx';
 import AppCtxHandlers from './AppCtxHandlers';
 import { _cleanAC, _validateHandler } from './utils';
-
-const NOOP = () => {};
-
-// // Private methods for TAO
-// function _cleanAC({ t, term, a, action, o, orient }) {
-//   return {
-//     term: term || t,
-//     action: action || a,
-//     orient: orient || o
-//   };
-// }
-
-// function _validateHandler(handler) {
-//   if (!handler) {
-//     throw new Error('cannot do anything with missing handler');
-//   }
-//   if (typeof handler !== 'function') {
-//     throw new Error('handler must be a function');
-//   }
-// }
 
 // Stryker disable all: multi-axis leaf/wildcard indexing is redundant; single-axis mutants are equivalent
 function _appendLeaves(leavesFrom, leavesTo, taoism) {
@@ -154,40 +126,26 @@ export default class Network {
       a: new Map(),
       o: new Map(),
     };
-    this._middleware = new Set();
     this._canSetWildcard = !!canSetWildcard;
     this._decorators = new Set();
     this._chainReducers = new Map();
   }
 
-  use(middleware) {
-    if (typeof middleware !== 'function') {
-      throw new Error('middleware must be a function');
-    }
-    // Stryker disable next-line ConditionalExpression: Set.add is idempotent for duplicates
-    if (!this._middleware.has(middleware)) {
-      this._middleware.add(middleware);
-    }
-  }
-
-  stop(middleware) {
-    // Stryker disable next-line ConditionalExpression: Set.delete is a no-op for missing members
-    if (this._middleware.has(middleware)) {
-      this._middleware.delete(middleware);
-    }
-  }
-
   /**
    * Register an additive, non-competitive adapter decoration on this Network.
    * See ENVELOPE-SPEC.md. Capabilities (all optional, at least one required):
-   * - `onDispatch(ac, envelope)` — observe every dispatch (v2 and legacy)
+   * - `onDispatch(ac, envelope, handler, forward)` — observe every dispatch;
+   *   `forward(chainedAc)` continues this hop's cascade through the core hop
+   *   engine (for decorations that re-dispatch the AppCon elsewhere and need
+   *   its chains to continue this cascade)
    * - `onForward(nextAc, envelope, meta)` — mirror/route a chained AppCon
-   *   before core dispatches it (v2 cascades only); never re-enter the main
-   *   dispatch from here
+   *   before core dispatches it; `meta.forward(chainedAc)` continues the
+   *   cascade from the chained hop; never re-enter the main dispatch from
+   *   here
    * - `onReturn(phase, value, ac, envelope)` — settle non-AppCtx handler
    *   returns (phases: INTERCEPT/ASYNC/INLINE/ERROR constants)
    * - `chain: { key, next(prev, ac, envelope) }` — per-hop derived envelope
-   *   state under a namespaced key (v2 cascades only)
+   *   state under a namespaced key
    *
    * A throwing decorator callback never breaks dispatch.
    *
@@ -246,31 +204,41 @@ export default class Network {
   }
 
   /**
-   * v2 entry gate: dispatch an AppCtx through the envelope hop engine.
-   * The Network owns forwarding for the whole cascade: chained AppCons are
-   * dispatched exactly once by core; decorators may observe/mirror/settle.
+   * The entry gate: dispatch an AppCtx through the envelope hop engine.
+   * The Network owns handler execution and forwarding for the whole cascade:
+   * chained AppCons are dispatched exactly once by core; decorators may
+   * observe/mirror/settle.
    *
    * @param {AppCtx} appCtx
    * @param {Object} [opts]
-   * @param {Object} [opts.cascade] - shared for the whole cascade (the legacy
+   * @param {Object} [opts.cascade] - shared for the whole cascade (the
    *        `control` object; same reference every hop)
    * @param {Object} [opts.hop] - entry-hop values; hops after the entry get {}
    * @param {Object} [opts.chain] - prior chain state to continue (e.g. from a
    *        remote process); reducers derive the entry's chain from it
+   * @param {function} [opts.forward] - network-composition plumbing: routes
+   *        handler-returned AppCons to the given continuation instead of this
+   *        network's own hop engine. Used by adapters that mirror a cascade
+   *        onto a private network while its chains continue on the main one
+   *        (Channel, Transceiver); not an application-level surface
    * @memberof Network
    */
-  enter(appCtx, { cascade = {}, hop = {}, chain = null } = {}) {
+  enter(appCtx, { cascade = {}, hop = {}, chain = null, forward } = {}) {
     if (!(appCtx instanceof AppCtx)) {
       throw new Error(`'appCtx' not an instance of AppCtx`);
     }
-    this._dispatch(appCtx, {
-      cascade,
-      hop,
-      chain: this._reduceChain(chain, appCtx, null),
-    });
+    this._dispatch(
+      appCtx,
+      {
+        cascade,
+        hop,
+        chain: this._reduceChain(chain, appCtx, null),
+      },
+      typeof forward === 'function' ? forward : undefined,
+    );
   }
 
-  _dispatch(appCtx, envelope) {
+  _dispatch(appCtx, envelope, forward) {
     const isWild = appCtx.isWildcard;
     if (!this._handlers.has(appCtx.key) && !isWild) {
       _addACHandler(
@@ -286,23 +254,15 @@ export default class Network {
     }
     const handler = this._handlers.get(appCtx.key);
     const hooks = this._buildHooks(appCtx, envelope);
-    this._notifyDispatch(appCtx, envelope, handler);
-    const coreForward = (nextAc) => this._forwardNext(nextAc, envelope);
-    for (const middleware of this._middleware) {
-      middleware(
-        handler,
-        appCtx,
-        coreForward,
-        envelope.cascade,
-        envelope,
-        hooks,
-      );
-    }
+    const coreForward =
+      forward || ((nextAc) => this._forwardNext(nextAc, envelope));
+    this._notifyDispatch(appCtx, envelope, handler, coreForward);
+    handler.handleAppCon(appCtx, coreForward, envelope.cascade, hooks);
   }
 
   _forwardNext(nextAc, prevEnvelope) {
-    // guard parity with the legacy NOOP forward: middleware may invoke the
-    // core forward with non-AppCtx values
+    // guard parity with the legacy NOOP forward: handlers may hand the core
+    // forward non-AppCtx values
     if (!(nextAc instanceof AppCtx)) {
       return;
     }
@@ -315,11 +275,15 @@ export default class Network {
       hop: {},
       chain: this._reduceChain(prevEnvelope.chain, nextAc, prevEnvelope),
     };
+    const forward = (chainedAc) => this._forwardNext(chainedAc, nextEnvelope);
     for (const decorator of this._decorators) {
       // Stryker disable next-line ConditionalExpression: equivalent - calling a missing onForward throws inside the guarded try, so observable behavior is identical
       if (decorator.onForward) {
         try {
-          decorator.onForward(nextAc, nextEnvelope, { from: prevEnvelope });
+          decorator.onForward(nextAc, nextEnvelope, {
+            from: prevEnvelope,
+            forward,
+          });
         } catch {
           // a failing decoration must never break dispatch
         }
@@ -372,12 +336,12 @@ export default class Network {
     };
   }
 
-  _notifyDispatch(appCtx, envelope, handler) {
+  _notifyDispatch(appCtx, envelope, handler, forward) {
     for (const decorator of this._decorators) {
       // Stryker disable next-line ConditionalExpression: equivalent - calling a missing onDispatch throws inside the guarded try, so observable behavior is identical
       if (decorator.onDispatch) {
         try {
-          decorator.onDispatch(appCtx, envelope, handler);
+          decorator.onDispatch(appCtx, envelope, handler, forward);
         } catch {
           // a failing decoration must never break dispatch
         }
@@ -399,83 +363,6 @@ export default class Network {
       }
     }
     return cloned;
-  }
-
-  setCtxControl(
-    { t, term, a, action, o, orient },
-    data,
-    control = {},
-    forwardAppCtx = NOOP,
-  ) {
-    // get the hash for the ac
-    const acIn = _cleanAC({ t, term, a, action, o, orient });
-    const isWild = AppCtxRoot.isWildcard(acIn);
-    // console.log('setCtxControl::trigram:', { t, a, o, term, action, orient });
-    // console.log('setCtxControl::control:', control);
-    // console.log('setCtxControl::forwardAppCtx:', typeof forwardAppCtx);
-    if (typeof forwardAppCtx !== 'function') {
-      forwardAppCtx = NOOP;
-    }
-    const acKey = AppCtxRoot.getKey(acIn.term, acIn.action, acIn.orient);
-    if (!this._handlers.has(acKey) && !isWild) {
-      _addACHandler(this, this._handlers, this._leaves, this._wildcards, acIn);
-    }
-    if (this._handlers.has(acKey)) {
-      const appCtx = new AppCtx(acIn.term, acIn.action, acIn.orient, data);
-      // why not forward the call to setAppCtx? -> b/c don't want to execute check against existing again
-      const handler = this._handlers.get(acKey);
-      this._notifyDispatch(
-        appCtx,
-        {
-          cascade: control,
-          hop: null,
-          chain: null,
-          legacy: true,
-        },
-        handler,
-      );
-      for (let middleware of this._middleware) {
-        middleware(handler, appCtx, forwardAppCtx, control);
-      }
-    }
-  }
-
-  setAppCtxControl(appCtx, control = {}, forwardAppCtx) {
-    if (!(appCtx instanceof AppCtx)) {
-      throw new Error(`'appCtx' not an instance of AppCtx`);
-    }
-    // console.log('setAppCtxControl::appCtx:', appCtx.unwrapCtx());
-    // console.log('setAppCtxControl::control:', control);
-    // console.log('setAppCtxControl::forwardAppCtx:', typeof forwardAppCtx);
-    if (typeof forwardAppCtx !== 'function') {
-      forwardAppCtx = NOOP;
-    }
-    const isWild = appCtx.isWildcard;
-    if (!this._handlers.has(appCtx.key) && !isWild) {
-      _addACHandler(
-        this,
-        this._handlers,
-        this._leaves,
-        this._wildcards,
-        _cleanAC(appCtx),
-      );
-    }
-    if (this._handlers.has(appCtx.key)) {
-      const handler = this._handlers.get(appCtx.key);
-      this._notifyDispatch(
-        appCtx,
-        {
-          cascade: control,
-          hop: null,
-          chain: null,
-          legacy: true,
-        },
-        handler,
-      );
-      for (let middleware of this._middleware) {
-        middleware(handler, appCtx, forwardAppCtx, control);
-      }
-    }
   }
 
   addInterceptHandler({ t, term, a, action, o, orient }, handler) {

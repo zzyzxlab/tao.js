@@ -10,12 +10,18 @@ function addControl(name, control) {
 // filter function signature: (ac:AppCtx, control:Object)
 // filters is: [filterFunc, [exact,]] ...trigrams
 
+/**
+ * Forwards matching AppCons flowing on the `source`'s network into the
+ * `destination` Channel's private network. Implemented as an `onDispatch`
+ * decoration on the source network; chains from destination-channel
+ * handlers continue the source cascade through the core hop engine.
+ */
 export default function seive(name, source, destination, ...filters) {
   if (
     !source ||
     !(source._network instanceof Network) ||
     !destination ||
-    !(destination._network instanceof Network)
+    !(destination._channel instanceof Network)
   ) {
     return NOOP;
   }
@@ -23,22 +29,23 @@ export default function seive(name, source, destination, ...filters) {
     typeof filters[0] === 'function' ? filters.shift() : undefined;
   let handleFilter = trigramFilter(...filters);
 
-  let middleware = (handler, ac, forwardAppCtx, control) => {
-    if (filterFunction && !filterFunction(ac, control)) {
-      return;
-    }
-    if (handleFilter(ac)) {
-      destination._channel.setAppCtxControl(
-        ac,
-        addControl(name, control),
-        forwardAppCtx
-      );
-    }
-  };
-  source._network.use(middleware);
+  const undecorate = source._network.decorate({
+    // Stryker disable next-line StringLiteral: decoration name is a diagnostic label with no observable behavior
+    name: `seive:${name}`,
+    onDispatch: (ac, envelope, handler, forward) => {
+      if (filterFunction && !filterFunction(ac, envelope.cascade)) {
+        return;
+      }
+      if (handleFilter(ac)) {
+        destination._channel.enter(ac, {
+          cascade: addControl(name, envelope.cascade),
+          forward,
+        });
+      }
+    },
+  });
   return () => {
-    source._network.stop(middleware);
-    middleware = null;
+    undecorate();
     filterFunction = null;
     handleFilter = null;
   };

@@ -1,4 +1,4 @@
-import { isIterable, concatIterables } from '../src/utils';
+import { isIterable } from '../src/utils';
 
 describe('isIterable tests whether a value can be iterated as a collection', () => {
   it('should return false for null', () => {
@@ -139,85 +139,5 @@ describe('isIterable tests whether a value can be iterated as a collection', () 
     const actual = isIterable(toTest);
     // Assert
     expect(actual).toBe(expected);
-  });
-});
-
-describe('concatIterables returns an Iterable made of concatenating all iterables passed', () => {
-  it('should return empty iterable if passed nothing', () => {
-    expect(concatIterables()).toEqual([]);
-  });
-
-  it('should concatenate several Arrays', () => {
-    // Assemble
-    const first = [1, 2];
-    const second = [3, 4, 5];
-    const third = [6, 7, 8];
-    const expected = [1, 2, 3, 4, 5, 6, 7, 8];
-    // Act
-    const actual = concatIterables(first, second, third);
-    // Assert
-    // expect(actual.length).toBe(expected.length);
-    expect(actual).toEqual(expected);
-  });
-
-  it('should ignore empty collections', () => {
-    // Assemble
-    const first = [];
-    const second = [1, 2, 3, 4, 5];
-    const third = [];
-    const expected = second;
-    // Act
-    const actual = concatIterables(first, second, third);
-    // Assert
-    // expect(actual.length).toBe(expected.length);
-    expect(actual).toEqual(expected);
-  });
-
-  it('should concatenate different collection types', () => {
-    // Assemble
-    const first = [1, 2];
-    const second = new Set([3, 4, 5]);
-    const third = new Map();
-    third.set('six', 6);
-    third.set('seven', 7);
-    third.set('eight', 8);
-    const expected = [1, 2, 3, 4, 5, 6, 7, 8];
-    // Act
-    const actual = concatIterables(first, second, third);
-    // Assert
-    // expect(actual.length).toBe(expected.length);
-    expect(actual).toEqual(expected);
-  });
-
-  it('uses Map values rather than map entry tuples', () => {
-    const map = new Map([
-      ['one', 1],
-      ['two', 2],
-    ]);
-
-    expect(concatIterables(map)).toEqual([1, 2]);
-  });
-
-  it('iterates custom iterables that do not expose a values() method', () => {
-    const custom = {
-      *[Symbol.iterator]() {
-        yield 10;
-        yield 20;
-      },
-    };
-
-    expect(concatIterables(custom)).toEqual([10, 20]);
-  });
-
-  it('ignores a non-function values property and uses the iterator', () => {
-    const weird = {
-      values: 123,
-      *[Symbol.iterator]() {
-        yield 'x';
-        yield 'y';
-      },
-    };
-
-    expect(concatIterables(weird)).toEqual(['x', 'y']);
   });
 });

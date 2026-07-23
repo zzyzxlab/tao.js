@@ -12,9 +12,9 @@ function sourceControl(source) {
 }
 
 /**
- * Like Source, but `fromSrc` is required. (Previously carried an unbound
- * `kernel.forwardAppCtx` reference that threw on any chained AppCon; the
- * envelope hop engine owns forwarding now.) Unexported / experimental.
+ * Like Source, but `fromSrc` is required. Implemented as a Network
+ * decoration; the origin marker rides the envelope's hop scope.
+ * Unexported / experimental.
  *
  * @export
  * @class Relay
@@ -27,7 +27,10 @@ export default class Relay {
       );
     }
     this._network = kernel._network;
-    if (typeof this._network.enter !== 'function') {
+    if (
+      typeof this._network.enter !== 'function' ||
+      typeof this._network.decorate !== 'function'
+    ) {
       throw new Error(
         'Relay requires a @tao.js/core version with envelope support - upgrade @tao.js/core',
       );
@@ -42,21 +45,19 @@ export default class Relay {
     this._toSrc = toSrc;
     this._name = sourceName(name);
     fromSrc((tao, data) => this._enter(tao, data));
-    this._middleware = (handler, ac, fwd, control, envelope) =>
-      this.handleAppCon(handler, ac, fwd, control, envelope);
-    this._network.use(this._middleware);
+    this._undecorate = this._network.decorate({
+      // Stryker disable next-line StringLiteral: decoration name is a diagnostic label with no observable behavior
+      name: `relay:${this._name}`,
+      onDispatch: (ac, envelope) => this.handleAppCon(ac, envelope),
+    });
   }
 
   get name() {
     return this._name;
   }
 
-  handleAppCon(handler, ac, forwardAppCtx, control, envelope) {
-    const origin =
-      envelope && envelope.hop
-        ? envelope.hop.source
-        : control && control.source;
-    if (origin !== this.name) {
+  handleAppCon(ac, envelope) {
+    if (envelope.hop.source !== this.name) {
       this._toSrc(ac.unwrapCtx(), ac.data);
     }
   }
@@ -72,6 +73,6 @@ export default class Relay {
   }
 
   dispose() {
-    this._network.stop(this._middleware);
+    this._undecorate();
   }
 }

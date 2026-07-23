@@ -1,5 +1,5 @@
 import { AppCtx, Kernel } from '@tao.js/core';
-import Tracer from '../src/Tracer';
+import Tracer, { TRACE_CHAIN } from '../src/Tracer';
 import InMemorySink from '../src/InMemorySink';
 
 const TERM = 'trace';
@@ -44,12 +44,12 @@ describe('Tracer exports a class', () => {
   });
 
   it('should throw without a signal network or on a pre-envelope core', () => {
-    // Assemble
+    // Assemble — a pre-envelope kernel exposes a network without enter/decorate
     const oldCore = { _network: { use: () => {}, setCtxControl: () => {} } };
     // Act
     // Assert
     expect(() => new Tracer()).toThrow(/must provide `kernel`/);
-    expect(() => new Tracer(oldCore._network)).toThrow(/envelope support/);
+    expect(() => new Tracer(oldCore)).toThrow(/envelope support/);
   });
 
   it('should validate sinks added after construction', () => {
@@ -239,22 +239,6 @@ describe('Tracer continues traces across process boundaries', () => {
   });
 });
 
-describe('Tracer records legacy-mode dispatches as unlinked roots', () => {
-  it('should record caller-owned forwarding entries without linkage', async () => {
-    // Assemble
-    new Tracer(TAO, { sinks: [sink] });
-    TAO.addInlineHandler(TRIGRAM, jest.fn());
-    // Act — the frozen legacy path: caller owns the forward
-    TAO._network.setCtxControl(TRIGRAM, {}, { legacyCaller: true }, () => {});
-    await flush();
-    // Assert
-    expect(sink.size).toBe(1);
-    const [record] = sink.records;
-    expect(record.parentId).toBeNull();
-    expect(record.traceId).toMatch(TRACE_ID_RX);
-  });
-});
-
 describe('Tracer sink management and entry defaults', () => {
   it('should remove a sink', () => {
     // Assemble
@@ -287,25 +271,36 @@ describe('Tracer records built from duck-typed dispatch notifications', () => {
   it('should omit handler counts when no handler accompanies the dispatch', () => {
     // Assemble
     const tracer = new Tracer(TAO, { sinks: [sink] });
+    const stamp = {
+      traceId: 'ab'.repeat(16),
+      signalId: 'cd'.repeat(8),
+      parentId: null,
+    };
     // Act — decoration contract allows dispatch notification without a handler
-    tracer._record(new AppCtx(TERM, ACTION, ORIENT), { chain: {} }, undefined);
+    tracer._record(
+      new AppCtx(TERM, ACTION, ORIENT),
+      { chain: { [TRACE_CHAIN]: stamp } },
+      undefined,
+    );
     // Assert
     expect(sink.size).toBe(1);
-    expect(sink.records[0].handlers).toBeUndefined();
+    const [record] = sink.records;
+    expect(record.handlers).toBeUndefined();
+    expect(record).toMatchObject({
+      traceId: stamp.traceId,
+      signalId: stamp.signalId,
+      parentId: null,
+    });
   });
 });
 
 describe('Tracer constructor and entry guards (mutation)', () => {
-  it('should reject kernels with neither use() nor a network', () => {
+  it('should reject kernels with neither enter() nor a network', () => {
     expect(() => new Tracer({})).toThrow(/must provide `kernel`/);
   });
 
   it('should reject cores with enter but no decorate', () => {
-    const halfCore = {
-      use: () => {},
-      setCtxControl: () => {},
-      enter: () => {},
-    };
+    const halfCore = { enter: () => {} };
     expect(() => new Tracer(halfCore)).toThrow(/envelope support/);
   });
 
@@ -358,12 +353,8 @@ describe('Tracer constructor and entry guards (mutation)', () => {
 });
 
 describe('Tracer guard completeness (mutation)', () => {
-  it('should reject cores with decorate but no enter', () => {
-    const halfCore = {
-      use: () => {},
-      setCtxControl: () => {},
-      decorate: () => () => {},
-    };
+  it('should reject kernels whose network has decorate but no enter', () => {
+    const halfCore = { _network: { decorate: () => () => {} } };
     expect(() => new Tracer(halfCore)).toThrow(/envelope support/);
   });
 });

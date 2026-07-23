@@ -1,4 +1,4 @@
-import { Network, INTERCEPT, ERROR } from '@tao.js/core';
+import { AppCtx, Network, INTERCEPT, ERROR } from '@tao.js/core';
 
 // for backwards compatibility
 const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
@@ -37,9 +37,13 @@ function transceiverControl(transceiverId, resolve, reject) {
  * will conclude the Promise despite other handlers that may be continue to be
  * called depending on how you set up your Handlers
  *
- * Settlement is implemented with the core dispatch loop's `onReturn` hook
- * (see ENVELOPE-SPEC.md §6) — the previous fork of the phase semantics
- * (`captureSignal`) is gone.
+ * Fully envelope-native (see ENVELOPE-SPEC.md §12): entries go through
+ * `enter` with the transceiver's cascade tag; chained AppCons of matching
+ * cascades are mirrored onto the private signals network by an `onForward`
+ * decoration (signals dispatch starts before main dispatch of the same
+ * hop); signal-handler returns settle the Promise through the signals
+ * network's `onReturn` settlement hook; and chains from signal handlers
+ * continue the cascade envelope through the main network's hop engine.
  *
  * @export
  * @class Transceiver
@@ -51,37 +55,49 @@ export default class Transceiver {
         ? id(newTransceiverId())
         : id || newTransceiverId();
     this._signals = new Network();
-    this._signals.use(this.handleSignalAppCon);
-    this._network =
-      typeof network.use === 'function' ? network : network._network;
-    if (typeof this._network.enter !== 'function') {
+    this._surface =
+      typeof network.enter === 'function' ? network : network._network;
+    if (
+      !this._surface ||
+      typeof this._surface.enter !== 'function' ||
+      typeof this._surface.decorate !== 'function'
+    ) {
       throw new Error(
         'Transceiver requires a @tao.js/core version with envelope support - upgrade @tao.js/core',
       );
     }
+    // mirror from the shared network (a Channel surface delegates entries to
+    // it); the cascade tag filters this transceiver's cascades either way
+    this._network = this._surface._network || this._surface;
+    this._undecorateMirror = this._network.decorate({
+      // Stryker disable next-line StringLiteral: decoration name is a diagnostic label with no observable behavior
+      name: `transceiver:${this._transceiverId}`,
+      onForward: (nextAc, envelope, meta) => {
+        if (envelope.cascade.transceiverId === this._transceiverId) {
+          // signals dispatch starts before core dispatches the hop on the
+          // main network; chains from signal handlers continue the cascade
+          this._signals.enter(nextAc, {
+            cascade: envelope.cascade,
+            forward: meta.forward,
+          });
+        }
+      },
+    });
+    this._undecorateSettle = this._signals.decorate({
+      // Stryker disable next-line StringLiteral: decoration name is a diagnostic label with no observable behavior
+      name: `transceiver-settle:${this._transceiverId}`,
+      onReturn: (phase, value, ac, envelope) =>
+        this._settle(phase, value, envelope.cascade),
+    });
     this._timeoutMs = timeoutMs;
     this._promise = promise;
     this._cloneWithId = typeof id === 'function' ? id : undefined;
   }
 
   setCtx = ({ t, term, a, action, o, orient }, data) => {
-    const transceiverId = this._transceiverId;
-    const timeoutMs = this._timeoutMs;
-    const promise = this._promise;
-
-    return new promise((resolve, reject) => {
-      if (timeoutMs) {
-        setTimeout(() => {
-          reject(`reached timeout of: ${timeoutMs}ms`);
-        }, timeoutMs);
-      }
-      this._network.setCtxControl(
-        { t, term, a, action, o, orient },
-        data,
-        transceiverControl(transceiverId, resolve, reject),
-        this.forwardAppCtx,
-      );
-    });
+    return this.setAppCtx(
+      new AppCtx(term || t, action || a, orient || o, data),
+    );
   };
 
   setAppCtx = (ac) => {
@@ -95,47 +111,27 @@ export default class Transceiver {
           reject(`reached timeout of: ${timeoutMs}ms`);
         }, timeoutMs);
       }
-      this._network.setAppCtxControl(
-        ac,
-        transceiverControl(transceiverId, resolve, reject),
-        this.forwardAppCtx,
-      );
+      this._surface.enter(ac, {
+        cascade: transceiverControl(transceiverId, resolve, reject),
+      });
     });
   };
 
-  forwardAppCtx = (ac, control) => {
-    if (control.transceiverId === this._transceiverId) {
-      this._signals.setAppCtxControl(ac, control, this.forwardAppCtx);
-    }
-    this._network.setAppCtxControl(ac, control, this.forwardAppCtx);
-  };
-
-  handleSignalAppCon = (handler, ac, forwardAppCtx, control) => {
+  _settle(phase, value, control) {
     if (
-      control.transceiverId === this._transceiverId &&
-      control.signal &&
-      !control.signalled
+      control.transceiverId !== this._transceiverId ||
+      !control.signal ||
+      control.signalled
     ) {
-      const settle = (phase, value) => {
-        if (control.signalled) {
-          return;
-        }
-        control.signalled = true;
-        if (phase === INTERCEPT || phase === ERROR) {
-          control.signal.reject(value);
-        } else {
-          control.signal.resolve(value);
-        }
-      };
-      try {
-        handler.handleAppCon(ac, forwardAppCtx, control, { onReturn: settle });
-      } catch (dispatchErr) {
-        // defensive: a handler that cannot be dispatched rejects the signal
-        settle(ERROR, dispatchErr);
-      }
+      return;
     }
-    // ALERT: handler will have already handled the AppCon before now
-  };
+    control.signalled = true;
+    if (phase === INTERCEPT || phase === ERROR) {
+      control.signal.reject(value);
+    } else {
+      control.signal.resolve(value);
+    }
+  }
 
   addSignalHandler = ({ t, term, a, action, o, orient }, handler) => {
     this._signals.addInlineHandler({ t, term, a, action, o, orient }, handler);

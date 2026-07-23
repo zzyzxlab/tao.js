@@ -24,10 +24,10 @@ function transponderControl(transponderId, signal) {
  * It is recommended to attach a Transponder to one of the other `utils` classes that filter
  * or have a subset of the handlers of your primary Network like a Channel.
  *
- * The transponder tag rides the cascade scope of the envelope, so it survives
- * every hop of a chain (see ENVELOPE-SPEC.md). When attached directly to a
- * Kernel/Network with envelope support, chained AppCons now propagate (they
- * previously died on a no-op forward).
+ * Implemented as an `onDispatch` decoration on the wrapped surface (a raw
+ * Network/Kernel network, or a Channel's private network via
+ * `Channel.decorate`). The transponder tag rides the cascade scope of the
+ * envelope, so it survives every hop of a chain (see ENVELOPE-SPEC.md).
  *
  * @export
  * @class Transponder
@@ -57,8 +57,23 @@ export default class Transponder {
     // Stryker disable next-line EqualityOperator: equivalent - `inTO || 0` above already coerces -0/NaN to 0, so for every remaining value `inTO > 0` and `inTO >= 0` pick the same branch (0 stays 0 either way)
     this._timeoutMs = inTO > 0 ? inTO : 0;
     this._network =
-      typeof network.use === 'function' ? network : network._network;
-    this._network.use(this.handleSignalAppCon);
+      typeof network.enter === 'function' ? network : network._network;
+    if (
+      !this._network ||
+      typeof this._network.enter !== 'function' ||
+      typeof this._network.decorate !== 'function'
+    ) {
+      throw new Error(
+        'Transponder requires a @tao.js/core version with envelope support - upgrade @tao.js/core',
+      );
+    }
+    this._decoration = {
+      // Stryker disable next-line StringLiteral: decoration name is a diagnostic label with no observable behavior
+      name: `transponder:${this._transponderId}`,
+      onDispatch: (ac, envelope) =>
+        this.handleSignalAppCon(ac, envelope.cascade),
+    };
+    this._undecorate = this._network.decorate(this._decoration);
     this._promise = promise;
     this._cloneWithId = typeof id === 'function' ? id : undefined;
   }
@@ -90,7 +105,10 @@ export default class Transponder {
    * @memberof Transponder
    */
   attach() {
-    this._network.use(this.handleSignalAppCon);
+    // Stryker disable next-line ConditionalExpression: guard keeps attach idempotent; double-decorating would only duplicate a first-wins signal
+    if (!this._undecorate) {
+      this._undecorate = this._network.decorate(this._decoration);
+    }
     return this;
   }
 
@@ -106,36 +124,17 @@ export default class Transponder {
    * @memberof Transponder
    */
   detach() {
-    this._network.stop(this.handleSignalAppCon);
+    if (this._undecorate) {
+      this._undecorate();
+      this._undecorate = null;
+    }
     return this;
   }
 
   setCtx({ t, term, a, action, o, orient }, data) {
-    const transponderId = this._transponderId;
-    const timeoutMs = this._timeoutMs;
-    const promise = this._promise;
-
-    return new promise((resolve, reject) => {
-      if (timeoutMs) {
-        setTimeout(() => {
-          reject(`reached timeout of: ${timeoutMs}ms`);
-        }, timeoutMs);
-      }
-      const control = transponderControl(transponderId, resolve);
-      if (typeof this._network.enter === 'function') {
-        this._network.enter(
-          new AppCtx(term || t, action || a, orient || o, data),
-          { cascade: control },
-        );
-        return;
-      }
-      // wrapped surface owns its own entry semantics (e.g. a Channel)
-      this._network.setCtxControl(
-        { t, term, a, action, o, orient },
-        data,
-        control,
-      );
-    });
+    return this.setAppCtx(
+      new AppCtx(term || t, action || a, orient || o, data),
+    );
   }
 
   setAppCtx(ac) {
@@ -149,17 +148,13 @@ export default class Transponder {
           reject(`reached timeout of: ${timeoutMs}ms`);
         }, timeoutMs);
       }
-      const control = transponderControl(transponderId, resolve);
-      if (typeof this._network.enter === 'function') {
-        this._network.enter(ac, { cascade: control });
-        return;
-      }
-      // wrapped surface owns its own entry semantics (e.g. a Channel)
-      this._network.setAppCtxControl(ac, control);
+      this._network.enter(ac, {
+        cascade: transponderControl(transponderId, resolve),
+      });
     });
   }
 
-  handleSignalAppCon = (handler, ac, forwardAppCtx, control) => {
+  handleSignalAppCon = (ac, control) => {
     // Stryker disable all: optional debug logging
     this._debug &&
       console.log(
@@ -183,7 +178,5 @@ export default class Transponder {
       control.signalled = true;
       control.signal(ac);
     }
-    // ALERT: handler will have already handled the AppCon before now
-    // return handler.handleAppCon(ac, forwardAppCtx, control);
   };
 }

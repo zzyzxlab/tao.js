@@ -188,32 +188,9 @@ Wildcard keys for the parts of the trigram that are missing.
 
 If the `handler` is not attached to the provided `trigram` then the request is silently ignored.
 
-### `asPromiseHook`
+### `asPromiseHook` _(removed in 0.19.0)_
 
-|arg|required|type|default|description|
-|---|--------|----|-------|-----------|
-|`resolveOn`|yes & no|`Object` or `Array`||single or list of trigrams on which to resolve the `Promise`|
-|`rejectOn`|yes & no|`Object` or `Array`||single or list of trigrams on which to reject the `Promise`|
-|`timeoutMs`|no|number|`0`|a timeout in milliseconds after which the `Promise` should be rejected|
-
-**returns:** a `setCtx` function that will return a `Promise` which will resolve or reject based
-on the arguments provided.
-
-At least one of either `resolveOn` or `rejectOn` **must** be provided to `asPromiseHook` or an
-Error will be thrown.
-
-`resolveOn` and `rejectOn` are trigrams of the same form used by the add and remove handler methods
-of the Kernel, an object with keys specifying which Application Contexts this handler should no
-longer receive:
-
-- `t`/`term` - the term for the trigram
-- `a`/`action` - the action for the trigram
-- `o`/`orient` - the orient(ation) for the trigram
-
-`asPromiseHook` adds Inline Handlers for each of the trigrams provided to it in the `resolveOn`
-and `rejectOn` args and cleans up after itself by removing those handlers just before resolving or
-rejecting the `Promise`.
-
-`asPromiseHook` is late binding, meaning that it will add the handlers to the Kernel only after
-the returned `setCtx` function is called so that the handlers aren't called/executed until
-desired.
+`asPromiseHook` predates the Network and was removed in `@tao.js/core` 0.19.0.
+Use a [`Transponder`](../utils/transponder.md) (resolve on the first handled
+signal) or a [`Transceiver`](../utils/transceiver.md) (handlers control the
+Promise) from `@tao.js/utils` instead.

@@ -74,7 +74,13 @@ the behavioral invariants they yielded are §10):
 
 ## 3. Design overview
 
-Three additions to `Network`, one to `AppCtxHandlers`; nothing removed:
+> **Status:** as of 0.19.0 the compatibility boundary below is history — the
+> frozen legacy line was removed per §12, and `enter()` + `decorate()` are
+> the entire dispatch surface. §§3–7 read as the design rationale; the flow
+> in §4 and the interface in §5 are kept current.
+
+Three additions to `Network`, one to `AppCtxHandlers`; nothing removed
+until the §12 cutover:
 
 1. **Envelope** — the dispatch context, with three explicit sections:
    - `envelope.cascade` — the legacy `control` object itself, same reference
@@ -95,7 +101,7 @@ Three additions to `Network`, one to `AppCtxHandlers`; nothing removed:
    `onReturn` sink for non-AppCtx handler returns, retiring Transceiver's
    dispatch fork (§6).
 
-### Compatibility boundary (the frozen line)
+### Compatibility boundary (the frozen line — removed in 0.19.0, see §12)
 
 - `setCtxControl` / `setAppCtxControl` **with an explicit `forwardAppCtx`**:
   legacy mode, bit-for-bit today's behavior. The caller's forward owns the
@@ -118,48 +124,62 @@ of that distinction is `Source`, which migrates to hop scope in the same
 change (behavior preserved: suppress echo on the stamped hop only). No surveyed consumer depended on per-hop reset
 of custom cascade keys.
 
-## 4. Dispatch flow (v2 mode)
+## 4. Dispatch flow
 
 ```
-network.enter(ac, { data, cascade, hop })
-  └─ envelope = { cascade: cascade || {}, hop: hop || {}, chain: reduceChain(null, ac) }
+network.enter(ac, { cascade, hop, chain, forward? })
+  └─ envelope = { cascade: cascade || {}, hop: hop || {}, chain: reduceChain(chain, ac) }
      dispatch(ac, envelope):
        1. for each decorator with chain reducers: already applied (envelope.chain)
-       2. middleware loop (kernel's handler execution, observers, legacy middleware)
-          — called as (handler, ac, coreForward, envelope.cascade, envelope)
-       3. handler chains AppCon `next` → coreForward(next, envelope):
+       2. for each decorator: onDispatch(ac, envelope, handler, forward)
+       3. handler.handleAppCon(ac, coreForward, envelope.cascade, hooks)
+          — the Network owns handler execution (0.19); hooks built from
+            onReturn decorations (§6); coreForward is the enter() `forward`
+            override when given, else the hop engine below
+       4. handler chains AppCon `next` → coreForward(next):
           a. nextEnvelope = { cascade: envelope.cascade,        // same ref
                               hop: {},                          // reset
                               chain: reduceChain(envelope.chain, next) }
-          b. for each decorator: onForward(next, nextEnvelope, { from: ac })
-             — mirrors to private networks happen here (Channel._channel, …)
+          b. for each decorator: onForward(next, nextEnvelope,
+               { from: envelope, forward })
+             — mirrors to private networks happen here (Channel._channel, …);
+               `forward(chainedAc)` continues the cascade from this hop
           c. dispatch(next, nextEnvelope)                        // exactly once
 ```
+
+The `forward` option on `enter()` is network-composition plumbing: an
+adapter mirroring a cascade onto a **private** network passes the main
+network's continuation (`meta.forward`, or the `onDispatch` fourth argument)
+so AppCons chained by privately-dispatched handlers continue the cascade
+envelope through the main hop engine instead of re-entering with a fresh
+one. It is not an application-level surface.
 
 Ordering guarantees (pinned by tests):
 
 - `onForward` mirrors run **before** the main-network dispatch of the chained
-  AppCon (preserves Channel's current `_channel`-first ordering).
-- Middleware/decorator invocation order is registration order; correctness
-  must not depend on it (self-filtering by envelope keys, as all current
-  adapters already do).
-- Chained AppCons within one handler spool dispatch in spool order (today's
-  behavior).
+  AppCon (preserves Channel's `_channel`-first ordering).
+- Decorator invocation order is registration order; correctness must not
+  depend on it (self-filtering by envelope keys, as all current adapters
+  already do).
+- Chained AppCons within one handler spool dispatch in spool order.
 - Wildcard AppCons chained by handlers are dropped per the owning Kernel's
-  `canSetWildcard`, exactly as `Kernel.setAppCtx` does today.
+  `canSetWildcard`, exactly as `Kernel.setAppCtx` does.
 
-Async timing note (also today's behavior, now normative): everything after a
-dispatch's synchronous middleware loop — intercept awaits, async forks,
-inline spool, all chaining — resumes on microtasks. Entry stamping of an
-envelope during the middleware loop is therefore race-free.
+Async timing note (normative): everything after a dispatch's synchronous
+start — intercept awaits, async forks, inline spool, all chaining — resumes
+on microtasks. Entry stamping of an envelope during the synchronous start is
+therefore race-free.
 
 ## 5. Decorator interface
 
 ```js
 const dispose = network.decorate({
   name: 'channel:abc',                      // diagnostic
-  onDispatch(ac, envelope) {},              // observe every dispatch
-  onForward(nextAc, envelope, meta) {},     // mirror/route a chained AppCon
+  onDispatch(ac, envelope, handler, forward) {},  // observe every dispatch;
+                                            // forward(chainedAc) continues
+                                            // this hop's cascade (§4)
+  onForward(nextAc, envelope, meta) {},     // mirror/route a chained AppCon;
+                                            // meta = { from, forward }
   onReturn(phase, value, ac, envelope) {},  // settle non-AppCtx handler returns
   chain: {                                  // per-hop reducer, namespaced
     key: 'trace',
@@ -177,8 +197,11 @@ Composition laws (what "non-competitive" means, normatively):
 | `onForward`   | commutes because mirrors are self-filtered by cascade keys and **never** re-enter main dispatch |
 | `onReturn`    | first-settlement-wins per entry, self-scoped by cascade key (`transceiverId`)                   |
 
-`network.use()` remains supported unchanged (an `onDispatch`-only decorator
-in legacy clothing).
+`network.use()` was removed in 0.19.0 (§12): `decorate({ onDispatch })` is
+its strict superset. `Channel` exposes the same decoration contract for its
+private network via `Channel.decorate(spec)`, and channel-scoped entry via
+`Channel.enter(ac, { cascade, hop, chain })` — how wrapping adapters
+(Transponder) compose with a Channel without touching its internals.
 
 ## 6. Settlement hook
 
@@ -293,6 +316,16 @@ pre-envelope core rather than misbehave.
 7. Docs: AGENTS.md envelope contract section, package READMEs, FUTURE.md.
 
 ## 12. Legacy retirement (the 0.19 cutover)
+
+> **Status: executed** on the `feat/legacy-retirement` branch (0.19.0). The
+> disposition table below was applied in full; the one semantic fix (step 4)
+> shipped as designed — chained AppCons from channel-attached handlers now
+> continue the cascade envelope via the main network's hop engine, which
+> also means channel handlers observe chains produced by channel handlers
+> (previously those re-entered as fresh, unmirrored cascades). A latent bug
+> fell out for free: `Kernel.clone()`/`Channel.clone()` clones now actually
+> dispatch handlers (the cloned networks used to lose their dispatch
+> middleware; with the Network owning execution there is none to lose).
 
 The compatibility freeze in §3 was calibrated to production constraints
 that turned out not to bind: the applications surveyed during design are

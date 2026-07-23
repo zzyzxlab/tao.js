@@ -20,12 +20,9 @@ function countHandlers(iterator) {
  * Causal signal tracing as a pure Network decoration: a chain reducer
  * derives `{ traceId, signalId, parentId }` per hop, and an observer emits
  * one record per dispatched signal to attached sinks. No instrumentation of
- * any entry surface is required — every v2 cascade (kernel entries, channel
+ * any entry surface is required — every cascade (kernel entries, channel
  * entries, transponder entries, chained hops, channel mirrors) carries
  * causality natively.
- *
- * Legacy-mode dispatches (callers that own their `forwardAppCtx` through the
- * frozen control path) are still recorded, as unlinked roots.
  *
  * @export
  * @class Tracer
@@ -44,12 +41,14 @@ export default class Tracer {
    */
   // Stryker disable next-line ArrayDeclaration: junk entries in the sinks default are call-guarded by the per-sink try
   constructor(kernel, { sinks = [], clock, captureData = false } = {}) {
-    if (!kernel || (typeof kernel.use !== 'function' && !kernel._network)) {
+    if (!kernel || (typeof kernel.enter !== 'function' && !kernel._network)) {
       throw new Error(
         'must provide `kernel` to attach the Tracer to a network',
       );
     }
-    this._network = typeof kernel.use === 'function' ? kernel : kernel._network;
+    // a Kernel (or Channel) exposes the shared network via `_network`; a raw
+    // Network is decorated directly
+    this._network = kernel._network || kernel;
     if (
       typeof this._network.enter !== 'function' ||
       typeof this._network.decorate !== 'function'
@@ -155,20 +154,12 @@ export default class Tracer {
   }
 
   _record(ac, envelope, handler) {
-    const stamp =
-      envelope && envelope.chain ? envelope.chain[TRACE_CHAIN] : undefined;
-    const record = stamp
-      ? {
-          traceId: stamp.traceId,
-          signalId: stamp.signalId,
-          parentId: stamp.parentId || null,
-        }
-      : {
-          // legacy-mode dispatch (caller-owned forwarding) - unlinked root
-          traceId: newTraceId(),
-          signalId: newSignalId(),
-          parentId: null,
-        };
+    const stamp = envelope.chain[TRACE_CHAIN];
+    const record = {
+      traceId: stamp.traceId,
+      signalId: stamp.signalId,
+      parentId: stamp.parentId || null,
+    };
     record.t = ac.t;
     record.a = ac.a;
     record.o = ac.o;

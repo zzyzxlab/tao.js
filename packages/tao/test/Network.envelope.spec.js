@@ -230,9 +230,6 @@ describe('Network.enter dispatches through the hop engine', () => {
   it('should drop wildcard chains on a bare Network by default', async () => {
     // Assemble — a raw Network (no Kernel) defaults canSetWildcard to false
     const network = new Network();
-    network.use((handler, ac, forward, control) =>
-      handler.handleAppCon(ac, forward, control),
-    );
     const seen = [];
     network.decorate({ onDispatch: (ac) => seen.push(ac.key) });
     network.addInlineHandler(TRIGRAM, () => new AppCtx(TERM));
@@ -281,29 +278,7 @@ describe('Network decorations observe and mirror', () => {
     expect(forwarded.nextAc.a).toBe(NEXT_ACTION);
     expect(forwarded.meta.from.cascade).toBe(forwarded.envelope.cascade);
     expect(forwarded.meta.from.chain).not.toBe(forwarded.envelope.chain);
-  });
-
-  it('should observe legacy setCtxControl dispatches with a legacy envelope', () => {
-    // Assemble
-    const seen = [];
-    const network = TAO._network;
-    network.decorate({ onDispatch: (ac, envelope) => seen.push(envelope) });
-    const control = { channelId: 'legacy-channel' };
-    // Act
-    network.setCtxControl(TRIGRAM, {}, control, () => {});
-    network.setAppCtxControl(
-      new AppCtx(TERM, NEXT_ACTION, ORIENT),
-      control,
-      () => {},
-    );
-    // Assert
-    expect(seen).toHaveLength(2);
-    for (const envelope of seen) {
-      expect(envelope.legacy).toBe(true);
-      expect(envelope.cascade).toBe(control);
-      expect(envelope.chain).toBeNull();
-      expect(envelope.hop).toBeNull();
-    }
+    expect(typeof forwarded.meta.forward).toBe('function');
   });
 
   it('should never let a throwing decoration break dispatch', async () => {
@@ -344,6 +319,134 @@ describe('Network decorations observe and mirror', () => {
     TAO.setCtx(TRIGRAM, {});
     // Assert
     expect(seen).toEqual([ACTION]);
+  });
+});
+
+describe('Cascade continuation forwards (network composition)', () => {
+  it("should continue this hop's cascade through the onDispatch forward", async () => {
+    // Assemble
+    const cascades = [];
+    const depths = [];
+    const hops = [];
+    const chained = new AppCtx(TERM, NEXT_ACTION, ORIENT);
+    const chainedHandler = jest.fn();
+    TAO._network.decorate({
+      chain: {
+        key: 'depth',
+        next: (prev) => (typeof prev === 'undefined' ? 0 : prev + 1),
+      },
+    });
+    TAO._network.decorate({
+      onDispatch: (ac, envelope, handler, forward) => {
+        cascades.push(envelope.cascade);
+        depths.push(envelope.chain.depth);
+        hops.push(envelope.hop);
+        if (ac.a === ACTION) {
+          forward(chained);
+        }
+      },
+    });
+    TAO.addInlineHandler(NEXT_TRIGRAM, chainedHandler);
+    // Act
+    TAO._network.enter(new AppCtx(TERM, ACTION, ORIENT), {
+      hop: { source: 'entry' },
+    });
+    await flush();
+    // Assert — the chained AC dispatched with the SAME cascade, a reduced
+    // chain, and a reset hop
+    expect(cascades).toHaveLength(2);
+    expect(cascades[1]).toBe(cascades[0]);
+    expect(depths).toEqual([0, 1]);
+    expect(hops[0]).toEqual({ source: 'entry' });
+    expect(hops[1]).toEqual({});
+    expect(chainedHandler).toHaveBeenCalledTimes(1);
+  });
+
+  it('should continue the cascade from the chained hop through onForward meta.forward', async () => {
+    // Assemble
+    const cascades = [];
+    const depths = [];
+    const metas = [];
+    const third = new AppCtx(TERM, THIRD_ACTION, ORIENT);
+    const thirdHandler = jest.fn();
+    TAO._network.decorate({
+      chain: {
+        key: 'depth',
+        next: (prev) => (typeof prev === 'undefined' ? 0 : prev + 1),
+      },
+    });
+    TAO._network.decorate({
+      onDispatch: (ac, envelope) => {
+        cascades.push(envelope.cascade);
+        depths.push(envelope.chain.depth);
+      },
+      onForward: (nextAc, envelope, meta) => metas.push(meta),
+    });
+    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
+    TAO.addInlineHandler({ t: TERM, a: THIRD_ACTION, o: ORIENT }, thirdHandler);
+    // Act — run the main cascade first
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    expect(depths).toEqual([0, 1]);
+    // Act — a mirror continues the cascade from the chained hop, as a
+    // channel-attached handler chain would
+    metas[0].forward(third);
+    await flush();
+    // Assert — the continued AC dispatched with the SAME cascade and the
+    // chain reduced from the chained hop
+    expect(cascades).toHaveLength(3);
+    expect(cascades[1]).toBe(cascades[0]);
+    expect(cascades[2]).toBe(cascades[0]);
+    expect(depths).toEqual([0, 1, 2]);
+    expect(thirdHandler).toHaveBeenCalledTimes(1);
+  });
+
+  it("should route handler-returned AppCons to enter's forward override", async () => {
+    // Assemble
+    const override = jest.fn();
+    const chained = new AppCtx(TERM, NEXT_ACTION, ORIENT);
+    const chainedHandler = jest.fn();
+    const seen = [];
+    let entryEnvelope = null;
+    let dispatchForward = null;
+    TAO._network.decorate({
+      onDispatch: (ac, envelope, handler, forward) => {
+        seen.push(ac.key);
+        entryEnvelope = envelope;
+        dispatchForward = forward;
+      },
+    });
+    TAO.addInlineHandler(TRIGRAM, () => chained);
+    TAO.addInlineHandler(NEXT_TRIGRAM, chainedHandler);
+    // Act
+    TAO._network.enter(new AppCtx(TERM, ACTION, ORIENT), { forward: override });
+    await flush();
+    // Assert — the override received the chained AppCtx with the cascade...
+    expect(override).toHaveBeenCalledTimes(1);
+    expect(override.mock.calls[0][0]).toBe(chained);
+    expect(override.mock.calls[0][1]).toBe(entryEnvelope.cascade);
+    // ...it is also this dispatch's forward as seen by decorations...
+    expect(dispatchForward).toBe(override);
+    // ...and the chained AppCtx was NOT dispatched on this network
+    expect(chainedHandler).not.toHaveBeenCalled();
+    expect(seen).toEqual([`${TERM}|${ACTION}|${ORIENT}`]);
+  });
+
+  it('should ignore a non-function forward option and forward normally', async () => {
+    // Assemble
+    const chainedHandler = jest.fn();
+    const forwards = [];
+    TAO._network.decorate({ onForward: (nextAc) => forwards.push(nextAc.a) });
+    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
+    TAO.addInlineHandler(NEXT_TRIGRAM, chainedHandler);
+    // Act
+    TAO._network.enter(new AppCtx(TERM, ACTION, ORIENT), {
+      forward: 'not-a-function',
+    });
+    await flush();
+    // Assert — normal core forwarding still happened
+    expect(forwards).toEqual([NEXT_ACTION]);
+    expect(chainedHandler).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -456,18 +559,34 @@ describe('Settlement hook (onReturn)', () => {
     expect(returns).toEqual([]);
   });
 
-  it('should pass undefined hooks to middleware when no settlement is decorated', () => {
+  it('should pass undefined hooks to handlers when no settlement is decorated', () => {
     // Assemble — an observation-only decoration must NOT manufacture hooks,
     // or legacy error rethrow semantics would silently change
-    let capturedHooks = 'unset';
     TAO._network.decorate({ onDispatch: jest.fn() });
-    TAO._network.use((handler, ac, forward, control, envelope, hooks) => {
-      capturedHooks = hooks;
-    });
+    TAO.addInlineHandler(TRIGRAM, () => {});
+    const ach = TAO._network._handlers.get(`${TERM}|${ACTION}|${ORIENT}`);
+    const handleAppCon = jest.spyOn(ach, 'handleAppCon');
     // Act
     TAO.setCtx(TRIGRAM, {});
     // Assert
-    expect(capturedHooks).toBeUndefined();
+    expect(handleAppCon).toHaveBeenCalledTimes(1);
+    expect(handleAppCon.mock.calls[0][3]).toBeUndefined();
+    handleAppCon.mockRestore();
+  });
+
+  it('should pass a settlement hooks object to handlers when onReturn is decorated', () => {
+    // Assemble
+    TAO._network.decorate({ onReturn: jest.fn() });
+    TAO.addInlineHandler(TRIGRAM, () => {});
+    const ach = TAO._network._handlers.get(`${TERM}|${ACTION}|${ORIENT}`);
+    const handleAppCon = jest.spyOn(ach, 'handleAppCon');
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    // Assert
+    expect(handleAppCon).toHaveBeenCalledTimes(1);
+    const hooks = handleAppCon.mock.calls[0][3];
+    expect(typeof hooks.onReturn).toBe('function');
+    handleAppCon.mockRestore();
   });
 
   it('should ignore a non-function onReturn on the hooks object', async () => {
@@ -488,29 +607,6 @@ describe('Settlement hook (onReturn)', () => {
         },
       ),
     ).rejects.toThrow('legacy boom');
-  });
-
-  it('should invoke a caller-supplied legacy forward for chained AppCons', async () => {
-    // Assemble — the frozen legacy path: caller-owned forwarding must still
-    // receive every chained AppCon
-    const ctxForward = jest.fn();
-    const appCtxForward = jest.fn();
-    const control = { legacy: 'caller' };
-    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
-    // Act
-    TAO._network.setCtxControl(TRIGRAM, {}, control, ctxForward);
-    TAO._network.setAppCtxControl(
-      new AppCtx(TERM, ACTION, ORIENT),
-      control,
-      appCtxForward,
-    );
-    await flush();
-    // Assert
-    expect(ctxForward).toHaveBeenCalledTimes(1);
-    expect(ctxForward).toHaveBeenCalledWith(expect.any(AppCtx), control);
-    expect(ctxForward.mock.calls[0][0].a).toBe(NEXT_ACTION);
-    expect(appCtxForward).toHaveBeenCalledTimes(1);
-    expect(appCtxForward).toHaveBeenCalledWith(expect.any(AppCtx), control);
   });
 
   it('should key single-object AppCtx data under the action name', () => {
@@ -542,39 +638,24 @@ describe('Settlement hook (onReturn)', () => {
 });
 
 describe('compatibility and defensive coverage', () => {
-  it('should keep Kernel.forwardAppCtx working for legacy adapters', async () => {
-    // Assemble — old-utils Source/Relay call kernel.forwardAppCtx directly;
-    // it must dispatch like setAppCtx (dropping any legacy control)
-    const handler = jest.fn();
-    TAO.addInlineHandler(TRIGRAM, handler);
-    // Act
-    TAO.forwardAppCtx(new AppCtx(TERM, ACTION, ORIENT, { [TERM]: { id: 3 } }), {
-      source: 'legacy',
-    });
-    await flush();
-    // Assert
-    expect(handler).toHaveBeenCalledTimes(1);
-    expect(handler).toHaveBeenCalledWith(expect.objectContaining(TRIGRAM), {
-      [TERM]: { id: 3 },
-    });
-  });
-
   it('should ignore non-AppCtx values passed to the core forward', () => {
-    // Assemble — middleware receives the core forward as forwardAppCtx and
-    // may call it with anything (legacy NOOP-forward parity)
+    // Assemble — handlers hand the core forward whatever they return, so it
+    // must ignore junk values (legacy NOOP-forward parity)
     let coreForward = null;
-    TAO._network.use((handler, ac, forward) => {
-      coreForward = forward;
-    });
     const seen = [];
-    TAO._network.decorate({ onDispatch: (ac) => seen.push(ac.key) });
+    TAO._network.decorate({
+      onDispatch: (ac, envelope, handler, forward) => {
+        coreForward = forward;
+        seen.push(ac.key);
+      },
+    });
     // Act
     TAO.setCtx(TRIGRAM, {});
     // Assert
     expect(() => coreForward(42)).not.toThrow();
     expect(() => coreForward({ t: TERM })).not.toThrow();
     expect(seen).toEqual([`${TERM}|${ACTION}|${ORIENT}`]);
-    // and no phantom handler registrations from the junk values
+    // and no phantom handler registrations or dispatches from the junk values
     expect(TAO._network._handlers.has('*|*|*')).toBe(false);
     expect(TAO._network._handlers.has(undefined)).toBe(false);
   });

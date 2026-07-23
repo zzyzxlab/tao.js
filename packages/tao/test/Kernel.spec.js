@@ -1,4 +1,4 @@
-import { WILDCARD, TIMEOUT_REJECT } from '../src/constants';
+import { WILDCARD } from '../src/constants';
 import AppCtxRoot from '../src/AppCtxRoot';
 import AppCtx from '../src/AppCtx';
 import Kernel from '../src/Kernel';
@@ -461,553 +461,6 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
     });
   });
 
-  describe('converts a set of Contexts as a Promise Hook', () => {
-    it('should return a function used for setting context when getting a Promise Hook', () => {
-      // Assemble
-      const uut = new Kernel();
-      // Act
-      const actual = uut.asPromiseHook({
-        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-      });
-      // Assert
-      expect(actual).toBeDefined();
-      expect(actual).toBeInstanceOf(Function);
-    });
-
-    it('should throw an Error when creating a Promise Hook with no App Contexts', () => {
-      // Assemble
-      const uut = new Kernel();
-      // Act
-      const noArgsThrows = () => uut.asPromiseHook();
-      const undefinedThrows = () =>
-        uut.asPromiseHook({ resolveOn: undefined, rejectOn: undefined });
-      const nullThrows = () =>
-        uut.asPromiseHook({ resolveOn: null, rejectOn: null });
-      const emptyThrows = () =>
-        uut.asPromiseHook({ resolveOn: '', rejectOn: '' });
-      // Assert
-      const message =
-        'asPromiseHook must be provided with a way to settle the Promise: `resolveOn` or `rejectOn` must have a value';
-      expect(noArgsThrows).toThrow('Cannot read properties of undefined');
-      expect(undefinedThrows).toThrow(message);
-      expect(nullThrows).toThrow(message);
-      expect(emptyThrows).toThrow(message);
-    });
-
-    it('does not schedule a timeout when timeoutMs is zero or negative', () => {
-      const uut = new Kernel();
-      const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
-      const options = { resolveOn: { t: TERM, a: ACTION, o: ORIENT } };
-
-      uut.asPromiseHook(options, 0)(options.resolveOn);
-      uut.asPromiseHook(options, -1)(options.resolveOn);
-
-      expect(setTimeoutSpy).not.toHaveBeenCalled();
-      setTimeoutSpy.mockRestore();
-    });
-
-    it('should resolve a promise from a specified Concrete App Context', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-      });
-      expect.assertions(1);
-      // Act
-      const resolvingPromise = promiseSetCtx({
-        t: ALT_TERM,
-        a: ACTION,
-        o: ORIENT,
-      });
-      // Assert
-      return expect(resolvingPromise).resolves.toMatchObject({
-        tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data,
-      });
-    });
-
-    it('should reject a promise from a specified Concrete App Context', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT, [
-        { a: 1 },
-      ]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-      });
-      expect.assertions(1);
-      // Act
-      const rejectingPromise = promiseSetCtx({
-        t: ALT_TERM,
-        a: ACTION,
-        o: ORIENT,
-      });
-      // Assert
-      return expect(rejectingPromise).rejects.toMatchObject({
-        tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data,
-      });
-    });
-
-    it('should resolve a promise from a list of Concrete App Contexts', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(TERM, ALT_ACTION, ORIENT, [{ a: 1 }]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: [{ t: TERM, a: ACTION, o: ORIENT }, expectedAc.unwrapCtx()],
-        rejectOn: [
-          { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-          { t: ALT_TERM, a: ALT_ACTION, o: ORIENT },
-        ],
-      });
-      expect.assertions(1);
-      // Act
-      const resolvingPromise = promiseSetCtx({
-        t: ALT_TERM,
-        a: ACTION,
-        o: ORIENT,
-      });
-      // Assert
-      return expect(resolvingPromise).resolves.toMatchObject({
-        tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data,
-      });
-    });
-
-    it('should reject a promise from a list of Concrete App Contexts', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(ALT_TERM, ALT_ACTION, ORIENT, [{ a: 1 }]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: [
-          { t: TERM, a: ACTION, o: ORIENT },
-          { t: TERM, a: ALT_ACTION, o: ORIENT },
-        ],
-        rejectOn: [
-          { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-          expectedAc.unwrapCtx(),
-        ],
-      });
-      expect.assertions(1);
-      // Act
-      const rejectingPromise = promiseSetCtx({
-        t: ALT_TERM,
-        a: ACTION,
-        o: ORIENT,
-      });
-      // Assert
-      return expect(rejectingPromise).rejects.toMatchObject({
-        tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data,
-      });
-    });
-
-    it('should resolve a promise from a specified Wild App Context', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: { t: TERM, a: '', o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-      });
-      expect.assertions(1);
-      // Act
-      const resolvingPromise = promiseSetCtx({
-        t: ALT_TERM,
-        a: ACTION,
-        o: ORIENT,
-      });
-      // Assert
-      return expect(resolvingPromise).resolves.toMatchObject({
-        tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data,
-      });
-    });
-
-    it('should reject a promise from a specified Wild App Context', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT, [
-        { a: 1 },
-      ]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { o: ALT_ORIENT },
-      });
-      expect.assertions(1);
-      // Act
-      const rejectingPromise = promiseSetCtx({
-        t: ALT_TERM,
-        a: ACTION,
-        o: ORIENT,
-      });
-      // Assert
-      return expect(rejectingPromise).rejects.toMatchObject({
-        tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data,
-      });
-    });
-
-    it('should resolve a promise from a list of Wild App Contexts', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(TERM, ALT_ACTION, ORIENT, [{ a: 1 }]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: [
-          { t: TERM, o: ALT_ORIENT },
-          { a: ALT_ACTION, o: ORIENT },
-        ],
-        rejectOn: [
-          { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-          { t: TERM, a: ACTION, o: ALT_ORIENT },
-        ],
-      });
-      expect.assertions(1);
-      // Act
-      const resolvingPromise = promiseSetCtx({
-        t: ALT_TERM,
-        a: ACTION,
-        o: ORIENT,
-      });
-      // Assert
-      return expect(resolvingPromise).resolves.toMatchObject({
-        tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data,
-      });
-    });
-
-    it('should reject a promise from a list of Wild App Contexts', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(ALT_TERM, ACTION, ALT_ORIENT, [{ a: 1 }]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: [
-          { t: TERM, a: ACTION, o: ORIENT },
-          { t: TERM, a: ALT_ACTION, o: ORIENT },
-        ],
-        rejectOn: [
-          { t: ALT_TERM, a: ALT_ACTION },
-          { t: ALT_TERM, o: ALT_ORIENT },
-        ],
-      });
-      expect.assertions(1);
-      // Act
-      const rejectingPromise = promiseSetCtx({
-        t: ALT_TERM,
-        a: ACTION,
-        o: ORIENT,
-      });
-      // Assert
-      return expect(rejectingPromise).rejects.toMatchObject({
-        tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data,
-      });
-    });
-
-    it('should reject a promise after a specified timeout', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook(
-        {
-          resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-          rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-        },
-        100,
-      );
-      expect.assertions(1);
-      // Act
-      const rejectingPromise = promiseSetCtx({
-        t: TERM,
-        a: ALT_ACTION,
-        o: ORIENT,
-      });
-      // Assert
-      return expect(rejectingPromise).rejects.toBe(TIMEOUT_REJECT);
-    });
-
-    it('should resolve a promise before a specified timeout', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-      });
-      expect.assertions(1);
-      // Act
-      const resolvingPromise = promiseSetCtx(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        100,
-      );
-      // Assert
-      return expect(resolvingPromise).resolves.toMatchObject({
-        tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data,
-      });
-    });
-
-    it('should reject a promise before a specified timeout', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT, [
-        { a: 1 },
-      ]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook(
-        {
-          resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-          rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-        },
-        100,
-      );
-      expect.assertions(1);
-      // Act
-      const rejectingPromise = promiseSetCtx({
-        t: ALT_TERM,
-        a: ACTION,
-        o: ORIENT,
-      });
-      // Assert
-      return expect(rejectingPromise).rejects.toMatchObject({
-        tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data,
-      });
-    });
-
-    it('should ignore a timeout value less than or equal to 0', () => {
-      // Assemble
-      const uut = new Kernel();
-      const expectedAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
-      const handler = jest
-        .fn(() => expectedAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        handler,
-      );
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: { t: TERM, a: ACTION, o: ORIENT },
-        rejectOn: { t: ALT_TERM, a: ALT_ACTION, o: ALT_ORIENT },
-      });
-      expect.assertions(1);
-      // Act
-      const resolvingPromise = promiseSetCtx(
-        {
-          t: ALT_TERM,
-          a: ACTION,
-          o: ORIENT,
-        },
-        -1,
-      );
-      // Assert
-      return expect(resolvingPromise).resolves.toMatchObject({
-        tao: expectedAc.unwrapCtx(),
-        data: expectedAc.data,
-      });
-    });
-
-    it('should not add handlers involved with a Promise Hook until the Promise Context is set', async () => {
-      // Assemble
-      const uut = new Kernel();
-      const resolveOnAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
-      const triggeringAc = new AppCtx(ALT_TERM, ACTION, ORIENT);
-      const rejectOnAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
-      const handler = jest
-        .fn(() => resolveOnAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(triggeringAc.unwrapCtx(), handler);
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: resolveOnAc.unwrapCtx(),
-        rejectOn: rejectOnAc.unwrapCtx(),
-      });
-      // expect.assertions(1);
-      // Act
-      const preSetHandlers = new Map(uut._network._handlers);
-      const resolvingPromise = promiseSetCtx(triggeringAc.unwrapCtx());
-      const postSetHandlers = new Map(uut._network._handlers);
-      await resolvingPromise;
-      // Assert
-      expect(preSetHandlers.size).toBe(1);
-      expect(postSetHandlers.size).toBe(3);
-      const preKeys = Array.from(preSetHandlers.keys());
-      // console.log('preKeys:', preKeys);
-      expect(preKeys).toContain(triggeringAc.key);
-      expect(preKeys).not.toContain(resolveOnAc.key);
-      expect(preKeys).not.toContain(rejectOnAc.key);
-      const postKeys = Array.from(postSetHandlers.keys());
-      // console.log('postKeys:', postKeys);
-      expect(postKeys).toContain(triggeringAc.key);
-      expect(postKeys).toContain(resolveOnAc.key);
-      expect(postKeys).toContain(rejectOnAc.key);
-    });
-
-    it('should remove handlers involved with a Promise Hook once the Promise has settled', async () => {
-      // Assemble
-      const uut = new Kernel();
-      const resolveOnAc = new AppCtx(TERM, ACTION, ORIENT, [{ a: 1 }]);
-      const triggeringAc = new AppCtx(ALT_TERM, ACTION, ORIENT);
-      const rejectOnAc = new AppCtx(ALT_TERM, ALT_ACTION, ALT_ORIENT);
-      const handler = jest
-        .fn(() => resolveOnAc)
-        .mockName('intermediate handler');
-      uut.addInlineHandler(triggeringAc.unwrapCtx(), handler);
-      const promiseSetCtx = uut.asPromiseHook({
-        resolveOn: resolveOnAc.unwrapCtx(),
-        rejectOn: rejectOnAc.unwrapCtx(),
-      });
-      // expect.assertions(1);
-      // Act
-      const result = await promiseSetCtx(triggeringAc.unwrapCtx());
-      const postResolveHandlers = new Map(uut._network._handlers);
-      const triggerHandlers = postResolveHandlers.get(triggeringAc.key);
-      const resolveHandlers = postResolveHandlers.get(resolveOnAc.key);
-      const rejectHandlers = postResolveHandlers.get(rejectOnAc.key);
-      // Assert
-      expect(triggerHandlers).toBeDefined();
-      expect(triggerHandlers.inlineHandlers).toBeIterable(true);
-      expect(Array.from(triggerHandlers.inlineHandlers).length).toBe(1);
-      expect(resolveHandlers).toBeDefined();
-      expect(resolveHandlers.inlineHandlers).toBeIterable(true);
-      expect(Array.from(resolveHandlers.inlineHandlers).length).toBe(0);
-      expect(rejectHandlers).toBeDefined();
-      expect(rejectHandlers.inlineHandlers).toBeIterable(true);
-      expect(Array.from(rejectHandlers.inlineHandlers).length).toBe(0);
-    });
-  });
-
   describe('canSetWildcard and clone', () => {
     it('exposes canSetWildcard from the constructor flag', () => {
       expect(new Kernel().canSetWildcard).toBe(false);
@@ -1024,11 +477,59 @@ describe('Kernel is the base entry point of execution for a tao.js app', () => {
       expect(cloned).not.toBe(uut);
       expect(cloned.canSetWildcard).toBe(false);
       expect(cloned._network).not.toBe(uut._network);
+    });
 
-      // clone replaces the network without Kernel middleware — reattach it
-      cloned._network.use(cloned.handleAppCon.bind(cloned));
+    it('a cloned Kernel dispatches to its cloned handlers', () => {
+      // in 0.18 a cloned kernel silently never ran handlers (its network had
+      // no dispatch middleware); the Network owning execution fixes that
+      const uut = new Kernel();
+      const handler = jest.fn();
+      const trigram = { t: TERM, a: ACTION, o: ORIENT };
+      uut.addInlineHandler(trigram, handler);
+      const cloned = uut.clone();
+
+      cloned.setCtx(trigram, { [TERM]: { id: 7 } });
+
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          expect(handler).toHaveBeenCalledTimes(1);
+          expect(handler).toHaveBeenCalledWith(trigram, { [TERM]: { id: 7 } });
+          resolve();
+        }, 50);
+      });
+    });
+
+    it('handlers added to a clone do not affect the original and vice versa', () => {
+      const uut = new Kernel();
+      const sharedHandler = jest.fn().mockName('shared');
+      const cloneOnly = jest.fn().mockName('clone only');
+      const originalOnly = jest.fn().mockName('original only');
+      const trigram = { t: TERM, a: ACTION, o: ORIENT };
+      uut.addInlineHandler(trigram, sharedHandler);
+      const cloned = uut.clone();
+      cloned.addInlineHandler(trigram, cloneOnly);
+      uut.addInlineHandler(trigram, originalOnly);
+
       cloned.setCtx(trigram);
-      expect(handler).toHaveBeenCalled();
+
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          // the clone dispatches the copied handler plus its own addition
+          expect(sharedHandler).toHaveBeenCalledTimes(1);
+          expect(cloneOnly).toHaveBeenCalledTimes(1);
+          // a handler added to the original after cloning never reaches the clone
+          expect(originalOnly).not.toHaveBeenCalled();
+
+          uut.setCtx(trigram);
+          setTimeout(() => {
+            // the original dispatches its own handlers, not the clone's
+            expect(sharedHandler).toHaveBeenCalledTimes(2);
+            expect(originalOnly).toHaveBeenCalledTimes(1);
+            expect(cloneOnly).toHaveBeenCalledTimes(1);
+            resolve();
+          }, 50);
+        }, 50);
+      });
     });
 
     it('clone can override canSetWildcard', () => {

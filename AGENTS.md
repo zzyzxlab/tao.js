@@ -82,11 +82,11 @@ Trigram match args accept short or long keys; omitted parts = wildcards.
 
 ### Kernel and Network
 
-| Export            | Role                                                                                                   |
-| ----------------- | ------------------------------------------------------------------------------------------------------ |
-| **`Network`**     | Handler registry + middleware; `setCtxControl` / `setAppCtxControl` dispatch                           |
-| **`Kernel`**      | App-facing API over a Network (`setCtx`, `setAppCtx`, handler add/remove, `asPromiseHook`, `clone`, …) |
-| **default `TAO`** | Shared `new Kernel()` singleton                                                                        |
+| Export            | Role                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| **`Network`**     | Handler registry + dispatch: `enter()` hop engine + `decorate()` adapter interface    |
+| **`Kernel`**      | App-facing veneer over a Network (`setCtx`, `setAppCtx`, handler add/remove, `clone`) |
+| **default `TAO`** | Shared `new Kernel()` singleton                                                       |
 
 ```js
 import TAO, {
@@ -106,32 +106,38 @@ TAO.setCtx({ t: 'User', a: 'Find', o: 'Portal' }, { User: { id: '42' } });
 TAO.setAppCtx(new AppCtx('User', 'Find', 'Portal', { User: { id: '42' } }));
 ```
 
-`Kernel` wires itself into its Network via middleware that calls `AppCtxHandlers.handleAppCon`. Prefer **Kernel** APIs in application code; use **Network** when building adapters (utils, bridges).
+The Network owns handler execution (as of 0.19: `_dispatch` invokes `AppCtxHandlers.handleAppCon` directly; there is no middleware). Prefer **Kernel** APIs in application code; use **Network** `decorate()` when building adapters (utils, bridges).
 
 ### Envelope & decorations (the signal plane)
 
 Read **ENVELOPE-SPEC.md** before touching Network/Kernel internals or any
 utils adapter. Summary of the contract:
 
-- Every v2 cascade carries an **envelope** with three scopes: `cascade`
-  (the legacy `control` object, one shared reference for the whole cascade
-  — `channelId`, transponder `signal`/`signalled` live here), `hop` (reset
+- Every cascade carries an **envelope** with three scopes: `cascade` (the
+  `control` object, one shared reference for the whole cascade —
+  `channelId`, transponder `signal`/`signalled` live here), `hop` (reset
   every hop — `Source`'s echo-suppression marker), and `chain` (derived per
   hop by registered reducers — trace context).
-- `network.enter(appCtx, { cascade, hop, chain })` is the v2 entry gate;
-  the Network owns forwarding (chained AppCons dispatch **exactly once** in
-  core). `Kernel.setCtx/setAppCtx` and the utils adapters enter this way.
+- `network.enter(appCtx, { cascade, hop, chain, forward })` is the only
+  entry gate (0.19 removed `use`/`stop`, `setCtxControl`/`setAppCtxControl`,
+  `Kernel.forwardAppCtx`/`asPromiseHook`); the Network owns handler
+  execution and forwarding (chained AppCons dispatch **exactly once** in
+  core). The `forward` option is composition plumbing: adapters mirroring a
+  cascade onto a private network pass the main hop engine's continuation so
+  private chains continue the cascade envelope (Channel, Transceiver,
+  seive).
 - `network.decorate({ name, onDispatch, onForward, onReturn, chain })` is
-  the additive adapter interface: observe dispatches, mirror chained
-  AppCons (never re-enter main dispatch), settle non-AppCtx handler
-  returns, derive namespaced chain state. Throwing decorations never break
-  dispatch. Returns a dispose fn.
-- `setCtxControl`/`setAppCtxControl` **with an explicit `forwardAppCtx`**
-  is the frozen legacy path — bit-for-bit pre-envelope behavior.
+  the additive adapter interface: observe dispatches
+  (`onDispatch(ac, envelope, handler, forward)`), mirror chained AppCons
+  (`onForward(nextAc, envelope, { from, forward })` — never re-enter main
+  dispatch), settle non-AppCtx handler returns, derive namespaced chain
+  state. Throwing decorations never break dispatch. Returns a dispose fn.
+  `Channel` exposes the same contract for its private network
+  (`Channel.decorate`) plus channel-scoped entry (`Channel.enter`).
 - `AppCtxHandlers.handleAppCon(ac, setAppCtx, control, hooks)` — optional
   `hooks.onReturn(phase, value, ac)` receives non-AppCtx handler returns
-  and errors (phases INTERCEPT/ASYNC/INLINE/ERROR); without hooks the loop
-  is bit-for-bit legacy (errors rethrow).
+  and errors (phases INTERCEPT/ASYNC/INLINE/ERROR); without hooks errors
+  rethrow (pre-envelope parity).
 - End-to-end proof lives at `tools/smoke/socketio-envelope-smoke.cjs`
   (real socket.io round-trip: per-client reply routing, no cross-client
   leak, bidirectional reflex, tracer linkage). Run with
@@ -166,14 +172,19 @@ TAO.addInterceptHandler(
 TAO.setCtx({ t: 'User', a: 'Find', o: 'Portal' }, { User: { id: '1' } });
 ```
 
-Promise-style settle (inline handlers under the hood):
+Promise-style settle (`Kernel.asPromiseHook` was removed in 0.19 — use a
+`Transponder` from `@tao.js/utils`, which resolves with the first handled
+AppCon of the cascade; `Transceiver` when handlers should control the
+Promise):
 
 ```js
-const wait = TAO.asPromiseHook({
-  resolveOn: [{ t: 'User', a: 'View', o: 'Portal' }],
-  rejectOn: [{ t: 'User', a: 'Error', o: 'Portal' }],
-});
-await wait({ t: 'User', a: 'Find', o: 'Portal' }, { User: { id: '1' } });
+import { Transponder } from '@tao.js/utils';
+
+const transponder = new Transponder(TAO);
+const ac = await transponder.setCtx(
+  { t: 'User', a: 'Find', o: 'Portal' },
+  { User: { id: '1' } },
+);
 ```
 
 For isolated tests, prefer `new Kernel()` over the shared default `TAO`.
@@ -344,3 +355,4 @@ _Append learnings for the next agent. Newest first._
 - **2026-07-16** — `Kernel.channel(...)` exists but looks unfinished vs `@tao.js/utils` `Channel` (prefer utils `Channel` for real channeling).
 - **2026-07-16** — Lerna → Nx migration complete on current branch (Nx 23). Several packages (`connect`, `feature`, `path`) remain private stubs unrelated to the migration.
 - **2026-07-16** — See `FUTURE.md` for roadmap (TS wrapper, React 19, docs rewrite, ownership transfer, etc.).
+- **2026-07-22** — §12 legacy retirement executed on `feat/legacy-retirement` (0.19.0): the Network owns handler execution (`_dispatch` calls `AppCtxHandlers.handleAppCon` directly; no middleware), and `enter()`/`decorate()` are the entire dispatch surface. Removed: `Network.use`/`stop`, `setCtxControl`/`setAppCtxControl` (+ `envelope.legacy`), `Kernel.forwardAppCtx`/`asPromiseHook`/`channel()` sketch, `TIMEOUT_REJECT`, `concatIterables`, Channel's `use`/`stop`/`handleAppCon`/`forwardAppCtx`/`*Control` branches, Transponder's pre-envelope fallback, Transceiver's legacy forwarding, Source/Relay's `control.source` fallback, Tracer's unlinked-root mode. New composition contract: decorations receive core's continuation — `onDispatch(ac, envelope, handler, forward)`, `onForward(..., { from, forward })`, and `enter(ac, { ..., forward })` for private-network mirrors (Channel/Transceiver/seive) so privately-dispatched chains continue the cascade envelope; `Channel.enter`/`Channel.decorate` are the channel-scoped surface wrapping adapters compose against (Transponder-on-Channel decorates the private network, enters through the channel gate). Semantic fix per §12 step 4: channel-attached handler chains continue the cascade (channel handlers now also observe chains from channel handlers). Bug fixed for free: `Kernel.clone()`/`Channel.clone()` clones now actually dispatch (0.18 clones lost dispatch middleware silently). The old middleware discriminator `typeof x.use === 'function'` is gone — adapters resolve surfaces via `typeof x.enter === 'function' ? x : x._network` and Tracer via `kernel._network || kernel`. Verification: 16 projects green, 100.00% coverage AND 100.00% mutation on core (708 mutants), utils (582), telemetry (405), socket.io smoke 7/7 unchanged. Gotcha: lint-staged stashes unstaged changes when committing, so partial-stage commits of a cross-package cutover test an inconsistent tree — stage the whole cutover in one commit.
