@@ -1,9 +1,13 @@
 # Typed Trigram Vocabularies — Design Spec (@tao.js/typed)
 
-Status: draft (branch `feat/typescript-wrapper`, off `feat/chain-transport`).
-Companion to `ENVELOPE-SPEC.md` (signal plane), `VISION.md` §3 (the
-meta-framework thesis this executes), `AGENTIC.md` (the "typed trigram
-vocabularies" checklist item this closes).
+Status: **v1 implemented, superseded in direction by §7 (v2)** — the v1
+surface (§2–§4, `defineVocabulary`/`signal().data<D>()`) is built, tested
+(100% coverage, trace-identity proof), and working, but the design
+conversation recorded in §7 replaces it as the front door. A new session
+should implement §7; the v1 translation layer, toolchain, and invariant
+tests carry over. Companion to `ENVELOPE-SPEC.md` (signal plane),
+`VISION.md` §3 (the meta-framework thesis this executes), `AGENTIC.md`
+(the "typed trigram vocabularies" checklist item this closes).
 
 ## 1. Motivation
 
@@ -144,3 +148,159 @@ resolves with the vocabulary union (or a `resolveOn`-projected subset).
 3. Datagram convention: enforce `{ [Term]: ... }` keying at the type level,
    or leave datagram shapes fully free per signal? (leaning free, with a
    helper for the term-keyed convention)
+
+---
+
+## 7. v2 direction — transparent DX (design conversation record, 2026-07-23/24)
+
+The v1 surface makes the wrapper _visible_: you know you are wrapping
+signal and handler generation. The design goal that replaces it (author's
+framing): **the DX should read as strongly-typed `@tao.js/core`** — same
+method names, quotes deleted, trigrams _inferred_ from the types.
+
+### 7.1 The erasure split (what's possible without tooling)
+
+TypeScript types are erased; **classes are values**. That splits the ideal
+syntax into:
+
+- `tao.setCtx(user, find, portal)` — **works with vanilla tsc**: the
+  arguments are instances, `user.constructor.name` supplies the runtime
+  trigram while inference supplies the types. Explicit-generic and
+  inferred forms are equivalent for free.
+- `tao.addInlineHandler<User, Find, Portal>(fn)` — **impossible without a
+  transform** (type arguments are erased; nothing at runtime names the
+  trigram). The value-carrying form is the vanilla equivalent and is
+  _better_ (zero annotations, full inference):
+  `tao.addInlineHandler(User, Find, Portal, (user, find, portal) => …)`.
+
+### 7.2 Part carriers (the core contract)
+
+A **part carrier** is anything supplying a runtime name + a datagram type
+for one trigram position. Two implementations, one contract:
+
+1. **Classes (front door)** — `class User extends Part<User> { id!: number }`.
+   The `Part<Self>` base solves the four class problems in ~4 lines each:
+   - _nominality_: a `private declare` brand — TS is structurally typed,
+     so without it a plain literal `{id: 1}` typechecks where `User` is
+     expected but has `constructor.name === 'Object'` at runtime (the
+     compile-passes/runtime-explodes trap);
+   - _construction_: `constructor(data: Fields<Self>)` gives
+     `new User({ id: 1 })` without per-class boilerplate;
+   - _minification_: optional `static tao = 'User'` override
+     (name resolution: `static tao ?? class name`; runtime throws loudly
+     on `'Object'`); document `keep_classnames`;
+   - _wire rehydration_: received JSON re-attaches the registered class's
+     prototype, so methods on parts work in handlers — including for
+     signals that crossed a transport.
+2. **Factories (escape hatch)** — `const User = part('User').data<{id: number}>()`,
+   the zod/valibot idiom: name appears once, no `new`, minification-proof,
+   nominal by construction. More idiomatic TS, less transparent.
+
+Datagram mapping revives the **original AppCtx three-datum convention**
+(`data[t]`, `data[a]`, `data[o]` — one datum per position), so typed and
+untyped code interoperate byte-for-byte on one kernel. Dataless positions
+accept the class itself (`tao.setCtx(user, Find, Portal)`).
+
+### 7.3 Open mode vs protocol mode
+
+Transparent calls permit any combination of declared parts (wrong-position
+triples typecheck). Two modes:
+
+- **open** (default): any triple; datagram shapes still enforced.
+- **protocol**: `typedTAO(kernel, { protocol: [[User, Find, Portal], …] as const })`
+  — undeclared trigram = compile error, restoring v1's closed-vocabulary
+  guarantee with transparent call sites. `tao.protocol()` emits the triple
+  list for TAO.md/extractor. Subsumes v1's `defineVocabulary`.
+
+### 7.4 Ergonomics tiers (proposed implementation order)
+
+| tier | mechanism                                                       | pipeline cost                                  | notes                                     |
+| ---- | --------------------------------------------------------------- | ---------------------------------------------- | ----------------------------------------- |
+| 0    | value-carrying API (`addInlineHandler(User, Find, Portal, fn)`) | none                                           | canonical contract everything lowers to   |
+| 1a   | **decorators**                                                  | none (stage-3 native in tsc/esbuild/swc/babel) | build FIRST — biggest ergonomics per cost |
+| 1b   | type-arg transform (`<User, Find, Portal>` sugar)               | opt-in plugin                                  | see 7.6                                   |
+| 2    | TAO.md path DSL                                                 | runtime loader; build plugin optional          | see 7.7                                   |
+
+### 7.5 Decorators (tier 1a)
+
+```ts
+class UserHandlers {
+  constructor(private repo: UserRepo) {} // DI-friendly
+
+  @(onInline(User, Find, Portal).chain(Found)) // declared output edge
+  find(user: User, find: Find) {
+    return new Found({ user: this.repo.find(find.by) }); // just the new part
+  }
+
+  @(onInline(User, Find, Portal).chains(Found, NotFound)) // branching:
+  findOrFail(user: User, find: Find) {
+    // return TYPE picks
+    const hit = this.repo.find(find.by); // the edge
+    return hit ? new Found({ user: hit }) : new NotFound({ query: find.by });
+  }
+}
+const dispose = tao.attach(new UserHandlers(repo)); // group lifecycle
+```
+
+Decorator factories take **values** (no erasure problem, no build tooling);
+`context.addInitializer` collects registrations per instance for
+`attach`/`dispose` group lifecycle (per-request Channels, per-connection
+sockets). The decorator type constrains the method signature against the
+declared parts. `.chain()/.chains()` declared outputs make chain edges
+**statically extractable** (closing part of AGENTIC.md's
+emergent-control-flow friction); guardrails: (a) one mode per handler —
+declared outputs XOR dynamic `chain(t, a, o)` returns (the formalized
+explicit constructor); (b) carried-position semantics fixed at
+`transferToAppCtx` copy rules, never configurable. Support stage-3
+decorators first; legacy `experimentalDecorators` detectable by argument
+shape if Nest/Angular demand it.
+
+### 7.6 The type-arg transform (tier 1b)
+
+Universal _because constrained to a syntactic rewrite_: type arguments must
+be identifiers of value-imported part carriers in scope (no aliases,
+`typeof`, mapped types — diagnostics otherwise; `import type` is a
+diagnostic since it erases the value). Then every toolchain can host it:
+one core transform wrapped by **`@tao.js/unplugin`** (Vite/Rollup/webpack/
+esbuild/rspack), **`@tao.js/babel-plugin`** (babel/Metro/jest), and a
+ts-patch transformer (raw tsc). swc-native pipelines (default Next.js)
+need a wasm plugin eventually or their babel fallback. Editor needs no
+plugin (the sugar overload typechecks standalone); forgetting the plugin
+fails loudly (the untransformed overload's runtime throws a setup error).
+The sugar lowers into tier 0.
+
+### 7.7 `@tao.js/path` revival (tier 2)
+
+Author's original vision: chains declared in one place, forwarding
+handlers auto-wired. Fenced ```tao blocks in TAO.md itself:
+
+    {User, Find, Portal}   => {User, Found, Portal}    # inline forward
+    {User, Found, Portal}  ~> {Analytics, Track, App}  # async forward
+    {User, Delete, Portal} !> {Auth, Check, Portal}    # intercept
+
+Runtime loader parses fences at boot and wires via the existing
+`forward-chain` helpers; the build plugin (same unplugin infra as 7.6)
+validates every trigram against the typed protocol at compile time. The
+DSL stays for _pure_ forwards (transferToAppCtx copy semantics) — logic
+stays in code or in decorator `.chain()` transforms; the two are the same
+primitive in two syntaxes. TAO.md becomes simultaneously docs, declared
+protocol, chain topology, and (via the tracer) verifiable against
+observed behavior.
+
+### 7.8 What carries over from v1 / resolved questions
+
+- Carries over: the dumb-translation-layer philosophy (dispatch untouched),
+  the typed-cascade-traces-identically invariant test, the toolchain
+  (`typescript@^5.9` pin — bare `typescript` resolves to the native TS7
+  compiler with no JS API, breaking ts-jest; ts-jest self-contained jest
+  config — the shared babel preset's transform proved unreliable for .ts),
+  and the JSDoc typedef pass (independent of surface, already committed).
+- Resolved: classes are acceptable _with_ the `Part<T>` base (nominality +
+  construction are the price of transparency; factories remain for teams
+  that refuse classes); `chain(t, a, o)` is the one explicit dynamic
+  escape hatch; typed handlers inherit the 0.20 async-phase contract
+  unchanged (calls scheduled on the event loop, called-before-inline).
+- Open for the author: package name (`typed` vs `ts`); enforce term-keyed
+  datagrams at the type level or leave free (leaning free + helper);
+  protocol mode as the _recommended_ default in docs (leaning yes) or
+  quick-start-first; decorator legacy-flavor support priority.
