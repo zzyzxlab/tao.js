@@ -165,6 +165,10 @@ export default class Tracer {
     record.o = ac.o;
     record.key = ac.key;
     record.timestamp = this._clock();
+    if (envelope.hop.via) {
+      // the handler phase that produced this hop (ENVELOPE-SPEC.md §4)
+      record.via = envelope.hop.via;
+    }
     if (handler) {
       record.handlers = {
         intercept: countHandlers(handler.interceptHandlers),

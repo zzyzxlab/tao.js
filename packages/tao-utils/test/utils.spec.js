@@ -162,7 +162,7 @@ describe('bridges and seives', () => {
     ['inline', inlineBridge],
     ['async', asyncBridge],
     ['intercept', interceptBridge],
-  ])('forwards %s handlers and detaches cleanly', (name, makeBridge) => {
+  ])('forwards %s handlers and detaches cleanly', async (name, makeBridge) => {
     const source = new Kernel();
     const destination = new Kernel();
     const received = jest.fn();
@@ -170,10 +170,19 @@ describe('bridges and seives', () => {
 
     const detach = makeBridge(source, destination, SOURCE);
     source.setCtx(SOURCE, DATA);
+    // async-phase contract: async-bridge forwards are called on the event
+    // loop, so drain microtasks before asserting (inline/intercept remain
+    // synchronous through the chain)
+    for (let i = 0; i < 5; i++) {
+      await Promise.resolve();
+    }
     expect(received).toHaveBeenCalledWith(SOURCE, DATA);
 
     detach();
     source.setCtx(SOURCE, DATA);
+    for (let i = 0; i < 5; i++) {
+      await Promise.resolve();
+    }
     expect(received).toHaveBeenCalledTimes(1);
     expect(name).toBeDefined();
   });

@@ -1,21 +1,29 @@
 {
-  "name": "@tao.js/koa",
+  "name": "@tao.js/transport-tck",
   "version": "0.19.1",
-  "description": "middleware to hook tao into koa server",
+  "description": "Transport conformance kit for tao.js - executable form of the ENVELOPE-SPEC wire contract and transport invariants",
   "homepage": "https://tao.js.org/",
   "repository": {
     "type": "git",
     "url": "https://github.com/zzyzxlab/tao.js.git",
-    "directory": "packages/koa-tao"
+    "directory": "packages/tao-transport-tck"
   },
   "main": "lib",
   "module": "dist",
+  "bundles": {
+    "browser": "bundles/browser.umd.js"
+  },
+  "sideEffects": false,
+  "directories": {
+    "lib": "dist"
+  },
   "files": [
     "lib",
-    "dist"
+    "dist",
+    "bundles"
   ],
   "scripts": {
-    "build:clean": "rimraf dist lib",
+    "build:clean": "rimraf dist lib bundles",
     "build:package": "rollup --config",
     "build": "npm run build:clean && npm run build:package",
     "test:mutation": "stryker run"
@@ -26,16 +34,13 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@tao.js/core": ">=0.20.0",
-    "@tao.js/utils": ">=0.20.0"
+    "@tao.js/core": ">=0.20.0"
+  },
+  "dependencies": {
+    "@tao.js/telemetry": "file:../tao-telemetry"
   },
   "devDependencies": {
     "@tao.js/core": "file:../tao",
-    "@tao.js/utils": "file:../tao-utils",
-    "@tao.js/telemetry": "file:../tao-telemetry"
-  },
-  "dependencies": {
-    "cartesian": "^1.0.1",
-    "@tao.js/telemetry": "file:../tao-telemetry"
+    "@tao.js/utils": "file:../tao-utils"
   }
 }

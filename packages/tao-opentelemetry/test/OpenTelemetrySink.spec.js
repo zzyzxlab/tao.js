@@ -33,7 +33,7 @@ function mkFakeTracer() {
 }
 
 let nextId = 0;
-function mkRecord({ id, parentId = null, data, handlers } = {}) {
+function mkRecord({ id, parentId = null, data, handlers, via } = {}) {
   const record = {
     traceId: TAO_TRACE_ID,
     signalId: id || `sig-${++nextId}`,
@@ -47,6 +47,9 @@ function mkRecord({ id, parentId = null, data, handlers } = {}) {
   };
   if (typeof data !== 'undefined') {
     record.data = data;
+  }
+  if (typeof via !== 'undefined') {
+    record.via = via;
   }
   return record;
 }
@@ -107,6 +110,30 @@ describe('OpenTelemetrySink maps signal records to spans', () => {
       'service.flavor': 'test',
     });
     expect(attributes['tao.signal.parent_id']).toBeUndefined();
+    // an entry-hop record has no via, so the attribute key must be absent
+    expect('tao.signal.via' in attributes).toBe(false);
+  });
+
+  it('should carry the producing phase as tao.signal.via when present', () => {
+    // Assemble
+    const tracer = mkFakeTracer();
+    const sink = new OpenTelemetrySink(tracer);
+    // Act
+    sink.signal(mkRecord({ id: 'chained', parentId: 'root', via: 'Async' }));
+    // Assert
+    expect(tracer.spans[0].options.attributes['tao.signal.via']).toBe('Async');
+  });
+
+  it('should omit the tao.signal.via attribute for records without via', () => {
+    // Assemble
+    const tracer = mkFakeTracer();
+    const sink = new OpenTelemetrySink(tracer);
+    // Act
+    sink.signal(mkRecord({ id: 'entry' }));
+    // Assert — key absence, not just an undefined value
+    const { attributes } = tracer.spans[0].options;
+    expect(Object.keys(attributes)).not.toContain('tao.signal.via');
+    expect('tao.signal.via' in attributes).toBe(false);
   });
 
   it('should parent a child span under its causal parent span', () => {

@@ -58,5 +58,27 @@ describe('Tracer + OpenTelemetrySink end to end', () => {
     );
     expect(rootSpan.end).toHaveBeenCalled();
     expect(childSpan.end).toHaveBeenCalled();
+    // entry hops never carry via, so the root span must omit the attribute
+    expect('tao.signal.via' in rootSpan.options.attributes).toBe(false);
+  });
+
+  // Pins the normative ENVELOPE-SPEC.md §4 contract (hop.via, 0.20): the
+  // inline-chained hop's record carries via 'Inline', exported as the
+  // tao.signal.via span attribute.
+  it('should export the producing phase of a chained hop as tao.signal.via', async () => {
+    // Assemble
+    const TAO = new Kernel();
+    const otelTracer = mkFakeTracer();
+    new Tracer(TAO, { sinks: [new OpenTelemetrySink(otelTracer)] });
+    TAO.addInlineHandler({ t: TERM, a: ACTION, o: ORIENT }, () => {
+      return new AppCtx(TERM, NEXT_ACTION, ORIENT);
+    });
+    // Act
+    TAO.setCtx({ t: TERM, a: ACTION, o: ORIENT }, {});
+    await flush();
+    // Assert
+    expect(otelTracer.spans).toHaveLength(2);
+    const [, childSpan] = otelTracer.spans;
+    expect(childSpan.options.attributes['tao.signal.via']).toBe('Inline');
   });
 });

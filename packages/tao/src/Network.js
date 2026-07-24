@@ -144,6 +144,9 @@ export default class Network {
    *   here
    * - `onReturn(phase, value, ac, envelope)` — settle non-AppCtx handler
    *   returns (phases: INTERCEPT/ASYNC/INLINE/ERROR constants)
+   * - `onProceed(ac, envelope)` — fires when the intercept phase passes
+   *   without halting or diverting, before async/inline run (veto-respecting
+   *   emitters — see ENVELOPE-SPEC.md §5)
    * - `chain: { key, next(prev, ac, envelope) }` — per-hop derived envelope
    *   state under a namespaced key
    *
@@ -156,11 +159,12 @@ export default class Network {
     if (!spec || typeof spec !== 'object') {
       throw new Error('decorate requires a decoration spec object');
     }
-    const { onDispatch, onForward, onReturn, chain } = spec;
+    const { onDispatch, onForward, onReturn, onProceed, chain } = spec;
     for (const [label, fn] of [
       ['onDispatch', onDispatch],
       ['onForward', onForward],
       ['onReturn', onReturn],
+      ['onProceed', onProceed],
     ]) {
       if (typeof fn !== 'undefined' && typeof fn !== 'function') {
         throw new Error(`decoration ${label} must be a function`);
@@ -176,7 +180,7 @@ export default class Network {
         'decoration chain must be { key: string, next: function }',
       );
     }
-    if (!onDispatch && !onForward && !onReturn && !chain) {
+    if (!onDispatch && !onForward && !onReturn && !onProceed && !chain) {
       throw new Error('decoration must provide at least one capability');
     }
     if (chain && this._chainReducers.has(chain.key)) {
@@ -189,6 +193,7 @@ export default class Network {
       onDispatch,
       onForward,
       onReturn,
+      onProceed,
       chain,
     };
     this._decorators.add(decorator);
@@ -238,6 +243,33 @@ export default class Network {
     );
   }
 
+  /**
+   * Same-hop dispatch: run a hop observed on another network against this
+   * network's handler registry with the observed envelope **verbatim** — no
+   * chain reduction, no hop reset (see ENVELOPE-SPEC.md §4). Used by
+   * adapters (Channel, Transceiver) whose private registries mirror hops of
+   * the shared network; `forward` is the continuation chained AppCons
+   * should follow (normally the mirroring hop's `meta.forward`).
+   *
+   * @param {AppCtx} appCtx
+   * @param {Object} envelope - the observed `{ cascade, hop, chain }`
+   * @param {function} [forward]
+   * @memberof Network
+   */
+  mirror(appCtx, envelope, forward) {
+    if (!(appCtx instanceof AppCtx)) {
+      throw new Error(`'appCtx' not an instance of AppCtx`);
+    }
+    if (!envelope || typeof envelope !== 'object') {
+      throw new Error('mirror requires the observed envelope');
+    }
+    this._dispatch(
+      appCtx,
+      envelope,
+      typeof forward === 'function' ? forward : undefined,
+    );
+  }
+
   _dispatch(appCtx, envelope, forward) {
     const isWild = appCtx.isWildcard;
     if (!this._handlers.has(appCtx.key) && !isWild) {
@@ -255,12 +287,13 @@ export default class Network {
     const handler = this._handlers.get(appCtx.key);
     const hooks = this._buildHooks(appCtx, envelope);
     const coreForward =
-      forward || ((nextAc) => this._forwardNext(nextAc, envelope));
+      forward ||
+      ((nextAc, _control, via) => this._forwardNext(nextAc, envelope, via));
     this._notifyDispatch(appCtx, envelope, handler, coreForward);
     handler.handleAppCon(appCtx, coreForward, envelope.cascade, hooks);
   }
 
-  _forwardNext(nextAc, prevEnvelope) {
+  _forwardNext(nextAc, prevEnvelope, via) {
     // guard parity with the legacy NOOP forward: handlers may hand the core
     // forward non-AppCtx values
     if (!(nextAc instanceof AppCtx)) {
@@ -272,10 +305,12 @@ export default class Network {
     }
     const nextEnvelope = {
       cascade: prevEnvelope.cascade,
-      hop: {},
+      // chained hops carry the phase that produced them (ENVELOPE-SPEC.md §4)
+      hop: via ? { via } : {},
       chain: this._reduceChain(prevEnvelope.chain, nextAc, prevEnvelope),
     };
-    const forward = (chainedAc) => this._forwardNext(chainedAc, nextEnvelope);
+    const forward = (chainedAc, _control, chainedVia) =>
+      this._forwardNext(chainedAc, nextEnvelope, chainedVia);
     for (const decorator of this._decorators) {
       // Stryker disable next-line ConditionalExpression: equivalent - calling a missing onForward throws inside the guarded try, so observable behavior is identical
       if (decorator.onForward) {
@@ -310,6 +345,7 @@ export default class Network {
 
   _buildHooks(appCtx, envelope) {
     let settlers = null;
+    let proceeders = null;
     for (const decorator of this._decorators) {
       if (decorator.onReturn) {
         // Stryker disable next-line ConditionalExpression: lazy init is equivalent to eager for observable behavior
@@ -319,12 +355,21 @@ export default class Network {
         }
         settlers.push(decorator.onReturn);
       }
+      if (decorator.onProceed) {
+        // Stryker disable next-line ConditionalExpression: lazy init is equivalent to eager for observable behavior
+        if (!proceeders) {
+          // Stryker disable next-line ArrayDeclaration: equivalent - non-function junk in the proceeders array is call-guarded by the per-call try
+          proceeders = [];
+        }
+        proceeders.push(decorator.onProceed);
+      }
     }
-    if (!settlers) {
+    if (!settlers && !proceeders) {
       return undefined;
     }
-    return {
-      onReturn: (phase, value, ac) => {
+    const hooks = {};
+    if (settlers) {
+      hooks.onReturn = (phase, value, ac) => {
         for (const settle of settlers) {
           try {
             settle(phase, value, ac, envelope);
@@ -332,8 +377,20 @@ export default class Network {
             // a failing decoration must never break dispatch
           }
         }
-      },
-    };
+      };
+    }
+    if (proceeders) {
+      hooks.onProceed = () => {
+        for (const proceed of proceeders) {
+          try {
+            proceed(appCtx, envelope);
+          } catch {
+            // a failing decoration must never break dispatch
+          }
+        }
+      };
+    }
+    return hooks;
   }
 
   _notifyDispatch(appCtx, envelope, handler, forward) {

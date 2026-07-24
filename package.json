@@ -52,7 +52,8 @@
     "commit": "node scripts/commit.js",
     "commit:validate": "node scripts/validate-commit-msg.js",
     "version": "cz bump",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:mutation:transport-tck": "pnpm --filter @tao.js/transport-tck test:mutation"
   },
   "type": "module",
   "config": {
@@ -84,7 +85,8 @@
     "docs": "file:packages/docs",
     "patois.api": "file:examples/patois.api",
     "patois.web": "file:examples/patois.web",
-    "@tao.js/telemetry": "file:packages/tao-telemetry"
+    "@tao.js/telemetry": "file:packages/tao-telemetry",
+    "@tao.js/transport-tck": "file:packages/tao-transport-tck"
   },
   "devDependencies": {
     "@babel/cli": "7.1.5",

@@ -5,6 +5,9 @@
  *  3. no cross-client broadcast of another client's replies
  *  4. descendants of server-received signals are re-emitted (bidirectional reflex)
  *  5. tracer on the server kernel links the whole channel cascade with no instrumentation
+ *  6. (0.20) the wire carries envelope.chain: ONE traceId across the whole
+ *     client->server->client round trip, with exact cross-process parentage
+ *  7. (0.20) chained hops carry hop.via (the producing phase) in trace records
  */
 const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
@@ -78,6 +81,8 @@ async function main() {
 
   // ---- client A ----
   const clientA = new Kernel();
+  const clientSinkA = new InMemorySink();
+  new Tracer(clientA, { sinks: [clientSinkA] });
   clientWire(clientA, (url, opts) => ioClient(`http://localhost:${PORT}${url}`, opts), { host: '' });
   const aReceived = [];
   clientA.addInlineHandler({ t: 'Space', a: 'List', o: 'Admin' }, (tao, data) => {
@@ -116,6 +121,49 @@ async function main() {
   check(
     'tracer kept one trace for the cascade',
     lists.length >= 1 && lists[0].traceId === finds[0].traceId,
+  );
+
+  // ---- 0.20: cross-process chain transport ----
+  const aFinds = clientSinkA.records.filter((r) => r.a === 'Find');
+  const aLists = clientSinkA.records.filter((r) => r.a === 'List');
+  const aTracks = clientSinkA.records.filter((r) => r.a === 'Track');
+  const serverTracks = sink.records.filter((r) => r.a === 'Track');
+  const allRecords = [...clientSinkA.records, ...sink.records].filter(
+    (r) => r.t === 'Space',
+  );
+  const traceIds = new Set(allRecords.map((r) => r.traceId));
+  check(
+    'ONE traceId across the whole client->server->client round trip',
+    allRecords.length >= 6 && traceIds.size === 1,
+  );
+  check(
+    "server Find continues the client's entry hop (cross-process parent link)",
+    finds.length === 1 &&
+      aFinds.length === 1 &&
+      finds[0].parentId === aFinds[0].signalId,
+  );
+  check(
+    "client List continues the server's reply hop (cross-process parent link)",
+    aLists.length === 1 &&
+      lists.length >= 1 &&
+      aLists[0].parentId === lists[0].signalId,
+  );
+  check(
+    "server Track continues the client's chained hop (second crossing)",
+    serverTracks.length === 1 &&
+      aTracks.length === 1 &&
+      serverTracks[0].parentId === aTracks[0].signalId,
+  );
+  check(
+    'chained hops carry hop.via in trace records (server List, client Track)',
+    lists.length >= 1 &&
+      lists[0].via === 'Inline' &&
+      aTracks.length === 1 &&
+      aTracks[0].via === 'Inline',
+  );
+  check(
+    'transport entries carry no via (the edge is the transport)',
+    finds.length === 1 && !('via' in finds[0]) && aFinds.length === 1 && !('via' in aFinds[0]),
   );
 
   console.log('PASS:', results.pass.length);

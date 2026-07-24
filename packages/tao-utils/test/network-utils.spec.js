@@ -175,7 +175,7 @@ describe('Channel', () => {
   it('logs debug mirroring and only mirrors its own cascades', () => {
     const network = mockNetwork();
     const channel = new Channel({ _network: network }, 'debug', true);
-    const innerEnter = jest.spyOn(channel._channel, 'enter');
+    const innerMirror = jest.spyOn(channel._channel, 'mirror');
     const log = jest.spyOn(console, 'log').mockImplementation(() => {});
     const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
     const { onForward } = network.decorate.mock.calls[0][0];
@@ -187,17 +187,18 @@ describe('Channel', () => {
         forward: jest.fn(),
       },
     );
-    expect(innerEnter).not.toHaveBeenCalled();
+    expect(innerMirror).not.toHaveBeenCalled();
     expect(log).not.toHaveBeenCalled();
 
-    onForward(
-      appCtx,
-      { cascade: { channelId: 'debug' } },
-      {
-        forward: jest.fn(),
-      },
-    );
-    expect(innerEnter).toHaveBeenCalledTimes(1);
+    const envelope = { cascade: { channelId: 'debug' } };
+    const forward = jest.fn();
+    onForward(appCtx, envelope, { forward });
+    expect(innerMirror).toHaveBeenCalledTimes(1);
+    const [mirroredAc, mirroredEnvelope, mirroredForward] =
+      innerMirror.mock.calls[0];
+    expect(mirroredAc).toBe(appCtx);
+    expect(mirroredEnvelope).toBe(envelope);
+    expect(mirroredForward).toBe(forward);
     expect(log).toHaveBeenCalled();
     log.mockRestore();
   });
@@ -212,7 +213,7 @@ describe('Channel', () => {
   it('does not log by default when debug is left unset', () => {
     const network = mockNetwork();
     const channel = new Channel({ _network: network }, 'quiet');
-    const innerEnter = jest.spyOn(channel._channel, 'enter');
+    const innerMirror = jest.spyOn(channel._channel, 'mirror');
     const log = jest.spyOn(console, 'log').mockImplementation(() => {});
     const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
     const { onForward } = network.decorate.mock.calls[0][0];
@@ -225,29 +226,38 @@ describe('Channel', () => {
       },
     );
 
-    expect(innerEnter).toHaveBeenCalledTimes(1);
+    expect(innerMirror).toHaveBeenCalledTimes(1);
     expect(log).not.toHaveBeenCalled();
     log.mockRestore();
   });
 
-  it('mirrors with the shared cascade and the hop forward so channel chains continue the envelope', () => {
+  it('mirrors the observed envelope verbatim with the hop forward so channel chains continue the envelope', () => {
     const network = mockNetwork();
     const channel = new Channel({ _network: network }, 'continuing');
-    const innerEnter = jest.spyOn(channel._channel, 'enter');
+    const innerMirror = jest.spyOn(channel._channel, 'mirror');
     const { onForward } = network.decorate.mock.calls[0][0];
     const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
     const cascade = { channelId: 'continuing', extra: true };
+    const hop = { source: 'entry-source', via: INLINE };
+    const chain = { taoTrace: { traceId: 'kept' } };
+    const envelope = { cascade, hop, chain };
     const forward = jest.fn();
 
-    onForward(appCtx, { cascade, hop: {}, chain: {} }, { from: null, forward });
+    onForward(appCtx, envelope, { from: null, forward });
 
-    expect(innerEnter).toHaveBeenCalledTimes(1);
-    const [mirroredAc, opts] = innerEnter.mock.calls[0];
+    expect(innerMirror).toHaveBeenCalledTimes(1);
+    const [mirroredAc, mirroredEnvelope, mirroredForward] =
+      innerMirror.mock.calls[0];
     expect(mirroredAc).toBe(appCtx);
-    // the SAME cascade continues (no fresh envelope), and chained AppCons
-    // from channel handlers route through the main network's hop engine
-    expect(opts.cascade).toBe(cascade);
-    expect(opts.forward).toBe(forward);
+    // same-hop dispatch: the observed envelope travels VERBATIM (the same
+    // object — cascade, hop.source/hop.via, and chain stay visible to
+    // private-network decorations), and chained AppCons from channel
+    // handlers route through the main network's hop engine
+    expect(mirroredEnvelope).toBe(envelope);
+    expect(mirroredEnvelope.cascade).toBe(cascade);
+    expect(mirroredEnvelope.hop).toBe(hop);
+    expect(mirroredEnvelope.chain).toBe(chain);
+    expect(mirroredForward).toBe(forward);
   });
 
   it('mirrors chained AppCons to channel handlers through the network decoration', async () => {
@@ -323,6 +333,43 @@ describe('Channel', () => {
     expect(cascades[0]).toEqual({ channelId: 'causal' });
     expect(cascades[1]).toBe(cascades[0]);
     expect(cascades[2]).toBe(cascades[0]);
+  });
+
+  it('exposes hop.via of the mirrored hop to private-network decorations', async () => {
+    const kernel = new Kernel();
+    const channel = new Channel(kernel, 'via-observing');
+    const mainEnvelopes = [];
+    const channelEnvelopes = [];
+    kernel._network.decorate({
+      name: 'main-probe',
+      onDispatch: (ac, envelope) => {
+        mainEnvelopes.push(envelope);
+      },
+    });
+    channel.decorate({
+      name: 'via-probe',
+      onDispatch: (ac, envelope) => {
+        channelEnvelopes.push(envelope);
+      },
+    });
+    // a MAIN-network inline handler produces the chained hop
+    kernel.addInlineHandler(
+      SOURCE,
+      () => new AppCtx(TARGET.t, TARGET.a, TARGET.o, DATA),
+    );
+
+    channel.setCtx(SOURCE, DATA);
+    await tick();
+
+    // only the chained hop mirrors into the channel, and its envelope
+    // carries the phase that produced it
+    expect(channelEnvelopes).toHaveLength(1);
+    expect(channelEnvelopes[0].hop).toEqual({ via: INLINE });
+    // verbatim: the mirrored dispatch reuses the SAME envelope object the
+    // main network dispatches for that hop — not a re-derived one
+    expect(mainEnvelopes).toHaveLength(2);
+    expect(channelEnvelopes[0]).toBe(mainEnvelopes[1]);
+    expect(channelEnvelopes[0].cascade).toBe(mainEnvelopes[0].cascade);
   });
 
   it('stops mirroring after dispose', async () => {
@@ -636,6 +683,7 @@ describe('Transponder', () => {
     });
     expect(ctxOpts).toEqual({
       cascade: { transponderId: 'entering', signal: expect.any(Function) },
+      chain: null,
     });
 
     const result = transponder.setAppCtx(appCtx);
@@ -643,10 +691,33 @@ describe('Transponder', () => {
     expect(enteredAc).toBe(appCtx);
     expect(opts).toEqual({
       cascade: { transponderId: 'entering', signal: expect.any(Function) },
+      chain: null,
     });
 
     opts.cascade.signal(appCtx);
     await expect(result).resolves.toBe(appCtx);
+  });
+
+  it('passes a provided entry chain through to the surface enter', () => {
+    const network = mockNetwork();
+    const transponder = new Transponder({ _network: network }, 'chain-entry');
+    const someChain = { taoTrace: { traceId: 'remote', signalId: 'parent' } };
+    const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
+
+    transponder.setCtx(SOURCE, DATA, { chain: someChain });
+    expect(network.enter).toHaveBeenCalledTimes(1);
+    const [, viaCtxOpts] = network.enter.mock.calls[0];
+    // the chain continues into the surface entry as given (same object)
+    expect(viaCtxOpts.chain).toBe(someChain);
+    expect(viaCtxOpts.cascade).toEqual({
+      transponderId: 'chain-entry',
+      signal: expect.any(Function),
+    });
+
+    transponder.setAppCtx(appCtx, { chain: someChain });
+    const [enteredAc, viaAppCtxOpts] = network.enter.mock.calls[1];
+    expect(enteredAc).toBe(appCtx);
+    expect(viaAppCtxOpts.chain).toBe(someChain);
   });
 
   it('signals through its onDispatch decoration with the envelope cascade', () => {
@@ -1122,10 +1193,10 @@ describe('Transceiver', () => {
     expect(channelMirrored).toHaveBeenCalledWith(TARGET, { Page: DATA.Page });
   });
 
-  it('mirrors matching cascades onto the signals network with the hop forward', () => {
+  it('mirrors matching cascades onto the signals network with the observed envelope verbatim', () => {
     const network = mockNetwork();
     const transceiver = new Transceiver({ _network: network }, 'mirroring');
-    const innerEnter = jest.spyOn(transceiver._signals, 'enter');
+    const innerMirror = jest.spyOn(transceiver._signals, 'mirror');
     expect(network.decorate).toHaveBeenCalledTimes(1);
     const { onForward } = network.decorate.mock.calls[0][0];
     const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
@@ -1138,20 +1209,54 @@ describe('Transceiver', () => {
         forward,
       },
     );
-    expect(innerEnter).not.toHaveBeenCalled();
+    expect(innerMirror).not.toHaveBeenCalled();
 
     const cascade = {
       transceiverId: 'mirroring',
       signal: { resolve: jest.fn(), reject: jest.fn() },
     };
-    onForward(appCtx, { cascade, hop: {}, chain: {} }, { forward });
-    expect(innerEnter).toHaveBeenCalledTimes(1);
-    const [mirroredAc, opts] = innerEnter.mock.calls[0];
+    const envelope = { cascade, hop: { via: ASYNC }, chain: {} };
+    onForward(appCtx, envelope, { forward });
+    expect(innerMirror).toHaveBeenCalledTimes(1);
+    const [mirroredAc, mirroredEnvelope, mirroredForward] =
+      innerMirror.mock.calls[0];
     expect(mirroredAc).toBe(appCtx);
-    // the SAME cascade continues, and chains from signal handlers route
-    // through the main network's hop engine
-    expect(opts.cascade).toBe(cascade);
-    expect(opts.forward).toBe(forward);
+    // same-hop dispatch: the observed envelope travels VERBATIM (the same
+    // object — cascade, hop.via, and chain intact), and chains from signal
+    // handlers route through the main network's hop engine
+    expect(mirroredEnvelope).toBe(envelope);
+    expect(mirroredEnvelope.cascade).toBe(cascade);
+    expect(mirroredForward).toBe(forward);
+  });
+
+  it('passes a provided entry chain through to the surface enter', () => {
+    const network = mockNetwork();
+    const transceiver = new Transceiver({ _network: network }, 'chain-entry');
+    const someChain = { taoTrace: { traceId: 'remote', signalId: 'parent' } };
+    const appCtx = new AppCtx(SOURCE.t, SOURCE.a, SOURCE.o, DATA);
+
+    transceiver.setCtx(SOURCE, DATA, { chain: someChain });
+    expect(network.enter).toHaveBeenCalledTimes(1);
+    const [, viaCtxOpts] = network.enter.mock.calls[0];
+    // the chain continues into the surface entry as given (same object)
+    expect(viaCtxOpts.chain).toBe(someChain);
+    expect(viaCtxOpts.cascade).toEqual({
+      transceiverId: 'chain-entry',
+      signal: {
+        id: expect.any(Number),
+        resolve: expect.any(Function),
+        reject: expect.any(Function),
+      },
+    });
+
+    transceiver.setAppCtx(appCtx, { chain: someChain });
+    const [enteredAc, viaAppCtxOpts] = network.enter.mock.calls[1];
+    expect(enteredAc).toBe(appCtx);
+    expect(viaAppCtxOpts.chain).toBe(someChain);
+
+    // 2-arg entries stay unchanged: a fresh (null) chain
+    transceiver.setCtx(SOURCE, DATA);
+    expect(network.enter.mock.calls[2][1].chain).toBeNull();
   });
 
   it('rejects unresolved signals when configured with a timeout', async () => {

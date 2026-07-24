@@ -1,5 +1,8 @@
 function nodeLabel(record, showData) {
   let label = `☯ {${record.t}, ${record.a}, ${record.o}}`;
+  if (record.via) {
+    label += ` ·${record.via}`;
+  }
   if (showData && typeof record.data !== 'undefined') {
     try {
       label += ` ${JSON.stringify(record.data)}`;

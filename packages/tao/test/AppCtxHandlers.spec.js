@@ -1,4 +1,4 @@
-import { WILDCARD } from '../src/constants';
+import { WILDCARD, INTERCEPT, ASYNC, INLINE, ERROR } from '../src/constants';
 import AppCtxRoot from '../src/AppCtxRoot';
 import AppCtx from '../src/AppCtx';
 import AppCtxHandlers from '../src/AppCtxHandlers';
@@ -197,7 +197,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // await
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, INLINE);
     });
 
     it('should not call setAppCtx if handler returns nothing', async () => {
@@ -248,11 +248,63 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(setAppCtx).toThrow();
       await expect(wontThrow()).resolves.not.toThrow();
       expect(handler).toHaveBeenCalled();
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, INLINE);
     });
   });
 
   describe('as Async handlers', () => {
+    it('should contain a synchronously-throwing plain handler within the fork (contract: async cannot affect later phases)', async () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const order = [];
+      uut.addAsyncHandler(() => {
+        order.push('async-throws');
+        throw new Error('sync boom');
+      });
+      uut.addAsyncHandler(() => {
+        order.push('async2');
+      });
+      uut.addInlineHandler(() => {
+        order.push('inline');
+      });
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      const setAppCtx = jest.fn();
+      // Act
+      await uut.handleAppCon(matchAc, setAppCtx);
+      // drain the microtask-only rejection path (fake-timer safe)
+      for (let i = 0; i < 5; i++) {
+        await Promise.resolve();
+      }
+      // Assert - remaining async handlers still initiate and the inline
+      // phase runs; the sync throw is swallowed on the legacy path
+      expect(order).toEqual(['async-throws', 'async2', 'inline']);
+    });
+
+    it('should settle a synchronous async-handler throw as ERROR while later phases proceed', async () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const order = [];
+      const boom = new Error('sync boom');
+      uut.addAsyncHandler(() => {
+        throw boom;
+      });
+      uut.addInlineHandler(() => {
+        order.push('inline');
+      });
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      const onReturn = jest.fn();
+      // Act
+      await uut.handleAppCon(matchAc, jest.fn(), undefined, { onReturn });
+      // drain the microtask-only rejection path (fake-timer safe)
+      for (let i = 0; i < 5; i++) {
+        await Promise.resolve();
+      }
+      // Assert - the throw joined the rejection path: ERROR settlement with
+      // the exact error, and the inline phase was untouched
+      expect(onReturn).toHaveBeenCalledWith(ERROR, boom, matchAc);
+      expect(order).toEqual(['inline']);
+    });
+
     it('should expose an asyncHandlers iterable property that is not the underlying collection', () => {
       // Assemble
       const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
@@ -317,8 +369,11 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       const handler = jest.fn();
       uut.addAsyncHandler(handler);
       const matchAc = new AppCtx(TERM, ACTION, ORIENT);
-      // Act
+      // Act - the caller never awaits; the call is guaranteed but
+      // scheduled on the event loop (async-phase contract)
       uut.handleAppCon(matchAc);
+      expect(handler).not.toHaveBeenCalled();
+      await Promise.resolve();
       // Assert
       expect(handler).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -370,8 +425,10 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
         a: ACTION,
         o: ORIENT,
       });
-      // Act
+      // Act - the caller never awaits; calls are guaranteed but
+      // scheduled on the event loop (async-phase contract)
       uut.handleAppCon(matchAc);
+      await Promise.resolve();
       jest.runAllTimers();
       // Assert
       expect(handler1).toHaveBeenCalledWith(callingArg, {});
@@ -433,7 +490,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // await
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, ASYNC);
     });
 
     it('should not call setAppCtx if handler returns nothing', async () => {
@@ -484,7 +541,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(setAppCtx).toThrow();
       await expect(wontThrow()).resolves.not.toThrow();
       expect(handler).toHaveBeenCalled();
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, ASYNC);
     });
   });
 
@@ -639,7 +696,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       // Act
       await uut.handleAppCon(matchAc, setAppCtx);
       // Assert
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, INTERCEPT);
     });
 
     it('should not call setAppCtx if handler returns nothing', async () => {
@@ -690,7 +747,7 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(setAppCtx).toThrow();
       await expect(wontThrow()).resolves.not.toThrow();
       expect(handler).toHaveBeenCalled();
-      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined);
+      expect(setAppCtx).toHaveBeenCalledWith(nextAc, undefined, INTERCEPT);
     });
 
     it('should not call inlineHander if handler returns truthy value', async () => {

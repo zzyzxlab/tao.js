@@ -138,12 +138,11 @@ export default class Channel {
           ac.unwrapCtx(),
         );
       // Stryker restore all
-      // chains from channel-attached handlers continue the cascade envelope
-      // through the main network's hop engine (ENVELOPE-SPEC.md §12)
-      this._channel.enter(ac, {
-        cascade: envelope.cascade,
-        forward: meta.forward,
-      });
+      // same-hop dispatch: the observed envelope travels verbatim (hop.via,
+      // chain intact) and chains from channel-attached handlers continue
+      // the cascade envelope through the main network's hop engine
+      // (ENVELOPE-SPEC.md §4, §12)
+      this._channel.mirror(ac, envelope, meta.forward);
     }
   }
 

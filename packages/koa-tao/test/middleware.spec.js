@@ -39,10 +39,20 @@ jest.mock('@tao.js/utils', () => ({
 }));
 
 import taoMiddleware, { enhancedMiddleware, simpleMiddleware } from '../src';
-import { cleanInput, noop, normalizeAC } from '../src/helpers';
+import {
+  chainFromRequest,
+  cleanInput,
+  noop,
+  normalizeAC,
+} from '../src/helpers';
 import { Channel, Transponder, Transceiver } from '@tao.js/utils';
 
 const next = jest.fn();
+
+const TRACE_ID = '0af7651916cd43dd8448eb211c80319c';
+const PARENT_ID = 'b7ad6b7169203331';
+const TRACEPARENT = `00-${TRACE_ID}-${PARENT_ID}-01`;
+const TRACE_CHAIN = { taoTrace: { traceId: TRACE_ID, signalId: PARENT_ID } };
 
 describe('@tao.js/koa helpers', () => {
   it('normalizes trigram aliases and removes absent parts', () => {
@@ -58,6 +68,43 @@ describe('@tao.js/koa helpers', () => {
     });
     expect(noop()).toBeUndefined();
   });
+
+  describe('chainFromRequest', () => {
+    it('continues a valid traceparent header as taoTrace chain state', () => {
+      expect(
+        chainFromRequest({
+          request: { headers: { traceparent: TRACEPARENT } },
+        }),
+      ).toEqual({
+        taoTrace: { traceId: TRACE_ID, signalId: PARENT_ID },
+      });
+    });
+
+    it('yields null when the header is absent', () => {
+      expect(chainFromRequest({ request: { headers: {} } })).toBeNull();
+    });
+
+    it('yields null when the request shape has no headers', () => {
+      expect(chainFromRequest(undefined)).toBeNull();
+      expect(chainFromRequest({})).toBeNull();
+      expect(chainFromRequest({ request: {} })).toBeNull();
+    });
+
+    it('yields null for malformed traceparent headers', () => {
+      const malformed = [
+        'garbage',
+        `00-${'0'.repeat(32)}-${PARENT_ID}-01`, // all-zero trace id
+        `00-${TRACE_ID}-${'0'.repeat(16)}-01`, // all-zero parent id
+        `ff-${TRACE_ID}-${PARENT_ID}-01`, // forbidden version
+        `00-${TRACE_ID.slice(1)}-${PARENT_ID}-01`, // short trace id
+      ];
+      for (const traceparent of malformed) {
+        expect(
+          chainFromRequest({ request: { headers: { traceparent } } }),
+        ).toBeNull();
+      }
+    });
+  });
 });
 
 describe('@tao.js/koa simple and enhanced middleware', () => {
@@ -72,7 +119,7 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
     Transceiver.mockClear();
   });
 
-  it('adds simple response handlers and exposes a transient TAO context', () => {
+  it('adds simple response handlers and exposes a transient TAO context', async () => {
     const middleware = simpleMiddleware({}, { name: 'api', timeout: 10 });
     const handler = jest.fn();
     middleware.addResponseHandler(
@@ -98,7 +145,7 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
     expect(channel.name('req')).toBe('api-channel-req');
 
     const ctx = {};
-    middleware.middleware()(ctx, next);
+    await middleware.middleware()(ctx, next);
     const transponder = mockTransponders[0];
     expect(transponder.name).toBe('api-transponder-request');
     expect(Transponder.mock.calls[0][2]).toBe(10);
@@ -142,7 +189,7 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
     log.mockRestore();
   });
 
-  it('delegates all enhanced handler phases and request context calls', () => {
+  it('delegates all enhanced handler phases and request context calls', async () => {
     const middleware = enhancedMiddleware({}, { name: 'api' });
     const handler = jest.fn();
     [
@@ -184,9 +231,27 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
     );
 
     const ctx = {};
-    middleware.middleware()(ctx, next);
+    await middleware.middleware()(ctx, next);
     expect(next).toHaveBeenCalled();
     expect(ctx.tao).toBeNull();
+  });
+
+  it('keeps ctx.tao available across async downstream middleware (enhanced)', async () => {
+    const enhanced = enhancedMiddleware({}, {});
+    const ctx = { request: { headers: {} } };
+    await enhanced.middleware()(ctx, async () => {
+      // typical async koa route: ctx.tao must survive the await boundary
+      await Promise.resolve();
+      expect(ctx.tao).not.toBeNull();
+      ctx.tao.setCtx({ t: 'User', a: 'View', o: 'Web' }, {});
+    });
+    // cleared only after downstream settles
+    expect(ctx.tao).toBeNull();
+    expect(mockTransceivers[0].setCtx).toHaveBeenCalledWith(
+      { t: 'User', a: 'View', o: 'Web' },
+      {},
+      { chain: null },
+    );
   });
 
   it('uses a custom transceiver timeout when provided', () => {
@@ -198,7 +263,7 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
 
   it('forwards both TAO context methods while middleware is active', () => {
     const simple = simpleMiddleware({}, { debug: true });
-    const simpleCtx = {};
+    const simpleCtx = { request: { headers: {} } };
     simple.middleware()(simpleCtx, () => {
       simpleCtx.tao.setCtx(
         { term: 'User', action: 'View', orient: 'Web' },
@@ -209,13 +274,15 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
     expect(mockTransponders[0].setCtx).toHaveBeenCalledWith(
       { term: 'User', action: 'View', orient: 'Web' },
       { id: 1 },
+      { chain: null },
     );
-    expect(mockTransponders[0].setAppCtx).toHaveBeenCalledWith({
-      key: 'user',
-    });
+    expect(mockTransponders[0].setAppCtx).toHaveBeenCalledWith(
+      { key: 'user' },
+      { chain: null },
+    );
 
     const enhanced = enhancedMiddleware({}, {});
-    const enhancedCtx = {};
+    const enhancedCtx = { request: { headers: {} } };
     enhanced.middleware()(enhancedCtx, () => {
       enhancedCtx.tao.setCtx({ t: 'User', a: 'View', o: 'Web' }, {});
       enhancedCtx.tao.setAppCtx({ key: 'user' });
@@ -223,10 +290,46 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
     expect(mockTransceivers[0].setCtx).toHaveBeenCalledWith(
       { t: 'User', a: 'View', o: 'Web' },
       {},
+      { chain: null },
     );
-    expect(mockTransceivers[0].setAppCtx).toHaveBeenCalledWith({
-      key: 'user',
+    expect(mockTransceivers[0].setAppCtx).toHaveBeenCalledWith(
+      { key: 'user' },
+      { chain: null },
+    );
+  });
+
+  it('threads a traceparent header chain into transponder and transceiver entries', () => {
+    const simple = simpleMiddleware({}, {});
+    const simpleCtx = { request: { headers: { traceparent: TRACEPARENT } } };
+    simple.middleware()(simpleCtx, () => {
+      simpleCtx.tao.setCtx({ t: 'User', a: 'View', o: 'Web' }, { id: 1 });
+      simpleCtx.tao.setAppCtx({ key: 'user' });
     });
+    expect(mockTransponders[0].setCtx).toHaveBeenCalledWith(
+      { t: 'User', a: 'View', o: 'Web' },
+      { id: 1 },
+      { chain: TRACE_CHAIN },
+    );
+    expect(mockTransponders[0].setAppCtx).toHaveBeenCalledWith(
+      { key: 'user' },
+      { chain: TRACE_CHAIN },
+    );
+
+    const enhanced = enhancedMiddleware({}, {});
+    const enhancedCtx = { request: { headers: { traceparent: TRACEPARENT } } };
+    enhanced.middleware()(enhancedCtx, () => {
+      enhancedCtx.tao.setCtx({ t: 'User', a: 'View', o: 'Web' }, {});
+      enhancedCtx.tao.setAppCtx({ key: 'user' });
+    });
+    expect(mockTransceivers[0].setCtx).toHaveBeenCalledWith(
+      { t: 'User', a: 'View', o: 'Web' },
+      {},
+      { chain: TRACE_CHAIN },
+    );
+    expect(mockTransceivers[0].setAppCtx).toHaveBeenCalledWith(
+      { key: 'user' },
+      { chain: TRACE_CHAIN },
+    );
   });
 });
 
@@ -423,6 +526,7 @@ describe('@tao.js/koa HTTP middleware', () => {
       path: '/tao/context',
       method: 'POST',
       request: {
+        headers: {},
         payload: async () => ({ tao: { t: 'User' }, data: { id: 1 } }),
       },
     };
@@ -431,6 +535,7 @@ describe('@tao.js/koa HTTP middleware', () => {
     expect(mockTransponderSetCtx).toHaveBeenCalledWith(
       { t: 'User' },
       { id: 1 },
+      { chain: null },
     );
     expect(ctx.body).toEqual({
       tao: { t: 'User', a: 'View', o: 'Web' },
@@ -442,7 +547,7 @@ describe('@tao.js/koa HTTP middleware', () => {
     const failedCtx = {
       path: '/tao/context',
       method: 'POST',
-      request: { json: { tao: {}, data: {} } },
+      request: { headers: {}, json: { tao: {}, data: {} } },
     };
     await failed(failedCtx, next);
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -456,6 +561,7 @@ describe('@tao.js/koa HTTP middleware', () => {
       path: '/tao/context',
       method: 'POST',
       request: {
+        headers: {},
         payload: { tao: { t: 'User' }, data: { source: 'payload' } },
         json: { tao: { t: 'Other' }, data: { source: 'json' } },
         body: { tao: { t: 'Third' }, data: { source: 'body' } },
@@ -466,6 +572,7 @@ describe('@tao.js/koa HTTP middleware', () => {
     expect(mockTransponderSetCtx).toHaveBeenCalledWith(
       { t: 'User' },
       { source: 'payload' },
+      { chain: null },
     );
   });
 
@@ -475,6 +582,7 @@ describe('@tao.js/koa HTTP middleware', () => {
       path: '/tao/context',
       method: 'POST',
       request: {
+        headers: {},
         '': { tao: { t: 'Wrong' }, data: { source: 'emptyKey' } },
         json: { tao: { t: 'User' }, data: { source: 'json' } },
       },
@@ -484,6 +592,45 @@ describe('@tao.js/koa HTTP middleware', () => {
     expect(mockTransponderSetCtx).toHaveBeenCalledWith(
       { t: 'User' },
       { source: 'json' },
+      { chain: null },
+    );
+  });
+
+  it('handles a body-less context POST without crashing', async () => {
+    const middleware = taoMiddleware({}, {}).middleware();
+    const ctx = {
+      path: '/tao/context',
+      method: 'POST',
+      request: { headers: {} },
+    };
+    await middleware(ctx, next);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mockTransponderSetCtx).toHaveBeenCalledWith(undefined, undefined, {
+      chain: null,
+    });
+    expect(ctx.status).toBeUndefined();
+    expect(ctx.body).toEqual({
+      tao: { t: 'User', a: 'View', o: 'Web' },
+      data: { id: 1 },
+    });
+  });
+
+  it('passes the traceparent header chain to the context transponder', async () => {
+    const middleware = taoMiddleware({}, {}).middleware();
+    const ctx = {
+      path: '/tao/context',
+      method: 'POST',
+      request: {
+        headers: { traceparent: TRACEPARENT },
+        json: { tao: { t: 'User' }, data: { id: 6 } },
+      },
+    };
+    await middleware(ctx, next);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mockTransponderSetCtx).toHaveBeenCalledWith(
+      { t: 'User' },
+      { id: 6 },
+      { chain: TRACE_CHAIN },
     );
   });
 
@@ -492,26 +639,31 @@ describe('@tao.js/koa HTTP middleware', () => {
     const jsonCtx = {
       path: '/tao/context',
       method: 'POST',
-      request: { json: async () => ({ tao: { t: 'User' }, data: { id: 2 } }) },
+      request: {
+        headers: {},
+        json: async () => ({ tao: { t: 'User' }, data: { id: 2 } }),
+      },
     };
     await middleware(jsonCtx, next);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(mockTransponderSetCtx).toHaveBeenCalledWith(
       { t: 'User' },
       { id: 2 },
+      { chain: null },
     );
     expect(jsonCtx.body.data).toEqual({ id: 1 });
 
     const bodyCtx = {
       path: '/tao/context',
       method: 'POST',
-      request: { body: { tao: { t: 'User' }, data: { id: 3 } } },
+      request: { headers: {}, body: { tao: { t: 'User' }, data: { id: 3 } } },
     };
     await middleware(bodyCtx, next);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(mockTransponderSetCtx).toHaveBeenCalledWith(
       { t: 'User' },
       { id: 3 },
+      { chain: null },
     );
     expect(bodyCtx.body.data).toEqual({ id: 1 });
   });
@@ -534,26 +686,34 @@ describe('@tao.js/koa HTTP middleware', () => {
     const valueCtx = {
       path: '/tao/context',
       method: 'POST',
-      request: { payload: { tao: { t: 'User' }, data: { id: 4 } } },
+      request: {
+        headers: {},
+        payload: { tao: { t: 'User' }, data: { id: 4 } },
+      },
     };
     await middleware(valueCtx, next);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(mockTransponderSetCtx).toHaveBeenCalledWith(
       { t: 'User' },
       { id: 4 },
+      { chain: null },
     );
     expect(valueCtx.body.data).toEqual({ id: 1 });
 
     const bodyFnCtx = {
       path: '/tao/context',
       method: 'POST',
-      request: { body: async () => ({ tao: { t: 'User' }, data: { id: 5 } }) },
+      request: {
+        headers: {},
+        body: async () => ({ tao: { t: 'User' }, data: { id: 5 } }),
+      },
     };
     await middleware(bodyFnCtx, next);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(mockTransponderSetCtx).toHaveBeenCalledWith(
       { t: 'User' },
       { id: 5 },
+      { chain: null },
     );
     expect(bodyFnCtx.body.data).toEqual({ id: 1 });
 

@@ -14,7 +14,12 @@ earlier ones; nothing in a later horizon is scheduled work.
 
 ---
 
-## 1. 0.20.0 — the wire release (committed scope)
+## 1. 0.20.0 — the wire release (implemented on `feat/chain-transport`)
+
+> **Status:** shipped as specified — every §1 deliverable below is
+> implemented, spec'd (`ENVELOPE-SPEC.md` §4/§5/§9), and verified (17 test
+> projects, 100% coverage and 100% mutation on all 13 published packages,
+> 13/13 socket.io round-trip smoke incl. one-traceId proof).
 
 0.19.0 left one dispatch surface: `enter()` + `decorate()`. 0.20.0 extends
 the envelope across process boundaries so a cascade spanning processes is

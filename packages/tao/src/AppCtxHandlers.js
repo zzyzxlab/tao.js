@@ -119,18 +119,35 @@ export default class AppCtxHandlers extends AppCtxRoot {
    * Dispatch an AppCon through the three handler phases.
    *
    * `hooks` (optional, supplied by Network decorations — see ENVELOPE-SPEC.md
-   * §6) receives what the legacy loop discards: `hooks.onReturn(phase, value,
-   * ac)` is called for non-AppCtx truthy intercept returns (which still
-   * halt), non-null non-AppCtx async/inline returns, and thrown handler
-   * errors (phase = ERROR — which are rethrown when no hooks are present,
-   * preserving legacy behavior).
+   * §6) receives what the loop otherwise discards: `hooks.onReturn(phase,
+   * value, ac)` is called for non-AppCtx truthy intercept returns (which
+   * still halt), non-null non-AppCtx async/inline returns, and thrown
+   * handler errors (phase = ERROR — which are rethrown when no hooks are
+   * present, preserving pre-envelope behavior); `hooks.onProceed()` fires
+   * when the intercept phase passes without halting or diverting, before
+   * the async/inline phases run (§5 — veto-respecting emitters).
+   *
+   * `setAppCtx` receives the producing phase as a third argument so the
+   * hop engine can stamp `hop.via` on chained hops (§4).
    */
   async handleAppCon(ac, setAppCtx, control, hooks) {
     const { t, a, o, data } = ac;
     const onReturn =
       hooks && typeof hooks.onReturn === 'function' ? hooks.onReturn : null;
+    const onProceed =
+      hooks && typeof hooks.onProceed === 'function' ? hooks.onProceed : null;
     try {
-      await this._handlePhases(ac, setAppCtx, control, onReturn, t, a, o, data);
+      await this._handlePhases(
+        ac,
+        setAppCtx,
+        control,
+        onReturn,
+        onProceed,
+        t,
+        a,
+        o,
+        data,
+      );
     } catch (dispatchErr) {
       if (onReturn) {
         onReturn(ERROR, dispatchErr, ac);
@@ -140,7 +157,17 @@ export default class AppCtxHandlers extends AppCtxRoot {
     }
   }
 
-  async _handlePhases(ac, setAppCtx, control, onReturn, t, a, o, data) {
+  async _handlePhases(
+    ac,
+    setAppCtx,
+    control,
+    onReturn,
+    onProceed,
+    t,
+    a,
+    o,
+    data,
+  ) {
     /*
      * Intercept Handlers
      * always occur first
@@ -156,7 +183,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
       if (intercepted instanceof AppCtx) {
         // Stryker disable all: local console is a noop; catch only swallows
         try {
-          setAppCtx(intercepted, control);
+          setAppCtx(intercepted, control, INTERCEPT);
         } catch (interceptErr) {
           if (onReturn) {
             onReturn(ERROR, interceptErr, ac);
@@ -173,6 +200,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
       }
       return;
     }
+    if (onProceed) {
+      // the intercept phase passed without halt or divert
+      onProceed();
+    }
     /*
      * Async Handlers
      * designed to kick off asynchronous handling of an AC outside of the current
@@ -184,16 +215,26 @@ export default class AppCtxHandlers extends AppCtxRoot {
      * generators instead of Promises
      * TODO: would ServiceWorkers make sense for this? tao-sw package
      */
+    let asyncKickoffs = 0;
     for (let asyncH of this.asyncHandlers) {
       (() => {
+        asyncKickoffs += 1;
         // Stryker disable next-line all: debug logging via noop console
         console.log(
           `>>>>>>>> starting async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`,
         );
-        Promise.resolve(asyncH({ t, a, o }, data))
+        // the async-phase contract (ENVELOPE-SPEC §4): async handlers are
+        // out-of-band side effects — the CALL itself is deferred to the
+        // event loop, never executed in the entrant's synchronous stack,
+        // and a throw before the handler's first await is inherently a
+        // rejection. The queue yield after this loop preserves the
+        // priority guarantee: every async handler is called before the
+        // first inline handler runs.
+        Promise.resolve()
+          .then(() => asyncH({ t, a, o }, data))
           .then((nextAc) => {
             if (nextAc instanceof AppCtx) {
-              setAppCtx(nextAc, control);
+              setAppCtx(nextAc, control, ASYNC);
             } else if (onReturn && nextAc != null) {
               onReturn(ASYNC, nextAc, ac);
             }
@@ -224,6 +265,13 @@ export default class AppCtxHandlers extends AppCtxRoot {
      * all handlers to handle this context before any new ones are set?
      * YES: currently implemented that way
      */
+    if (asyncKickoffs) {
+      // one microtask yield: the deferred async calls enqueued above are
+      // FIFO-ahead of this continuation, so every async handler has been
+      // called (not awaited) before the first inline handler runs — the
+      // protocol's priority guarantee without synchronous invocation
+      await undefined;
+    }
     const nextSpool = [];
     const inlineReturns = [];
     for (let inlineH of this.inlineHandlers) {
@@ -243,7 +291,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
     if (nextSpool.length) {
       for (let nextAc of nextSpool) {
         try {
-          setAppCtx(nextAc, control);
+          setAppCtx(nextAc, control, INLINE);
         } catch (inlineErr) {
           if (onReturn) {
             onReturn(ERROR, inlineErr, ac);

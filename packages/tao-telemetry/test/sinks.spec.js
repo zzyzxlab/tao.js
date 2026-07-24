@@ -11,6 +11,7 @@ function mkRecord({
   a = 'Act',
   o = 'Or',
   data,
+  via,
 }) {
   const record = {
     traceId: TRACE_ID,
@@ -25,6 +26,9 @@ function mkRecord({
   };
   if (typeof data !== 'undefined') {
     record.data = data;
+  }
+  if (typeof via !== 'undefined') {
+    record.via = via;
   }
   return record;
 }
@@ -123,6 +127,46 @@ describe('InMemorySink collects signal records', () => {
     );
   });
 
+  it('should append the producing phase to via-stamped records in the tree', () => {
+    // Assemble — a two-hop cascade whose child hop was produced inline
+    const sink = new InMemorySink();
+    sink.signal(mkRecord({ id: 'root', t: 'pong', a: 'enter', o: 'app' }));
+    sink.signal(
+      mkRecord({
+        id: 'child',
+        parentId: 'root',
+        t: 'pong',
+        a: 'run',
+        o: 'app',
+        via: 'Inline',
+      }),
+    );
+    // Act
+    const formatted = sink.format();
+    // Assert — the entry line is unchanged; the chained line carries ·<via>
+    expect(formatted).toBe(
+      ['☯ {pong, enter, app}', '└── ☯ {pong, run, app} ·Inline'].join('\n'),
+    );
+  });
+
+  it('should place via before data when both are rendered', () => {
+    // Assemble
+    const sink = new InMemorySink();
+    sink.signal(
+      mkRecord({
+        id: 'root',
+        t: 'S',
+        a: 'A',
+        o: 'O',
+        via: 'Async',
+        data: { x: 1 },
+      }),
+    );
+    // Act
+    // Assert
+    expect(sink.format({ showData: true })).toBe('☯ {S, A, O} ·Async {"x":1}');
+  });
+
   it('should include data in the formatted tree when asked', () => {
     // Assemble
     const sink = new InMemorySink();
@@ -215,6 +259,30 @@ describe('ConsoleSink streams signals with causal indentation', () => {
     sink.signal(mkRecord({ id: 'root', t: 'Space', a: 'Enter', o: 'Portal' }));
     // Assert
     expect(logger.info).toHaveBeenCalledWith('☯{Space, Enter, Portal}');
+  });
+
+  it('should append the producing phase when a record carries via', () => {
+    // Assemble
+    const logger = mkLogger();
+    const sink = new ConsoleSink({ logger });
+    // Act
+    sink.signal(mkRecord({ id: 'root', t: 'Space', a: 'Enter', o: 'Portal' }));
+    sink.signal(
+      mkRecord({
+        id: 'child',
+        parentId: 'root',
+        t: 'Space',
+        a: 'List',
+        o: 'Portal',
+        via: 'Inline',
+      }),
+    );
+    // Assert
+    expect(logger.info).toHaveBeenNthCalledWith(1, '☯{Space, Enter, Portal}');
+    expect(logger.info).toHaveBeenNthCalledWith(
+      2,
+      '  ↳ ☯{Space, List, Portal} ·Inline',
+    );
   });
 
   it('should indent descendants by causal depth', () => {

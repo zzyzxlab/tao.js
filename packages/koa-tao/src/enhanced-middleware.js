@@ -1,26 +1,28 @@
 // import { AppCtx } from '@tao.js/core';
 import cartesian from 'cartesian';
 import { Transceiver } from '@tao.js/utils';
-import { noop, normalizeAC, cleanInput } from './helpers';
+import { noop, normalizeAC, cleanInput, chainFromRequest } from './helpers';
 
 const DEFAULT_NAME = 'koa-enhanced-middleware';
 const TRANSCEIVER_NAME_TYPE = 'transceiver';
 const DEFAULT_TIMEOUT = 0;
 
 function getNameId(type, name) {
-  return newId => {
+  return (newId) => {
     return `${name}-${type}-${newId}`;
   };
 }
 
-function buildCtxTao(transceiver) {
+function buildCtxTao(transceiver, chain) {
   return {
     setCtx({ t, term, a, action, o, orient }, data) {
-      return transceiver.setCtx({ t, term, a, action, o, orient }, data);
+      return transceiver.setCtx({ t, term, a, action, o, orient }, data, {
+        chain,
+      });
     },
     setAppCtx(ac) {
-      return transceiver.setAppCtx(ac);
-    }
+      return transceiver.setAppCtx(ac, { chain });
+    },
   };
 }
 
@@ -44,19 +46,22 @@ export default function enhancedMiddleware(TAO, opt = {}) {
     TAO,
     namer,
     opt.timeout || DEFAULT_TIMEOUT,
-    opt.promise
+    opt.promise,
   );
   return {
     middleware() {
-      return (ctx, next) => {
-        ctx.tao = buildCtxTao(transceiver);
-        next();
+      return async (ctx, next) => {
+        ctx.tao = buildCtxTao(transceiver, chainFromRequest(ctx));
+        // downstream middleware is async in any real koa app — clearing
+        // ctx.tao before it settles would null the surface while routes
+        // are still using it (the transceiver itself is long-lived)
+        await next();
         ctx.tao = null;
       };
     },
     addInterceptHandler({ t, term, a, action, o, orient }, handler) {
       const trigrams = cleanInput(
-        normalizeAC({ t, term, a, action, o, orient })
+        normalizeAC({ t, term, a, action, o, orient }),
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
@@ -65,7 +70,7 @@ export default function enhancedMiddleware(TAO, opt = {}) {
     },
     addAsyncHandler({ t, term, a, action, o, orient }, handler) {
       const trigrams = cleanInput(
-        normalizeAC({ t, term, a, action, o, orient })
+        normalizeAC({ t, term, a, action, o, orient }),
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
@@ -74,7 +79,7 @@ export default function enhancedMiddleware(TAO, opt = {}) {
     },
     addInlineHandler({ t, term, a, action, o, orient }, handler) {
       const trigrams = cleanInput(
-        normalizeAC({ t, term, a, action, o, orient })
+        normalizeAC({ t, term, a, action, o, orient }),
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
@@ -83,7 +88,7 @@ export default function enhancedMiddleware(TAO, opt = {}) {
     },
     removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
       const trigrams = cleanInput(
-        normalizeAC({ t, term, a, action, o, orient })
+        normalizeAC({ t, term, a, action, o, orient }),
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
@@ -92,7 +97,7 @@ export default function enhancedMiddleware(TAO, opt = {}) {
     },
     removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
       const trigrams = cleanInput(
-        normalizeAC({ t, term, a, action, o, orient })
+        normalizeAC({ t, term, a, action, o, orient }),
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
@@ -101,12 +106,12 @@ export default function enhancedMiddleware(TAO, opt = {}) {
     },
     removeInlineHandler({ t, term, a, action, o, orient }, handler) {
       const trigrams = cleanInput(
-        normalizeAC({ t, term, a, action, o, orient })
+        normalizeAC({ t, term, a, action, o, orient }),
       );
       const permutations = cartesian(trigrams);
       for (let trigram of permutations) {
         transceiver.removeInlineHandler(trigram, handler);
       }
-    }
+    },
   };
 }

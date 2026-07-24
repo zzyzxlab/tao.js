@@ -28,6 +28,6 @@ export default function useTaoInlineSubscription(trigrams, handler) {
       list.forEach((trigram) => TAO.removeInlineHandler(trigram, stable));
     };
     // trigrams captured with depKey from the same render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line -- react-hooks/exhaustive-deps (plugin not in flat config; deps list is intentional)
   }, [TAO, depKey]);
 }

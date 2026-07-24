@@ -154,6 +154,30 @@ so AppCons chained by privately-dispatched handlers continue the cascade
 envelope through the main hop engine instead of re-entering with a fresh
 one. It is not an application-level surface.
 
+### `hop.via` — the producing phase (0.20)
+
+Chained hops carry which handler phase produced them:
+`hop: { via: 'Intercept' | 'Async' | 'Inline' }` (the exported phase
+constants). Entry hops keep their caller-supplied hop and never carry
+`via`. The phase is known statically at the three chain-origin sites in
+`AppCtxHandlers._handlePhases` and is threaded through the core forward;
+it is **hop** data because it describes the edge between parent and child
+— single-hop lifetime, not cascade-shared. `via` never crosses a process
+boundary (hop is boundary-local; the edge that produced a remote
+continuation _is_ the transport). Symmetry: `onReturn` reports the phase
+of non-AppCtx returns; `hop.via` reports the phase of AppCtx chains.
+
+### `Network.mirror(ac, envelope, forward)` — same-hop dispatch (0.20)
+
+A mirrored dispatch is the **same hop** observed on a second registry, so
+its envelope must be the original envelope — same cascade reference, same
+`hop` (including `source` and `via`), same `chain` — not a re-derived one.
+`mirror(ac, envelope, forward)` dispatches on the receiving network with
+the envelope **verbatim** (no chain reduction, no hop reset); `forward` is
+the continuation chains should follow (normally the mirroring hop's
+`meta.forward`). Channel and Transceiver mirror with this instead of
+`enter()`; `enter()` remains the gate for genuinely _new_ entries.
+
 Ordering guarantees (pinned by tests):
 
 - `onForward` mirrors run **before** the main-network dispatch of the chained
@@ -170,6 +194,23 @@ start — intercept awaits, async forks, inline spool, all chaining — resumes
 on microtasks. Entry stamping of an envelope during the synchronous start is
 therefore race-free.
 
+Async-phase contract (normative, clarified 0.20): after the intercept
+phase passes, **all** async handlers are guaranteed to be called, in
+registration order, before the first inline handler runs — but the calls
+themselves are scheduled on the event loop (microtask queue), never
+executed in the entrant's synchronous stack, and the engine never awaits
+them. The priority is a queue-order guarantee, not synchronous
+invocation: the engine enqueues every async call and yields once before
+the inline phase. A throw before an async handler's first await is
+inherently a rejection (no stack to escape into).
+Async handlers are out-of-band side effects — their completion timing is
+unobservable by design and must not affect the serialized execution of
+the inline phase. An AppCtx returned by an async handler enters as a new
+hop (`hop.via: 'Async'`) when it resolves. The initiation-before-inline
+ordering is a local-scheduling guarantee (deployment-level in the
+`VISION.md` §2 placement terms); fire-and-forget completion is
+protocol-level and holds across process boundaries.
+
 ## 5. Decorator interface
 
 ```js
@@ -181,12 +222,24 @@ const dispose = network.decorate({
   onForward(nextAc, envelope, meta) {},     // mirror/route a chained AppCon;
                                             // meta = { from, forward }
   onReturn(phase, value, ac, envelope) {},  // settle non-AppCtx handler returns
+  onProceed(ac, envelope) {},               // fires when the intercept phase
+                                            // passes (no halt, no divert),
+                                            // before async/inline run (0.20)
   chain: {                                  // per-hop reducer, namespaced
     key: 'trace',
     next(prev, ac, envelope) { return {...}; },   // prev = parent hop's value
   },
 });
 ```
+
+`onProceed` exists for **veto-respecting emitters**: observers that must
+honor the intercept veto (§10 invariant 5) but need the envelope, which
+the handler signature `(tao, data)` never exposes. The socket.io server
+reply path is the motivating case: it previously emitted from a wildcard
+inline handler (envelope-blind); as an `onProceed` decoration it emits
+with the hop's chain while intercept-halted and -diverted signals remain
+suppressed. `onDispatch` remains the phase-blind observation point
+(Source's historical emit semantics); `onProceed` is the phase-gated one.
 
 Composition laws (what "non-competitive" means, normatively):
 
@@ -250,15 +303,55 @@ chains — because every v2 hop passes through the reducer. Legacy-mode entries
 (third-party `setCtxControl` with own forward) degrade to flat linkage,
 never corruption. `@tao.js/opentelemetry` ports unchanged (consumes records).
 
-## 9. Cross-process outlook (informative)
+## 9. Cross-process wire contract (normative as of 0.20)
 
-`envelope.chain` is JSON-clean by construction. A transport (socket.io, koa,
-future implementations) forwards a signal across a process boundary by
-serializing `{ trigram, data, chain }`; the remote `enter()` accepts a prior
-chain to continue. Cascade sections are process-local by definition; hop
-sections never cross. This three-scope contract — not the JS API — is what a
-Go/Rust/Python implementation must honor, plus the phase semantics
-(intercept-halt, async-fork, inline-spool) already documented in AGENTS.md.
+`envelope.chain` is JSON-clean by construction and is the **only** envelope
+scope that crosses a process boundary. `cascade` never crosses (live
+function references; process-local affinity that the transport must
+_translate_, not copy). `hop` never crosses (boundary-local; the receiver
+stamps its own `source` marker, and `via` describes a local edge).
+
+### Wire envelope
+
+A duplex transport forwards a signal by serializing, alongside its own
+protocol framing:
+
+```js
+{ tao: { t, a, o }, data, envelope: { v: 1, chain } }
+```
+
+- `v` — wire-envelope version, integer, starts at `1`. Receivers ignore
+  envelopes with an unknown `v` (treat as absent) rather than fail.
+- `chain` — the sending hop's `envelope.chain`, verbatim. May be absent
+  (pre-0.20 senders); the receiver treats absent/invalid chain as `null`.
+- The receiving side re-enters with
+  `enter(ac, { hop: { source: <its own name> }, chain })` — its own
+  reducers continue keys they own and re-root keys they don't recognize.
+
+Backward compatibility is one-sided by construction: a 0.20 receiver
+accepts payloads without `envelope`; a pre-0.20 receiver ignores the
+extra `envelope` property.
+
+### Request/response transports (HTTP)
+
+Map the tracing chain key to W3C `traceparent`: an inbound request's
+`traceparent` header becomes
+`chain: { taoTrace: { traceId, signalId: parentId } }` on entry
+(`@tao.js/telemetry` owns the codec). There is no standard W3C response
+header (`traceresponse` remains a draft), so responses carry no chain in
+0.20; full-chain HTTP transport via a custom header is a possible future
+`v` bump, not current contract.
+
+### Conformance
+
+`@tao.js/transport-tck` is the executable form of this section plus the
+transport-relevant §10 invariants (delivery, echo suppression with the
+bidirectional reflex, multi-hop emission, chain continuity across a
+round trip, cascade scoping). A transport that passes the TCK against a
+loopback link honors this contract. This three-scope contract — not the
+JS API — is what a Go/Rust/Python implementation must honor, plus the
+phase semantics (intercept-halt, async-fork, inline-spool) documented in
+AGENTS.md.
 
 ## 10. Behavioral invariants
 
@@ -280,7 +373,17 @@ test suites and `tools/smoke/socketio-envelope-smoke.cjs`.
    server (Source's `source` marker applies to the stamped hop only —
    hop scope, not cascade scope).
 5. Intercept-halt (truthy return) suppresses the signal for **all** later
-   phases including wildcard `{}` inline handlers (the socket emit path).
+   phases including wildcard `{}` inline handlers (the socket emit path) —
+   **within the same dispatch scope**. A mirrored dispatch (a Channel's
+   private registry) is suppressed by intercepts attached to that scope
+   (channel-attached intercepts gate the per-client reply emit); the main
+   network's intercept outcome does not gate mirrored scopes, because
+   mirrors run before the main dispatch by pinned ordering (§4) — parallel
+   scopes by design, verified identical over real socket round trips on
+   published 0.15.0, 0.19.1, and this branch — as old as the Channel's
+   mirror-then-dispatch structure itself. To gate what reaches a client,
+   attach the intercept to the channel: reply-gating is per-client policy
+   and the channel is the per-client scope.
 6. **Handler-return semantics and phase order are load-bearing**:
    intercept AppCtx-divert suppresses remaining handlers; intercept
    truthy halts; intercept undefined observes; inline/async AppCtx
