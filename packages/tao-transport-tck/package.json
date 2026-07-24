@@ -1,6 +1,6 @@
 {
   "name": "@tao.js/transport-tck",
-  "version": "0.19.1",
+  "version": "0.20.0",
   "description": "Transport conformance kit for tao.js - executable form of the ENVELOPE-SPEC wire contract and transport invariants",
   "homepage": "https://tao.js.org/",
   "repository": {

@@ -1,3 +1,14 @@
+## 0.20.0 (2026-07-24)
+
+### 🚀 Features
+
+- **core:** the wire release — envelope.chain across process boundaries, transport TCK, hop.via (0.20) ([#62](https://github.com/zzyzxlab/tao.js/pull/62))
+
+### ❤️ Thank You
+
+- Claude Fable 5
+- Jeff Hoffer @eudaimos
+
 ## 0.19.1 (2026-07-23)
 
 ### 🩹 Fixes
