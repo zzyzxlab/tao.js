@@ -69,7 +69,7 @@ function handler(tao, data) {
 Three handler phases (order matters), constants exported as `INTERCEPT`, `ASYNC`, `INLINE`:
 
 1. **Intercept** — first; truthy return stops later phases. Returning an `AppCtx` replaces/forwards that context.
-2. **Async** — out-of-band side effects. Protocol contract: once a signal passes the intercepts, **all** async handlers are initiated (registration order) **before any inline handler runs**, and the engine **never awaits them** — completion timing is deliberately unobservable and must not affect inline serialization. The Promise plumbing is implementation, not contract. May return an `AppCtx`, which enters as a new hop (`hop.via: 'Async'`) whenever it resolves. (Known deviation: a _synchronously_-throwing async handler currently escapes the fork and halts the phase — fix queued for 0.21.)
+2. **Async** — out-of-band side effects. Protocol contract: once a signal passes the intercepts, **all** async handlers are initiated (registration order) **before any inline handler runs**, and the engine **never awaits them** — completion timing is deliberately unobservable and must not affect inline serialization. The Promise plumbing is implementation, not contract. May return an `AppCtx`, which enters as a new hop (`hop.via: 'Async'`) whenever it resolves. (A synchronously-throwing plain-function handler joins the rejection path like any other async failure — fixed in 0.20; the leak dated to the original prototype port.)
 3. **Inline** — same execution context as the signal; returned `AppCtx` values are collected then set.
 
 Register / unregister on a Kernel:
