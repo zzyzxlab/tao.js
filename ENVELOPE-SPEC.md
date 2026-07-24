@@ -379,7 +379,11 @@ test suites and `tools/smoke/socketio-envelope-smoke.cjs`.
    (channel-attached intercepts gate the per-client reply emit); the main
    network's intercept outcome does not gate mirrored scopes, because
    mirrors run before the main dispatch by pinned ordering (§4) — parallel
-   scopes by design, verified identical back to 0.19/legacy.
+   scopes by design, verified identical over real socket round trips on
+   published 0.15.0, 0.19.1, and this branch — as old as the Channel's
+   mirror-then-dispatch structure itself. To gate what reaches a client,
+   attach the intercept to the channel: reply-gating is per-client policy
+   and the channel is the per-client scope.
 6. **Handler-return semantics and phase order are load-bearing**:
    intercept AppCtx-divert suppresses remaining handlers; intercept
    truthy halts; intercept undefined observes; inline/async AppCtx
