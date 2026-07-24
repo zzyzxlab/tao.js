@@ -246,16 +246,17 @@ export default class Tracer {
    */
   _record(ac, envelope, handler) {
     const stamp = envelope.chain[TRACE_CHAIN];
+    /** @type {TraceRecord} */
     const record = {
       traceId: stamp.traceId,
       signalId: stamp.signalId,
       parentId: stamp.parentId || null,
+      t: ac.t,
+      a: ac.a,
+      o: ac.o,
+      key: ac.key,
+      timestamp: this._clock(),
     };
-    record.t = ac.t;
-    record.a = ac.a;
-    record.o = ac.o;
-    record.key = ac.key;
-    record.timestamp = this._clock();
     if (envelope.hop.via) {
       // the handler phase that produced this hop (ENVELOPE-SPEC.md §4)
       record.via = envelope.hop.via;

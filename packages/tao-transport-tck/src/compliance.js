@@ -332,6 +332,7 @@ async function checkCascadeScoping({ a, b }, timeoutMs) {
   return detail;
 }
 
+/** @type {Array<[string, function(Link, number): Promise<?string>]>} */
 const CHECKS = [
   ['delivery', checkDelivery],
   ['echo suppression + bidirectional reflex', checkReflex],

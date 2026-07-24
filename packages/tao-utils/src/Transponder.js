@@ -1,5 +1,7 @@
 import { AppCtx } from '@tao.js/core';
 
+/** @typedef {import('./wire').NetworkSurface} NetworkSurface */
+
 // for backwards compatibility
 const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
 
@@ -58,7 +60,7 @@ export default class Transponder {
    * channel), or a Kernel-shaped wrapper exposing `_network`. The resolved
    * surface must support `enter` and `decorate`.
    *
-   * @param {(Kernel|Network|Channel)} network - the surface to wrap with a `Transponder`
+   * @param {NetworkSurface} network - the surface to wrap with a `Transponder`
    * @param {(string|function(number): (string|number))} [id] - pass either a desired Transponder ID value as a `string` or a `function` that will be used to generate a Transponder ID
    *        the `function` will be called with a new Transponder ID integer value to help ensure uniqueness
    * @param {number} [timeoutMs=0] - a timeout to be used when awaiting `Promises`

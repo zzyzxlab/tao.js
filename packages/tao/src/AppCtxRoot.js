@@ -120,25 +120,22 @@ export default class AppCtxRoot {
   // TODO: write TESTS for this
   static isMatch(ac, trigram, exact = false) {
     // Stryker disable next-line ConditionalExpression: re-wrapping an AppCtxRoot is observationally identical
-    if (!(ac instanceof AppCtxRoot)) {
-      ac = new AppCtxRoot(
-        ac.t || ac.term,
-        ac.a || ac.action,
-        ac.o || ac.orient,
-      );
-    }
-    if (ac.key === AppCtxRoot.getKey(trigram.t, trigram.a, trigram.o)) {
+    const root =
+      ac instanceof AppCtxRoot
+        ? ac
+        : new AppCtxRoot(ac.t || ac.term, ac.a || ac.action, ac.o || ac.orient);
+    if (root.key === AppCtxRoot.getKey(trigram.t, trigram.a, trigram.o)) {
       return true;
     }
     if (exact) {
       return false;
     }
     const matchTerm =
-      ac.isTermWild || isPartWild(trigram.t) || ac.t === trigram.t;
+      root.isTermWild || isPartWild(trigram.t) || root.t === trigram.t;
     const matchAction =
-      ac.isActionWild || isPartWild(trigram.a) || ac.a === trigram.a;
+      root.isActionWild || isPartWild(trigram.a) || root.a === trigram.a;
     const matchOrient =
-      ac.isOrientWild || isPartWild(trigram.o) || ac.o === trigram.o;
+      root.isOrientWild || isPartWild(trigram.o) || root.o === trigram.o;
     return matchTerm && matchAction && matchOrient;
   }
 

@@ -1,6 +1,9 @@
 import { AppCtx, Network } from '@tao.js/core';
 import seive from './seive';
 
+/** @typedef {import('@tao.js/core').Kernel} Kernel */
+/** @typedef {import('./wire').NetworkSurface} NetworkSurface */
+
 // for backwards compatibility
 const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
 
@@ -66,7 +69,7 @@ export default class Channel {
    * Kernel-shaped wrapper exposing `_network`. The resolved network must
    * support `enter` and `decorate`.
    *
-   * @param {(Kernel|Network)} kernel - an instance of a Kernel or other TAO Network on which to build a Channel by sharing the same underlying Network
+   * @param {NetworkSurface} kernel - an instance of a Kernel or other TAO Network on which to build a Channel by sharing the same underlying Network
    * @param {(string|function(number): (string|number))} [id] - pass either a desired Channel ID value as a `string` or a `function` that will be used to generate a Channel ID
    *        the `function` will be called with a new Channel ID integer value to help ensure uniqueness
    * @param {boolean} [debug=false] - pass true to console.log internal activity
@@ -79,8 +82,9 @@ export default class Channel {
     this._channelId =
       typeof id === 'function' ? id(newChannelId()) : id || newChannelId();
     this._channel = new Network();
-    this._network =
-      typeof kernel.enter === 'function' ? kernel : kernel._network;
+    this._network = /** @type {Network} */ (
+      typeof kernel.enter === 'function' ? kernel : kernel._network
+    );
     if (
       !this._network ||
       typeof this._network.enter !== 'function' ||

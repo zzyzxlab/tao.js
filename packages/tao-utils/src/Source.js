@@ -1,5 +1,7 @@
 import { AppCtx } from '@tao.js/core';
 
+/** @typedef {import('@tao.js/core').Kernel} Kernel */
+
 const DEFAULT_SOURCE = 'FROM';
 
 let sourceInstance = 0;
@@ -51,9 +53,10 @@ export default class Source {
    * @param {function(Object, *): void} toSrc - outbound emitter called with
    *        `(tao, data)` — the unwrapped `{ t, a, o }` trigram and the
    *        datagram(s) — for every AppCon except those arriving from this Source
-   * @param {(string|function)} [name] - the Source's name, used as its
-   *        hop-scope origin marker (auto-generated `FROM<n>` when omitted);
-   *        passing a `function` here is the `fromSrc` overload
+   * @param {(string|function(function(Trigram, *): void): void)} [name] -
+   *        the Source's name, used as its hop-scope origin marker
+   *        (auto-generated `FROM<n>` when omitted); passing a `function`
+   *        here is the `fromSrc` overload
    * @param {function(function(Trigram, *): void): void} [fromSrc] - binder for
    *        the inbound side: called once with a setter `(tao, data)` that
    *        enters received signals stamped with this Source's origin marker

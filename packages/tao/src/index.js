@@ -10,6 +10,17 @@
  *
  * @module @tao.js/core
  */
+
+/**
+ * Shared shapes re-exported for typed consumers (the JSDoc typedefs are the
+ * source of truth at their defining modules).
+ *
+ * @typedef {import('./AppCtxRoot').Trigram} Trigram
+ * @typedef {import('./AppCtxHandlers').Handler} Handler
+ * @typedef {import('./Network').Envelope} Envelope
+ * @typedef {import('./Network').Forward} Forward
+ * @typedef {import('./Network').DecorationSpec} DecorationSpec
+ */
 import AppCtx from './AppCtx';
 import Network from './Network';
 import Kernel from './Kernel';

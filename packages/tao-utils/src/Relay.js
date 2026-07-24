@@ -1,5 +1,7 @@
 import { AppCtx } from '@tao.js/core';
 
+/** @typedef {import('@tao.js/core').Kernel} Kernel */
+
 const DEFAULT_SOURCE = 'FROM';
 
 let sourceInstance = 0;
@@ -46,13 +48,15 @@ export default class Relay {
    * @param {function(Object, *): void} toSrc - outbound emitter called with
    *        `(tao, data)` — the unwrapped `{ t, a, o }` trigram and the
    *        datagram(s) — for every AppCon except those arriving from this Relay
-   * @param {(string|function)} [name] - the Relay's name, used as its
-   *        hop-scope origin marker (auto-generated `FROM<n>` when omitted);
-   *        passing a `function` here is the `fromSrc` overload
-   * @param {function(function(Trigram, *): void): void} fromSrc - binder for
-   *        the inbound side (required): called once with a setter
-   *        `(tao, data)` that enters received signals stamped with this
-   *        Relay's origin marker
+   * @param {(string|function(function(Trigram, *): void): void)} [name] -
+   *        the Relay's name, used as its hop-scope origin marker
+   *        (auto-generated `FROM<n>` when omitted); passing a `function`
+   *        here is the `fromSrc` overload
+   * @param {function(function(Trigram, *): void): void} [fromSrc] - binder
+   *        for the inbound side (required at runtime — supplied here or in
+   *        the `name` position): called once with a setter `(tao, data)`
+   *        that enters received signals stamped with this Relay's origin
+   *        marker
    * @throws {Error} when `kernel` (or its `_network`) is missing, when the
    *         network lacks envelope support (`enter` + `decorate`) - upgrade
    *         `@tao.js/core`, or when `toSrc` is missing

@@ -1,5 +1,7 @@
 import { AppCtx, Network, INTERCEPT, ERROR } from '@tao.js/core';
 
+/** @typedef {import('./wire').NetworkSurface} NetworkSurface */
+
 // for backwards compatibility
 const MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
 
@@ -90,7 +92,7 @@ export default class Transceiver {
    * settlement decoration on the signals network mapping signal-handler
    * returns onto the Promise (see {@linkcode setAppCtx}).
    *
-   * @param {(Kernel|Network|Channel)} network - the surface to wrap with a `Transceiver`
+   * @param {NetworkSurface} network - the surface to wrap with a `Transceiver`
    * @param {(string|function(number): (string|number))} [id] - pass either a desired Transceiver ID value as a `string` or a `function` that will be used to generate a Transceiver ID
    *        the `function` will be called with a new Transceiver ID integer value to help ensure uniqueness
    * @param {number} [timeoutMs=0] - a timeout to be used when awaiting `Promises`
@@ -108,8 +110,9 @@ export default class Transceiver {
         ? id(newTransceiverId())
         : id || newTransceiverId();
     this._signals = new Network();
-    this._surface =
-      typeof network.enter === 'function' ? network : network._network;
+    this._surface = /** @type {Network} */ (
+      typeof network.enter === 'function' ? network : network._network
+    );
     if (
       !this._surface ||
       typeof this._surface.enter !== 'function' ||
@@ -121,7 +124,9 @@ export default class Transceiver {
     }
     // mirror from the shared network (a Channel surface delegates entries to
     // it); the cascade tag filters this transceiver's cascades either way
-    this._network = this._surface._network || this._surface;
+    this._network = /** @type {Network} */ (
+      /** @type {NetworkSurface} */ (this._surface)._network || this._surface
+    );
     this._undecorateMirror = this._network.decorate({
       // Stryker disable next-line StringLiteral: decoration name is a diagnostic label with no observable behavior
       name: `transceiver:${this._transceiverId}`,

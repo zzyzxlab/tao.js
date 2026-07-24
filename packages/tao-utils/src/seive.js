@@ -1,6 +1,9 @@
 import { Network } from '@tao.js/core';
 import trigramFilter from './trigram-filter';
 
+/** @typedef {import('@tao.js/core').Kernel} Kernel */
+/** @typedef {import('./Channel').default} Channel */
+
 const NOOP = () => {};
 
 function addControl(name, control) {

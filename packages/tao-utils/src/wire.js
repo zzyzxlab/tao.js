@@ -1,5 +1,17 @@
 import { AppCtx } from '@tao.js/core';
 
+/**
+ * Any surface the utils surface-resolution convention resolves to a
+ * `Network` (`typeof x.enter === 'function' ? x : x._network`): a bare
+ * `Network` (exposing `enter` + `decorate`), or a Kernel-shaped wrapper
+ * exposing `_network`.
+ *
+ * @typedef {Object} NetworkSurface
+ * @property {Function} [enter] - present on a bare Network (and on Channel's channel-scoped gate)
+ * @property {Function} [decorate] - present on a bare Network
+ * @property {import('@tao.js/core').Network} [_network] - present on Kernel-shaped wrappers
+ */
+
 const DEFAULT_TRANSPORT = 'WIRE';
 
 let transportInstance = 0;
@@ -72,8 +84,9 @@ export function chainFromWire(wire) {
  * Surface resolution follows the utils convention
  * (`typeof network.enter === 'function' ? network : network._network`).
  *
- * @param {(Kernel|Network|Channel)} network - any surface exposing `enter`
- *        (or a Kernel exposing `_network`)
+ * @param {NetworkSurface} network - any surface exposing `enter` (a
+ *        `Network` or `Channel`) or a Kernel-shaped wrapper exposing
+ *        `_network`
  * @param {Object} tao - trigram (short or long keys; long-form keys win)
  * @param {*} data - datagram(s)
  * @param {(WireEnvelope|undefined)} wire - the received `{ v, chain }` wire
@@ -113,13 +126,15 @@ export function enterFromWire(network, tao, data, wire, sourceName) {
  * semantics. For a veto-respecting emitter (e.g. a per-client reply path),
  * decorate with `onProceed` directly — see `@tao.js/socket.io`.
  *
- * @param {(Kernel|Network)} kernel - the network to bridge. Not a Channel:
- *        a duplex transport spans the whole kernel; channel-scoped reply
- *        paths belong to phase-gated emitters (see `@tao.js/socket.io`)
- * @param {Object} opts
+ * @param {NetworkSurface} kernel - the Kernel (or bare Network) to bridge.
+ *        Not a Channel: a duplex transport spans the whole kernel;
+ *        channel-scoped reply paths belong to phase-gated emitters (see
+ *        `@tao.js/socket.io`)
+ * @param {Object} [opts]
  * @param {string} [opts.name] - origin-marker name (auto-generated if omitted)
- * @param {function(Object, *, WireEnvelope): void} opts.send -
- *        `(tao, data, wire) => void` outbound emitter
+ * @param {function(Object, *, WireEnvelope): void} [opts.send] -
+ *        `(tao, data, wire) => void` outbound emitter (required at runtime:
+ *        omitting it throws the setup Error below)
  * @returns {{ name: string, receive: function(Object, *, WireEnvelope=): void, dispose: function(): void }}
  *          the transport handle: `name` is the origin marker, `receive`
  *          enters an inbound signal (as `enterFromWire`), `dispose`

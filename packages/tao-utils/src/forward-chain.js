@@ -20,7 +20,7 @@ function forward(kernel, from, to, type, opts) {
  * automatically remove it from the kernel that was passed in
  *
  * @export
- * @param {Kernel} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
+ * @param {import('@tao.js/core').Kernel} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
  * @param {Object} from trigram representing the Application Context to chain from
  * @param {Object} to trigram representing the Application Context to chain to
  * @param {Object} [opts] optional functions to transform the datagrams in the new AppCtx
@@ -44,7 +44,7 @@ export function forwardInline(kernel, from, to, opts) {
  * automatically remove it from the kernel that was passed in
  *
  * @export
- * @param {Kernel} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
+ * @param {import('@tao.js/core').Kernel} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
  * @param {Object} from trigram representing the Application Context to chain from
  * @param {Object} to trigram representing the Application Context to chain to
  * @param {Object} [opts] optional functions to transform the datagrams in the new AppCtx
@@ -68,7 +68,7 @@ export function forwardAsync(kernel, from, to, opts) {
  * automatically remove it from the kernel that was passed in
  *
  * @export
- * @param {Kernel} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
+ * @param {import('@tao.js/core').Kernel} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
  * @param {Object} from trigram representing the Application Context to chain from
  * @param {Object} to trigram representing the Application Context to chain to
  * @param {Object} [opts] optional functions to transform the datagrams in the new AppCtx
