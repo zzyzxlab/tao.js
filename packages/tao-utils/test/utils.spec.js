@@ -1,7 +1,6 @@
 import { AppCtx, Kernel } from '@tao.js/core';
 import trigramFilter from '../src/trigram-filter';
 import seive from '../src/seive';
-import { TaoLogger } from '../src/logger';
 import { asyncBridge, inlineBridge, interceptBridge } from '../src/bridge';
 import { transferError, transferToAppCtx } from '../src/transfer';
 import {
@@ -149,14 +148,6 @@ describe('transfer helpers', () => {
   });
 });
 
-describe('TaoLogger (moved to @tao.js/telemetry)', () => {
-  it('re-exports the telemetry TaoLogger for backwards compatibility', () => {
-    const telemetry = require('@tao.js/telemetry');
-    expect(TaoLogger).toBe(telemetry.TaoLogger);
-    const logger = TaoLogger(true, { logger: { info: jest.fn() } });
-    expect(logger.handler).toEqual(expect.any(Function));
-  });
-});
 describe('bridges and seives', () => {
   it.each([
     ['inline', inlineBridge],
@@ -415,7 +406,6 @@ describe('package exports', () => {
         Source: expect.any(Function),
         Transponder: expect.any(Function),
         Transceiver: expect.any(Function),
-        TaoLogger: expect.any(Function),
         transferError: expect.any(Function),
       }),
     );

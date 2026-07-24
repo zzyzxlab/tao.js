@@ -7,7 +7,6 @@ import seive from './seive';
 export * from './bridge';
 export * from './transfer';
 export * from './forward-chain';
-export * from './logger';
 export * from './wire';
 
 export { trigramFilter, Channel, Source, Transponder, Transceiver, seive };
