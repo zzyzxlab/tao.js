@@ -20,15 +20,14 @@ function forward(kernel, from, to, type, opts) {
  * automatically remove it from the kernel that was passed in
  *
  * @export
- * @param  {any} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
- * @param  {any} from trigram representing the Application Context to chain from
- * @param  {any} to trigram representing the Application Context to chain to
- * @param {{
- *   transformTerm: function,
- *   transformAction: function,
- *   transformOrient: function,
- * }} opts optional functions to transform the datagrams in the new AppCtx
- * @return {function} the handler so that it can be removed from the kernel if needed
+ * @param {Kernel} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
+ * @param {Object} from trigram representing the Application Context to chain from
+ * @param {Object} to trigram representing the Application Context to chain to
+ * @param {Object} [opts] optional functions to transform the datagrams in the new AppCtx
+ * @param {function(*): *} [opts.transformTerm] transforms the term datagram
+ * @param {function(*): *} [opts.transformAction] transforms the action datagram
+ * @param {function(*): *} [opts.transformOrient] transforms the orient datagram
+ * @return {function(Object, Object): AppCtx} the handler (also exposing `.remove()`) so that it can be removed from the kernel if needed
  */
 export function forwardInline(kernel, from, to, opts) {
   return forward(kernel, from, to, INLINE, opts);
@@ -45,15 +44,14 @@ export function forwardInline(kernel, from, to, opts) {
  * automatically remove it from the kernel that was passed in
  *
  * @export
- * @param  {any} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
- * @param  {any} from trigram representing the Application Context to chain from
- * @param  {any} to trigram representing the Application Context to chain to
- * @param {{
- *   transformTerm: function,
- *   transformAction: function,
- *   transformOrient: function,
- * }} opts optional functions to transform the datagrams in the new AppCtx
- * @return {function} the handler so that it can be removed from the kernel if needed
+ * @param {Kernel} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
+ * @param {Object} from trigram representing the Application Context to chain from
+ * @param {Object} to trigram representing the Application Context to chain to
+ * @param {Object} [opts] optional functions to transform the datagrams in the new AppCtx
+ * @param {function(*): *} [opts.transformTerm] transforms the term datagram
+ * @param {function(*): *} [opts.transformAction] transforms the action datagram
+ * @param {function(*): *} [opts.transformOrient] transforms the orient datagram
+ * @return {function(Object, Object): AppCtx} the handler (also exposing `.remove()`) so that it can be removed from the kernel if needed
  */
 export function forwardAsync(kernel, from, to, opts) {
   return forward(kernel, from, to, ASYNC, opts);
@@ -70,15 +68,14 @@ export function forwardAsync(kernel, from, to, opts) {
  * automatically remove it from the kernel that was passed in
  *
  * @export
- * @param  {any} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
- * @param  {any} from trigram representing the Application Context to chain from
- * @param  {any} to trigram representing the Application Context to chain to
- * @param {{
- *   transformTerm: function,
- *   transformAction: function,
- *   transformOrient: function,
- * }} opts optional functions to transform the datagrams in the new AppCtx
- * @return {function} the handler so that it can be removed from the kernel if needed
+ * @param {Kernel} kernel a TAO Kernel (TAO) that can attach handlers and receive TAO signals
+ * @param {Object} from trigram representing the Application Context to chain from
+ * @param {Object} to trigram representing the Application Context to chain to
+ * @param {Object} [opts] optional functions to transform the datagrams in the new AppCtx
+ * @param {function(*): *} [opts.transformTerm] transforms the term datagram
+ * @param {function(*): *} [opts.transformAction] transforms the action datagram
+ * @param {function(*): *} [opts.transformOrient] transforms the orient datagram
+ * @return {function(Object, Object): AppCtx} the handler (also exposing `.remove()`) so that it can be removed from the kernel if needed
  */
 export function forwardIntercept(kernel, from, to, opts) {
   return forward(kernel, from, to, INTERCEPT, opts);

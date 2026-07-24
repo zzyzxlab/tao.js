@@ -14,6 +14,19 @@ function transponderControl(transponderId, signal) {
 }
 
 /**
+ * A trigram in short (`t`/`a`/`o`) or long (`term`/`action`/`orient`) keys;
+ * long-form keys win.
+ *
+ * @typedef {Object} Trigram
+ * @property {string} [t] - term (short key)
+ * @property {string} [term] - term (long key)
+ * @property {string} [a] - action (short key)
+ * @property {string} [action] - action (long key)
+ * @property {string} [o] - orient (short key)
+ * @property {string} [orient] - orient (long key)
+ */
+
+/**
  * Allows use of Promises with a Network by returning a Promise from a signalling method
  * that will only resolve based on one of the handlers attached to the wrapped Network
  * being called.
@@ -26,8 +39,10 @@ function transponderControl(transponderId, signal) {
  *
  * Implemented as an `onDispatch` decoration on the wrapped surface (a raw
  * Network/Kernel network, or a Channel's private network via
- * `Channel.decorate`). The transponder tag rides the cascade scope of the
- * envelope, so it survives every hop of a chain (see ENVELOPE-SPEC.md).
+ * `Channel.decorate`), self-filtered on `envelope.cascade.transponderId`.
+ * The transponder tag rides the cascade scope of the envelope, so it
+ * survives every hop of a chain (see ENVELOPE-SPEC.md); resolve-once is
+ * enforced by stamping `signalled` on the shared cascade reference.
  *
  * @export
  * @class Transponder
@@ -35,16 +50,27 @@ function transponderControl(transponderId, signal) {
 export default class Transponder {
   /**
    *Creates an instance of Transponder.
-   * @param {Network} network - the `Network` to wrap with a `Transponder`
-   * @param {(string|function)} [id] - pass either a desired Channel ID value as a `string` or a `function` that will be used to generate a Channel ID
-   *        the `function` will be called with a new Channel ID integer value to help ensure uniqueness
+   *
+   * Surface resolution follows the utils convention
+   * (`typeof network.enter === 'function' ? network : network._network`):
+   * pass anything exposing the envelope gate directly (a `Network`, or a
+   * `Channel` — whose `enter`/`decorate` scope this Transponder to the
+   * channel), or a Kernel-shaped wrapper exposing `_network`. The resolved
+   * surface must support `enter` and `decorate`.
+   *
+   * @param {(Kernel|Network|Channel)} network - the surface to wrap with a `Transponder`
+   * @param {(string|function(number): (string|number))} [id] - pass either a desired Transponder ID value as a `string` or a `function` that will be used to generate a Transponder ID
+   *        the `function` will be called with a new Transponder ID integer value to help ensure uniqueness
    * @param {number} [timeoutMs=0] - a timeout to be used when awaiting `Promises`
    *        - `0` - no timeout will be used
    *        - `> 0` - timeout will be used to `reject` the `Promise` if it is not signaled in time
    *        - use this to prevent unexpected behaviors
-   * @param {Thenable} [promise=Promise] - a `Promise` constructor to be used when creating promises
+   *        - negative and non-numeric values clamp to `0`
+   * @param {PromiseConstructor} [promise=Promise] - a `Promise` constructor to be used when creating promises
    *        by a signalling method.
    * @param {boolean} [debug=false] - pass true to console.log internal activity
+   * @throws {Error} when the resolved surface lacks envelope support
+   *         (`enter` + `decorate`) - upgrade `@tao.js/core`
    * @memberof Transponder
    */
   constructor(network, id, timeoutMs = 0, promise = Promise, debug = false) {
@@ -78,6 +104,17 @@ export default class Transponder {
     this._cloneWithId = typeof id === 'function' ? id : undefined;
   }
 
+  /**
+   * Clones a Transponder on the same wrapped surface with the same timeout,
+   * Promise constructor and debug settings. The clone registers its own
+   * decoration under its own Transponder ID.
+   *
+   * @param {(string|function(number): (string|number))} [cloneId] - used as the cloned
+   *        `Transponder`'s ID, same as the `id` param to the constructor;
+   *        falls back to the constructor's `id` generator when one was given
+   * @returns {Transponder} the cloned Transponder
+   * @memberof Transponder
+   */
   clone(cloneId) {
     const clone = new Transponder(
       this._network,
@@ -101,7 +138,7 @@ export default class Transponder {
    *
    * @see {@link detach}
    *
-   * @returns this
+   * @returns {Transponder} this
    * @memberof Transponder
    */
   attach() {
@@ -120,7 +157,7 @@ export default class Transponder {
    *
    * @see {@link attach()}
    *
-   * @returns this
+   * @returns {Transponder} this
    * @memberof Transponder
    */
   detach() {
@@ -131,6 +168,17 @@ export default class Transponder {
     return this;
   }
 
+  /**
+   * Builds an AppCtx from a trigram + datagram (long-form keys win) and
+   * signals it via {@linkcode setAppCtx}.
+   *
+   * @param {Trigram} trigram
+   * @param {*} data - datagram(s) for the signal
+   * @param {Object} [opts] - as {@linkcode setAppCtx}
+   * @param {(Object|null)} [opts.chain] - prior chain state to continue
+   * @returns {Promise<AppCtx>} as {@linkcode setAppCtx}
+   * @memberof Transponder
+   */
   setCtx({ t, term, a, action, o, orient }, data, opts) {
     return this.setAppCtx(
       new AppCtx(term || t, action || a, orient || o, data),
@@ -139,11 +187,28 @@ export default class Transponder {
   }
 
   /**
+   * Enters the AppCtx on the wrapped surface with this Transponder's
+   * `{ transponderId, signal }` cascade tag — the cascade (control) object
+   * is one shared reference for the whole cascade, so the tag survives
+   * every hop of a chain.
+   *
+   * Resolution semantics: the Promise resolves with the first AppCon the
+   * Transponder's decoration observes dispatching for this cascade — the
+   * first handled AppCon of the cascade. Attached to a bare Network/Kernel
+   * that is the entered AppCtx itself; attached to a Channel (the
+   * decoration observes the channel's private network) it is the first
+   * descendant mirrored onto the channel — the entry hop itself is not
+   * mirrored. Resolve-once: the first signal stamps `signalled` on the
+   * shared cascade, so later dispatches of the same cascade never signal
+   * again and the Promise settles at most once.
+   *
    * @param {AppCtx} ac
    * @param {Object} [opts]
-   * @param {Object} [opts.chain] - prior chain state to continue (e.g. a
+   * @param {(Object|null)} [opts.chain] - prior chain state to continue (e.g. a
    *        remote trace received over a transport — ENVELOPE-SPEC.md §9)
-   * @returns {Promise} resolves with the first handled AppCon of the cascade
+   * @returns {Promise<AppCtx>} resolves with the first handled AppCon of the
+   *          cascade; rejects with the string `reached timeout of: <ms>ms`
+   *          when a `timeoutMs` was configured and no signal arrived in time
    * @memberof Transponder
    */
   setAppCtx(ac, { chain = null } = {}) {
@@ -164,6 +229,18 @@ export default class Transponder {
     });
   }
 
+  /**
+   * `onDispatch` decoration callback: signals the awaiting Promise with the
+   * first dispatched AppCon of a matching cascade. Self-filtered on
+   * `control.transponderId`; resolve-once is enforced by stamping
+   * `signalled` on the shared cascade control.
+   *
+   * @param {AppCtx} ac
+   * @param {Object} control - the envelope's cascade scope
+   *        (`{ transponderId, signal, signalled }`)
+   * @returns {void}
+   * @memberof Transponder
+   */
   handleSignalAppCon = (ac, control) => {
     // Stryker disable all: optional debug logging
     this._debug &&

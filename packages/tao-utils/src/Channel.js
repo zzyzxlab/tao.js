@@ -15,6 +15,29 @@ function channelControl(channelId) {
 }
 
 /**
+ * A trigram matcher in short (`t`/`a`/`o`) or long (`term`/`action`/`orient`)
+ * keys; omitted parts are wildcards.
+ *
+ * @typedef {Object} Trigram
+ * @property {string} [t] - term (short key)
+ * @property {string} [term] - term (long key)
+ * @property {string} [a] - action (short key)
+ * @property {string} [action] - action (long key)
+ * @property {string} [o] - orient (short key)
+ * @property {string} [orient] - orient (long key)
+ */
+
+/**
+ * A TAO signal handler: called with the concrete trigram handled and the
+ * signal's datagram(s); returning an `AppCtx` chains it (see `@tao.js/core`).
+ *
+ * @callback SignalHandler
+ * @param {Object} tao - the concrete `{ t, a, o }` trigram handled
+ * @param {*} data - the signal's datagram(s)
+ * @returns {(AppCtx|*)}
+ */
+
+/**
  * Filters handling of AppCons to the set of attached handlers of the Channel for only those
  * AppCons that had a preceding AppCon originate from this Channel.
  *
@@ -25,16 +48,30 @@ function channelControl(channelId) {
  * channel-attached handlers continue the cascade envelope through the main
  * network's hop engine (they do not re-enter with a fresh envelope).
  *
+ * Decoration: `onForward` on the shared network, self-filtered on
+ * `envelope.cascade.channelId`. The channel tag rides the cascade scope —
+ * one shared reference for the whole cascade — so every descendant hop of a
+ * channel entry is mirrored, wherever the chain goes.
+ *
  * @export
  * @class Channel
  */
 export default class Channel {
   /**
    *Creates an instance of Channel.
-   * @param {Kernel} kernel - an instance of a Kernel or other TAO Network on which to build a Channel by sharing the same underlying Network
-   * @param {(string|function)} [id] - pass either a desired Channel ID value as a `string` or a `function` that will be used to generate a Channel ID
+   *
+   * Surface resolution follows the utils convention
+   * (`typeof kernel.enter === 'function' ? kernel : kernel._network`): pass
+   * anything exposing the envelope gate directly (a `Network`), or a
+   * Kernel-shaped wrapper exposing `_network`. The resolved network must
+   * support `enter` and `decorate`.
+   *
+   * @param {(Kernel|Network)} kernel - an instance of a Kernel or other TAO Network on which to build a Channel by sharing the same underlying Network
+   * @param {(string|function(number): (string|number))} [id] - pass either a desired Channel ID value as a `string` or a `function` that will be used to generate a Channel ID
    *        the `function` will be called with a new Channel ID integer value to help ensure uniqueness
    * @param {boolean} [debug=false] - pass true to console.log internal activity
+   * @throws {Error} when the resolved network lacks envelope support
+   *         (`enter` + `decorate`) - upgrade `@tao.js/core`
    * @memberof Channel
    */
   constructor(kernel, id, debug = false) {
@@ -66,10 +103,15 @@ export default class Channel {
   /**
    * Clones a Channel
    *
-   * @param {(string|function)} [cloneId] - used as the cloned `Channel`'s ID,
+   * The clone shares the same underlying network, copies the private
+   * network's handler registrations, and registers its own decoration under
+   * its own Channel ID.
+   *
+   * @param {(string|function(number): (string|number))} [cloneId] - used as the cloned `Channel`'s ID,
    *          same as the `id` param to the `Channel` constructor, either an
-   *          explicit value as a `string` or a `function` used to generate the Channel ID
-   * @returns
+   *          explicit value as a `string` or a `function` used to generate the Channel ID;
+   *          falls back to the constructor's `id` generator when one was given
+   * @returns {Channel} the cloned Channel
    * @memberof Channel
    */
   clone(cloneId) {
@@ -85,6 +127,7 @@ export default class Channel {
    * Detach this Channel's decoration from the shared network. Channel
    * handlers stop receiving mirrored AppCons; entries still dispatch.
    *
+   * @returns {void}
    * @memberof Channel
    */
   dispose() {
@@ -99,6 +142,12 @@ export default class Channel {
    *
    * @param {AppCtx} ac
    * @param {Object} [opts] - `{ cascade, hop, chain }` as `Network.enter`
+   * @param {Object} [opts.cascade] - caller cascade keys; the channel tag
+   *        wins key conflicts
+   * @param {Object} [opts.hop] - entry-hop values (e.g. a transport's
+   *        `source` marker)
+   * @param {(Object|null)} [opts.chain] - prior chain state to continue
+   * @returns {void}
    * @memberof Channel
    */
   enter(ac, { cascade = {}, hop = {}, chain = null } = {}) {
@@ -109,10 +158,26 @@ export default class Channel {
     });
   }
 
+  /**
+   * Builds an AppCtx from a trigram + datagram (long-form keys win) and
+   * enters it with this Channel's cascade scoping.
+   *
+   * @param {Trigram} trigram
+   * @param {*} data - datagram(s) for the signal
+   * @returns {void}
+   * @memberof Channel
+   */
   setCtx({ t, term, a, action, o, orient }, data) {
     this.enter(new AppCtx(term || t, action || a, orient || o, data));
   }
 
+  /**
+   * Enters an existing AppCtx with this Channel's cascade scoping.
+   *
+   * @param {AppCtx} ac
+   * @returns {void}
+   * @memberof Channel
+   */
   setAppCtx(ac) {
     this.enter(ac);
   }
@@ -122,7 +187,9 @@ export default class Channel {
    * AppCons mirrored to this Channel (used by wrapping adapters like
    * Transponder). Same contract as `Network.decorate`.
    *
-   * @returns {function} dispose - removes the decoration
+   * @param {Object} spec - decoration spec as `Network.decorate` accepts
+   *        (`{ name, onDispatch, onForward, onReturn, onProceed, chain }`)
+   * @returns {function(): void} dispose - removes the decoration
    * @memberof Channel
    */
   decorate(spec) {
@@ -146,6 +213,15 @@ export default class Channel {
     }
   }
 
+  /**
+   * Attaches an InterceptHandler to this Channel's private network — runs
+   * for matching AppCons mirrored to this Channel.
+   *
+   * @param {Trigram} trigram
+   * @param {SignalHandler} handler
+   * @returns {Channel} this
+   * @memberof Channel
+   */
   addInterceptHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.addInterceptHandler(
       { t, term, a, action, o, orient },
@@ -154,16 +230,42 @@ export default class Channel {
     return this;
   }
 
+  /**
+   * Attaches an AsyncHandler to this Channel's private network — runs for
+   * matching AppCons mirrored to this Channel.
+   *
+   * @param {Trigram} trigram
+   * @param {SignalHandler} handler
+   * @returns {Channel} this
+   * @memberof Channel
+   */
   addAsyncHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.addAsyncHandler({ t, term, a, action, o, orient }, handler);
     return this;
   }
 
+  /**
+   * Attaches an InlineHandler to this Channel's private network — runs for
+   * matching AppCons mirrored to this Channel.
+   *
+   * @param {Trigram} trigram
+   * @param {SignalHandler} handler
+   * @returns {Channel} this
+   * @memberof Channel
+   */
   addInlineHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.addInlineHandler({ t, term, a, action, o, orient }, handler);
     return this;
   }
 
+  /**
+   * Removes an InterceptHandler previously attached for the same trigram.
+   *
+   * @param {Trigram} trigram
+   * @param {SignalHandler} handler
+   * @returns {Channel} this
+   * @memberof Channel
+   */
   removeInterceptHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.removeInterceptHandler(
       { t, term, a, action, o, orient },
@@ -172,6 +274,14 @@ export default class Channel {
     return this;
   }
 
+  /**
+   * Removes an AsyncHandler previously attached for the same trigram.
+   *
+   * @param {Trigram} trigram
+   * @param {SignalHandler} handler
+   * @returns {Channel} this
+   * @memberof Channel
+   */
   removeAsyncHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.removeAsyncHandler(
       { t, term, a, action, o, orient },
@@ -180,6 +290,14 @@ export default class Channel {
     return this;
   }
 
+  /**
+   * Removes an InlineHandler previously attached for the same trigram.
+   *
+   * @param {Trigram} trigram
+   * @param {SignalHandler} handler
+   * @returns {Channel} this
+   * @memberof Channel
+   */
   removeInlineHandler({ t, term, a, action, o, orient }, handler) {
     this._channel.removeInlineHandler(
       { t, term, a, action, o, orient },
@@ -188,6 +306,18 @@ export default class Channel {
     return this;
   }
 
+  /**
+   * Bridges matching AppCons flowing on another Kernel's network into this
+   * Channel (via `seive`), excluding cascades that already originated from
+   * this Channel (no echo).
+   *
+   * @param {Kernel} TAO - Kernel-shaped wrapper (exposing `_network`) to bridge from
+   * @param {...*} trigrams - optional trigram filters as `trigramFilter`
+   *        accepts (optional leading `exact` boolean, then short-key
+   *        trigrams or a single array of trigrams); none bridges every AppCon
+   * @returns {function(): void} dispose - detaches the bridge
+   * @memberof Channel
+   */
   bridgeFrom(TAO, ...trigrams) {
     return seive(
       this._channelId,

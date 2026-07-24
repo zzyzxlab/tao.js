@@ -45,6 +45,8 @@ Each signal produces one record:
   parentId,  // 16 hex | null — the signal whose handler chained this one
   t, a, o, key,
   timestamp,
+  via,       // 'Intercept' | 'Async' | 'Inline' — the phase that produced
+             // this hop; absent on entry hops (0.20)
   handlers: { intercept, async, inline },  // matching-handler counts
   data,      // only with the captureData option (true | (data, ac) => any)
 }
