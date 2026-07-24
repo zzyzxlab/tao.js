@@ -218,7 +218,7 @@ Before we start to wire up our Space `Component`s to be controlled through the T
 assume a default export from the `components/space` directory and include it in our App
 so users can view and interact with `Space`s in the app.
 
-We will surround our app with a `Provider` from the `@tao.js/react` package
+We will surround our app with a `TaoProvider` from the `@tao.js/react` package
 that will be used to define which TAO Kernel (in this case the default TAO export) that
 the `Component` handlers we define further down in the component tree will be attached to
 and set up a shared data context available to those handlers.
@@ -228,7 +228,7 @@ and set up a shared data context available to those handlers.
 ```javascript
 import React, { Component } from 'react';
 import TAO from '@tao.js/core';
-import { Provider } from '@tao.js/react';
+import { TaoProvider } from '@tao.js/react';
 import logo from './logo.svg';
 import './App.css';
 import SpaceContainer from './components/space';
@@ -236,7 +236,7 @@ import SpaceContainer from './components/space';
 class App extends Component {
   render() {
     return (
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <div className="App">
           <header className="App-header">
             <img src={logo} className="App-logo" alt="logo" />
@@ -244,7 +244,7 @@ class App extends Component {
           </header>
           <SpaceContainer />
         </div>
-      </Provider>
+      </TaoProvider>
     );
   }
 }
@@ -447,7 +447,7 @@ and embed it in the page within a `Provider` and it'll just work like any other 
 ```javascript
 import React, { Component } from 'react';
 import TAO from '@tao.js/core';
-import { Provider } from '@tao.js/react';
+import { TaoProvider } from '@tao.js/react';
 import logo from './logo.svg';
 import './App.css';
 import SpaceContainer from './components/space';
@@ -456,7 +456,7 @@ import Welcome from './components/shared/welcome';
 class App extends Component {
   render() {
     return (
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <div className="App">
           <header className="App-header">
             <img src={logo} className="App-logo" alt="logo" />
@@ -464,7 +464,7 @@ class App extends Component {
           </header>
           <SpaceContainer />
         </div>
-      </Provider>
+      </TaoProvider>
     );
   }
 }

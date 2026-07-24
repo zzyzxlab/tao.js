@@ -68,15 +68,18 @@ package may want to use the simplified original API which has only 2 exports.
 The Current API provides a React-like developer experience using the Context API and
 hooks. Peer dependency: **React 18 or 19** (`react` / `react-dom` `^18.2.0 || ^19.0.0`).
 
-### 0.17 data context (tree-scoped names)
+### Data context (tree-scoped names)
 
-- Prefer **`useTaoData('name')`** (or `useTaoData()` for the nearest `DataHandler`) in any
-  descendant component. Lookups walk the React ancestor chain — sibling subtrees are isolated.
-- **`RenderHandler` `context` prop** and **`DataConsumer`** still work for one release window but
-  are **deprecated** (dev-only once warning). Migrate render props to `(tao, data) => …` and read
-  data with `useTaoData` inside a child component.
-- `useTaoDataContext(name)` remains as a deprecated alias of `useTaoData(name)`.
-- Prefer **`TaoProvider`** over **`Provider`** (deprecated alias; same component, dev-only once warning).
+- Read named `DataHandler` data with **`useTaoData('name')`** (or `useTaoData()` for the nearest
+  `DataHandler`) in any descendant component. Lookups walk the React ancestor chain — sibling
+  subtrees are isolated.
+- **Removed in 0.21** (deprecated since 0.17): the `RenderHandler` `context` prop and its extra
+  positional render-prop args, `DataConsumer`, the `Provider` alias (import `TaoProvider`), and the
+  `useTaoDataContext` alias. Migration: render props are `(tao, data) => …`; read named data with
+  `useTaoData(name)` in a child component.
+- Also removed in 0.21: all `propTypes` declarations and the `prop-types` dependency — React 19
+  ignores `propTypes`, and the package now ships TypeScript declarations (emitted from JSDoc) that
+  cover prop typing for editors and TS consumers.
 
 Because of this, `@tao.js/react` builds 3 different versions of bundles for CommonJS and
 UMD for the current, original and all (both).

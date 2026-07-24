@@ -196,7 +196,7 @@ For isolated tests, prefer `new Kernel()` over the shared default `TAO`.
 | npm name                          | Directory                           | Purpose                                                                                                                                                                      |
 | --------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@tao.js/core`                    | `packages/tao`                      | Kernel, Network, AppCtx, default `TAO`, handler constants                                                                                                                    |
-| `@tao.js/utils`                   | `packages/tao-utils`                | Signal-network building blocks: `Channel`, `Source`, `Transponder`, `Transceiver`, `trigramFilter`, `seive`, bridges / transfer / forward-chain / logger                     |
+| `@tao.js/utils`                   | `packages/tao-utils`                | Signal-network building blocks: `Channel`, `Source`, `Transponder`, `Transceiver`, `trigramFilter`, `seive`, bridges / transfer / forward-chain / wire                       |
 | `@tao.js/react`                   | `packages/react-tao`                | React adapter: `TaoProvider` (`Provider` deprecated alias), handlers (`DataHandler`, `RenderHandler`, `SwitchHandler`, …), hooks (`useTaoContext`, `useTaoInlineHandler`, …) |
 | `@tao.js/router`                  | `packages/tao-router`               | URL routing ↔ AppCons (`route`, default `init`) — legacy TAO-native bridge                                                                                                  |
 | `@tao.js/transport-tck`           | `packages/tao-transport-tck`        | Transport conformance kit: executable ENVELOPE-SPEC §9 wire contract + transport invariants (`runTransportCompliance`)                                                       |
@@ -204,7 +204,7 @@ For isolated tests, prefer `new Kernel()` over the shared default `TAO`.
 | `@tao.js/routing-react-router`    | `packages/tao-routing-react-router` | React Router adapter (`importLoader`, `useLoaderSignal`)                                                                                                                     |
 | `@tao.js/routing-tanstack-router` | `packages/tao-routing-tanstack`     | TanStack Router adapter (`importLoader`, `useLoaderSignal`)                                                                                                                  |
 | `@tao.js/routing-next`            | `packages/tao-routing-next`         | Next.js adapter (`importLoader`, `enterRoute`, `useRouteSignal`)                                                                                                             |
-| `@tao.js/telemetry`               | `packages/tao-telemetry`            | Telemetry: causal `Tracer` (pure Network decoration), `TaoLogger` (moved from utils; deprecated re-export remains), sinks, W3C traceparent helpers                           |
+| `@tao.js/telemetry`               | `packages/tao-telemetry`            | Telemetry: causal `Tracer` (pure Network decoration), `TaoLogger`, sinks, W3C traceparent helpers                                                                            |
 | `@tao.js/opentelemetry`           | `packages/tao-opentelemetry`        | OpenTelemetry exporter sink for `@tao.js/telemetry` records (spans with causal parentage; api-only dependency)                                                               |
 | `@tao.js/socket.io`               | `packages/tao-socket-io`            | Wire a Kernel to socket.io (`wireTaoJsToSocketIO`)                                                                                                                           |
 | `@tao.js/koa`                     | `packages/koa-tao`                  | Expose a TAO network over HTTP via Koa middleware                                                                                                                            |
@@ -332,7 +332,7 @@ Agreed multi-step plan for `DataHandler` / data consumption. Follow this order; 
    - `RenderHandler` `context` prop and extra render-prop args `(tao, data, …ctx)`
    - `DataConsumer` rest-arg render prop
 4. **Overlap window** — At least one published release where old + new coexist; migrate in-repo examples (`patois.web`, `react19-smoke`) and tests to hooks.
-5. **Remove deprecated surface (`~0.18` or `1.0`)** — Drop `context` on `RenderHandler`, remove or rehome `DataConsumer`, delete warn paths. Call out as breaking in release notes (0.x courtesy).
+5. **Remove deprecated surface** — DONE in 0.21: dropped `context` on `RenderHandler` (+ positional ctx args), `DataConsumer`, the `Provider` alias, `useTaoDataContext`, the Provider data bag (Context is `{ TAO }`-only; DataHandler provides only the DataLayerContext stack), the warn infra (`deprecations.js`), and all `propTypes` + the `prop-types` dependency. Called out as breaking in the 0.21 changelog.
 
 #### Deprecation rules for agents
 

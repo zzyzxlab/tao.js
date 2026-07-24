@@ -19,7 +19,6 @@ export default [
       exports: 'named',
       globals: {
         react: 'React',
-        'prop-types': 'PropTypes',
         '@tao.js/core': 'tao',
       },
     },
@@ -44,7 +43,6 @@ export default [
       exports: 'named',
       globals: {
         react: 'React',
-        'prop-types': 'PropTypes',
         '@tao.js/core': 'tao',
       },
     },
@@ -69,7 +67,6 @@ export default [
       exports: 'named',
       globals: {
         react: 'React',
-        'prop-types': 'PropTypes',
         '@tao.js/core': 'tao',
       },
     },

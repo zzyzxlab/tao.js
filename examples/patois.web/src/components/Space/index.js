@@ -6,7 +6,8 @@ import {
   DataHandler,
   SwitchHandler,
   RenderHandler,
-  withContext
+  useTaoData,
+  withContext,
 } from '@tao.js/react';
 import List from './List';
 import ListHOC from './ListHOC';
@@ -19,7 +20,7 @@ TAO.addInlineHandler(
   { t: 'Space', a: 'Enter', o: 'Portal' },
   (tao, { Space }) => {
     return new AppCtx('Space', 'View', 'Portal', { Space });
-  }
+  },
 );
 
 const spaceAdapter = new Adapter(TAO);
@@ -39,10 +40,17 @@ const SpaceContainer = () => (
   </div>
 );
 
+// reads the DataHandler's named data in place of the removed
+// RenderHandler `context` prop (0.21)
+const SpaceList = () => {
+  const spaceList = useTaoData('spaceList');
+  return <List data={spaceList.list} />;
+};
+
 export default SpaceContainer;
 
 // const SpaceAltContainer_ = ({ data: spaceList }) => (
-const SpaceAltContainer = props => (
+const SpaceAltContainer = (props) => (
   <DataHandler
     name="spaceList"
     term="Space"
@@ -53,7 +61,7 @@ const SpaceAltContainer = props => (
       if (tao.a === 'List') {
         return { list: data.Space };
       } else {
-        const idx = current.list.findIndex(s => s._id === data.Space._id);
+        const idx = current.list.findIndex((s) => s._id === data.Space._id);
         const next = [...current.list];
         if (idx > -1) {
           next[idx] = data.Space;
@@ -66,15 +74,8 @@ const SpaceAltContainer = props => (
   >
     <SwitchHandler term="Space" orient="Portal">
       <Title />
-      {/* <RenderHandler context="spaceList" action="List">
-          {(tao, data, spaceList) => <List Space={spaceList.list} />}
-        </RenderHandler> */}
-      <RenderHandler
-        action="List"
-        context="spaceList"
-        refreshOn={{ a: 'Stored' }}
-      >
-        {(tao, data, spaceList) => <List data={spaceList.list} />}
+      <RenderHandler action="List" refreshOn={{ a: 'Stored' }}>
+        {() => <SpaceList />}
         {/* (tao, data) => <ListHOC /> */}
       </RenderHandler>
       <RenderHandler action="View">

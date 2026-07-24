@@ -137,13 +137,3 @@ export function useTaoData(name) {
     }
   }
 }
-
-/**
- * @deprecated Since 0.17 — alias of `useTaoData`; prefer `useTaoData(name)`.
- * Still reads the tree-scoped layer (same as useTaoData) for a named slot.
- * @param {string} [name] - the DataHandler `name` to look up
- * @returns {*} the matching DataHandler's current data, or `undefined`
- */
-export function useTaoDataContext(name) {
-  return useTaoData(name);
-}

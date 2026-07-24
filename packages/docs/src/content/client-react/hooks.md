@@ -21,11 +21,11 @@ an `InlineHandler` with specific dependencies to your component
 an `AsyncHandler` with specific dependencies to your component
 * [`useTaoInterceptHandler`](#usetaointercepthandler) makes it possible to use a hook to add
 an `IntercepteHandler` with specific dependencies to your component
-* [`useTaoDataContext`](#usetaodatacontext) makes it possible to use a hook to import data
+* [`useTaoData`](#usetaodata) makes it possible to use a hook to import data
 into your component from a TAO DataContext provided by a [`DataHandler`](data-handler.md)
 component higher up in your component hierarchy
 
-All hooks require that a [`Provider`](provider.md) is somehwere in the ancestry of the component you are using
+All hooks require that a [`TaoProvider`](provider.md) is somehwere in the ancestry of the component you are using
 the hook within.
 
 ## `useTaoContext`
@@ -165,23 +165,23 @@ const useTaoInterceptHandler = require('@tao.js/react').useTaoInterceptHandler;
 Acts exactly the same as [`useTaoInlineHandler`](#usetaoinlinehandler) except it is adding an
 AsyncHandler to the provided network.
 
-## `useTaoDataContext`
+## `useTaoData`
 
-### importing `useTaoDataContext`
+### importing `useTaoData`
 
-`useTaoDataContext` is a named export from the `@tao.js/react` package.
+`useTaoData` is a named export from the `@tao.js/react` package.
 
 ```javascript
-import { useTaoDataContext } from '@tao.js/react';
+import { useTaoData } from '@tao.js/react';
 ```
 
 OR
 
 ```javascript
-const useTaoDataContext = require('@tao.js/react').useTaoDataContext;
+const useTaoData = require('@tao.js/react').useTaoData;
 ```
 
-### using `useTaoDataContext`
+### using `useTaoData`
 
 Unlike the other hooks from this library, this hook is used to get access to a DataContext
 created in a parent component using a DataHandler. Similar to how a RenderHandler can name
@@ -190,8 +190,8 @@ named DataContext and provide an update when the data changes.
 
 ```javascript
 function MyComponent(props) {
-  // name provided to useTaoDataContext matches name prop of parent DataHandler
-  const user = useTaoDataContext('user');
+  // name provided to useTaoData matches name prop of parent DataHandler
+  const user = useTaoData('user');
 
   // updates to user will cause a rerender
   if (!user) {

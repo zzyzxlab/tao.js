@@ -1,6 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import Adapter from './Adapter';
+
+/** @typedef {import('./Adapter').default} Adapter */
 
 const DUMMY_STATE = {};
 
@@ -20,12 +20,6 @@ const DUMMY_STATE = {};
  * @extends {React.Component<ReactorProps>}
  */
 class Reactor extends React.Component {
-  static get propTypes() {
-    return {
-      adapter: PropTypes.instanceOf(Adapter).isRequired,
-    };
-  }
-
   /**
    * @param {ReactorProps} props
    */
@@ -41,7 +35,7 @@ class Reactor extends React.Component {
 
   componentWillUnmount() {
     const { adapter } = this.props;
-    // Stryker disable next-line all: defensive optional calls; propTypes require adapter
+    // Stryker disable next-line all: defensive optional calls; ReactorProps requires adapter
     adapter && adapter.unregisterReactor && adapter.unregisterReactor(this);
   }
 

@@ -5,13 +5,13 @@ import {
   RenderHandler,
   SwitchHandler,
   useTaoContext,
-  useTaoDataContext,
+  useTaoData,
 } from '@tao.js/react';
 
 const ORIENT = 'Portal';
 
 function SessionBadge() {
-  const session = useTaoDataContext('session');
+  const session = useTaoData('session');
   return (
     <p data-testid="session">
       session: {session ? session.token : '(none)'}

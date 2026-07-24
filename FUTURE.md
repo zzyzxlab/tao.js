@@ -23,13 +23,13 @@ TODO
 - [ ] rewrite documentation site
 - [x] update to React 19 implementation for @taojs/react
 - [x] `@tao.js/react` data-context 0.17: hooks modernize + tree-scoped `useTaoData` + soft-deprecate `RenderHandler.context`/`DataConsumer` (see `AGENTS.md` §5; removal still open)
-- [ ] `@tao.js/react` remove deprecated data consume APIs (`RenderHandler.context`, `DataConsumer`) after overlap window
+- [x] `@tao.js/react` remove deprecated data consume APIs — done in 0.21: `RenderHandler.context` + positional ctx args, `DataConsumer`, `Provider` alias, `useTaoDataContext` alias, the Provider data bag, and all `propTypes` + the `prop-types` dependency (React 19 ignores propTypes; d.ts covers typing)
 - [ ] host-router adapters (`@tao.js/routing-core` + react-router / tanstack / next) — first PR open for review; publish into fixed release group when approved
 - [x] signal-plane hardening: envelope scopes + Network decorations + settlement hook per `ENVELOPE-SPEC.md` (`feat/network-envelope`); `@tao.js/telemetry` (causal Tracer + TaoLogger) + `@tao.js/opentelemetry`
 - [x] legacy retirement cutover (0.19.0): remove dual-mode dispatch per `ENVELOPE-SPEC.md` §12 (`feat/legacy-retirement`; Network owns handler execution, adapters are pure decorations, channel-chained AppCons continue the cascade envelope)
 - [x] carry `envelope.chain` across process transports natively (0.20, `feat/chain-transport`): socket.io duplex wire envelope + koa inbound `traceparent` continuation; boundary primitives + `createTransport` in utils; `hop.via` phase tagging; `Network.mirror` + `onProceed`; §9 normative — see `VISION.md` §1
 - [x] transport conformance kit `@tao.js/transport-tck` — executable ENVELOPE-SPEC §9 + transport invariants; custom transports prove adherence against a loopback link
-- [ ] remove the deprecated `TaoLogger` re-export from `@tao.js/utils` after an overlap window
+- [x] remove the deprecated `TaoLogger` re-export from `@tao.js/utils` — done in 0.21 (utils no longer depends on telemetry at all)
 - [x] Stryker configs for `@tao.js/telemetry` + `@tao.js/opentelemetry` (both at 100% score; `pnpm test:mutation:telemetry` / `pnpm test:mutation:opentelemetry`)
 - [ ] transfer ownership to tao-land
 - [ ] implement TAO.md (spec/template + tooling for consuming apps)

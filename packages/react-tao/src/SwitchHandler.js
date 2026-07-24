@@ -8,7 +8,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import PropTypes from 'prop-types';
 import cartesian from 'cartesian';
 
 import { normalizeClean, handlerHash, serializeTrigrams } from './helpers';
@@ -267,16 +266,5 @@ function SwitchHandler({
 }
 
 SwitchHandler.displayName = 'SwitchHandler';
-
-SwitchHandler.propTypes = {
-  term: PropTypes.any,
-  action: PropTypes.any,
-  orient: PropTypes.any,
-  t: PropTypes.any,
-  a: PropTypes.any,
-  o: PropTypes.any,
-  debug: PropTypes.bool,
-  children: PropTypes.node.isRequired,
-};
 
 export default SwitchHandler;
