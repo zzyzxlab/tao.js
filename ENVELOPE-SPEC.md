@@ -194,6 +194,17 @@ start — intercept awaits, async forks, inline spool, all chaining — resumes
 on microtasks. Entry stamping of an envelope during the synchronous start is
 therefore race-free.
 
+Async-phase contract (normative, clarified 0.20): after the intercept
+phase passes, **all** async handlers are initiated, in registration order,
+before the first inline handler runs; the engine never awaits them.
+Async handlers are out-of-band side effects — their completion timing is
+unobservable by design and must not affect the serialized execution of
+the inline phase. An AppCtx returned by an async handler enters as a new
+hop (`hop.via: 'Async'`) when it resolves. The initiation-before-inline
+ordering is a local-scheduling guarantee (deployment-level in the
+`VISION.md` §2 placement terms); fire-and-forget completion is
+protocol-level and holds across process boundaries.
+
 ## 5. Decorator interface
 
 ```js
