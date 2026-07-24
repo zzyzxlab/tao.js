@@ -356,9 +356,6 @@ importers:
 
   packages/koa-tao:
     dependencies:
-      '@tao.js/telemetry':
-        specifier: file:../tao-telemetry
-        version: link:../tao-telemetry
       cartesian:
         specifier: ^1.0.1
         version: 1.0.1
@@ -366,6 +363,9 @@ importers:
       '@tao.js/core':
         specifier: file:../tao
         version: link:../tao
+      '@tao.js/telemetry':
+        specifier: file:../tao-telemetry
+        version: link:../tao-telemetry
       '@tao.js/utils':
         specifier: file:../tao-utils
         version: link:../tao-utils
@@ -2842,7 +2842,8 @@ packages:
   '@tao.js/koa@file:packages/koa-tao':
     resolution: {directory: packages/koa-tao, type: directory}
     peerDependencies:
-      '@tao.js/core': '>=0.19.0'
+      '@tao.js/core': '>=0.20.0'
+      '@tao.js/telemetry': '*'
       '@tao.js/utils': '>=0.20.0'
 
   '@tao.js/react@file:packages/react-tao':
@@ -14089,7 +14090,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.28.2
 
-  '@tao.js/koa@file:packages/koa-tao(@tao.js/core@file:packages/tao)(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao)))':
+  '@tao.js/koa@file:packages/koa-tao(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao)))':
     dependencies:
       '@tao.js/core': file:packages/tao
       '@tao.js/telemetry': file:packages/tao-telemetry(@tao.js/core@file:packages/tao)
@@ -21094,7 +21095,7 @@ snapshots:
     dependencies:
       '@koa/cors': 2.2.3
       '@tao.js/core': file:packages/tao
-      '@tao.js/koa': file:packages/koa-tao(@tao.js/core@file:packages/tao)(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao)))
+      '@tao.js/koa': file:packages/koa-tao(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao)))
       '@tao.js/socket.io': file:packages/tao-socket-io(@tao.js/core@file:packages/tao)(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao)))
       '@tao.js/utils': file:packages/tao-utils(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))
       ioredis: 4.30.0

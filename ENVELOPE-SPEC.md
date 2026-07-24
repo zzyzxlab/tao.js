@@ -268,6 +268,16 @@ private network via `Channel.decorate(spec)`, and channel-scoped entry via
   swallow/log behavior when absent (unchanged default).
 
 With no hooks the dispatch loop is behaviorally identical to today.
+
+Loud-fail default (deliberate, author-affirmed 0.20): an unsettled
+inline/intercept handler error rethrows into the fire-and-forget dispatch
+promise — under Node ≥15 defaults that is an unhandled rejection and
+terminates the process. This is intentional anti-parentalism: developers
+own their error boundaries (a five-line `onReturn` decoration settles
+everything). Open for 0.21: ship an `errorBoundary` helper and revisit
+the default's ergonomics — any change is a protocol decision, spec-first.
+Async handlers are exempt as of 0.20: their failures always settle or
+swallow inside the fork (§4 async-phase contract).
 `Transceiver` becomes: cascade key + `onReturn` mapping (intercept→reject,
 async/inline→resolve, error→reject, first wins) — its `captureSignal` fork is
 deleted.

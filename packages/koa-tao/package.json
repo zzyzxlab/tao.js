@@ -27,7 +27,8 @@
   },
   "peerDependencies": {
     "@tao.js/core": ">=0.20.0",
-    "@tao.js/utils": ">=0.20.0"
+    "@tao.js/utils": ">=0.20.0",
+    "@tao.js/telemetry": "*"
   },
   "devDependencies": {
     "@tao.js/core": "file:../tao",
@@ -35,7 +36,6 @@
     "@tao.js/telemetry": "file:../tao-telemetry"
   },
   "dependencies": {
-    "cartesian": "^1.0.1",
-    "@tao.js/telemetry": "file:../tao-telemetry"
+    "cartesian": "^1.0.1"
   }
 }

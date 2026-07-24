@@ -14,7 +14,10 @@ This repo’s agent guide is `AGENTS.md` (how to work on the tao.js library itse
 TODO
 
 - [x] finish the transformation to nx.js (Nx 23.1.0; alpha ladder `0.16.3-alpha.nx{21,22,23}` on npm `alpha` tag)
-- [ ] implement the TypeScript library wrapper
+- [ ] implement the TypeScript library wrapper — v2 transparent-DX design recorded in `TYPED-SPEC.md` §7 on `feat/typescript-wrapper` (PR #63: JSDoc pass + v1 built; a new session implements §7: part carriers → decorators → type-arg transform → path DSL)
+- [ ] 0.21: `errorBoundary(kernel, onError)` helper + document the Node ≥15 interaction (an unsettled inline/intercept handler throw is an unhandled rejection → process death under default `--unhandled-rejections=throw`; async handlers are immune as of 0.20)
+- [ ] 0.21: decide the unsettled-handler-error default — loud rethrow (current, deliberate: not being overly parental; developers own their error boundaries) vs settle-quiet; ergonomics/DX discussion pending with the author before any change (spec-first if changed)
+- [ ] 0.21: contain sync-throwing async handlers — DONE in 0.20 (shipped with the async-phase contract; entry retained for the record)
 - [x] complete all tests for 100% code coverage
 - [x] create a mutation test suite and exercise it (Stryker on all public packages at 100% — `pnpm test:mutation:*`)
 - [ ] rewrite documentation site
