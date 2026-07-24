@@ -189,7 +189,7 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
     log.mockRestore();
   });
 
-  it('delegates all enhanced handler phases and request context calls', () => {
+  it('delegates all enhanced handler phases and request context calls', async () => {
     const middleware = enhancedMiddleware({}, { name: 'api' });
     const handler = jest.fn();
     [
@@ -231,9 +231,27 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
     );
 
     const ctx = {};
-    middleware.middleware()(ctx, next);
+    await middleware.middleware()(ctx, next);
     expect(next).toHaveBeenCalled();
     expect(ctx.tao).toBeNull();
+  });
+
+  it('keeps ctx.tao available across async downstream middleware (enhanced)', async () => {
+    const enhanced = enhancedMiddleware({}, {});
+    const ctx = { request: { headers: {} } };
+    await enhanced.middleware()(ctx, async () => {
+      // typical async koa route: ctx.tao must survive the await boundary
+      await Promise.resolve();
+      expect(ctx.tao).not.toBeNull();
+      ctx.tao.setCtx({ t: 'User', a: 'View', o: 'Web' }, {});
+    });
+    // cleared only after downstream settles
+    expect(ctx.tao).toBeNull();
+    expect(mockTransceivers[0].setCtx).toHaveBeenCalledWith(
+      { t: 'User', a: 'View', o: 'Web' },
+      {},
+      { chain: null },
+    );
   });
 
   it('uses a custom transceiver timeout when provided', () => {

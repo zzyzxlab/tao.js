@@ -50,9 +50,12 @@ export default function enhancedMiddleware(TAO, opt = {}) {
   );
   return {
     middleware() {
-      return (ctx, next) => {
+      return async (ctx, next) => {
         ctx.tao = buildCtxTao(transceiver, chainFromRequest(ctx));
-        next();
+        // downstream middleware is async in any real koa app — clearing
+        // ctx.tao before it settles would null the surface while routes
+        // are still using it (the transceiver itself is long-lived)
+        await next();
         ctx.tao = null;
       };
     },
