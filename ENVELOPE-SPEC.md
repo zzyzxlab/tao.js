@@ -195,8 +195,14 @@ on microtasks. Entry stamping of an envelope during the synchronous start is
 therefore race-free.
 
 Async-phase contract (normative, clarified 0.20): after the intercept
-phase passes, **all** async handlers are initiated, in registration order,
-before the first inline handler runs; the engine never awaits them.
+phase passes, **all** async handlers are guaranteed to be called, in
+registration order, before the first inline handler runs — but the calls
+themselves are scheduled on the event loop (microtask queue), never
+executed in the entrant's synchronous stack, and the engine never awaits
+them. The priority is a queue-order guarantee, not synchronous
+invocation: the engine enqueues every async call and yields once before
+the inline phase. A throw before an async handler's first await is
+inherently a rejection (no stack to escape into).
 Async handlers are out-of-band side effects — their completion timing is
 unobservable by design and must not affect the serialized execution of
 the inline phase. An AppCtx returned by an async handler enters as a new

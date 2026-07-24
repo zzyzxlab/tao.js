@@ -369,8 +369,11 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       const handler = jest.fn();
       uut.addAsyncHandler(handler);
       const matchAc = new AppCtx(TERM, ACTION, ORIENT);
-      // Act
+      // Act - the caller never awaits; the call is guaranteed but
+      // scheduled on the event loop (async-phase contract)
       uut.handleAppCon(matchAc);
+      expect(handler).not.toHaveBeenCalled();
+      await Promise.resolve();
       // Assert
       expect(handler).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -422,8 +425,10 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
         a: ACTION,
         o: ORIENT,
       });
-      // Act
+      // Act - the caller never awaits; calls are guaranteed but
+      // scheduled on the event loop (async-phase contract)
       uut.handleAppCon(matchAc);
+      await Promise.resolve();
       jest.runAllTimers();
       // Assert
       expect(handler1).toHaveBeenCalledWith(callingArg, {});

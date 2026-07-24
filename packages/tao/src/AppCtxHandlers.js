@@ -215,25 +215,23 @@ export default class AppCtxHandlers extends AppCtxRoot {
      * generators instead of Promises
      * TODO: would ServiceWorkers make sense for this? tao-sw package
      */
+    let asyncKickoffs = 0;
     for (let asyncH of this.asyncHandlers) {
       (() => {
+        asyncKickoffs += 1;
         // Stryker disable next-line all: debug logging via noop console
         console.log(
           `>>>>>>>> starting async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`,
         );
         // the async-phase contract (ENVELOPE-SPEC §4): async handlers are
-        // out-of-band side effects that must not affect the remaining
-        // phases. Invocation stays synchronous (initiation-before-inline
-        // ordering), but a plain function throwing before it returns joins
-        // the rejection path instead of escaping the fork and halting the
-        // dispatch — async functions already reject instead of throwing.
-        let invoked;
-        try {
-          invoked = asyncH({ t, a, o }, data);
-        } catch (syncErr) {
-          invoked = Promise.reject(syncErr);
-        }
-        Promise.resolve(invoked)
+        // out-of-band side effects — the CALL itself is deferred to the
+        // event loop, never executed in the entrant's synchronous stack,
+        // and a throw before the handler's first await is inherently a
+        // rejection. The queue yield after this loop preserves the
+        // priority guarantee: every async handler is called before the
+        // first inline handler runs.
+        Promise.resolve()
+          .then(() => asyncH({ t, a, o }, data))
           .then((nextAc) => {
             if (nextAc instanceof AppCtx) {
               setAppCtx(nextAc, control, ASYNC);
@@ -267,6 +265,13 @@ export default class AppCtxHandlers extends AppCtxRoot {
      * all handlers to handle this context before any new ones are set?
      * YES: currently implemented that way
      */
+    if (asyncKickoffs) {
+      // one microtask yield: the deferred async calls enqueued above are
+      // FIFO-ahead of this continuation, so every async handler has been
+      // called (not awaited) before the first inline handler runs — the
+      // protocol's priority guarantee without synchronous invocation
+      await undefined;
+    }
     const nextSpool = [];
     const inlineReturns = [];
     for (let inlineH of this.inlineHandlers) {
