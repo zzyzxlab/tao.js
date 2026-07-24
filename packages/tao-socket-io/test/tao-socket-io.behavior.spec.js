@@ -132,6 +132,46 @@ describe('@tao.js/socket.io behavior (real core + utils)', () => {
       tracer.dispose();
     });
 
+    it('does not gate the reply emit on MAIN-kernel intercepts (parallel dispatch scopes; parity with 0.19)', async () => {
+      // Invariant 5 suppression is scoped to the dispatch where the
+      // suppressed handlers run: channel-attached intercepts gate the
+      // per-client reply emit; the shared kernel's intercept outcome does
+      // not, because mirrors run before the main dispatch by pinned
+      // ordering. Verified byte-identical against published 0.19.1 (the
+      // wildcard-inline emit era) over a real socket round trip.
+      const { wireTaoJsToSocketIO, Kernel, AppCtx } = loadHarness({
+        browser: false,
+      });
+      const TAO = new Kernel();
+      TAO.addInlineHandler(
+        { t: 'Ping', a: 'Send', o: 'Client' },
+        () => new AppCtx('Pong', 'Receive', 'Client', { Pong: { ok: true } }),
+      );
+      // MAIN-kernel truthy intercept on the reply trigram
+      const mainVeto = jest.fn(() => true);
+      TAO.addInterceptHandler(
+        { t: 'Pong', a: 'Receive', o: 'Client' },
+        mainVeto,
+      );
+
+      const socket = makeSocket();
+      const middleware = wireTaoJsToSocketIO(TAO, null, {});
+      middleware(socket, jest.fn());
+
+      socket.events.fromClient({
+        tao: { t: 'Ping', a: 'Send', o: 'Client' },
+        data: {},
+      });
+      await drain();
+      // the main intercept ran (halting MAIN async/inline for the reply)…
+      expect(mainVeto).toHaveBeenCalledTimes(1);
+      // …but the channel-scoped emit is a parallel dispatch and still fired
+      const replyEmits = socket.emit.mock.calls.filter(
+        ([, payload]) => payload && payload.tao && payload.tao.t === 'Pong',
+      );
+      expect(replyEmits).toHaveLength(1);
+    });
+
     it('suppresses the reply emit for an intercept-vetoed signal while a passing signal still emits (invariant 5)', async () => {
       const { wireTaoJsToSocketIO, Kernel, AppCtx } = loadHarness({
         browser: false,

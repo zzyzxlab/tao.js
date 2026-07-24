@@ -373,7 +373,13 @@ test suites and `tools/smoke/socketio-envelope-smoke.cjs`.
    server (Source's `source` marker applies to the stamped hop only —
    hop scope, not cascade scope).
 5. Intercept-halt (truthy return) suppresses the signal for **all** later
-   phases including wildcard `{}` inline handlers (the socket emit path).
+   phases including wildcard `{}` inline handlers (the socket emit path) —
+   **within the same dispatch scope**. A mirrored dispatch (a Channel's
+   private registry) is suppressed by intercepts attached to that scope
+   (channel-attached intercepts gate the per-client reply emit); the main
+   network's intercept outcome does not gate mirrored scopes, because
+   mirrors run before the main dispatch by pinned ordering (§4) — parallel
+   scopes by design, verified identical back to 0.19/legacy.
 6. **Handler-return semantics and phase order are load-bearing**:
    intercept AppCtx-divert suppresses remaining handlers; intercept
    truthy halts; intercept undefined observes; inline/async AppCtx
