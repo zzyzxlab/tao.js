@@ -1,4 +1,4 @@
-import { WILDCARD, INTERCEPT, ASYNC, INLINE } from '../src/constants';
+import { WILDCARD, INTERCEPT, ASYNC, INLINE, ERROR } from '../src/constants';
 import AppCtxRoot from '../src/AppCtxRoot';
 import AppCtx from '../src/AppCtx';
 import AppCtxHandlers from '../src/AppCtxHandlers';
@@ -253,6 +253,58 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
   });
 
   describe('as Async handlers', () => {
+    it('should contain a synchronously-throwing plain handler within the fork (contract: async cannot affect later phases)', async () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const order = [];
+      uut.addAsyncHandler(() => {
+        order.push('async-throws');
+        throw new Error('sync boom');
+      });
+      uut.addAsyncHandler(() => {
+        order.push('async2');
+      });
+      uut.addInlineHandler(() => {
+        order.push('inline');
+      });
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      const setAppCtx = jest.fn();
+      // Act
+      await uut.handleAppCon(matchAc, setAppCtx);
+      // drain the microtask-only rejection path (fake-timer safe)
+      for (let i = 0; i < 5; i++) {
+        await Promise.resolve();
+      }
+      // Assert - remaining async handlers still initiate and the inline
+      // phase runs; the sync throw is swallowed on the legacy path
+      expect(order).toEqual(['async-throws', 'async2', 'inline']);
+    });
+
+    it('should settle a synchronous async-handler throw as ERROR while later phases proceed', async () => {
+      // Assemble
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const order = [];
+      const boom = new Error('sync boom');
+      uut.addAsyncHandler(() => {
+        throw boom;
+      });
+      uut.addInlineHandler(() => {
+        order.push('inline');
+      });
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      const onReturn = jest.fn();
+      // Act
+      await uut.handleAppCon(matchAc, jest.fn(), undefined, { onReturn });
+      // drain the microtask-only rejection path (fake-timer safe)
+      for (let i = 0; i < 5; i++) {
+        await Promise.resolve();
+      }
+      // Assert - the throw joined the rejection path: ERROR settlement with
+      // the exact error, and the inline phase was untouched
+      expect(onReturn).toHaveBeenCalledWith(ERROR, boom, matchAc);
+      expect(order).toEqual(['inline']);
+    });
+
     it('should expose an asyncHandlers iterable property that is not the underlying collection', () => {
       // Assemble
       const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);

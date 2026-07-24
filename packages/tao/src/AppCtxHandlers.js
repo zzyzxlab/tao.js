@@ -221,7 +221,19 @@ export default class AppCtxHandlers extends AppCtxRoot {
         console.log(
           `>>>>>>>> starting async context within ['${t}', '${a}', '${o}'] <<<<<<<<<<`,
         );
-        Promise.resolve(asyncH({ t, a, o }, data))
+        // the async-phase contract (ENVELOPE-SPEC §4): async handlers are
+        // out-of-band side effects that must not affect the remaining
+        // phases. Invocation stays synchronous (initiation-before-inline
+        // ordering), but a plain function throwing before it returns joins
+        // the rejection path instead of escaping the fork and halting the
+        // dispatch — async functions already reject instead of throwing.
+        let invoked;
+        try {
+          invoked = asyncH({ t, a, o }, data);
+        } catch (syncErr) {
+          invoked = Promise.reject(syncErr);
+        }
+        Promise.resolve(invoked)
           .then((nextAc) => {
             if (nextAc instanceof AppCtx) {
               setAppCtx(nextAc, control, ASYNC);
