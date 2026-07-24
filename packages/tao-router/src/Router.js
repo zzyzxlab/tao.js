@@ -1,3 +1,11 @@
+/**
+ * The legacy TAO-native URL routing bridge: a two-way binding between a
+ * `history` instance and a TAO signal network, configured entirely through
+ * TAO signals (`{Routes,Configure}`, `{Route,Add|Remove|Attach|Detach}`)
+ * rather than a route table. See {@link Router} for the full protocol.
+ *
+ * @module @tao.js/router/Router
+ */
 // import createHistory from 'history/createBrowserHistory';
 /* v8 ignore next -- module imports are recorded as an unreachable branch by V8. */
 import { createBrowserHistory as createHistory } from 'history';
@@ -8,8 +16,67 @@ import { AppCtx } from '@tao.js/core';
 
 import makeRouteHandler, { deconstructPath, convertPath } from './routeHandler';
 
+/**
+ * @typedef {import('@tao.js/core').Kernel} Kernel
+ * @typedef {import('@tao.js/core').Trigram} Trigram
+ * @typedef {import('@tao.js/core').Handler} Handler
+ * @typedef {import('./routeHandler').HistoryLike} HistoryLike
+ * @typedef {import('./routeHandler').RouteConfig} RouteConfig
+ * @typedef {import('./routeHandler').PathPart} PathPart
+ */
+
+/**
+ * A node in the route match tree: a `routington` node extended with the
+ * Router's own bookkeeping (written by the `{Route,Attach}` handler).
+ *
+ * @typedef {Object} RouteNode
+ * @property {RouteConfig} route - the route as originally attached
+ * @property {(boolean|undefined)} lowerCase - when set, path-extracted
+ *           trigram parts are re-capitalized (pushed URLs are lowercased)
+ * @property {PathPart[]} deconstruction - the route's deconstructed path
+ *           template
+ * @property {AppCtx[]} attached - trigrams attached to this route (fired on
+ *           a URL match; wildcard parts are filled from the URL)
+ * @property {Map<string, Object>} defaultData - default AppCon data per
+ *           attached trigram (keyed by the trigram's AppCtx key)
+ */
+
+/**
+ * A match of the current pathname against the route tree.
+ *
+ * @typedef {Object} RouteMatch
+ * @property {RouteNode} node - the matched route's node
+ * @property {Object.<string, string>} param - values captured from the URL
+ *           per path parameter
+ */
+
+/**
+ * Options for the {@link Router} (and the package's default `init` export).
+ *
+ * @typedef {Object} RouterOptions
+ * @property {(Trigram|AppCtx)} [initAc] - trigram whose inline handler
+ *           chains `{Router,Init,<orient of the signal>}` on startup
+ * @property {(Trigram|AppCtx|Array<Trigram|AppCtx>)} [incomingAc] -
+ *           trigram(s) that trigger matching the current location against
+ *           the route tree (firing the matched route's attached AppCons);
+ *           the first one is also chained after `{Routes,Configure}`
+ * @property {string} [defaultRoute] - path matched instead when the current
+ *           location has no route match on an incoming AC
+ * @property {string} [orient] - orient the Router's configuration trigrams
+ *           (`{Routes,Configure}`, `{Route,Add|Remove|Attach|Detach}`)
+ *           listen on; empty/omitted = wildcard
+ * @property {boolean} [debug=false] - console.log internal activity
+ */
+
 const CHANGE_ACTION_SIGNAL = 'POP';
 
+/**
+ * Uppercase a captured path segment's first character (used to restore
+ * trigram casing for `lowerCase` routes); non-strings pass through.
+ *
+ * @param {string} str
+ * @returns {string}
+ */
 function capitalize(str) {
   // Stryker disable next-line LogicalOperator,ConditionalExpression: equivalent - str is always undefined or a string captured from a URL path segment here, never a truthy non-string, so `!str` alone (or forcing this guard true/false) can't diverge from the full guard for any reachable input
   if (!str || typeof str !== 'string') {
@@ -18,12 +85,28 @@ function capitalize(str) {
   return `${str.substring(0, 1).toUpperCase()}${str.substring(1)}`;
 }
 
+/**
+ * Coerce a trigram (short or long keys) into a data-less AppCtx; AppCtx
+ * instances pass through.
+ *
+ * @param {(Trigram|AppCtx)} ac
+ * @returns {AppCtx}
+ */
 function wrapAc(ac) {
   return ac instanceof AppCtx
     ? ac
     : new AppCtx(ac.t || ac.term, ac.a || ac.action, ac.o || ac.orient);
 }
 
+/**
+ * Wrap a route handler so it skips AppCons matching any of the `ignore`
+ * trigrams (`Add.ignore` on `{Route,Add}`).
+ *
+ * @param {Handler} handler - the compiled route handler
+ * @param {(Trigram|AppCtx|Array<Trigram|AppCtx>)} [ignore] - trigram(s) the
+ *        handler must not react to
+ * @returns {Handler}
+ */
 function wrapIgnore(handler, ignore) {
   if (!ignore) {
     return handler;
@@ -39,6 +122,15 @@ function wrapIgnore(handler, ignore) {
   };
 }
 
+/**
+ * Deep-merge a route's default data into the path-extracted data without
+ * overwriting values the URL provided.
+ *
+ * @param {Object} pathData - the path-extracted data (mutated)
+ * @param {Object} defaultData - the attached trigram's default data
+ * @param {string} [parentPath] - current key path while recursing
+ * @returns {void}
+ */
 function mergeData(pathData, defaultData, parentPath) {
   Object.entries(defaultData).forEach(([key, val]) => {
     const dataPath = parentPath ? `${parentPath}.${key}` : key;
@@ -50,6 +142,18 @@ function mergeData(pathData, defaultData, parentPath) {
   });
 }
 
+/**
+ * Fire the AppCons for a URL match: for every trigram attached to the
+ * matched route, build an AppCtx from the URL-captured data (+ the
+ * trigram's default data; wildcard parts filled from the URL, re-cased for
+ * `lowerCase` routes), signal `{Route,Match,<orient>}` with
+ * `[route, appCtx]`, then set the AppCtx itself.
+ *
+ * @param {Kernel} TAO - the kernel to signal on
+ * @param {RouteMatch} match - the matched route
+ * @param {boolean} [debug=false] - console.log internal activity
+ * @returns {void}
+ */
 // Stryker disable next-line BooleanLiteral: unreachable - every internal caller of reactToRoute always passes an explicit boolean `this._debug`, so the `= false` default is never actually evaluated
 function reactToRoute(TAO, match, debug = false) {
   // Stryker disable all: optional debug logging
@@ -66,7 +170,7 @@ function reactToRoute(TAO, match, debug = false) {
       set(pathData, dataPath, paramData);
     }
     return pathData;
-  }, {});
+  }, /** @type {Object.<string, *>} */ ({}));
   if (match.node.lowerCase) {
     pathMatched.t = capitalize(pathMatched.t);
     pathMatched.a = capitalize(pathMatched.a);
@@ -100,21 +204,67 @@ function reactToRoute(TAO, match, debug = false) {
   });
 }
 
+/**
+ * The legacy TAO-native URL bridge. Constructing a Router registers inline
+ * handlers on the kernel that turn TAO signals into route configuration,
+ * and wires history so URL changes fire AppCons (and matching AppCons push
+ * URLs):
+ *
+ * - `opts.initAc` → chains `{Router,Init,<orient of the signal>}`.
+ * - `{Routes,Configure,<orient>}` → fans each entry of `data.Routes` out as
+ *   `{Route,Add|Remove|Attach|Detach}` signals (keyed by the entry's
+ *   `Add`/`Remove`/`Attach`/`Detach` properties), then chains the first
+ *   `opts.incomingAc`.
+ * - `{Route,Add,<orient>}` → compiles the route
+ *   (`makeRouteHandler`) and registers it as an **async** handler for
+ *   `Add`'s trigram (`Add.tao` or `Add` itself): matching AppCons push the
+ *   route's URL onto history when it differs, chaining `{Route,Set}`.
+ *   Re-adding a trigram replaces its previous handler; `Add.ignore` lists
+ *   trigrams the handler must skip; `Add.attach: true` chains
+ *   `{Route,Attach,<orient>}` with the same `[Route, Add]` data.
+ * - `{Route,Remove,<orient>}` → unregisters the trigram's route handler;
+ *   `Remove.detach: true` chains `{Route,Detach,<orient>}`.
+ * - `{Route,Attach,<orient>}` → binds `Attach`'s trigram (`Attach.tao` or
+ *   `Attach` itself, with `Attach.data` as default AppCon data) to the
+ *   route's path pattern in the match tree, so URL changes fire it.
+ * - `{Route,Detach,<orient>}` → unbinds the trigram from the route.
+ *
+ * Inbound direction: history `POP` events (back/forward) and any
+ * `opts.incomingAc` signal match the current pathname against the attached
+ * routes (falling back to `opts.defaultRoute` for incoming ACs) and fire
+ * `{Route,Match}` + the attached AppCons — see `reactToRoute`.
+ *
+ * The instance keeps no public state; it lives through the handlers it
+ * registers (the package's default `init` export does not even return it).
+ *
+ * @export
+ * @class Router
+ */
 export default class Router {
+  /**
+   * Creates a Router and registers all of its TAO handlers.
+   *
+   * @param {Kernel} TAO - the kernel to bridge
+   * @param {(HistoryLike|RouterOptions|null)} [history] - the history to
+   *        drive; omit (or pass the options object here) to create a
+   *        browser history
+   * @param {RouterOptions} [opts]
+   */
   constructor(TAO, history, opts) {
     this._tao = TAO;
     if (!opts) {
-      opts = history;
+      opts = /** @type {RouterOptions} */ (history);
       history = null;
     }
     opts = opts || {};
     const { debug = false } = opts;
     this._debug = debug;
-    this._history = history || createHistory();
+    this._history = /** @type {HistoryLike} */ (history || createHistory());
     this.setupEvents = this.setupEvents.bind(this);
     this.historyChange = this.historyChange.bind(this);
     this.getPathFrom = this.getPathFrom.bind(this);
     this.getAcsFrom = this.getAcsFrom.bind(this);
+    /** @type {Map<string, Handler>} */
     this._routes = new Map();
     this._router = routington();
     this.setupEvents(
@@ -127,6 +277,19 @@ export default class Router {
     );
   }
 
+  /**
+   * Register the Router's handlers (see the class doc for the protocol).
+   * Called once from the constructor.
+   *
+   * @param {Kernel} TAO - the kernel to bridge
+   * @param {HistoryLike} history - the history to drive
+   * @param {(Trigram|AppCtx)} [initAc] - see `RouterOptions.initAc`
+   * @param {(Trigram|AppCtx|Array<Trigram|AppCtx>)} [incomingAc] - see
+   *        `RouterOptions.incomingAc`
+   * @param {string} [defaultRoute] - see `RouterOptions.defaultRoute`
+   * @param {string} [orient] - see `RouterOptions.orient`
+   * @returns {void}
+   */
   setupEvents = (TAO, history, initAc, incomingAc, defaultRoute, orient) => {
     this._unlistenHistory = history.listen(this.historyChange);
     const incoming = !incomingAc
@@ -297,6 +460,14 @@ export default class Router {
   // this should move to just being an added Async Handler on the individual routes
   // OR would that make the TAO sets too big?
   // they would certainly be completely directed with no middle man interpreter
+  /**
+   * Vestigial: hardcoded tao→path mapping from the original prototype
+   * (`{Space,View}` → `/space`); not called by anything today.
+   *
+   * @param {Object} tao - a `{ t, a, o }` trigram
+   * @param {*} data
+   * @returns {(string|undefined)}
+   */
   getPathFrom = (tao, data) => {
     if (tao.a !== 'View') {
       return;
@@ -304,10 +475,27 @@ export default class Router {
     return tao.t === 'Space' ? '/space' : '';
   };
 
+  /**
+   * Vestigial: always returns an empty list; not called by anything today.
+   *
+   * @param {Object} location - a history location
+   * @param {Object} tao - a `{ t, a, o }` trigram
+   * @param {*} data
+   * @returns {AppCtx[]}
+   */
   getAcsFrom = (location, tao, data) => {
     return [];
   };
 
+  /**
+   * History listener: on `POP` (back/forward navigation), match the new
+   * pathname against the route tree and fire the matched route's attached
+   * AppCons (`reactToRoute`). Pushes from route handlers do not re-fire.
+   *
+   * @param {{ pathname: string }} location - the new location
+   * @param {string} action - the history action (`'PUSH'`/`'REPLACE'`/`'POP'`)
+   * @returns {void}
+   */
   historyChange = (location, action) => {
     // match the new location to our route tree to find Trigrams and fire ACs from path data
     // Stryker disable next-line all: optional debug logging

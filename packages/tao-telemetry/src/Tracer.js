@@ -65,10 +65,22 @@ function countHandlers(iterator) {
  * @export
  * @class Tracer
  */
+
+/**
+ * Any surface a Tracer can attach to: a Kernel-/Channel-shaped wrapper
+ * exposing the shared network via `_network`, or a bare `Network`
+ * (exposing `enter` + `decorate`) decorated directly.
+ *
+ * @typedef {Object} TraceableSurface
+ * @property {Function} [enter] - present on a bare Network
+ * @property {Function} [decorate] - present on a bare Network
+ * @property {import('@tao.js/core').Network} [_network] - present on Kernel-/Channel-shaped wrappers
+ * @property {boolean} [canSetWildcard] - mirrored onto traced wildcard handling when present
+ */
 export default class Tracer {
   /**
    * Creates an instance of Tracer.
-   * @param {Object} kernel - Kernel (or Channel, or raw Network) whose signals
+   * @param {TraceableSurface} kernel - Kernel (or Channel, or raw Network) whose signals
    *        to trace; anything exposing the shared network via `_network`, or a
    *        Network itself, is decorated
    * @param {Object} [opts]

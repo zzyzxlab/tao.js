@@ -3,9 +3,17 @@ import { useEffect, useRef } from 'react';
 import { useTaoContext } from './hooks';
 import { serializeTrigrams } from './helpers';
 
+/** @typedef {import('@tao.js/core').Trigram} Trigram */
+/** @typedef {import('@tao.js/core').Handler} Handler */
+
 /**
  * Reconcile Kernel inline handlers to the declared `trigrams` list.
  * Uses a stable wrapper so callback identity churn does not resubscribe.
+ * @param {Trigram[]} trigrams - concrete trigram permutations to subscribe to
+ *        (resubscribes when the serialized list changes)
+ * @param {Handler} handler - `(tao, data) => …`; the latest render's handler
+ *        is always invoked; may return an AppCtx to chain on the network
+ * @returns {void}
  */
 export default function useTaoInlineSubscription(trigrams, handler) {
   const TAO = useTaoContext();

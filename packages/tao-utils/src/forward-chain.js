@@ -27,7 +27,7 @@ function forward(kernel, from, to, type, opts) {
  * @param {function(*): *} [opts.transformTerm] transforms the term datagram
  * @param {function(*): *} [opts.transformAction] transforms the action datagram
  * @param {function(*): *} [opts.transformOrient] transforms the orient datagram
- * @return {function(Object, Object): AppCtx} the handler (also exposing `.remove()`) so that it can be removed from the kernel if needed
+ * @return {(function(Object, Object): AppCtx) & {remove: function(): void}} the handler (also exposing `.remove()`) so that it can be removed from the kernel if needed
  */
 export function forwardInline(kernel, from, to, opts) {
   return forward(kernel, from, to, INLINE, opts);
@@ -51,7 +51,7 @@ export function forwardInline(kernel, from, to, opts) {
  * @param {function(*): *} [opts.transformTerm] transforms the term datagram
  * @param {function(*): *} [opts.transformAction] transforms the action datagram
  * @param {function(*): *} [opts.transformOrient] transforms the orient datagram
- * @return {function(Object, Object): AppCtx} the handler (also exposing `.remove()`) so that it can be removed from the kernel if needed
+ * @return {(function(Object, Object): AppCtx) & {remove: function(): void}} the handler (also exposing `.remove()`) so that it can be removed from the kernel if needed
  */
 export function forwardAsync(kernel, from, to, opts) {
   return forward(kernel, from, to, ASYNC, opts);
@@ -75,7 +75,7 @@ export function forwardAsync(kernel, from, to, opts) {
  * @param {function(*): *} [opts.transformTerm] transforms the term datagram
  * @param {function(*): *} [opts.transformAction] transforms the action datagram
  * @param {function(*): *} [opts.transformOrient] transforms the orient datagram
- * @return {function(Object, Object): AppCtx} the handler (also exposing `.remove()`) so that it can be removed from the kernel if needed
+ * @return {(function(Object, Object): AppCtx) & {remove: function(): void}} the handler (also exposing `.remove()`) so that it can be removed from the kernel if needed
  */
 export function forwardIntercept(kernel, from, to, opts) {
   return forward(kernel, from, to, INTERCEPT, opts);

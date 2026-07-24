@@ -10,6 +10,7 @@
   },
   "main": "lib",
   "module": "dist",
+  "types": "lib/index.d.ts",
   "orig": "orig",
   "bundles": {
     "browser": "bundles/browser.umd.js",
@@ -29,7 +30,8 @@
   "scripts": {
     "build:clean": "rimraf dist lib orig bundles",
     "build:package": "rollup --config",
-    "build": "npm run build:clean && npm run build:package",
+    "build:types": "tsc -p tsconfig.types.json",
+    "build": "npm run build:clean && npm run build:package && npm run build:types",
     "test:mutation": "stryker run"
   },
   "author": "eudaimos",
