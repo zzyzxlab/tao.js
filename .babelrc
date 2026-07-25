@@ -11,8 +11,7 @@
   "env": {
     "test": {
       "plugins": [
-        "@babel/plugin-transform-modules-commonjs",
-        "babel-plugin-istanbul"
+        "@babel/plugin-transform-modules-commonjs"
       ]
     }
   }

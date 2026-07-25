@@ -155,7 +155,7 @@ function mergeData(pathData, defaultData, parentPath) {
  * @returns {void}
  */
 // Stryker disable next-line BooleanLiteral: unreachable - every internal caller of reactToRoute always passes an explicit boolean `this._debug`, so the `= false` default is never actually evaluated
-function reactToRoute(TAO, match, debug = false) {
+function reactToRoute(TAO, match, /* istanbul ignore next */ debug = false) {
   // Stryker disable all: optional debug logging
   debug && console.log('Router::reacting to route');
   // Stryker restore all

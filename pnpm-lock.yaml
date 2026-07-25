@@ -10,55 +10,55 @@ importers:
     dependencies:
       '@tao.js/connect':
         specifier: file:packages/tao-connect
-        version: link:packages/tao-connect
+        version: file:packages/tao-connect
       '@tao.js/core':
         specifier: file:packages/tao
-        version: link:packages/tao
+        version: file:packages/tao
       '@tao.js/feature':
         specifier: file:packages/tao-feature
-        version: link:packages/tao-feature
+        version: file:packages/tao-feature
       '@tao.js/koa':
         specifier: file:packages/koa-tao
-        version: link:packages/koa-tao
+        version: file:packages/koa-tao(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao))
       '@tao.js/opentelemetry':
         specifier: file:packages/tao-opentelemetry
-        version: link:packages/tao-opentelemetry
+        version: file:packages/tao-opentelemetry(@opentelemetry/api@1.9.1)
       '@tao.js/path':
         specifier: file:packages/tao-path
-        version: link:packages/tao-path
+        version: file:packages/tao-path
       '@tao.js/react':
         specifier: file:packages/react-tao
-        version: link:packages/react-tao
+        version: file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tao.js/router':
         specifier: file:packages/tao-router
-        version: link:packages/tao-router
+        version: file:packages/tao-router(@tao.js/core@file:packages/tao)
       '@tao.js/routing-core':
         specifier: file:packages/tao-routing-core
-        version: link:packages/tao-routing-core
+        version: file:packages/tao-routing-core(@tao.js/core@file:packages/tao)
       '@tao.js/routing-next':
         specifier: file:packages/tao-routing-next
-        version: link:packages/tao-routing-next
+        version: file:packages/tao-routing-next(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(next@16.2.10(@babel/core@7.28.0)(@opentelemetry/api@1.9.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
       '@tao.js/routing-react-router':
         specifier: file:packages/tao-routing-react-router
-        version: link:packages/tao-routing-react-router
+        version: file:packages/tao-routing-react-router(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(react-router@7.18.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
       '@tao.js/routing-tanstack-router':
         specifier: file:packages/tao-routing-tanstack
-        version: link:packages/tao-routing-tanstack
+        version: file:packages/tao-routing-tanstack(@tanstack/react-router@1.170.18(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(react@19.2.7)
       '@tao.js/socket.io':
         specifier: file:packages/tao-socket-io
-        version: link:packages/tao-socket-io
+        version: file:packages/tao-socket-io(@tao.js/core@file:packages/tao)(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao))
       '@tao.js/telemetry':
         specifier: file:packages/tao-telemetry
-        version: link:packages/tao-telemetry
+        version: file:packages/tao-telemetry(@tao.js/core@file:packages/tao)
       '@tao.js/transport-tck':
         specifier: file:packages/tao-transport-tck
-        version: link:packages/tao-transport-tck
+        version: file:packages/tao-transport-tck(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))
       '@tao.js/utils':
         specifier: file:packages/tao-utils
-        version: link:packages/tao-utils
+        version: file:packages/tao-utils(@tao.js/core@file:packages/tao)
       docs:
         specifier: file:packages/docs
-        version: link:packages/docs
+        version: file:packages/docs
       patois.api:
         specifier: file:examples/patois.api
         version: file:examples/patois.api(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))
@@ -153,9 +153,6 @@ importers:
       babel-jest:
         specifier: 30.3.0
         version: 30.3.0(@babel/core@7.28.0)
-      babel-plugin-istanbul:
-        specifier: ^5.2.0
-        version: 5.2.0
       better-npm-run:
         specifier: ^0.1.1
         version: 0.1.1
@@ -192,6 +189,15 @@ importers:
       inquirer:
         specifier: 12.9.4
         version: 12.9.4(@types/node@24.1.0)
+      istanbul-lib-coverage:
+        specifier: ^3.2.2
+        version: 3.2.2
+      istanbul-lib-report:
+        specifier: ^3.0.1
+        version: 3.0.1
+      istanbul-reports:
+        specifier: ^3.2.0
+        version: 3.2.0
       jest:
         specifier: ^30.1.3
         version: 30.4.2(@types/node@24.1.0)(babel-plugin-macros@3.1.0)
@@ -2838,8 +2844,14 @@ packages:
   '@tanstack/store@0.9.3':
     resolution: {integrity: sha512-8reSzl/qGWGGVKhBoxXPMWzATSbZLZFWhwBAFO9NAyp0TxzfBP0mIrGb8CP8KrQTmvzXlR/vFPPUrHTLBGyFyw==}
 
+  '@tao.js/connect@file:packages/tao-connect':
+    resolution: {directory: packages/tao-connect, type: directory}
+
   '@tao.js/core@file:packages/tao':
     resolution: {directory: packages/tao, type: directory}
+
+  '@tao.js/feature@file:packages/tao-feature':
+    resolution: {directory: packages/tao-feature, type: directory}
 
   '@tao.js/koa@file:packages/koa-tao':
     resolution: {directory: packages/koa-tao, type: directory}
@@ -2847,6 +2859,14 @@ packages:
       '@tao.js/core': '>=0.20.0'
       '@tao.js/telemetry': '*'
       '@tao.js/utils': '>=0.20.0'
+
+  '@tao.js/opentelemetry@file:packages/tao-opentelemetry':
+    resolution: {directory: packages/tao-opentelemetry, type: directory}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@tao.js/path@file:packages/tao-path':
+    resolution: {directory: packages/tao-path, type: directory}
 
   '@tao.js/react@file:packages/react-tao':
     resolution: {directory: packages/react-tao, type: directory}
@@ -2860,6 +2880,41 @@ packages:
     peerDependencies:
       '@tao.js/core': '*'
 
+  '@tao.js/routing-core@file:packages/tao-routing-core':
+    resolution: {directory: packages/tao-routing-core, type: directory}
+    peerDependencies:
+      '@tao.js/core': '*'
+
+  '@tao.js/routing-next@file:packages/tao-routing-next':
+    resolution: {directory: packages/tao-routing-next, type: directory}
+    peerDependencies:
+      '@tao.js/core': '*'
+      '@tao.js/react': '*'
+      '@tao.js/routing-core': '*'
+      next: '>=13.0.0'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      next:
+        optional: true
+
+  '@tao.js/routing-react-router@file:packages/tao-routing-react-router':
+    resolution: {directory: packages/tao-routing-react-router, type: directory}
+    peerDependencies:
+      '@tao.js/core': '*'
+      '@tao.js/react': '*'
+      '@tao.js/routing-core': '*'
+      react: '>=16.8.0'
+      react-router: '>=6.4.0'
+
+  '@tao.js/routing-tanstack-router@file:packages/tao-routing-tanstack':
+    resolution: {directory: packages/tao-routing-tanstack, type: directory}
+    peerDependencies:
+      '@tanstack/react-router': '>=1.0.0'
+      '@tao.js/core': '*'
+      '@tao.js/react': '*'
+      '@tao.js/routing-core': '*'
+      react: '>=16.8.0'
+
   '@tao.js/socket.io@file:packages/tao-socket-io':
     resolution: {directory: packages/tao-socket-io, type: directory}
     peerDependencies:
@@ -2870,6 +2925,12 @@ packages:
     resolution: {directory: packages/tao-telemetry, type: directory}
     peerDependencies:
       '@tao.js/core': '>=0.19.0'
+
+  '@tao.js/transport-tck@file:packages/tao-transport-tck':
+    resolution: {directory: packages/tao-transport-tck, type: directory}
+    peerDependencies:
+      '@tao.js/core': '>=0.20.0'
+      '@tao.js/telemetry': '>=0.20.0'
 
   '@tao.js/utils@file:packages/tao-utils':
     resolution: {directory: packages/tao-utils, type: directory}
@@ -3615,10 +3676,6 @@ packages:
 
   babel-plugin-istanbul@4.1.6:
     resolution: {integrity: sha512-PWP9FQ1AhZhS01T/4qLSKoHGY/xvkZdVBGlKM/HuxxS3+sC66HhTNR7+MpbO/so/cz/wY94MeSWJuP1hXIPfwQ==}
-
-  babel-plugin-istanbul@5.2.0:
-    resolution: {integrity: sha512-5LphC0USA8t4i1zCtjbbNb6jJj/9+X6P37Qfirc/70EQ34xKlMW+a1RHGwxGI+SwWpNwZ27HqvzAobeqaXwiZw==}
-    engines: {node: '>=6'}
 
   babel-plugin-istanbul@7.0.1:
     resolution: {integrity: sha512-D8Z6Qm8jCvVXtIRkBnqNHX0zJ37rQcFJ9u8WOS6tkYOsRdHBzypCstaxWiu5ZIlqQtviRYbgnRLSoCEvjqcqbA==}
@@ -4883,6 +4940,9 @@ packages:
 
   dns-txt@2.0.2:
     resolution: {integrity: sha512-Ix5PrWjphuSoUXV/Zv5gaFHjnaJtb02F2+Si3Ht9dyJ87+Z/lMmy+dpNHtTGraNK958ndXq2i+GLkWsWHcKaBQ==}
+
+  docs@file:packages/docs:
+    resolution: {directory: packages/docs, type: directory}
 
   doctrine@1.5.0:
     resolution: {integrity: sha512-lsGyRuYr4/PIB0txi+Fy2xOMI2dGaTguCaotzFGkVZuKR5usKfcRWIFKNM3QNrU7hh/+w2bwTW+ZeXPK5l8uVg==}
@@ -6810,10 +6870,6 @@ packages:
   istanbul-lib-coverage@1.2.1:
     resolution: {integrity: sha512-PzITeunAgyGbtY1ibVIUiV679EFChHjoMNRibEIobvmrCRaIgwLxNucOSimtNWUhEib/oO7QY2imD75JVgCJWQ==}
 
-  istanbul-lib-coverage@2.0.5:
-    resolution: {integrity: sha512-8aXznuEPCJvGnMSRft4udDRDtb1V3pkQkMMI5LI+6HuQz5oQ4J2UFn1H82raA3qJtyOLkkwVqICBQkjnGtn5mA==}
-    engines: {node: '>=6'}
-
   istanbul-lib-coverage@3.2.2:
     resolution: {integrity: sha512-O8dpsF+r0WV/8MNRKfnmrtCWhuKjxrq2w+jpzBL5UZKTi2LeVWnWOmWRxFlesJONmc+wLAGvKQZEOanko0LFTg==}
     engines: {node: '>=8'}
@@ -6823,10 +6879,6 @@ packages:
 
   istanbul-lib-instrument@1.10.2:
     resolution: {integrity: sha512-aWHxfxDqvh/ZlxR8BBaEPVSWDPUkGD63VjGQn3jcw8jCp7sHEMKcrj4xfJn/ABzdMEHiQNyvDQhqm5o8+SQg7A==}
-
-  istanbul-lib-instrument@3.3.0:
-    resolution: {integrity: sha512-5nnIN4vo5xQZHdXno/YDXJ0G+I3dAm4XgzfSVTPLQpj/zAV2dV6Juy0yaf10/zrJOJeHoN3fraFe+XRq2bFVZA==}
-    engines: {node: '>=6'}
 
   istanbul-lib-instrument@6.0.3:
     resolution: {integrity: sha512-Vtgk7L/R2JHyyGW07spoFlB8/lpjiOLTjMdms6AFMraYt3BaJauod/NGrfnVG/y4Ix1JEuMRPDPEj2ua+zz1/Q==}
@@ -6849,8 +6901,8 @@ packages:
   istanbul-reports@1.5.1:
     resolution: {integrity: sha512-+cfoZ0UXzWjhAdzosCPP3AN8vvef8XDkWtTfgaN+7L3YTpNYITnCaEkceo5SEYy644VkHka/P1FvkWvrG/rrJw==}
 
-  istanbul-reports@3.1.7:
-    resolution: {integrity: sha512-BewmUXImeuRk2YY0PVbxgKAysvhRPUQE0h5QRM++nVWyubKGV0l8qQ5op8+B2DOmwSe63Jivj0BjkPQVf8fP5g==}
+  istanbul-reports@3.2.0:
+    resolution: {integrity: sha512-HGYWWS/ehqTV3xN10i23tkPkpH46MLCIMFNCaaKNavAXTF1RkqxawEPtnjnGZ6XKSInBKkiOA5BKS+aZiY3AvA==}
     engines: {node: '>=8'}
 
   jackspeak@3.4.3:
@@ -9224,10 +9276,6 @@ packages:
     resolution: {integrity: sha512-YFzFrVvpC6frF1sz8psoHDBGF7fLPc+llq/8NB43oagqWkx8ar5zYtsTORtOjw9W2RHLpWP+zTWwBvf1bCmcSw==}
     engines: {node: '>=4'}
 
-  read-pkg-up@4.0.0:
-    resolution: {integrity: sha512-6etQSH7nJGsK0RbG/2TeDzZFa8shjQ1um+SwQQ5cwKy0dhSXdOncEhb1CPpvQG4h7FyOV6EB6YlV0yJvZQNAkA==}
-    engines: {node: '>=6'}
-
   read-pkg-up@7.0.1:
     resolution: {integrity: sha512-zK0TB7Xd6JpCLmlLmufqykGE+/TlOePD6qKClNW7hHDKFh/J7/7gCWGR7joEQEW1bKq3a3yUZSObOoWLFQ4ohg==}
     engines: {node: '>=8'}
@@ -9397,9 +9445,6 @@ packages:
 
   require-main-filename@1.0.1:
     resolution: {integrity: sha512-IqSUtOVP4ksd1C/ej5zeEh/BIP2ajqpn8c5x+q99gvcIG/Qf0cud5raVnE/Dwd0ua9TXYDoDc0RE5hBSdz22Ug==}
-
-  require-main-filename@2.0.0:
-    resolution: {integrity: sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==}
 
   requires-port@1.0.0:
     resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
@@ -10197,10 +10242,6 @@ packages:
 
   test-exclude@4.2.3:
     resolution: {integrity: sha512-SYbXgY64PT+4GAL2ocI3HwPa4Q4TBKm0cwAVeKOt/Aoc0gSpNRjJX8w0pA1LMKZ3LBmd8pYBqApFNQLII9kavA==}
-
-  test-exclude@5.2.3:
-    resolution: {integrity: sha512-M+oxtseCFO3EDtAaGH7iiej3CBkzXqFMbzqYAACdzKui4eZA+pq3tZEwChvOdNfa7xxy8BfbmgJSIr43cC/+2g==}
-    engines: {node: '>=6'}
 
   test-exclude@6.0.0:
     resolution: {integrity: sha512-cAGWPIyOHU6zlmg88jwm7VRyXnMN7iV68OGAbYDk/Mh/xC/pzVPlQtY6ngoIH/5/tciuhGfvESU8GrHrcxD56w==}
@@ -13429,7 +13470,7 @@ snapshots:
       istanbul-lib-instrument: 6.0.3
       istanbul-lib-report: 3.0.1
       istanbul-lib-source-maps: 5.0.6
-      istanbul-reports: 3.1.7
+      istanbul-reports: 3.2.0
       jest-message-util: 30.4.1
       jest-util: 30.4.1
       jest-worker: 30.4.1
@@ -14110,9 +14151,13 @@ snapshots:
 
   '@tanstack/store@0.9.3': {}
 
+  '@tao.js/connect@file:packages/tao-connect': {}
+
   '@tao.js/core@file:packages/tao':
     dependencies:
       '@babel/runtime': 7.28.2
+
+  '@tao.js/feature@file:packages/tao-feature': {}
 
   '@tao.js/koa@file:packages/koa-tao(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao))':
     dependencies:
@@ -14121,12 +14166,25 @@ snapshots:
       '@tao.js/utils': file:packages/tao-utils(@tao.js/core@file:packages/tao)
       cartesian: 1.0.1
 
+  '@tao.js/opentelemetry@file:packages/tao-opentelemetry(@opentelemetry/api@1.9.1)':
+    dependencies:
+      '@opentelemetry/api': 1.9.1
+
+  '@tao.js/path@file:packages/tao-path': {}
+
   '@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@tao.js/core': file:packages/tao
       cartesian: 1.0.1
       react: 16.14.0
       react-dom: 16.14.0(react@16.14.0)
+
+  '@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@tao.js/core': file:packages/tao
+      cartesian: 1.0.1
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
 
   '@tao.js/router@file:packages/tao-router(@tao.js/core@file:packages/tao)':
     dependencies:
@@ -14138,6 +14196,35 @@ snapshots:
       set-value: 3.0.3
       url-pattern: 1.0.3
 
+  '@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao)':
+    dependencies:
+      '@tao.js/core': file:packages/tao
+
+  '@tao.js/routing-next@file:packages/tao-routing-next(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(next@16.2.10(@babel/core@7.28.0)(@opentelemetry/api@1.9.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@tao.js/core': file:packages/tao
+      '@tao.js/react': file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@tao.js/routing-core': file:packages/tao-routing-core(@tao.js/core@file:packages/tao)
+      react: 19.2.7
+    optionalDependencies:
+      next: 16.2.10(@babel/core@7.28.0)(@opentelemetry/api@1.9.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+
+  '@tao.js/routing-react-router@file:packages/tao-routing-react-router(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(react-router@7.18.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@tao.js/core': file:packages/tao
+      '@tao.js/react': file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@tao.js/routing-core': file:packages/tao-routing-core(@tao.js/core@file:packages/tao)
+      react: 19.2.7
+      react-router: 7.18.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+
+  '@tao.js/routing-tanstack-router@file:packages/tao-routing-tanstack(@tanstack/react-router@1.170.18(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(react@19.2.7)':
+    dependencies:
+      '@tanstack/react-router': 1.170.18(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@tao.js/core': file:packages/tao
+      '@tao.js/react': file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@tao.js/routing-core': file:packages/tao-routing-core(@tao.js/core@file:packages/tao)
+      react: 19.2.7
+
   '@tao.js/socket.io@file:packages/tao-socket-io(@tao.js/core@file:packages/tao)(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao))':
     dependencies:
       '@tao.js/core': file:packages/tao
@@ -14146,6 +14233,11 @@ snapshots:
   '@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao)':
     dependencies:
       '@tao.js/core': file:packages/tao
+
+  '@tao.js/transport-tck@file:packages/tao-transport-tck(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))':
+    dependencies:
+      '@tao.js/core': file:packages/tao
+      '@tao.js/telemetry': file:packages/tao-telemetry(@tao.js/core@file:packages/tao)
 
   '@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao)':
     dependencies:
@@ -14904,6 +14996,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  babel-jest@23.6.0(babel-core@7.0.0-bridge.0(@babel/core@7.28.0)):
+    dependencies:
+      babel-core: 7.0.0-bridge.0(@babel/core@7.1.0)
+      babel-plugin-istanbul: 4.1.6
+      babel-preset-jest: 23.2.0
+    transitivePeerDependencies:
+      - supports-color
+
   babel-jest@30.3.0(@babel/core@7.28.0):
     dependencies:
       '@babel/core': 7.28.0
@@ -14962,15 +15062,6 @@ snapshots:
       find-up: 2.1.0
       istanbul-lib-instrument: 1.10.2
       test-exclude: 4.2.3
-    transitivePeerDependencies:
-      - supports-color
-
-  babel-plugin-istanbul@5.2.0:
-    dependencies:
-      '@babel/helper-plugin-utils': 7.27.1
-      find-up: 3.0.0
-      istanbul-lib-instrument: 3.3.0
-      test-exclude: 5.2.3
     transitivePeerDependencies:
       - supports-color
 
@@ -16576,6 +16667,8 @@ snapshots:
   dns-txt@2.0.2:
     dependencies:
       buffer-indexof: 1.1.1
+
+  docs@file:packages/docs: {}
 
   doctrine@1.5.0:
     dependencies:
@@ -18835,8 +18928,6 @@ snapshots:
 
   istanbul-lib-coverage@1.2.1: {}
 
-  istanbul-lib-coverage@2.0.5: {}
-
   istanbul-lib-coverage@3.2.2: {}
 
   istanbul-lib-hook@1.2.2:
@@ -18852,18 +18943,6 @@ snapshots:
       babylon: 6.18.0
       istanbul-lib-coverage: 1.2.1
       semver: 5.7.2
-    transitivePeerDependencies:
-      - supports-color
-
-  istanbul-lib-instrument@3.3.0:
-    dependencies:
-      '@babel/generator': 7.28.0
-      '@babel/parser': 7.28.0
-      '@babel/template': 7.27.2
-      '@babel/traverse': 7.28.0
-      '@babel/types': 7.28.2
-      istanbul-lib-coverage: 2.0.5
-      semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
 
@@ -18912,7 +18991,7 @@ snapshots:
     dependencies:
       handlebars: 4.7.8
 
-  istanbul-reports@3.1.7:
+  istanbul-reports@3.2.0:
     dependencies:
       html-escaper: 2.0.2
       istanbul-lib-report: 3.0.1
@@ -22033,7 +22112,7 @@ snapshots:
       '@svgr/webpack': 2.4.1
       babel-core: 7.0.0-bridge.0(@babel/core@7.1.0)
       babel-eslint: 9.0.0
-      babel-jest: 23.6.0(babel-core@7.0.0-bridge.0(@babel/core@7.1.0))
+      babel-jest: 23.6.0(babel-core@7.0.0-bridge.0(@babel/core@7.28.0))
       babel-loader: 8.0.4(@babel/core@7.1.0)(webpack@4.19.1)
       babel-plugin-named-asset-import: 0.2.3(@babel/core@7.1.0)
       babel-preset-react-app: 5.0.4(webpack@4.19.1)
@@ -22180,11 +22259,6 @@ snapshots:
   read-pkg-up@3.0.0:
     dependencies:
       find-up: 2.1.0
-      read-pkg: 3.0.0
-
-  read-pkg-up@4.0.0:
-    dependencies:
-      find-up: 3.0.0
       read-pkg: 3.0.0
 
   read-pkg-up@7.0.1:
@@ -22411,8 +22485,6 @@ snapshots:
   require-from-string@2.0.2: {}
 
   require-main-filename@1.0.1: {}
-
-  require-main-filename@2.0.0: {}
 
   requires-port@1.0.0: {}
 
@@ -23419,13 +23491,6 @@ snapshots:
       object-assign: 4.1.1
       read-pkg-up: 1.0.1
       require-main-filename: 1.0.1
-
-  test-exclude@5.2.3:
-    dependencies:
-      glob: 7.2.3
-      minimatch: 3.1.2
-      read-pkg-up: 4.0.0
-      require-main-filename: 2.0.0
 
   test-exclude@6.0.0:
     dependencies:

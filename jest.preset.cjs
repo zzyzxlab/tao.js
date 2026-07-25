@@ -16,7 +16,7 @@ module.exports = {
   coverageReporters: [
     "html"
   ],
-  coverageDirectory: "packages/docs/src/content/coverage",
+  coverageDirectory: "coverage",
   coveragePathIgnorePatterns: [
     "/node_modules/",
     "example.js"
@@ -58,7 +58,7 @@ module.exports = {
   },
   // Fix coverage collection for Jest 30
   collectCoverage: false,
-  coverageProvider: "v8",
+  coverageProvider: "babel",
   transformIgnorePatterns: [
     "node_modules/(?!(cheerio|enzyme|enzyme-to-json|@babel)/)"
   ],

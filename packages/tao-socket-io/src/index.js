@@ -278,12 +278,14 @@ function decorateSocket(TAO, socket, authTransform) {
  * reason.
  *
  * @param {NetworkSurface} TAO - the kernel the per-client Channels wrap
- * @param {{ onConnect?: OnConnect, authTransform?: AuthTransform }} [opts]
+ * @param {{ onConnect?: OnConnect, authTransform?: AuthTransform }} opts -
+ *        always provided by both internal call sites
  * @returns {SocketIoMiddleware}
  */
 // change, options object now instead of just onConnect
+// (both internal call sites always pass the options object)
 const ioMiddleware =
-  (TAO, { onConnect, authTransform } = {}) =>
+  (TAO, { onConnect, authTransform }) =>
   (socket, next) => {
     let clientTAO = new Channel(TAO, socket.id);
     /** @type {function(string=): void} */
@@ -350,7 +352,10 @@ export default function wireTaoJsToSocketIO(TAO, io, opts = {}) {
     }
   } else {
     const { onConnect, authTransform } = opts;
-    if (io && typeof /** @type {SocketIoServerLike} */ (io).of === 'function') {
+    if (
+      io &&
+      typeof (/** @type {SocketIoServerLike} */ (io).of) === 'function'
+    ) {
       const namespacedEngine = /** @type {SocketIoServerLike} */ (io).of(
         `/${ns}`,
       );

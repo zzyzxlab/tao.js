@@ -168,6 +168,29 @@ describe('@tao.js/koa simple and enhanced middleware', () => {
     );
   });
 
+  it('constructs without an options object and defaults response handlers to a noop', () => {
+    const simple = simpleMiddleware({});
+    const channel = mockChannels[mockChannels.length - 1];
+    expect(channel.name('req')).toBe('koa-simple-middleware-channel-req');
+    simple.addResponseHandler({ t: 'User', a: 'View' });
+    expect(channel.addInlineHandler).toHaveBeenCalledWith(
+      { term: 'User', action: 'View' },
+      expect.any(Function),
+    );
+    const registered = channel.addInlineHandler.mock.calls[0][1];
+    expect(registered()).toBeUndefined();
+    simple.removeResponseHandler({ t: 'User', a: 'View' });
+    expect(channel.removeInlineHandler).toHaveBeenCalledWith(
+      { term: 'User', action: 'View' },
+      expect.any(Function),
+    );
+
+    enhancedMiddleware({});
+    expect(Transceiver.mock.calls[Transceiver.mock.calls.length - 1][2]).toBe(
+      0,
+    );
+  });
+
   it('only logs matched trigrams for the simple middleware when debug is enabled', () => {
     const log = jest.spyOn(console, 'log').mockImplementation(() => {});
     const handler = jest.fn();
@@ -350,6 +373,21 @@ describe('@tao.js/koa HTTP middleware', () => {
 
   afterEach(() => {
     console.error.mockRestore();
+  });
+
+  it('constructs without an options object and defaults response handlers to a noop', () => {
+    const api = taoMiddleware({});
+    const channel = mockChannels[mockChannels.length - 1];
+    api.addResponseHandler({ t: 'Space', a: 'List' });
+    expect(channel.addInlineHandler).toHaveBeenCalledWith(
+      { term: 'Space', action: 'List' },
+      expect.any(Function),
+    );
+    api.removeResponseHandler({ t: 'Space', a: 'List' });
+    expect(channel.removeInlineHandler).toHaveBeenCalledWith(
+      { term: 'Space', action: 'List' },
+      expect.any(Function),
+    );
   });
 
   it('serves only currently-registered response trigrams and validates every route', async () => {
