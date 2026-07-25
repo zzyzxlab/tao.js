@@ -19,7 +19,7 @@ const otelTracer = trace.getTracer('my-app'); // from your configured SDK
 const tracer = new Tracer(TAO, {
   sinks: [new OpenTelemetrySink(otelTracer)],
 });
-tracer.instrument(TAO);
+// that's it — the Tracer is a pure decoration; nothing to instrument
 ```
 
 Every AppCon becomes a span named `Term.Action.Orient` with attributes

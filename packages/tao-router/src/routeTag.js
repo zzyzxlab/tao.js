@@ -1,5 +1,21 @@
 import get from 'get-value';
 
+/**
+ * Template-literal tag compiling a URL template into a route-building
+ * function. Each interpolation is a `get-value` lookup path resolved
+ * against the data object the returned function is called with; missing
+ * values render as `''`.
+ *
+ * ```js
+ * const userRoute = route`/users/${'user.id'}`;
+ * userRoute({ user: { id: 7 } }); // => '/users/7'
+ * ```
+ *
+ * @param {TemplateStringsArray} strings - the template's literal parts
+ * @param {...string} keys - `get-value` lookup paths (the interpolations)
+ * @returns {function(Object=): string} builds the route path from a data
+ *          object
+ */
 export function routeTag(strings, ...keys) {
   return (...values) => {
     const vals = values[0];

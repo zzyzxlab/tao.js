@@ -10,6 +10,7 @@
   },
   "main": "lib",
   "module": "dist",
+  "types": "lib/index.d.ts",
   "sideEffects": false,
   "files": [
     "lib",
@@ -18,7 +19,8 @@
   "scripts": {
     "build:clean": "rimraf dist lib",
     "build:package": "rollup --config",
-    "build": "npm run build:clean && npm run build:package",
+    "build:types": "tsc -p tsconfig.types.json",
+    "build": "npm run build:clean && npm run build:package && npm run build:types",
     "test:mutation": "stryker run"
   },
   "author": "eudaimos",

@@ -9,6 +9,9 @@ import {
   parseTraceparent,
 } from './ids';
 
+/** @typedef {import('./Tracer').TraceRecord} TraceRecord */
+/** @typedef {import('./InMemorySink').TraceTreeNode} TraceTreeNode */
+
 export default Tracer;
 export {
   Tracer,

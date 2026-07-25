@@ -16,16 +16,52 @@ import { useTaoContext } from './hooks';
 import { SwitchContext } from './SwitchContext';
 import RenderHandler from './RenderHandler';
 
+/** @typedef {import('@tao.js/core').Trigram} Trigram */
+/** @typedef {import('./helpers').TrigramPart} TrigramPart */
+/** @typedef {import('./helpers').NormalizedTrigram} NormalizedTrigram */
+
+/**
+ * Props for {@link SwitchHandler}. Trigram parts (`t`/`term`, `a`/`action`,
+ * `o`/`orient`) are defaults merged under each RenderHandler child's own
+ * trigram parts; values may be arrays (multi-match), missing parts are
+ * wildcards.
+ * @typedef {Object} SwitchHandlerProps
+ * @property {TrigramPart} [term] - default term for RenderHandler children
+ * @property {TrigramPart} [action] - default action for RenderHandler children
+ * @property {TrigramPart} [orient] - default orient for RenderHandler children
+ * @property {TrigramPart} [t] - default term (short key)
+ * @property {TrigramPart} [a] - default action (short key)
+ * @property {TrigramPart} [o] - default orient (short key)
+ * @property {boolean} [debug=false] - log subscription/selection diagnostics
+ * @property {import('react').ReactNode} children - RenderHandler children to
+ *           switch between (non-RenderHandler children always render)
+ */
+
+/**
+ * Whether a child is a RenderHandler element — directly, or via the
+ * `isTaoRenderHandler` static marker for wrapping components.
+ * @param {import('react').ReactNode} child
+ * @returns {child is import('react').ReactElement<any>}
+ */
 // Stryker disable all: type identity checks; proxy vs RenderHandler covered; ||/&& mutants equivalent under mixed children
 function isRenderHandlerElement(child) {
   return (
     isValidElement(child) &&
     !!child.type &&
-    (child.type === RenderHandler || !!child.type.isTaoRenderHandler)
+    (child.type === RenderHandler ||
+      !!(/** @type {*} */ (child.type).isTaoRenderHandler))
   );
 }
 // Stryker restore all
 
+/**
+ * Build the match table from RenderHandler children: one entry per child
+ * with its identity `matchKey` and the concrete trigram permutations it
+ * subscribes to (child trigram parts override the SwitchHandler defaults).
+ * @param {import('react').ReactNode} children
+ * @param {NormalizedTrigram} defaults
+ * @returns {Array<{matchKey: string, permutations: Trigram[], child: import('react').ReactElement<any>}>}
+ */
 function buildMatchTable(children, defaults) {
   const entries = [];
   Children.forEach(children, (child) => {
@@ -40,6 +76,13 @@ function buildMatchTable(children, defaults) {
   return entries;
 }
 
+/**
+ * Renders only the RenderHandler children whose trigrams matched the most
+ * recent AppCon wave (one Kernel dispatch; all children matching that same
+ * signal render, others unmount). Non-RenderHandler children pass through.
+ * @param {SwitchHandlerProps} props
+ * @returns {import('react').ReactElement}
+ */
 function SwitchHandler({
   term,
   action,
@@ -203,18 +246,21 @@ function SwitchHandler({
         // Stryker restore all
         // shouldRender: matching AppCon already fired; freshly mounted
         // RenderHandlers would otherwise miss it and stay blank.
-        return cloneElement(child, {
-          term,
-          action,
-          orient,
-          t,
-          a,
-          o,
-          ...child.props,
-          shouldRender: true,
-          initialTao: chosen.tao,
-          initialData: chosen.data,
-        });
+        return cloneElement(
+          /** @type {import('react').ReactElement<any>} */ (child),
+          {
+            term,
+            action,
+            orient,
+            t,
+            a,
+            o,
+            .../** @type {Object<string, *>} */ (child.props),
+            shouldRender: true,
+            initialTao: chosen.tao,
+            initialData: chosen.data,
+          },
+        );
       })}
     </SwitchContext.Provider>
   );

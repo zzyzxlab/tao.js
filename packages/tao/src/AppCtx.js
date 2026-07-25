@@ -1,5 +1,18 @@
 import AppCtxRoot from './AppCtxRoot';
 
+/**
+ * Build the datum object from constructor data args: a single array spreads
+ * as positional `[term, action, orient]` data; a single non-array object is
+ * checked for tuple keys (`term`/`t`, `action`/`a`, `orient`/`o`, or the
+ * actual part names) and extracted per part when found, otherwise keyed
+ * whole under the term name; multiple args are positional per part.
+ *
+ * @param {string} term - the trigram's term (datum key for term data)
+ * @param {string} action - the trigram's action (datum key for action data)
+ * @param {string} orient - the trigram's orient (datum key for orient data)
+ * @param {...*} data - the raw data args
+ * @returns {Object} datum keyed by the trigram's part names (may be empty)
+ */
 function _cleanDatum(term, action, orient, ...data) {
   const datum = {};
   // Stryker disable next-line all: empty data still yields {} via the positional path below
@@ -104,7 +117,21 @@ function _cleanDatum(term, action, orient, ...data) {
 //   }
 // }
 
+/**
+ * A concrete Application Context (AppCon): a trigram plus the data it
+ * carries. Setting an AppCtx on a Kernel/Network runs matching handlers,
+ * which receive `(tao, data)` built from this instance; handlers chain by
+ * returning another AppCtx.
+ */
 export default class AppCtx extends AppCtxRoot {
+  /**
+   * @param {string} [term] - the thing (missing = WILDCARD)
+   * @param {string} [action] - the operation (missing = WILDCARD)
+   * @param {string} [orient] - the perspective (missing = WILDCARD)
+   * @param {...*} data - context data; see `_cleanDatum` for the inference
+   *        rules (single object → tuple-key extraction or keyed under the
+   *        term name; array or multiple args → positional per part)
+   */
   constructor(term, action, orient, ...data) {
     super(term, action, orient);
     // TODO: figure out how to deal with associated AppCon data <-- what did I mean by this?
@@ -112,10 +139,17 @@ export default class AppCtx extends AppCtxRoot {
     this.datum = _cleanDatum(term, action, orient, ...data);
   }
 
+  /** The context's data — always an object, possibly empty. @returns {Object} */
   get data() {
     return this.datum;
   }
 
+  /**
+   * The trigram as a plain object.
+   * @param {boolean} [verbose=false] - long keys (`{term, action, orient}`)
+   *        instead of short (`{t, a, o}`)
+   * @returns {{t: string, a: string, o: string}|{term: string, action: string, orient: string}}
+   */
   unwrapCtx(verbose = false) {
     return !verbose
       ? { t: this.t, a: this.a, o: this.o }

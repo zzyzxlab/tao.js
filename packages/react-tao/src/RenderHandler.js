@@ -13,6 +13,55 @@ import { Context } from './Provider';
 import useTaoInlineSubscription from './useTaoInlineSubscription';
 import { warnDeprecated } from './deprecations';
 
+/** @typedef {import('./helpers').TrigramPart} TrigramPart */
+/** @typedef {import('./helpers').TrigramProps} TrigramProps */
+/** @typedef {import('./helpers').TaoSignal} TaoSignal */
+
+/**
+ * Render-prop children of {@link RenderHandler}: called with the matched
+ * AppCon's trigram and data. Extra positional `contextData` args are only
+ * appended when the deprecated `context` prop is used.
+ * @callback RenderHandlerChildren
+ * @param {TaoSignal} tao - trigram of the AppCon that matched (or `initialTao`)
+ * @param {*} data - data of that AppCon (or `initialData`)
+ * @param {...*} contextData - deprecated: data-bag values for the `context`
+ *        prop names, in order — use `useTaoData(name)` in a child instead
+ * @returns {import('react').ReactNode}
+ */
+
+/**
+ * Props for {@link RenderHandler}. Trigram parts (`t`/`term`, `a`/`action`,
+ * `o`/`orient`) accept single values or arrays (multi-match); missing parts
+ * are wildcards.
+ * @typedef {Object} RenderHandlerProps
+ * @property {TrigramPart} [term] - the term: the domain thing
+ * @property {TrigramPart} [action] - the action: the operation on the term
+ * @property {TrigramPart} [orient] - the orient: perspective / role / surface
+ * @property {TrigramPart} [t] - the term (short key)
+ * @property {TrigramPart} [a] - the action (short key)
+ * @property {TrigramPart} [o] - the orient (short key)
+ * @property {string|string[]} [context] - deprecated (removal planned):
+ *           DataHandler name(s) appended to the render prop as positional
+ *           args — use `useTaoData(name)` in a child component instead
+ * @property {TrigramProps} [refreshOn] - extra trigram parts merged over the
+ *           match trigram to also re-render on (e.g. `{ action: 'Refresh' }`);
+ *           ignored when it normalizes to empty
+ * @property {boolean} [debug=false] - log subscription/render diagnostics
+ * @property {boolean} [shouldRender=false] - render immediately with
+ *           `initialTao`/`initialData` before any signal arrives
+ * @property {TaoSignal} [initialTao] - trigram passed to children before the
+ *           first signal (with `shouldRender`)
+ * @property {*} [initialData] - data passed to children before the first
+ *           signal (with `shouldRender`)
+ * @property {RenderHandlerChildren} children - render prop `(tao, data) => …`
+ */
+
+/**
+ * Read one named value from the deprecated Provider data bag.
+ * @param {Object<string, *>} dataBag
+ * @param {string} ctxName
+ * @returns {*}
+ */
 function readNamedData(dataBag, ctxName) {
   // Stryker disable all: dataBag==null short-circuit redundant with Provider {}; console is diagnostic
   if (
@@ -29,6 +78,13 @@ function readNamedData(dataBag, ctxName) {
   return dataBag[ctxName];
 }
 
+/**
+ * Subscribes to the trigram(s) and calls its `children` render prop with the
+ * latest matching AppCon (`(tao, data) => …`). Renders nothing until a
+ * signal arrives unless `shouldRender` is set.
+ * @param {RenderHandlerProps} props
+ * @returns {import('react').ReactElement|null}
+ */
 function RenderHandler({
   term,
   action,

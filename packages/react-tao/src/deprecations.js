@@ -2,6 +2,9 @@ const warned = new Set();
 
 /**
  * Dev-only, once-per-process deprecation warning (see AGENTS.md data-context migration).
+ * @param {string} key - once-per-process dedupe key for this warning
+ * @param {string} message - the console.warn message
+ * @returns {void}
  */
 export function warnDeprecated(key, message) {
   // Stryker disable next-line all: NODE_ENV / process guards; production path covered in deprecations.spec

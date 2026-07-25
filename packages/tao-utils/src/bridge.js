@@ -51,14 +51,63 @@ function bridge(type, source, destination, filters) {
     filters.forEach((trigrams) => source[detachment](trigrams, handler));
 }
 
+/**
+ * Bridges signals handled on the `source` Kernel into the `destination`
+ * Kernel via an `InterceptHandler` — the forwarded signal re-enters the
+ * destination through `setCtx` (or `setAppCtx` for AppCtx values). The
+ * bridging handler returns nothing, so an intercept bridge observes without
+ * halting the source cascade.
+ *
+ * @export
+ * @param {Kernel} source - the Kernel to bridge signals from
+ * @param {Kernel} destination - the Kernel to bridge signals into
+ * @param {...*} filters - optional leading filter function
+ *        `(tao, data) => boolean` gating which signals forward, then
+ *        trigrams (or a single array of trigrams) to bridge; with no
+ *        trigrams the bridge attaches to the wildcard `{}`
+ * @returns {function(): void} detaches the bridge from `source` (a no-op
+ *          when `source`/`destination` are not Kernel instances)
+ */
 export function interceptBridge(source, destination, ...filters) {
   return bridge(INTERCEPT, source, destination, filters);
 }
 
+/**
+ * Bridges signals handled on the `source` Kernel into the `destination`
+ * Kernel via an `AsyncHandler` — the forwarded signal re-enters the
+ * destination through `setCtx` (or `setAppCtx` for AppCtx values) on the
+ * async fork of the source cascade.
+ *
+ * @export
+ * @param {Kernel} source - the Kernel to bridge signals from
+ * @param {Kernel} destination - the Kernel to bridge signals into
+ * @param {...*} filters - optional leading filter function
+ *        `(tao, data) => boolean` gating which signals forward, then
+ *        trigrams (or a single array of trigrams) to bridge; with no
+ *        trigrams the bridge attaches to the wildcard `{}`
+ * @returns {function(): void} detaches the bridge from `source` (a no-op
+ *          when `source`/`destination` are not Kernel instances)
+ */
 export function asyncBridge(source, destination, ...filters) {
   return bridge(ASYNC, source, destination, filters);
 }
 
+/**
+ * Bridges signals handled on the `source` Kernel into the `destination`
+ * Kernel via an `InlineHandler` — the forwarded signal re-enters the
+ * destination through `setCtx` (or `setAppCtx` for AppCtx values) in the
+ * source cascade's inline spool.
+ *
+ * @export
+ * @param {Kernel} source - the Kernel to bridge signals from
+ * @param {Kernel} destination - the Kernel to bridge signals into
+ * @param {...*} filters - optional leading filter function
+ *        `(tao, data) => boolean` gating which signals forward, then
+ *        trigrams (or a single array of trigrams) to bridge; with no
+ *        trigrams the bridge attaches to the wildcard `{}`
+ * @returns {function(): void} detaches the bridge from `source` (a no-op
+ *          when `source`/`destination` are not Kernel instances)
+ */
 export function inlineBridge(source, destination, ...filters) {
   return bridge(INLINE, source, destination, filters);
 }

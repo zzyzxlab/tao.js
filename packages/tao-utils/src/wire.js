@@ -1,5 +1,17 @@
 import { AppCtx } from '@tao.js/core';
 
+/**
+ * Any surface the utils surface-resolution convention resolves to a
+ * `Network` (`typeof x.enter === 'function' ? x : x._network`): a bare
+ * `Network` (exposing `enter` + `decorate`), or a Kernel-shaped wrapper
+ * exposing `_network`.
+ *
+ * @typedef {Object} NetworkSurface
+ * @property {Function} [enter] - present on a bare Network (and on Channel's channel-scoped gate)
+ * @property {Function} [decorate] - present on a bare Network
+ * @property {import('@tao.js/core').Network} [_network] - present on Kernel-shaped wrappers
+ */
+
 const DEFAULT_TRANSPORT = 'WIRE';
 
 let transportInstance = 0;
@@ -10,8 +22,20 @@ function transportName(name) {
 /**
  * Wire-envelope version. Receivers ignore wire envelopes with an unknown
  * version (treated as absent) rather than fail — see ENVELOPE-SPEC.md §9.
+ *
+ * @type {number}
  */
 export const WIRE_VERSION = 1;
+
+/**
+ * The portable part of a dispatch envelope — what a transport serializes
+ * alongside a signal's trigram + data (ENVELOPE-SPEC.md §9).
+ *
+ * @typedef {Object} WireEnvelope
+ * @property {number} v - wire-envelope version (`WIRE_VERSION`)
+ * @property {(Object|null)} chain - the sending hop's `envelope.chain`,
+ *           verbatim (JSON-clean by construction), or `null`
+ */
 
 /**
  * The portable part of a dispatch envelope, for serializing alongside a
@@ -19,8 +43,9 @@ export const WIRE_VERSION = 1;
  * `cascade` holds live references and process-local affinity, and `hop` is
  * boundary-local (ENVELOPE-SPEC.md §9).
  *
- * @param {Object} envelope - a dispatch envelope (`{ cascade, hop, chain }`)
- * @returns {{ v: number, chain: Object|null }}
+ * @param {Object} [envelope] - a dispatch envelope (`{ cascade, hop, chain }`)
+ * @returns {WireEnvelope} `{ v: WIRE_VERSION, chain }` — `chain` is `null`
+ *          when the envelope is absent or carries none
  */
 export function wireEnvelope(envelope) {
   return {
@@ -32,10 +57,11 @@ export function wireEnvelope(envelope) {
 /**
  * Extract the continuable chain from a received wire envelope. Absent,
  * unversioned, or unknown-version envelopes yield `null` (fresh chain) —
- * one-sided backward compatibility with pre-wire senders.
+ * one-sided backward compatibility with pre-wire senders. A `chain` that is
+ * not a plain object (arrays included) also yields `null`.
  *
- * @param {Object} [wire] - a received `{ v, chain }` wire envelope
- * @returns {Object|null}
+ * @param {WireEnvelope} [wire] - a received `{ v, chain }` wire envelope
+ * @returns {(Object|null)} the received chain to continue, or `null`
  */
 export function chainFromWire(wire) {
   if (
@@ -55,12 +81,18 @@ export function chainFromWire(wire) {
  * hop-scope origin marker (echo suppression) and continues the received
  * chain through the local reducers.
  *
- * @param {Kernel|Network|Channel} network - any surface exposing `enter`
- *        (or a Kernel exposing `_network`)
- * @param {Object} tao - trigram (short or long keys)
- * @param {Object} data - datagram
- * @param {Object} [wire] - the received `{ v, chain }` wire envelope
+ * Surface resolution follows the utils convention
+ * (`typeof network.enter === 'function' ? network : network._network`).
+ *
+ * @param {NetworkSurface} network - any surface exposing `enter` (a
+ *        `Network` or `Channel`) or a Kernel-shaped wrapper exposing
+ *        `_network`
+ * @param {Object} tao - trigram (short or long keys; long-form keys win)
+ * @param {*} data - datagram(s)
+ * @param {(WireEnvelope|undefined)} wire - the received `{ v, chain }` wire
+ *        envelope; pass `undefined` when the sender included none
  * @param {string} sourceName - this transport's origin marker
+ * @returns {void}
  */
 export function enterFromWire(network, tao, data, wire, sourceName) {
   const net = typeof network.enter === 'function' ? network : network._network;
@@ -94,13 +126,22 @@ export function enterFromWire(network, tao, data, wire, sourceName) {
  * semantics. For a veto-respecting emitter (e.g. a per-client reply path),
  * decorate with `onProceed` directly — see `@tao.js/socket.io`.
  *
- * @param {Kernel|Network} kernel - the network to bridge. Not a Channel:
- *        a duplex transport spans the whole kernel; channel-scoped reply
- *        paths belong to phase-gated emitters (see `@tao.js/socket.io`)
- * @param {Object} opts
+ * @param {NetworkSurface} kernel - the Kernel (or bare Network) to bridge.
+ *        Not a Channel: a duplex transport spans the whole kernel;
+ *        channel-scoped reply paths belong to phase-gated emitters (see
+ *        `@tao.js/socket.io`)
+ * @param {Object} [opts]
  * @param {string} [opts.name] - origin-marker name (auto-generated if omitted)
- * @param {function} opts.send - `(tao, data, wire) => void` outbound emitter
- * @returns {{ name: string, receive: function, dispose: function }}
+ * @param {function(Object, *, WireEnvelope): void} [opts.send] -
+ *        `(tao, data, wire) => void` outbound emitter (required at runtime:
+ *        omitting it throws the setup Error below)
+ * @returns {{ name: string, receive: function(Object, *, WireEnvelope=): void, dispose: function(): void }}
+ *          the transport handle: `name` is the origin marker, `receive`
+ *          enters an inbound signal (as `enterFromWire`), `dispose`
+ *          detaches the emitting decoration
+ * @throws {Error} when `kernel` is missing, when the resolved network lacks
+ *         envelope support (`enter` + `decorate`) - upgrade `@tao.js/core`,
+ *         or when `send` is not a function
  */
 export function createTransport(kernel, { name, send } = {}) {
   if (!kernel || (typeof kernel.enter !== 'function' && !kernel._network)) {

@@ -10,6 +10,7 @@
   },
   "main": "lib",
   "module": "dist",
+  "types": "lib/index.d.ts",
   "bundles": {
     "browser": "bundles/browser.umd.js"
   },
@@ -25,8 +26,9 @@
   "scripts": {
     "build:clean": "rimraf dist lib bundles",
     "build:package": "rollup --config",
-    "build": "npm run build:clean && npm run build:package",
-    "test:mutation": "stryker run"
+    "build": "npm run build:clean && npm run build:package && npm run build:types",
+    "test:mutation": "stryker run",
+    "build:types": "tsc -p tsconfig.types.json"
   },
   "author": "eudaimos",
   "license": "Apache-2.0",
@@ -34,13 +36,12 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@tao.js/core": ">=0.20.0"
-  },
-  "dependencies": {
-    "@tao.js/telemetry": "file:../tao-telemetry"
+    "@tao.js/core": ">=0.20.0",
+    "@tao.js/telemetry": ">=0.20.0"
   },
   "devDependencies": {
     "@tao.js/core": "file:../tao",
+    "@tao.js/telemetry": "file:../tao-telemetry",
     "@tao.js/utils": "file:../tao-utils"
   }
 }

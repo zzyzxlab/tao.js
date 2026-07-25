@@ -232,7 +232,37 @@ Nx project names match package names (e.g. `@tao.js/core`). Package manager: **p
 
 - Library code: `packages/<dir>/src/`
 - Tests: `packages/<dir>/test/*.spec.js` (Jest via `@nx/jest`)
-- Built outputs: `dist` (ESM), `lib` (CJS), sometimes `bundles/` (UMD)
+- Built outputs: `dist` (ESM), `lib` (CJS + emitted `.d.ts`), sometimes `bundles/` (UMD)
+
+### TypeScript declarations (0.21+)
+
+Every release-group package publishes its own `.d.ts`, **emitted from the
+JSDoc** — never hand-written. Per package: `tsconfig.types.json` (extends
+`config/tsconfig.types.json`), a `build:types` script (`tsc -p
+tsconfig.types.json`, declaration-only into `lib/`), chained into `build`,
+and `"types": "lib/index.d.ts"`. `checkJs` stays ON as the JSDoc/behavior
+drift gate — fix type errors by correcting the JSDoc (or a comment-cast
+`/** @type {X} */ (expr)` at duck-typed spots), not by weakening public
+signatures to `any`. Rules learned wiring it:
+
+- `@param {Object}` emits as `any` — name a typedef (or a structural shape)
+  instead.
+- Modules reachable from an index `export *` must reference cross-package
+  types **inline** (`import('@tao.js/core').Kernel`) — top-level typedef
+  aliases are exported from the module's d.ts and collide across `export *`
+  sources (TS2308).
+- Duck-typed acceptance is typed as a structural shape at its origin:
+  `NetworkSurface` in utils (`typeof x.enter === 'function' ? x :
+x._network` convention), `TraceableSurface` in telemetry. Public params
+  reference those, prose keeps the Kernel/Network framing.
+- Shared shapes get typedefs at their origin module and are re-exported
+  from `src/index.js` via a comments-only typedef block (see
+  `packages/tao/src/index.js`).
+- Clean-room proof: `pnpm run test:types` (tools/types-consumer) packs all
+  13 tarballs, installs them with the host libs in a scratch project, and
+  compiles strict typical usage with `IsAny` guards so a declaration that
+  degrades to `any` fails. Run it (after `pnpm build`) before every
+  release.
 
 ### Commands (repo root)
 
@@ -240,6 +270,7 @@ Nx project names match package names (e.g. `@tao.js/core`). Package manager: **p
 pnpm test                          # nx run-many test (excludes patois.*)
 pnpm build                         # nx run-many build
 pnpm lint                          # nx run-many lint
+pnpm run test:types                # clean-room d.ts consumer check (after pnpm build)
 
 pnpm nx test @tao.js/core          # one project
 pnpm nx build @tao.js/core
@@ -247,6 +278,11 @@ pnpm nx run-many -t test -p @tao.js/core,@tao.js/utils
 ```
 
 Root scripts also exclude `patois.*` from aggregate test/build unless you target them explicitly.
+
+`nx test` does **not** depend on build — package specs import sibling
+packages through their built `lib/`, so run `pnpm build` first in a fresh
+checkout/worktree or cross-package suites fail confusingly (see the
+2026-07-24 agent note on worktree fall-through).
 
 ### Commit messages
 
@@ -331,6 +367,7 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
+- **2026-07-24** — d.ts emission wired for all 13 release packages (see §5 “TypeScript declarations”). Gotchas from the wiring: (1) TS narrowing cannot survive `param = new X(...)` reassignment when X structurally overlaps the param's other union members (AppCtxRoot has a `t` getter, so it IS a `Trigram`) — use a fresh `const`; (2) TanStack's `useLoaderData` typings require an options arg the adapter deliberately omits — comment-cast at the call site, documented; (3) `typescript` is pinned `^5.9.3` (bare `typescript` resolves to the native TS7 compiler, no JS API); (4) @types/react@19 at the root serves react-tao and the routing hooks' emissions. **Worktree fall-through trap:** a worktree nested inside the main repo resolves missing/unbuilt workspace deps through the MAIN repo's `node_modules` (pnpm symlink realpaths escape the worktree) — jest then mixes main-repo builds with worktree sources and `instanceof AppCtx` fails across the two core instances, and tsc type-checks the main repo's untyped bundles. Always `pnpm install && pnpm build` in a fresh worktree before testing.
 - **2026-07-19** — `@tao.js/react`: prefer named export `TaoProvider`; `Provider` remains a deprecated alias (dev once-warning via `deprecations.js`). Default export of `src/Provider.js` is `TaoProvider`.
 - **2026-07-18** — Host-router adapters: `@tao.js/routing-core` (signal apply + `createImportLoader` + React hook factories without importing React) and peer adapters `@tao.js/routing-react-router`, `@tao.js/routing-tanstack-router`, `@tao.js/routing-next`. Prefer these over investing in legacy `@tao.js/router`. Mutation: `pnpm test:mutation:routing-*`.
 - **2026-07-18** — Envelope/decoration redesign implemented on `feat/network-envelope` per ENVELOPE-SPEC.md (spec committed first; eight normative behavioral invariants in §10). Core: `Network.enter` hop engine (dispatch-once, cascade/hop/chain scopes), `Network.decorate`, `AppCtxHandlers` settlement hook, legacy `setCtxControl`+forward path frozen. Utils adapters migrated (Channel = cascade + onForward mirror; Source/Relay = hop-scope origin marker, Relay's unbound-forward bug fixed; Transponder = cascade entry, chains now propagate on bare kernels; Transceiver = settlement hook, `captureSignal` fork deleted). Adapters throw a clear error on pre-envelope cores (mixed-version installs are real — a surveyed app ran core 0.16.0 with utils 0.16.2; set the peerDependency floor when versions are cut at release). New `@tao.js/telemetry` (+ `@tao.js/opentelemetry` exporter): tracing is a pure decoration — full causal trees for kernel/channel/transponder entries with ZERO instrumentation; one tracer per network (chain key exclusivity). `TaoLogger` moved utils → telemetry with a deprecated re-export left in utils (utils gained a runtime dep on telemetry using the `file:` protocol (repo convention). Do NOT use `workspace:` protocol here — pnpm then isolates utils behind a store copy with its own @tao.js/core instance, breaking single-instance `instanceof AppCtx` sharing inside the workspace (found via tools/smoke). Release NOTE: `file:` deps are not rewritten on publish — version this dependency when cutting releases). Gotchas learned: white-box utils tests assert threading mechanics, not just semantics — rewrite intent, don't delete; Stryker `inPlace: true` mutates sources during runs (don't git-operate or run other suites on that package concurrently); jest 30 fails tests on unhandled rejections (assert legacy rethrow via the dispatch promise instead); channel-attached handler chains still re-enter with a fresh cascade (frozen Channel semantic — trace shows them as new roots). Final mutation scores: core 99.70% (0 survivors), utils 100.00% (0 survivors); telemetry 100.00% and opentelemetry 100.00% (Stryker configs wired; thresholds 100 - the first runs surfaced 47 and 3 survivors respectively despite 100% line coverage, all killed).

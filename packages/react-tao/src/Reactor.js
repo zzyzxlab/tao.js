@@ -4,6 +4,21 @@ import Adapter from './Adapter';
 
 const DUMMY_STATE = {};
 
+/**
+ * Props for {@link Reactor}: the adapter plus passthrough props spread onto
+ * whichever component the adapter's current match renders.
+ * @typedef {{ adapter: Adapter } & Object<string, *>} ReactorProps
+ */
+
+/**
+ * Original ("orig" entry) API: renders the component its {@link Adapter}
+ * registered for the most recent matching AppCon — or nothing before any
+ * match. The rendered component receives the trigram (`t`/`a`/`o`), the
+ * Reactor's passthrough props, and the registration props merged with the
+ * AppCon data. NOTE: children are ignored.
+ * Legacy — prefer `RenderHandler` / `SwitchHandler` from the package root.
+ * @extends {React.Component<ReactorProps>}
+ */
 class Reactor extends React.Component {
   static get propTypes() {
     return {
@@ -11,6 +26,9 @@ class Reactor extends React.Component {
     };
   }
 
+  /**
+   * @param {ReactorProps} props
+   */
   constructor(props) {
     super(props);
     // this._adapter = adapter;
@@ -27,6 +45,9 @@ class Reactor extends React.Component {
     adapter && adapter.unregisterReactor && adapter.unregisterReactor(this);
   }
 
+  /**
+   * @param {ReactorProps} prevProps
+   */
   componentDidUpdate(prevProps) {
     const { adapter } = this.props;
     if (adapter !== prevProps.adapter) {
@@ -35,6 +56,10 @@ class Reactor extends React.Component {
     }
   }
 
+  /**
+   * @param {ReactorProps} nextProps
+   * @returns {boolean}
+   */
   shouldComponentUpdate(nextProps) {
     return true;
   }
