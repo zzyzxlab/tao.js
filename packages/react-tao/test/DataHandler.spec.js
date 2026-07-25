@@ -7,9 +7,9 @@ import {
   act,
 } from '@testing-library/react';
 import { AppCtx, Kernel } from '@tao.js/core';
-import Provider from '../src/Provider';
+import TaoProvider from '../src/Provider';
 import DataHandler from '../src/DataHandler';
-import { useTaoData, useTaoDataContext } from '../src/hooks';
+import { useTaoData } from '../src/hooks';
 
 const TERM = 'User';
 const ACTION = 'Enter';
@@ -24,10 +24,10 @@ describe('DataHandler', () => {
 
   afterEach(cleanup);
 
-  it('merges handler state into the named data bag for descendants on first render', () => {
-    const { result } = renderHook(() => useTaoDataContext('user'), {
+  it('exposes default data to descendants via useTaoData on first render', () => {
+    const { result } = renderHook(() => useTaoData('user'), {
       wrapper: ({ children }) => (
-        <Provider TAO={TAO}>
+        <TaoProvider TAO={TAO}>
           <DataHandler
             name="user"
             term={TERM}
@@ -37,21 +37,21 @@ describe('DataHandler', () => {
           >
             {children}
           </DataHandler>
-        </Provider>
+        </TaoProvider>
       ),
     });
 
     expect(result.current).toEqual({ ready: true, id: null });
   });
 
-  it('updates useTaoDataContext when a matching AppCon is set', async () => {
+  it('updates useTaoData when a matching AppCon is set', async () => {
     function Probe() {
-      const user = useTaoDataContext('user');
+      const user = useTaoData('user');
       return <div data-testid="user-id">{user && user.id}</div>;
     }
 
     const { getByTestId } = render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <DataHandler
           name="user"
           term={TERM}
@@ -62,7 +62,7 @@ describe('DataHandler', () => {
         >
           <Probe />
         </DataHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     expect(getByTestId('user-id').textContent).toBe('');
@@ -76,10 +76,10 @@ describe('DataHandler', () => {
     });
   });
 
-  it('nests named data so inner handlers override outer keys of the same name', () => {
-    const { result } = renderHook(() => useTaoDataContext('layer'), {
+  it('shadows an outer DataHandler when an inner one has the same name', () => {
+    const { result } = renderHook(() => useTaoData('layer'), {
       wrapper: ({ children }) => (
-        <Provider TAO={TAO}>
+        <TaoProvider TAO={TAO}>
           <DataHandler
             name="layer"
             term={TERM}
@@ -97,7 +97,7 @@ describe('DataHandler', () => {
               {children}
             </DataHandler>
           </DataHandler>
-        </Provider>
+        </TaoProvider>
       ),
     });
 
@@ -105,10 +105,10 @@ describe('DataHandler', () => {
   });
 
   it('still exposes data on first render under StrictMode', () => {
-    const { result } = renderHook(() => useTaoDataContext('user'), {
+    const { result } = renderHook(() => useTaoData('user'), {
       wrapper: ({ children }) => (
         <React.StrictMode>
-          <Provider TAO={TAO}>
+          <TaoProvider TAO={TAO}>
             <DataHandler
               name="user"
               term={TERM}
@@ -118,7 +118,7 @@ describe('DataHandler', () => {
             >
               {children}
             </DataHandler>
-          </Provider>
+          </TaoProvider>
         </React.StrictMode>
       ),
     });
@@ -135,7 +135,7 @@ describe('DataHandler', () => {
       }),
       {
         wrapper: ({ children }) => (
-          <Provider TAO={TAO}>
+          <TaoProvider TAO={TAO}>
             <DataHandler
               name="user"
               term={TERM}
@@ -153,7 +153,7 @@ describe('DataHandler', () => {
                 {children}
               </DataHandler>
             </DataHandler>
-          </Provider>
+          </TaoProvider>
         ),
       },
     );
@@ -184,7 +184,7 @@ describe('DataHandler', () => {
     }
 
     const { getByTestId } = render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <DataHandler
           name="user"
           term={TERM}
@@ -203,7 +203,7 @@ describe('DataHandler', () => {
         >
           <Right />
         </DataHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     expect(getByTestId('left').textContent).toBe('L:ok');
@@ -216,7 +216,7 @@ describe('DataHandler', () => {
 
     function Harness({ action }) {
       return (
-        <Provider TAO={TAO}>
+        <TaoProvider TAO={TAO}>
           <DataHandler
             name="user"
             term={TERM}
@@ -227,7 +227,7 @@ describe('DataHandler', () => {
           >
             <Probe />
           </DataHandler>
-        </Provider>
+        </TaoProvider>
       );
     }
 

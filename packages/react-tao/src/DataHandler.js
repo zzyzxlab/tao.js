@@ -1,7 +1,5 @@
 import React, { useContext, useMemo } from 'react';
-import PropTypes from 'prop-types';
 
-import { Context } from './Provider';
 import { DataLayerContext } from './DataLayerContext';
 import useTaoDataState from './useTaoDataState';
 
@@ -33,9 +31,9 @@ import useTaoDataState from './useTaoDataState';
  */
 
 /**
- * Subscribes to TAO trigrams and exposes named state to descendants.
- * Pushes onto the tree-scoped data layer (ancestor walk) and merges into
- * Provider `data[name]` for deprecated bag consumers during the 0.17 overlap.
+ * Subscribes to TAO trigrams and exposes named state to descendants by
+ * pushing onto the tree-scoped data layer stack (ancestor walk — read with
+ * `useTaoData(name)`).
  * @param {DataHandlerProps} props
  * @returns {import('react').ReactElement}
  */
@@ -51,7 +49,6 @@ function DataHandler({
   a,
   o,
 }) {
-  const { TAO, data: parentData = {} } = useContext(Context);
   const parentLayers = useContext(DataLayerContext);
   const localData = useTaoDataState(
     { term, action, orient, t, a, o },
@@ -60,47 +57,20 @@ function DataHandler({
   );
 
   // Stryker disable all: useMemo deps / object literals — contents asserted; memo identity not observable
-  const nextData = useMemo(
-    () => ({
-      ...parentData,
-      [name]: localData,
-    }),
-    [parentData, name, localData],
-  );
-
   const nextLayers = useMemo(
     () => [...parentLayers, { name, value: localData }],
     [parentLayers, name, localData],
-  );
-
-  const providerValue = useMemo(
-    () => ({ TAO, data: nextData }),
-    [TAO, nextData],
   );
   // Stryker restore all
 
   return (
     <DataLayerContext.Provider value={nextLayers}>
-      <Context.Provider value={providerValue}>{children}</Context.Provider>
+      {children}
     </DataLayerContext.Provider>
   );
 }
 
-// Stryker disable all: displayName / propTypes metadata
+// Stryker disable next-line StringLiteral: displayName is DX-only
 DataHandler.displayName = 'DataHandler';
-
-DataHandler.propTypes = {
-  name: PropTypes.string.isRequired,
-  handler: PropTypes.func,
-  default: PropTypes.any,
-  children: PropTypes.node,
-  term: PropTypes.any,
-  action: PropTypes.any,
-  orient: PropTypes.any,
-  t: PropTypes.any,
-  a: PropTypes.any,
-  o: PropTypes.any,
-};
-// Stryker restore all
 
 export default DataHandler;

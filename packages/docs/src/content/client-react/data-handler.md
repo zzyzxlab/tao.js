@@ -1,8 +1,8 @@
 # `@tao.js/react` DataHandler Component
 
 A React `Component` that will register as a handler for a TAO trigram in order to set data in a
-shared data context from its nearest ancestor [`Provider`](provider.md).  This data can then be
-consumed by [`RenderHandler`s using the `context` prop](render-handler.md#consuming-shared-state-from-the-data-context).
+shared data context from its nearest ancestor [`TaoProvider`](provider.md).  This data can then be
+consumed anywhere in the tree with the [`useTaoData(name)` hook](hooks.md#usetaodata).
 
 The purpose of the `DataHandler` component is to react to specific AppCons set on the TAO and
 add data to a shared state that can be leveraged by multiple other `Component`s in the render
@@ -24,10 +24,10 @@ const DataHandler = require('@tao.js/react').DataHandler;
 
 ## Defining the data context `name`
 
-As we know from [`Provider`](provider.md), the data context is shared.  Each `DataHandler` **must**
+As we know from [`TaoProvider`](provider.md), the data context is shared.  Each `DataHandler` **must**
 define a `name` key used to distinguish the data it is putting in this shared data context.
 
-This `name` is used by the `RenderHandler`'s [`context` prop](render-handler.md#consuming-shared-state-from-the-data-context)
+This `name` is used by the [`useTaoData(name)` hook](hooks.md#usetaodata)
 as a way to find the data the `DataHandler` is adding to the shared data context and make it
 available to teh `RenederHandler`'s children via its function as a child.
 
@@ -152,7 +152,7 @@ from the shared data context.
 
 ### `name` conflicts
 
-If 2 different `DataHandler`s are the descendants of the same [`Provider`](provider.md) and
+If 2 different `DataHandler`s are the descendants of the same [`TaoProvider`](provider.md) and
 **also share the same `name` prop**, then there will be conflicts with that `name` key in
 the shared data context.  Specifically, if one of the `DataHandler`s mounts after the other,
 then the `name` key will be initialized by that `DataHandler` over what previously was set

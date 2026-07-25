@@ -26,8 +26,6 @@
  * @typedef {import('./RenderHandler').RenderHandlerChildren} RenderHandlerChildren
  * @typedef {import('./SwitchHandler').SwitchHandlerProps} SwitchHandlerProps
  * @typedef {import('./SwitchContext').SwitchContextValue} SwitchContextValue
- * @typedef {import('./DataConsumer').DataConsumerProps} DataConsumerProps
- * @typedef {import('./DataConsumer').DataConsumerChildren} DataConsumerChildren
  */
 /**
  * @template [S=any]
@@ -37,8 +35,7 @@
  * @template [S=any]
  * @typedef {import('./createContextHandler').ContextHandler<S>} ContextHandler
  */
-export { TaoProvider, Provider } from './Provider';
-export { default as DataConsumer } from './DataConsumer';
+export { default as TaoProvider } from './Provider';
 export { default as DataHandler } from './DataHandler';
 export { default as RenderHandler } from './RenderHandler';
 export { default as SwitchHandler } from './SwitchHandler';

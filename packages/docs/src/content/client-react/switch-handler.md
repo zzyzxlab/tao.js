@@ -3,8 +3,8 @@
 An additional React `Component` used to integrate the TAO with the components used to generate the
 view of our React app is the `SwitchHandler`.
 
-_(all of the description below assumes a single `Provider` at the root of our React App)_
-_(please see the [`Provider`](provider.md#advanced-usage) doc page for more about advanced usage)_
+_(all of the description below assumes a single `TaoProvider` at the root of our React App)_
+_(please see the [`TaoProvider`](provider.md#advanced-usage) doc page for more about advanced usage)_
 
 The `SwitchHandler` _is a_ React `Component` **and a** TAO handler attached to listen for AppCons
 matching the configured Trigrams of its `RenderHandler` children.

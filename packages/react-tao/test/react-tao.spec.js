@@ -1,16 +1,16 @@
 import { Component } from 'react';
+import * as api from '../src';
 import {
   TaoProvider,
-  Provider,
-  DataConsumer,
   DataHandler,
   RenderHandler,
   SwitchHandler,
   createContextHandler,
   withContext,
+  DataLayerContext,
+  useDataLayers,
   useTaoContext,
   useTaoData,
-  useTaoDataContext,
   useTaoInlineHandler,
   useTaoAsyncHandler,
   useTaoInterceptHandler,
@@ -20,17 +20,6 @@ describe('@tao.js/react exports convenience tools to use tao.js with React', () 
   it('should export a TaoProvider Component', () => {
     expect(TaoProvider).toBeDefined();
     expect(TaoProvider).toBeInstanceOf(Function);
-  });
-
-  it('should export Provider as a deprecated alias of TaoProvider', () => {
-    expect(Provider).toBeDefined();
-    expect(Provider).toBeInstanceOf(Function);
-    expect(Provider).not.toBe(TaoProvider);
-  });
-
-  it('should export a DataConsumer Component', () => {
-    expect(DataConsumer).toBeDefined();
-    expect(DataConsumer).toBeInstanceOf(Function);
   });
 
   it('should export a RenderHandler Component', () => {
@@ -65,12 +54,22 @@ describe('@tao.js/react exports convenience tools to use tao.js with React', () 
     );
   });
 
+  it('should export the DataLayerContext and useDataLayers', () => {
+    expect(DataLayerContext).toBeDefined();
+    expect(useDataLayers).toBeInstanceOf(Function);
+  });
+
   it('should export Current API hooks', () => {
     expect(useTaoContext).toBeInstanceOf(Function);
     expect(useTaoData).toBeInstanceOf(Function);
-    expect(useTaoDataContext).toBeInstanceOf(Function);
     expect(useTaoInlineHandler).toBeInstanceOf(Function);
     expect(useTaoAsyncHandler).toBeInstanceOf(Function);
     expect(useTaoInterceptHandler).toBeInstanceOf(Function);
+  });
+
+  it('should not export surfaces removed in 0.21', () => {
+    expect(api.Provider).toBeUndefined();
+    expect(api.DataConsumer).toBeUndefined();
+    expect(api.useTaoDataContext).toBeUndefined();
   });
 });

@@ -1,9 +1,10 @@
 import React from 'react';
 import { render, cleanup, act, waitFor } from '@testing-library/react';
 import { AppCtx, Kernel } from '@tao.js/core';
-import Provider from '../src/Provider';
+import TaoProvider from '../src/Provider';
 import DataHandler from '../src/DataHandler';
 import RenderHandler from '../src/RenderHandler';
+import { useTaoData } from '../src/hooks';
 
 const TERM = 'User';
 const ACTION = 'View';
@@ -20,11 +21,11 @@ describe('RenderHandler', () => {
 
   it('renders nothing until a matching AppCon is set', () => {
     const { container } = render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <RenderHandler term={TERM} action={ACTION} orient={ORIENT}>
           {(tao) => <div data-testid="out">{tao.t}</div>}
         </RenderHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     expect(container.firstChild).toBeNull();
@@ -32,11 +33,11 @@ describe('RenderHandler', () => {
 
   it('renders immediately when shouldRender is true without waiting for an AppCon', () => {
     const { getByTestId } = render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <RenderHandler term={TERM} action={ACTION} orient={ORIENT} shouldRender>
           {() => <div data-testid="out">ready</div>}
         </RenderHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     expect(getByTestId('out').textContent).toBe('ready');
@@ -45,11 +46,11 @@ describe('RenderHandler', () => {
   it('registers concrete trigrams (not empty objects) with the Kernel', () => {
     const addSpy = jest.spyOn(TAO, 'addInlineHandler');
     render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <RenderHandler term={TERM} action={ACTION} orient={ORIENT}>
           {() => null}
         </RenderHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     expect(addSpy).toHaveBeenCalled();
@@ -64,17 +65,22 @@ describe('RenderHandler', () => {
     addSpy.mockRestore();
   });
 
-  it('renders children with tao and data when a matching AppCon fires', async () => {
+  it('renders children with exactly (tao, data) when a matching AppCon fires', async () => {
+    let receivedArgs = null;
     const { getByTestId } = render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <RenderHandler term={TERM} action={ACTION} orient={ORIENT}>
-          {(tao, data) => (
-            <div data-testid="out">
-              {tao.t}:{data.User && data.User.id}
-            </div>
-          )}
+          {(...args) => {
+            receivedArgs = args;
+            const [tao, data] = args;
+            return (
+              <div data-testid="out">
+                {tao.t}:{data.User && data.User.id}
+              </div>
+            );
+          }}
         </RenderHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     act(() => {
@@ -84,11 +90,24 @@ describe('RenderHandler', () => {
     await waitFor(() => {
       expect(getByTestId('out').textContent).toBe('User:u-9');
     });
+    // children contract is (tao, data) only — no extra positional args
+    expect(receivedArgs).toHaveLength(2);
   });
 
-  it('passes named DataHandler context into children when context prop is set', async () => {
+  it('children read named DataHandler data with useTaoData', async () => {
+    function Out({ tao, data }) {
+      const session = useTaoData('session');
+      const prefs = useTaoData('prefs');
+      return (
+        <div data-testid="out">
+          {session && session.token}:{prefs && prefs.theme}:
+          {data.User && data.User.id}:{tao.a}
+        </div>
+      );
+    }
+
     const { getByTestId } = render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <DataHandler
           name="session"
           term={TERM}
@@ -96,20 +115,19 @@ describe('RenderHandler', () => {
           orient={ORIENT}
           default={{ token: 'abc' }}
         >
-          <RenderHandler
+          <DataHandler
+            name="prefs"
             term={TERM}
-            action={ACTION}
+            action="Pref"
             orient={ORIENT}
-            context="session"
+            default={{ theme: 'dark' }}
           >
-            {(tao, data, session) => (
-              <div data-testid="out">
-                {session && session.token}:{data.User && data.User.id}
-              </div>
-            )}
-          </RenderHandler>
+            <RenderHandler term={TERM} action={ACTION} orient={ORIENT}>
+              {(tao, data) => <Out tao={tao} data={data} />}
+            </RenderHandler>
+          </DataHandler>
         </DataHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     act(() => {
@@ -117,7 +135,7 @@ describe('RenderHandler', () => {
     });
 
     await waitFor(() => {
-      expect(getByTestId('out').textContent).toBe('abc:u-1');
+      expect(getByTestId('out').textContent).toBe(`abc:dark:u-1:${ACTION}`);
     });
   });
 
@@ -125,11 +143,11 @@ describe('RenderHandler', () => {
     const addSpy = jest.spyOn(TAO, 'addInlineHandler');
     const removeSpy = jest.spyOn(TAO, 'removeInlineHandler');
     const { unmount } = render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <RenderHandler term={TERM} action={ACTION} orient={ORIENT}>
           {() => null}
         </RenderHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     expect(addSpy).toHaveBeenCalled();
@@ -141,90 +159,12 @@ describe('RenderHandler', () => {
     removeSpy.mockRestore();
   });
 
-  it('warns when a named context is missing and passes null', async () => {
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
-
-    const { getByTestId } = render(
-      <Provider TAO={TAO}>
-        <RenderHandler
-          term={TERM}
-          action={ACTION}
-          orient={ORIENT}
-          context="missing"
-        >
-          {(tao, data, missing) => (
-            <div data-testid="out">{missing === null ? 'null' : 'present'}</div>
-          )}
-        </RenderHandler>
-      </Provider>,
-    );
-
-    act(() => {
-      TAO.setAppCtx(new AppCtx(TERM, ACTION, ORIENT));
-    });
-
-    await waitFor(() => {
-      expect(getByTestId('out').textContent).toBe('null');
-    });
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Unable to find context for 'missing'"),
-    );
-    expect(infoSpy).toHaveBeenCalled();
-
-    warnSpy.mockRestore();
-    infoSpy.mockRestore();
-  });
-
-  it('passes multiple named contexts when context is an array', async () => {
-    const { getByTestId } = render(
-      <Provider TAO={TAO}>
-        <DataHandler
-          name="session"
-          term={TERM}
-          action="Enter"
-          orient={ORIENT}
-          default={{ token: 't' }}
-        >
-          <DataHandler
-            name="prefs"
-            term={TERM}
-            action="Pref"
-            orient={ORIENT}
-            default={{ theme: 'light' }}
-          >
-            <RenderHandler
-              term={TERM}
-              action={ACTION}
-              orient={ORIENT}
-              context={['session', 'prefs']}
-            >
-              {(tao, data, session, prefs) => (
-                <div data-testid="out">
-                  {session.token}:{prefs.theme}
-                </div>
-              )}
-            </RenderHandler>
-          </DataHandler>
-        </DataHandler>
-      </Provider>,
-    );
-
-    act(() => {
-      TAO.setAppCtx(new AppCtx(TERM, ACTION, ORIENT));
-    });
-
-    await waitFor(() => {
-      expect(getByTestId('out').textContent).toBe('t:light');
-    });
-  });
-
   it('re-renders on refreshOn trigrams and cleans them up on unmount', async () => {
     const addSpy = jest.spyOn(TAO, 'addInlineHandler');
     const removeSpy = jest.spyOn(TAO, 'removeInlineHandler');
 
     const { getByTestId, unmount } = render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <RenderHandler
           term={TERM}
           action={ACTION}
@@ -233,7 +173,7 @@ describe('RenderHandler', () => {
         >
           {(tao) => <div data-testid="out">{tao.a}</div>}
         </RenderHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     const addedBefore = addSpy.mock.calls.length;
@@ -291,7 +231,7 @@ describe('RenderHandler', () => {
     const addSpy = jest.spyOn(TAO, 'addInlineHandler');
 
     render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <RenderHandler
           term={TERM}
           action={ACTION}
@@ -300,7 +240,7 @@ describe('RenderHandler', () => {
         >
           {() => null}
         </RenderHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     // Only the base trigram handler — no extra refresh handlers
@@ -312,11 +252,11 @@ describe('RenderHandler', () => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
     render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <RenderHandler term={TERM} action={ACTION} orient={ORIENT} debug>
           {() => null}
         </RenderHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     expect(logSpy).toHaveBeenCalled();
@@ -329,11 +269,11 @@ describe('RenderHandler', () => {
 
     function Harness({ action }) {
       return (
-        <Provider TAO={TAO}>
+        <TaoProvider TAO={TAO}>
           <RenderHandler term={TERM} action={action} orient={ORIENT}>
             {(tao) => <div data-testid="out">{tao.a}</div>}
           </RenderHandler>
-        </Provider>
+        </TaoProvider>
       );
     }
 
@@ -357,11 +297,11 @@ describe('RenderHandler', () => {
 
   it('supports array trigram props via cartesian permutations', async () => {
     const { getByTestId } = render(
-      <Provider TAO={TAO}>
+      <TaoProvider TAO={TAO}>
         <RenderHandler term={TERM} action={['View', 'Edit']} orient={ORIENT}>
           {(tao) => <div data-testid="out">{tao.a}</div>}
         </RenderHandler>
-      </Provider>,
+      </TaoProvider>,
     );
 
     act(() => {

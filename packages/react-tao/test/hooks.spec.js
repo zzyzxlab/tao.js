@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { Kernel } from '@tao.js/core';
-import Provider, { Context } from '../src/Provider';
+import TaoProvider from '../src/Provider';
 import * as hooks from '../src/hooks';
 
 const TERM = 'colleague';
@@ -24,7 +24,7 @@ afterEach(clearTAO);
 const NOOP = () => {};
 
 const withProvider = ({ children }) => (
-  <Provider TAO={TAO}>{children}</Provider>
+  <TaoProvider TAO={TAO}>{children}</TaoProvider>
 );
 
 function expectRegisterAndCleanup(hookFn, addName, removeName) {
@@ -130,17 +130,9 @@ describe('provides a set of react hooks for interacting with tao.js in functiona
     });
   });
 
-  describe('useTaoData / useTaoDataContext', () => {
+  describe('useTaoData', () => {
     it('should return undefined when the named data layer is missing', () => {
       const { result } = renderHook(() => hooks.useTaoData('missing'), {
-        wrapper: withProvider,
-      });
-
-      expect(result.current).toBe(undefined);
-    });
-
-    it('useTaoDataContext aliases useTaoData for named lookup', () => {
-      const { result } = renderHook(() => hooks.useTaoDataContext('missing'), {
         wrapper: withProvider,
       });
 
@@ -159,7 +151,7 @@ describe('provides a set of react hooks for interacting with tao.js in functiona
       const DataHandler = require('../src/DataHandler').default;
       const { result } = renderHook(() => hooks.useTaoData(''), {
         wrapper: ({ children }) => (
-          <Provider TAO={TAO}>
+          <TaoProvider TAO={TAO}>
             <DataHandler
               name="user"
               term={TERM}
@@ -169,7 +161,7 @@ describe('provides a set of react hooks for interacting with tao.js in functiona
             >
               {children}
             </DataHandler>
-          </Provider>
+          </TaoProvider>
         ),
       });
 

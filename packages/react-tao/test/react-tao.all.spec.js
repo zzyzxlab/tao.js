@@ -1,17 +1,16 @@
 import { Component } from 'react';
+import * as all from '../src/all';
 import {
   Adapter,
   Reactor,
   TaoProvider,
-  Provider,
-  DataConsumer,
   RenderHandler,
   SwitchHandler,
   DataHandler,
   createContextHandler,
   withContext,
   useTaoContext,
-  useTaoDataContext,
+  useTaoData,
 } from '../src/all';
 
 describe('@tao.js/react all.js exports both the current and original APIs to use tao.js with React', () => {
@@ -31,12 +30,6 @@ describe('@tao.js/react all.js exports both the current and original APIs to use
   it('should export a TaoProvider Component', () => {
     expect(TaoProvider).toBeDefined();
     expect(TaoProvider).toBeInstanceOf(Function);
-  });
-
-  it('should export Provider as a deprecated alias of TaoProvider', () => {
-    expect(Provider).toBeDefined();
-    expect(Provider).toBeInstanceOf(Function);
-    expect(Provider).not.toBe(TaoProvider);
   });
 
   it('should export a RenderHandler Component', () => {
@@ -66,10 +59,15 @@ describe('@tao.js/react all.js exports both the current and original APIs to use
     );
   });
 
-  it('should export DataConsumer, createContextHandler, and hooks', () => {
-    expect(DataConsumer).toBeDefined();
+  it('should export createContextHandler and hooks', () => {
     expect(createContextHandler).toBeInstanceOf(Function);
     expect(useTaoContext).toBeInstanceOf(Function);
-    expect(useTaoDataContext).toBeInstanceOf(Function);
+    expect(useTaoData).toBeInstanceOf(Function);
+  });
+
+  it('should not export surfaces removed in 0.21', () => {
+    expect(all.Provider).toBeUndefined();
+    expect(all.DataConsumer).toBeUndefined();
+    expect(all.useTaoDataContext).toBeUndefined();
   });
 });
