@@ -1,5 +1,6 @@
-var addSorting = (function () {
-    "use strict";
+/* eslint-disable */
+var addSorting = (function() {
+    'use strict';
     var cols,
         currentSort = {
             index: 0,
@@ -7,13 +8,60 @@ var addSorting = (function () {
         };
 
     // returns the summary table element
-    function getTable() { return document.querySelector('.coverage-summary'); }
+    function getTable() {
+        return document.querySelector('.coverage-summary');
+    }
     // returns the thead element of the summary table
-    function getTableHeader() { return getTable().querySelector('thead tr'); }
+    function getTableHeader() {
+        return getTable().querySelector('thead tr');
+    }
     // returns the tbody element of the summary table
-    function getTableBody() { return getTable().querySelector('tbody'); }
+    function getTableBody() {
+        return getTable().querySelector('tbody');
+    }
     // returns the th element for nth column
-    function getNthColumn(n) { return getTableHeader().querySelectorAll('th')[n]; }
+    function getNthColumn(n) {
+        return getTableHeader().querySelectorAll('th')[n];
+    }
+
+    function onFilterInput() {
+        const searchValue = document.getElementById('fileSearch').value;
+        const rows = document.getElementsByTagName('tbody')[0].children;
+
+        // Try to create a RegExp from the searchValue. If it fails (invalid regex),
+        // it will be treated as a plain text search
+        let searchRegex;
+        try {
+            searchRegex = new RegExp(searchValue, 'i'); // 'i' for case-insensitive
+        } catch (error) {
+            searchRegex = null;
+        }
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            let isMatch = false;
+
+            if (searchRegex) {
+                // If a valid regex was created, use it for matching
+                isMatch = searchRegex.test(row.textContent);
+            } else {
+                // Otherwise, fall back to the original plain text search
+                isMatch = row.textContent
+                    .toLowerCase()
+                    .includes(searchValue.toLowerCase());
+            }
+
+            row.style.display = isMatch ? '' : 'none';
+        }
+    }
+
+    // loads the search box
+    function addSearchBox() {
+        var template = document.getElementById('filterTemplate');
+        var templateClone = template.content.cloneNode(true);
+        templateClone.getElementById('fileSearch').oninput = onFilterInput;
+        template.parentElement.appendChild(templateClone);
+    }
 
     // loads all columns
     function loadColumns() {
@@ -33,7 +81,8 @@ var addSorting = (function () {
             cols.push(col);
             if (col.sortable) {
                 col.defaultDescSort = col.type === 'number';
-                colNode.innerHTML = colNode.innerHTML + '<span class="sorter"></span>';
+                colNode.innerHTML =
+                    colNode.innerHTML + '<span class="sorter"></span>';
             }
         }
         return cols;
@@ -70,7 +119,7 @@ var addSorting = (function () {
     // sorts the table using the data for the ith column
     function sortByIndex(index, desc) {
         var key = cols[index].key,
-            sorter = function (a, b) {
+            sorter = function(a, b) {
                 a = a.data[key];
                 b = b.data[key];
                 return a < b ? -1 : a > b ? 1 : 0;
@@ -82,7 +131,7 @@ var addSorting = (function () {
             i;
 
         if (desc) {
-            finalSorter = function (a, b) {
+            finalSorter = function(a, b) {
                 return -1 * sorter(a, b);
             };
         }
@@ -108,7 +157,9 @@ var addSorting = (function () {
     }
     // adds sort indicators for current column being sorted
     function addSortIndicators() {
-        getNthColumn(currentSort.index).className += currentSort.desc ? ' sorted-desc' : ' sorted';
+        getNthColumn(currentSort.index).className += currentSort.desc
+            ? ' sorted-desc'
+            : ' sorted';
     }
     // adds event listeners for all sorter widgets
     function enableUI() {
@@ -117,7 +168,7 @@ var addSorting = (function () {
             ithSorter = function ithSorter(i) {
                 var col = cols[i];
 
-                return function () {
+                return function() {
                     var desc = col.defaultDescSort;
 
                     if (currentSort.index === i) {
@@ -130,7 +181,7 @@ var addSorting = (function () {
                     addSortIndicators();
                 };
             };
-        for (i =0 ; i < cols.length; i += 1) {
+        for (i = 0; i < cols.length; i += 1) {
             if (cols[i].sortable) {
                 // add the click event handler on the th so users
                 // dont have to click on those tiny arrows
@@ -144,12 +195,13 @@ var addSorting = (function () {
         }
     }
     // adds sorting functionality to the UI
-    return function () {
+    return function() {
         if (!getTable()) {
             return;
         }
         cols = loadColumns();
-        loadData(cols);
+        loadData();
+        addSearchBox();
         addSortIndicators();
         enableUI();
     };
