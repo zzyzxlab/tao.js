@@ -1,3 +1,23 @@
+## 0.21.0 (2026-07-25)
+
+### 🚀 Features
+
+- ⚠️ 0.21 deprecation removals — TaoLogger re-export, react data-consume surfaces, propTypes (train 2/3) ([#65](https://github.com/zzyzxlab/tao.js/pull/65))
+- **types:** every 0.20 package ships d.ts emitted from JSDoc (0.21 train, 1/3) ([#64](https://github.com/zzyzxlab/tao.js/pull/64), [#63](https://github.com/zzyzxlab/tao.js/issues/63))
+
+### ⚠️ Breaking Changes
+
+- 0.21 deprecation removals — TaoLogger re-export, react data-consume surfaces, propTypes (train 2/3) ([#65](https://github.com/zzyzxlab/tao.js/pull/65))
+  import TaoLogger from @tao.js/telemetry;
+  `import { TaoLogger } from '@tao.js/utils'` no longer resolves.
+  Affected packages:
+  - @tao.js/utils
+
+### ❤️ Thank You
+
+- Claude Fable 5
+- Jeff Hoffer @eudaimos
+
 ## 0.20.0 (2026-07-24)
 
 ### 🚀 Features

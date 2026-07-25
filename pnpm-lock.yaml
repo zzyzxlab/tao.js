@@ -10,55 +10,55 @@ importers:
     dependencies:
       '@tao.js/connect':
         specifier: file:packages/tao-connect
-        version: file:packages/tao-connect
+        version: link:packages/tao-connect
       '@tao.js/core':
         specifier: file:packages/tao
-        version: file:packages/tao
+        version: link:packages/tao
       '@tao.js/feature':
         specifier: file:packages/tao-feature
-        version: file:packages/tao-feature
+        version: link:packages/tao-feature
       '@tao.js/koa':
         specifier: file:packages/koa-tao
-        version: file:packages/koa-tao(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao))
+        version: link:packages/koa-tao
       '@tao.js/opentelemetry':
         specifier: file:packages/tao-opentelemetry
-        version: file:packages/tao-opentelemetry(@opentelemetry/api@1.9.1)
+        version: link:packages/tao-opentelemetry
       '@tao.js/path':
         specifier: file:packages/tao-path
-        version: file:packages/tao-path
+        version: link:packages/tao-path
       '@tao.js/react':
         specifier: file:packages/react-tao
-        version: file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: link:packages/react-tao
       '@tao.js/router':
         specifier: file:packages/tao-router
-        version: file:packages/tao-router(@tao.js/core@file:packages/tao)
+        version: link:packages/tao-router
       '@tao.js/routing-core':
         specifier: file:packages/tao-routing-core
-        version: file:packages/tao-routing-core(@tao.js/core@file:packages/tao)
+        version: link:packages/tao-routing-core
       '@tao.js/routing-next':
         specifier: file:packages/tao-routing-next
-        version: file:packages/tao-routing-next(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(next@16.2.10(@babel/core@7.28.0)(@opentelemetry/api@1.9.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
+        version: link:packages/tao-routing-next
       '@tao.js/routing-react-router':
         specifier: file:packages/tao-routing-react-router
-        version: file:packages/tao-routing-react-router(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(react-router@7.18.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
+        version: link:packages/tao-routing-react-router
       '@tao.js/routing-tanstack-router':
         specifier: file:packages/tao-routing-tanstack
-        version: file:packages/tao-routing-tanstack(@tanstack/react-router@1.170.18(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(react@19.2.7)
+        version: link:packages/tao-routing-tanstack
       '@tao.js/socket.io':
         specifier: file:packages/tao-socket-io
-        version: file:packages/tao-socket-io(@tao.js/core@file:packages/tao)(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao))
+        version: link:packages/tao-socket-io
       '@tao.js/telemetry':
         specifier: file:packages/tao-telemetry
-        version: file:packages/tao-telemetry(@tao.js/core@file:packages/tao)
+        version: link:packages/tao-telemetry
       '@tao.js/transport-tck':
         specifier: file:packages/tao-transport-tck
-        version: file:packages/tao-transport-tck(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))
+        version: link:packages/tao-transport-tck
       '@tao.js/utils':
         specifier: file:packages/tao-utils
-        version: file:packages/tao-utils(@tao.js/core@file:packages/tao)
+        version: link:packages/tao-utils
       docs:
         specifier: file:packages/docs
-        version: file:packages/docs
+        version: link:packages/docs
       patois.api:
         specifier: file:examples/patois.api
         version: file:examples/patois.api(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))
@@ -2844,14 +2844,8 @@ packages:
   '@tanstack/store@0.9.3':
     resolution: {integrity: sha512-8reSzl/qGWGGVKhBoxXPMWzATSbZLZFWhwBAFO9NAyp0TxzfBP0mIrGb8CP8KrQTmvzXlR/vFPPUrHTLBGyFyw==}
 
-  '@tao.js/connect@file:packages/tao-connect':
-    resolution: {directory: packages/tao-connect, type: directory}
-
   '@tao.js/core@file:packages/tao':
     resolution: {directory: packages/tao, type: directory}
-
-  '@tao.js/feature@file:packages/tao-feature':
-    resolution: {directory: packages/tao-feature, type: directory}
 
   '@tao.js/koa@file:packages/koa-tao':
     resolution: {directory: packages/koa-tao, type: directory}
@@ -2859,14 +2853,6 @@ packages:
       '@tao.js/core': '>=0.20.0'
       '@tao.js/telemetry': '*'
       '@tao.js/utils': '>=0.20.0'
-
-  '@tao.js/opentelemetry@file:packages/tao-opentelemetry':
-    resolution: {directory: packages/tao-opentelemetry, type: directory}
-    peerDependencies:
-      '@opentelemetry/api': ^1.3.0
-
-  '@tao.js/path@file:packages/tao-path':
-    resolution: {directory: packages/tao-path, type: directory}
 
   '@tao.js/react@file:packages/react-tao':
     resolution: {directory: packages/react-tao, type: directory}
@@ -2880,41 +2866,6 @@ packages:
     peerDependencies:
       '@tao.js/core': '*'
 
-  '@tao.js/routing-core@file:packages/tao-routing-core':
-    resolution: {directory: packages/tao-routing-core, type: directory}
-    peerDependencies:
-      '@tao.js/core': '*'
-
-  '@tao.js/routing-next@file:packages/tao-routing-next':
-    resolution: {directory: packages/tao-routing-next, type: directory}
-    peerDependencies:
-      '@tao.js/core': '*'
-      '@tao.js/react': '*'
-      '@tao.js/routing-core': '*'
-      next: '>=13.0.0'
-      react: '>=16.8.0'
-    peerDependenciesMeta:
-      next:
-        optional: true
-
-  '@tao.js/routing-react-router@file:packages/tao-routing-react-router':
-    resolution: {directory: packages/tao-routing-react-router, type: directory}
-    peerDependencies:
-      '@tao.js/core': '*'
-      '@tao.js/react': '*'
-      '@tao.js/routing-core': '*'
-      react: '>=16.8.0'
-      react-router: '>=6.4.0'
-
-  '@tao.js/routing-tanstack-router@file:packages/tao-routing-tanstack':
-    resolution: {directory: packages/tao-routing-tanstack, type: directory}
-    peerDependencies:
-      '@tanstack/react-router': '>=1.0.0'
-      '@tao.js/core': '*'
-      '@tao.js/react': '*'
-      '@tao.js/routing-core': '*'
-      react: '>=16.8.0'
-
   '@tao.js/socket.io@file:packages/tao-socket-io':
     resolution: {directory: packages/tao-socket-io, type: directory}
     peerDependencies:
@@ -2925,12 +2876,6 @@ packages:
     resolution: {directory: packages/tao-telemetry, type: directory}
     peerDependencies:
       '@tao.js/core': '>=0.19.0'
-
-  '@tao.js/transport-tck@file:packages/tao-transport-tck':
-    resolution: {directory: packages/tao-transport-tck, type: directory}
-    peerDependencies:
-      '@tao.js/core': '>=0.20.0'
-      '@tao.js/telemetry': '>=0.20.0'
 
   '@tao.js/utils@file:packages/tao-utils':
     resolution: {directory: packages/tao-utils, type: directory}
@@ -4940,9 +4885,6 @@ packages:
 
   dns-txt@2.0.2:
     resolution: {integrity: sha512-Ix5PrWjphuSoUXV/Zv5gaFHjnaJtb02F2+Si3Ht9dyJ87+Z/lMmy+dpNHtTGraNK958ndXq2i+GLkWsWHcKaBQ==}
-
-  docs@file:packages/docs:
-    resolution: {directory: packages/docs, type: directory}
 
   doctrine@1.5.0:
     resolution: {integrity: sha512-lsGyRuYr4/PIB0txi+Fy2xOMI2dGaTguCaotzFGkVZuKR5usKfcRWIFKNM3QNrU7hh/+w2bwTW+ZeXPK5l8uVg==}
@@ -14151,13 +14093,9 @@ snapshots:
 
   '@tanstack/store@0.9.3': {}
 
-  '@tao.js/connect@file:packages/tao-connect': {}
-
   '@tao.js/core@file:packages/tao':
     dependencies:
       '@babel/runtime': 7.28.2
-
-  '@tao.js/feature@file:packages/tao-feature': {}
 
   '@tao.js/koa@file:packages/koa-tao(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao))':
     dependencies:
@@ -14166,25 +14104,12 @@ snapshots:
       '@tao.js/utils': file:packages/tao-utils(@tao.js/core@file:packages/tao)
       cartesian: 1.0.1
 
-  '@tao.js/opentelemetry@file:packages/tao-opentelemetry(@opentelemetry/api@1.9.1)':
-    dependencies:
-      '@opentelemetry/api': 1.9.1
-
-  '@tao.js/path@file:packages/tao-path': {}
-
   '@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@16.14.0(react@16.14.0))(react@16.14.0)':
     dependencies:
       '@tao.js/core': file:packages/tao
       cartesian: 1.0.1
       react: 16.14.0
       react-dom: 16.14.0(react@16.14.0)
-
-  '@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
-    dependencies:
-      '@tao.js/core': file:packages/tao
-      cartesian: 1.0.1
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
 
   '@tao.js/router@file:packages/tao-router(@tao.js/core@file:packages/tao)':
     dependencies:
@@ -14196,35 +14121,6 @@ snapshots:
       set-value: 3.0.3
       url-pattern: 1.0.3
 
-  '@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao)':
-    dependencies:
-      '@tao.js/core': file:packages/tao
-
-  '@tao.js/routing-next@file:packages/tao-routing-next(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(next@16.2.10(@babel/core@7.28.0)(@opentelemetry/api@1.9.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)':
-    dependencies:
-      '@tao.js/core': file:packages/tao
-      '@tao.js/react': file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@tao.js/routing-core': file:packages/tao-routing-core(@tao.js/core@file:packages/tao)
-      react: 19.2.7
-    optionalDependencies:
-      next: 16.2.10(@babel/core@7.28.0)(@opentelemetry/api@1.9.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-
-  '@tao.js/routing-react-router@file:packages/tao-routing-react-router(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(react-router@7.18.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)':
-    dependencies:
-      '@tao.js/core': file:packages/tao
-      '@tao.js/react': file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@tao.js/routing-core': file:packages/tao-routing-core(@tao.js/core@file:packages/tao)
-      react: 19.2.7
-      react-router: 7.18.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-
-  '@tao.js/routing-tanstack-router@file:packages/tao-routing-tanstack(@tanstack/react-router@1.170.18(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/core@file:packages/tao)(@tao.js/react@file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tao.js/routing-core@file:packages/tao-routing-core(@tao.js/core@file:packages/tao))(react@19.2.7)':
-    dependencies:
-      '@tanstack/react-router': 1.170.18(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@tao.js/core': file:packages/tao
-      '@tao.js/react': file:packages/react-tao(@tao.js/core@file:packages/tao)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@tao.js/routing-core': file:packages/tao-routing-core(@tao.js/core@file:packages/tao)
-      react: 19.2.7
-
   '@tao.js/socket.io@file:packages/tao-socket-io(@tao.js/core@file:packages/tao)(@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao))':
     dependencies:
       '@tao.js/core': file:packages/tao
@@ -14233,11 +14129,6 @@ snapshots:
   '@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao)':
     dependencies:
       '@tao.js/core': file:packages/tao
-
-  '@tao.js/transport-tck@file:packages/tao-transport-tck(@tao.js/core@file:packages/tao)(@tao.js/telemetry@file:packages/tao-telemetry(@tao.js/core@file:packages/tao))':
-    dependencies:
-      '@tao.js/core': file:packages/tao
-      '@tao.js/telemetry': file:packages/tao-telemetry(@tao.js/core@file:packages/tao)
 
   '@tao.js/utils@file:packages/tao-utils(@tao.js/core@file:packages/tao)':
     dependencies:
@@ -14989,14 +14880,6 @@ snapshots:
       - supports-color
 
   babel-jest@23.6.0(babel-core@7.0.0-bridge.0(@babel/core@7.1.0)):
-    dependencies:
-      babel-core: 7.0.0-bridge.0(@babel/core@7.1.0)
-      babel-plugin-istanbul: 4.1.6
-      babel-preset-jest: 23.2.0
-    transitivePeerDependencies:
-      - supports-color
-
-  babel-jest@23.6.0(babel-core@7.0.0-bridge.0(@babel/core@7.28.0)):
     dependencies:
       babel-core: 7.0.0-bridge.0(@babel/core@7.1.0)
       babel-plugin-istanbul: 4.1.6
@@ -16667,8 +16550,6 @@ snapshots:
   dns-txt@2.0.2:
     dependencies:
       buffer-indexof: 1.1.1
-
-  docs@file:packages/docs: {}
 
   doctrine@1.5.0:
     dependencies:
@@ -22112,7 +21993,7 @@ snapshots:
       '@svgr/webpack': 2.4.1
       babel-core: 7.0.0-bridge.0(@babel/core@7.1.0)
       babel-eslint: 9.0.0
-      babel-jest: 23.6.0(babel-core@7.0.0-bridge.0(@babel/core@7.28.0))
+      babel-jest: 23.6.0(babel-core@7.0.0-bridge.0(@babel/core@7.1.0))
       babel-loader: 8.0.4(@babel/core@7.1.0)(webpack@4.19.1)
       babel-plugin-named-asset-import: 0.2.3(@babel/core@7.1.0)
       babel-preset-react-app: 5.0.4(webpack@4.19.1)
