@@ -373,13 +373,22 @@ that binding's chained outputs in that dispatch)`. Binding identity comes
   The derivation is order-independent across handlers (the ordinal is
   within one binding's own outputs), so unordered inline execution does not
   perturb ids.
-- An AppCtx returned by an **async** handler enters as a new entry with a
-  fresh id — interest has no enrolled binding identity to derive from
-  (§5.3). Consequence, stated as dissolution: a redelivered parent may
-  re-run async handlers and re-enter their chains as _distinct_ signals;
-  async-produced duplicates are not convergent under dedup, and an async
-  handler's effects are its author's to make idempotent — consistent with
-  async being the uncounted, fire-and-forget phase.
+- Chains produced by **async** handlers follow the **same derivation**,
+  assigned by the _subscriber's_ dispatch scope (the parent dispatch never
+  observes them — completion is unobservable; causally they are children
+  all the same, as the engine's `hop.via: 'Async'` chain continuity
+  already records): the parent id arrives with the signal, the
+  discriminator is the **subscription's** stable identity, the ordinal is
+  the handler's own output order. Where the subscription has durable
+  identity, async chains converge exactly like enrolled ones. Open
+  interest does not _require_ one, however: an anonymous subscription, or
+  pooled consumption where a redelivery is consumed by a different worker
+  than the original, has no stable discriminator, and its re-produced
+  chains enter as distinct signals. Async-chain convergence is therefore
+  a **declared capability** — durable subscription identity (§10) — not
+  floor; where it is absent, the duplicates are the stated dissolution of
+  open membership under at-least-once, and the async handler's effects
+  fall back to domain idempotency.
 
 Deterministic identity is what makes redelivery recognizable and re-drive
 convergent: a re-executed dispatch emits chained signals with the **same**
@@ -475,6 +484,7 @@ semantics where it appears in this spec):
 | posture                 | `fail-fast` · `bounded-queue(window)` · `block` · `multi-scope`                                                                                        |
 | edge codec / data model | JSON model (floor for chain) · richer declared models per edge                                                                                         |
 | reply routing           | origin-correlated hop routing (feeds wrappers)                                                                                                         |
+| subscription identity   | durable consumer identity per async subscription (§8 — async-chain convergence)                                                                        |
 | response awaiting       | declared-response wrappers (§4)                                                                                                                        |
 | subgraph settlement     | transitive settled-detection over inline-chained descendants (async branches are excluded in principle — their completion is unobservable by contract) |
 | execution bindings      | in-process · FaaS · container · … (invocation-edge implementations)                                                                                    |
