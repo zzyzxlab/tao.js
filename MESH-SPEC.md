@@ -191,13 +191,15 @@ series of messages that, exchanged in order, get something done.
 The paradigm phase contract is `ENVELOPE-SPEC.md` §14 and is not restated
 here; this section specifies what distribution adds. One universal priority
 exists — Intercept → Async → Inline — and no other priority mechanism ever
-will (§14's rejection of prioritized handlers is paradigm-level).
+will (the rejection of prioritized handlers in `ENVELOPE-SPEC.md` §14 is
+paradigm-level).
 
 ### 5.1 Intercepts: the distributed gather
 
 The intercept set for a dispatch is the **snapshot** of gates registered in
 the dispatch scope at dispatch time — local functions and remote bindings
-alike. The dispatch gathers verdicts under conditional completeness (§14):
+alike. The dispatch gathers verdicts under conditional completeness
+(`ENVELOPE-SPEC.md` §14):
 
 - **Proceed requires the complete verdict set, all falsey.** A dispatch
   MUST NOT proceed on partial verdicts — no posture, capability, or
@@ -213,7 +215,8 @@ alike. The dispatch gathers verdicts under conditional completeness (§14):
   and associative, so evaluation order and parallelism are unobservable
   (Appendix A). Gate invocations MAY be concurrent, scatter-gathered, or
   serialized — the outcome is identical for contract-conformant gates.
-- **Redirect at mesh scale** is unchanged from §14: decisive-as-forward.
+- **Redirect at mesh scale** is unchanged from `ENVELOPE-SPEC.md` §14:
+  decisive-as-forward.
   The replacement signal enters as a new dispatch and faces its own
   complete intercept phase wherever it dispatches. A concurrent
   truthy-vs-AppCon race MUST resolve deterministically; the implementation

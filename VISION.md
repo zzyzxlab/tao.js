@@ -204,8 +204,8 @@ untouched: mesh-wide guarantees are obtained by induction over edges, and
 
 The TAO Paradigm codifies a contract that lets **Business Logic evolve
 orthogonally to the Architectural Logic underneath**. You start
-client-server and migrate to a mesh without changing any prescribed
-protocol chain of trigrams. That is not an aspiration; it is now an
+client-server and migrate to a mesh without changing any declared
+Protocol (chain of trigrams). That is not an aspiration; it is now an
 observed property at small scale: the 0.19 cutover replaced the entire
 dispatch engine (middleware → direct execution) and every consumer
 package held 100.00% mutation score with **zero edits** — 959
@@ -263,7 +263,7 @@ design:
    is explicitly swappable because the contract names exactly what it
    guarantees.
 3. **The drift loop is closed at runtime.** The classic DSL death is the
-   spec becoming a lie. A TAO app's declared protocol and its observed
+   spec becoming a lie. A TAO app's declared Protocols and its observed
    chains are checkable against each other every time a cascade runs
    through a sink.
 
@@ -288,10 +288,11 @@ mesh — is deliberately nobody's business but the operator's.
 
 ### The release ladder
 
-| release | delivers                                                               | status                         |
-| ------- | ---------------------------------------------------------------------- | ------------------------------ |
-| 0.18.0  | envelope + decorations, dual-mode (insurance), telemetry/otel, routing | shipped                        |
-| 0.19.0  | legacy retirement: one dispatch surface (`ENVELOPE-SPEC.md` §12)       | built — PR #60                 |
-| 0.20.0  | the wire: chain transport, primitives + TCK, `hop.via`, §9 normative   | next (§1 of this doc)          |
-| 0.2x    | routing add-ons (loader-await, per-navigation Channels, SSR→hydration) | after the wire                 |
-| 1.0     | the contract + its proofs (see above)                                  | when the contract stops moving |
+| release | delivers                                                                  | status                         |
+| ------- | ------------------------------------------------------------------------- | ------------------------------ |
+| 0.18.0  | envelope + decorations, dual-mode (insurance), telemetry/otel, routing    | shipped                        |
+| 0.19.0  | legacy retirement: one dispatch surface (`ENVELOPE-SPEC.md` §12)          | shipped                        |
+| 0.20.0  | the wire: chain transport, primitives + TCK, `hop.via`, §9 normative      | shipped                        |
+| 0.21.0  | types train: d.ts for all 13 packages + deprecation removals              | shipped                        |
+| 0.2x    | routing add-ons (loader-await, per-navigation Channels, SSR→hydration)    | open                           |
+| 1.0     | the contract + its proofs — incl. `MESH-SPEC.md` + the §13–§15 amendments | when the contract stops moving |

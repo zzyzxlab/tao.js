@@ -201,8 +201,10 @@ on microtasks. Entry stamping of an envelope during the synchronous start is
 therefore race-free.
 
 Async-phase contract (normative, clarified 0.20): after the intercept
-phase passes, **all** async handlers are guaranteed to be called, in
-registration order, before the first inline handler runs — but the calls
+phase passes, **all** async handlers are guaranteed to be called, before
+the first inline handler runs (this engine enqueues them in registration
+order — scheduling detail, not contract, per the §10 scope split) — but
+the calls
 themselves are scheduled on the event loop (microtask queue), never
 executed in the entrant's synchronous stack, and the engine never awaits
 them. The priority is a queue-order guarantee, not synchronous
@@ -213,9 +215,10 @@ Async handlers are out-of-band side effects — their completion timing is
 unobservable by design and must not affect the serialized execution of
 the inline phase. An AppCtx returned by an async handler enters as a new
 hop (`hop.via: 'Async'`) when it resolves. The initiation-before-inline
-ordering is a local-scheduling guarantee (deployment-level in the
-`VISION.md` §2 placement terms); fire-and-forget completion is
-protocol-level and holds across process boundaries.
+ordering is a local-scheduling guarantee (implementation-level in the
+§10 scope-split terms; see also §14 and `MESH-SPEC.md` §5.3);
+fire-and-forget completion is paradigm-level and holds across process
+boundaries.
 
 ## 5. Decorator interface
 
@@ -280,8 +283,11 @@ inline/intercept handler error rethrows into the fire-and-forget dispatch
 promise — under Node ≥15 defaults that is an unhandled rejection and
 terminates the process. This is intentional anti-parentalism: developers
 own their error boundaries (a five-line `onReturn` decoration settles
-everything). Open for 0.21: ship an `errorBoundary` helper and revisit
-the default's ergonomics — any change is a protocol decision, spec-first.
+everything). Still open pre-1.0: an `errorBoundary` helper and a revisit
+of the default's ergonomics — any change is a protocol decision,
+spec-first. At mesh scale the principle generalizes: a handler failure
+terminates its isolation unit, and loud-fail is that principle in its
+degenerate form, where the process is the unit (`MESH-SPEC.md` §1).
 Async handlers are exempt as of 0.20: their failures always settle or
 swallow inside the fork (§4 async-phase contract).
 `Transceiver` becomes: cascade key + `onReturn` mapping (intercept→reject,
@@ -366,8 +372,8 @@ bidirectional reflex, multi-hop emission, chain continuity across a
 round trip, cascade scoping). A transport that passes the TCK against a
 loopback link honors this contract. This three-scope contract — not the
 JS API — is what a Go/Rust/Python implementation must honor, plus the
-phase semantics (intercept-halt, async-fork, inline-spool) documented in
-AGENTS.md.
+phase semantics specified in §14 (the paradigm phase contract) and the
+dispatch lifecycle in §15.
 
 ## 10. Behavioral invariants
 
