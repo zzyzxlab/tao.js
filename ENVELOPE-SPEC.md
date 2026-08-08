@@ -3,6 +3,12 @@
 Status: **implemented** on `feat/network-envelope` (see §11 for the
 verification record; end-to-end proof at
 `tools/smoke/socketio-envelope-smoke.cjs`).
+Amended for 1.0 (the mesh-spec sessions, recorded in `MESH-SPEC.md`):
+§10 gains an explicit paradigm/implementation scope split, and §§13–15 add
+the datum contract, the paradigm phase contract, and the dispatch
+lifecycle. The amendments are normative; where they name engine behavior
+that does not exist yet (first-class lifecycle callbacks), the JS
+implementation follows pre-1.0.
 Scope: `@tao.js/core` internals, `@tao.js/utils` adapters, new `@tao.js/telemetry` +
 `@tao.js/opentelemetry`. **Zero changes** to the app-facing TAO surface.
 
@@ -370,6 +376,17 @@ normative for this redesign, the §12 cutover, and any future
 implementation of the signal plane. Executable forms live in the package
 test suites and `tools/smoke/socketio-envelope-smoke.cjs`.
 
+**Scope split (1.0 amendment).** With the paradigm phase contract stated
+explicitly in §14, these invariants divide into two scopes. Invariants
+1–5 and 7 are **paradigm-portable**: communication semantics every
+implementation honors. Invariant 6's return semantics and phase order are
+paradigm (restated precisely in §14); its suppression and
+registration-order clauses, and invariant 8 entirely, are
+**implementation-level**: guarantees of this JS engine that are
+unobservable to a contract-conformant app and MUST NOT be relied upon —
+ordering between handlers is expressed by chaining trigrams (Protocols,
+`MESH-SPEC.md` §4), never by registration.
+
 1. Every chained AppCon is observable on **every hop** (a Source's emit
    middleware must see chained signals, or client→server forwarding of
    multi-hop chains breaks).
@@ -398,7 +415,11 @@ test suites and `tools/smoke/socketio-envelope-smoke.cjs`.
    intercept AppCtx-divert suppresses remaining handlers; intercept
    truthy halts; intercept undefined observes; inline/async AppCtx
    chains — all preserved exactly, including wildcard-intercept loggers
-   firing first.
+   firing first. _(Scope, per the 1.0 amendment: return semantics and
+   phase order are paradigm — see §14 for the precise statement.
+   Suppression of remaining handlers and any registration-order effect
+   are this engine's serialized execution showing through: unobservable
+   to conformant apps, never contract.)_
 7. **Chain affinity is exact**: a cascade entered on a per-request
    Channel keeps that channel's scoping for all hops; a kernel-entered
    cascade never acquires scoping; a Transponder/Transceiver cascade tag
@@ -406,7 +427,9 @@ test suites and `tools/smoke/socketio-envelope-smoke.cjs`.
 8. **No added macrotask hops in dispatch**: chained dispatch stays on
    the same synchronous/microtask schedule — consumers legitimately
    drain pending async work with a single `setImmediate`, and UI code
-   assumes inline completion ordering.
+   assumes inline completion ordering. _(Scope, per the 1.0 amendment:
+   a property of the degenerate invocation edge — dispatch and execution
+   sharing a process — never of the paradigm; see `MESH-SPEC.md` §7.)_
 
 Deployment note: field lockfiles showed mixed patch versions in practice
 (core 0.16.0 running under utils/socket.io 0.16.2). v2 adapters call
@@ -503,3 +526,166 @@ Cross-process `envelope.chain` transport, envelope-powered routing
 features, and the TypeScript surface remain separate follow-ups — 0.19 is
 purely subtractive plus the one channel-chain semantic fix, to keep its
 diff reviewable against this spec's table above.
+
+## 13. The datum contract (normative, 1.0)
+
+This is the first section of this spec stating **consumer obligations the
+engine relies on**, rather than engine guarantees consumers rely on. The
+governing principle: **a datum is a value.** Once a signal carries it, it
+has one meaning everywhere, forever.
+
+1. **Handlers MUST NOT mutate the received datum.** Enrichment happens
+   only by returning a new AppCtx — a divert or a chain.
+2. **Ownership transfers at entry.** After `setCtx`/`setAppCtx`/a chain
+   return, the datum belongs to the dispatch; the entrant MUST NOT mutate
+   it afterward. (Async handlers run after the entrant's frame — a caller
+   reusing a buffer would race its own cascade.)
+3. **Decorations observe purely** — already implied by the §5 composition
+   law for `onDispatch`; explicit for datum.
+4. **The license: a returned datum MAY share structure with the received
+   one.** `{ ...data, User: updatedUser }` keeps every untouched reference.
+   Sharing is sound _because of_ rules 1–3.
+
+Immutability is not copying — it is what makes **zero-copy safe**:
+pass-by-reference and pass-by-value are indistinguishable exactly when
+nobody mutates. In-process, a large datum flowing through a ten-hop chain
+is one allocation and ten references; copies exist only at real
+serialization boundaries, where they are inherent. Consequence for
+distribution (`MESH-SPEC.md` §7): a conformant handler cannot distinguish
+in-process dispatch from edge dispatch by datum aliasing.
+
+Bulk state does not ride in datums: signals carry meaning and identity;
+stores carry bulk. Incremental accumulation across hops belongs in an
+app-owned store keyed by identity from the signal.
+
+Enforcement is layered, never a production cost: the obligation is
+normative here; a dev-mode `freezeDatum` decoration (deep-freeze in
+`onDispatch`, before handlers run) makes violations throw; typed
+vocabularies type handler datum params as deep-`Readonly`.
+
+> **Plainly** — Treat the datum you receive as read-only, and hands off
+> once you've fired a signal — the data rides the network now. To change
+> something, return a new signal whose datum reuses everything you didn't
+> change. You never need to copy for safety, and the engine never copies
+> either; that's the deal immutability buys.
+
+## 14. The phase contract (paradigm, 1.0)
+
+The portable contract of the three handler phases — what every
+implementation of TAO, in any language, on any architecture, must honor.
+This engine's serialized execution is one conformant implementation; where
+its behavior is stronger than this section, the surplus is unobservable to
+a conformant app and off-contract to rely upon.
+
+**One universal priority exists: Intercept → Async → Inline.** There is no
+other priority mechanism, and there never will be: one pre-condition
+mechanism with one guaranteed invocation priority is what keeps TAO
+reliable everywhere for everyone. Ordering beyond it is expressed by
+**chaining trigrams** — declared as Protocols (`MESH-SPEC.md` §4) — which
+puts precedence in the visible, documented protocol instead of hidden
+registration mechanics.
+
+### Intercept
+
+Intercept handlers exist to **check pre-conditions and redirect chains**.
+Observation belongs to decorations. (The historical `{*,*,*}` TaoLogger
+intercept was a build-time convenience, not a pattern; its portable home
+is `onDispatch`.)
+
+- **Barrier**: the intercept phase settles before any async or inline
+  handler fires.
+- **Conditional completeness**: to **proceed**, every matching intercept
+  in the dispatch's snapshot MUST have been consulted and returned
+  falsey. **Halt** (one truthy) is decisive — remaining consultations are
+  unspecified: implementations may short-circuit, run all concurrently, or
+  cancel. **Redirect** (an AppCon return) is decisive-as-forward: the
+  current dispatch concludes with nothing proceeding, and the replacement
+  enters as a new dispatch that faces its own complete intercept phase —
+  a redirect changes which signal faces the gates, never skips them.
+- **Unordered**: intercepts may run in any order, possibly concurrently.
+  Verdict combination is commutative and associative, which is the formal
+  license for that freedom.
+- **An error is a missing verdict, never a falsey.** A throwing/failing
+  intercept blocks proceed; errors are never passes.
+- **Determinism at races**: a concurrent truthy-vs-AppCon race resolves
+  deterministically; the implementation declares its tiebreak. Tooling
+  lints overlapping redirect-capable patterns.
+
+> **Plainly** — What you can rely on: if your signal runs, _every_
+> matching intercept was asked and said falsey; one truthy kills it; an
+> AppCon return redirects — the original dies and the new signal faces its
+> own gates; an unreachable gate blocks passage, never gets skipped. What
+> you can't rely on: order (any order, maybe simultaneous) and being
+> called (a peer's verdict may conclude the dispatch without you). So
+> never put must-run-for-every-signal logic in an intercept — that's a
+> decoration's job.
+
+### Inline
+
+- Inline handlers run only after the intercept phase passes.
+- **Every** matching inline handler in the dispatch's snapshot is called
+  — inline has no verdicts.
+- **Unordered** among themselves; sequence is chained trigrams.
+- A returned AppCtx chains the cascade.
+- **Settlement**: the signal settles when all inline handlers have
+  completed (returned or errored). Inline completion is part of "this
+  signal has been handled"; an inline error is part of settlement —
+  reported and isolated, never blocking sibling handlers.
+- "Same execution context / same tick" is not contract (§10 invariant 8
+  scope note).
+
+### Async
+
+- Every matching async handler is called (delivery policy governs across
+  a mesh); calls are never awaited and completion is unobservable by
+  design — this much is unchanged from §4's async-phase contract, whose
+  initiation-before-inline ordering remains a local-scheduling
+  (deployment-level) guarantee.
+- An AppCtx returned by an async handler enters as a new dispatch
+  whenever it resolves.
+
+> **Plainly** — Inline: registering enrolls you — the signal isn't handled
+> until your handler finishes; you're counted and waited on. Async:
+> subscribe from anywhere; you get the signal, you react, nobody waits on
+> you. The one question that picks between them: does the system need to
+> consider the signal _unhandled_ until your code runs? Yes → inline. No,
+> you're just reacting → async.
+
+## 15. The dispatch lifecycle (paradigm, 1.0)
+
+Every dispatch produces four observable events — **monotone, each exactly
+once**:
+
+| event        | meaning                                                                                  | whose job is done                    |
+| ------------ | ---------------------------------------------------------------------------------------- | ------------------------------------ |
+| `received`   | the signal entered the dispatch scope, before any intercept runs                         | the edge/entry surface: it delivered |
+| `concluded`  | the intercept outcome is determined: `proceeded` \| `halted` \| `redirected` \| `failed` | the routing decision                 |
+| `dispatched` | every inline handler in the snapshot has been invoked                                    | the dispatch machinery               |
+| `settled`    | every inline handler has completed                                                       | the handlers                         |
+
+A halted, redirected, or failed dispatch legally stops at `concluded`.
+
+**Events are observation waypoints, never orchestration primitives.** The
+dispatch drives the events; events never gate the dispatch. They are not
+signals in the network — no meta-signals — and application logic does not
+branch on them. Machinery attaches _to_ them: tracing, delivery acks and
+dedup (`MESH-SPEC.md` §6), wrappers. Causality flows only outward.
+
+**There is no client await.** `setCtx` returns nothing, at every scale,
+permanently. Request/response ergonomics are wrapper contracts built by
+observing the network — and wrappers await _declared_ responses
+(`MESH-SPEC.md` §4), not whichever descendant happens to chain first.
+
+**Mechanism**: events surface on the decoration plane. In this engine,
+`onDispatch` already fires at the `received` point (pre-intercept — why
+the Tracer records halted signals and typo'd no-ops) and `onProceed` at
+`concluded`-as-proceeded; the four events become first-class decoration
+callbacks pre-1.0, with the existing per-handler hooks (`onReturn`)
+remaining the finer granularity beneath them.
+
+> **Plainly** — Every signal leaves a four-beat trail: it arrived, the
+> gates ruled, every handler was called, every handler finished. Tracing,
+> acks, and request/response wrappers all work by watching the trail. Your
+> code never steers by it — handlers and chains are the only wheel. And
+> firing a signal still returns nothing; if you want an answer, use a
+> wrapper that watches for the declared response.

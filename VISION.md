@@ -135,78 +135,66 @@ round trip.
 
 ---
 
-## 2. The mesh (the architectural end-state; not scheduled)
+## 2. The mesh (the architectural end-state; specified, not scheduled)
 
-The thought experiment: AppCon signals fired into a mesh that exists
-dynamically across many nodes, protocol chains defined app-side, signals
-finding their handlers wherever they live — under the full TAO contract:
-trigram listeners, wildcards, and the INTERCEPT/ASYNC/INLINE guarantees.
+> **Status: specified.** The design record that used to live here — home
+> authorities, a sequential distributed veto, CAP-driven partition
+> postures — was superseded by the 1.0 spec sessions: it had read the JS
+> engine's serialized implementation back into the paradigm. The
+> corrected contract lives in `MESH-SPEC.md` (the mesh floor + the
+> capability vocabulary) and `ENVELOPE-SPEC.md` §§13–15 (datum contract,
+> paradigm phase contract, dispatch lifecycle). What follows is the
+> summary and the analysis that survives.
 
-### What maps cleanly
+### What maps cleanly (unchanged)
 
 Trigram listeners + wildcards across a dynamic mesh is **subject-based
-routing** — a solved problem (NATS subjects, MQTT topics, AMQP topic
-exchanges). A trigram is a three-token subject; wildcard handlers are
-wildcard subscriptions; membership dynamics are interest propagation.
-TAO's fixed three-token address space makes this cleaner than general
-pub/sub, not harder.
+routing** — a solved problem. A trigram is a point in the app's declared
+Space; a wildcard handler is a slice; membership dynamics are interest
+propagation. TAO's fixed three-token grammar makes this cheaper than
+general pub/sub, not harder (`MESH-SPEC.md` Appendix B: dispatch in at
+most 8 probes).
 
-### What fights back: the phases encode locality
+### The phases encode locality — corrected
 
-| phase     | across a mesh                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ASYNC     | distribution-native: a fork with no ordering/timing obligation. A remote async handler is just a subscriber. Zero contract loss                                                                                                                                                                                                                                                                                                                                    |
-| INLINE    | loses its timing, keeps its ordering: "same execution context, no added macrotask hops" is definitionally unsatisfiable over a network; "ordered, awaited, settled — on network time" survives as an explicitly weaker tier                                                                                                                                                                                                                                        |
-| INTERCEPT | **the crux**: a global, _sequential_, awaited veto before any other phase fires anywhere. Distributed literally = a synchronous barrier across every node holding a matching pattern (including wildcards), per dispatch, unparallelizable (order matters). A partitioned node holding a `{*,*,*}` intercept either blocks the mesh or the veto silently stops being a veto. Veto semantics are CP; always-dispatch is AP — this is CAP, not an engineering detail |
+| phase     | across a mesh                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ASYNC     | distribution-native: open interest, delivery per declared policy, completion unobservable. Zero contract loss                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| INLINE    | **enrollment**: registered bindings, counted and waited on; `dispatched`/`settled` are exact over a per-dispatch snapshot. Execution may live anywhere (invocation edges); timing was never contract                                                                                                                                                                                                                                                                                                                                 |
+| INTERCEPT | **not the crux it appeared to be.** The paradigm contract is an unordered verdict gather with conditional completeness (`ENVELOPE-SPEC.md` §14): proceed needs the complete all-falsey set; halt is decisive on partial verdicts. Verdict combination is commutative, so fan-out is legal by construction — no global sequencer, no leases, no consensus store. What remains of CAP: passage requires reachability of the gate snapshot — fail-closed by construction, with postures declared per placement unit (`MESH-SPEC.md` §9) |
 
-### The design shape that resolves it
-
-**Route signals to guarantees instead of stretching guarantees across
-nodes.** Give every trigram (or Term) a _home_ — an authority node — and
-execute the full three-phase contract there, exactly as local TAO, on the
-already-verified dispatch engine. Other nodes hold async subscriptions
-and produce chain continuations. A handler on node A chaining a trigram
-whose home is node B is an inter-node hop carrying the chain scope —
-**which is precisely the 0.20 wire contract**. The mesh is then layers
-above 0.20's edges:
-
-- interest propagation (which trigram patterns live where);
-- home placement and failover (trigram as the natural sharding key —
-  queue-group-style takeover);
-- delivery policy (realistically at-least-once + idempotent handlers);
-- partition policy (what the veto means during a partition — declared,
-  not discovered).
-
-This is the virtual-actor / Erlang shape: single writer per subject,
-strong guarantees at the owner, async messaging between owners. Global
-observation belongs to decorations, not intercepts: a wildcard intercept
-is the mesh anti-pattern, while the Tracer-as-decoration + collector
-pattern (local recording, converged aggregation) is already the
+The earlier "sequential, awaited veto = CP" analysis mistook the JS
+engine's serialized loop for paradigm. The paradigm's intercept contract
+was always outcome-shaped — truthy halts, AppCon redirects, falsey
+proceeds — and pinning that precisely is what dissolved the
+distributed-veto problem. Global observation belongs to decorations
+either way: the Tracer-as-decoration + collector pattern remains the
 mesh-ready answer.
 
-### Standing advice for when it's built
+### Standing advice (updated)
 
-1. **Don't write membership, gossip, or routing.** Build the TAO
-   semantics layer on an existing subject-routing substrate (NATS maps
-   almost 1:1). TAO's contribution is the phase contract and the
+1. **Don't write membership, gossip, or routing.** Bind the floor to an
+   existing substrate (`MESH-SPEC.md` §11 sketches subject brokers, FaaS,
+   and blends). TAO's contribution is the phase contract and the
    product-language protocol, not transport plumbing.
-2. **Spend the invention budget on the guarantee-placement spec**: a
-   table stating which invariant holds where (home-node / edge /
-   mesh-wide), written before code — the same §10 discipline. This table
-   is what keeps "migrate without changing the protocol" honest.
-3. `TAO.md` + the protocol extractor (`AGENTIC.md`) double as the mesh's
-   interest schema — the app's declared protocol is literally the routing
-   table.
+2. The invention budget went where it belonged: the **capability
+   vocabulary and the requirements⊆capabilities placement rule**
+   (`MESH-SPEC.md` §10) — the successor of the "guarantee-placement
+   table" idea, with declared postures instead of a prescribed one.
+3. **The app's TAO — its declared Space and Protocols — is the routing
+   surface, placement input, and lint target** (`MESH-SPEC.md` §§3–4);
+   the extractor (`AGENTIC.md`) generates its skeleton.
 4. The Go implementation (`FUTURE.md`) stops being a port and becomes a
-   mesh node the moment §9 + the placement table exist.
+   mesh node by implementing §9 propagation edges, invocation edges, and
+   the §14/§15 contracts, then passing the kits — with a cross-language
+   TCK run as the induction proof (`MESH-SPEC.md` §12).
 
-### Effect on 0.20
+### Effect on 0.20 (unchanged)
 
 Scope: none. 0.20 **is** the first mesh edge — a two-node mesh with
-static membership. The only mesh-readiness requirements are already in
-the 0.20 plan: a versioned self-describing wire envelope, and TCK
-invariants phrased per-edge so a future mesh link is just another
-TCK-passing transport.
+static membership. Its wire contract and TCK survive the respecification
+untouched: mesh-wide guarantees are obtained by induction over edges, and
+0.20's edges are the induction step.
 
 ---
 
@@ -240,9 +228,12 @@ guarantees are protocol and which are accidents of deployment**:
   quietly depends on same-tick inline completion will notice the mesh
   even though its trigram chains never change.
 
-The guarantee-placement table (§2) is the instrument that makes this
-distinction explicit. Contracts that skip it become fiction the first
-time the architecture moves.
+The instrument that makes this distinction explicit is now twofold: the
+§10 scope split in `ENVELOPE-SPEC.md` (which invariants are paradigm,
+which are this engine showing through) and the capability model in
+`MESH-SPEC.md` §10 (requirements declared per placement unit, checked by
+containment against what an architecture declares). Contracts that skip
+this become fiction the first time the architecture moves.
 
 ### TAO as a meta-framework
 
@@ -286,8 +277,10 @@ happens to have been authored by naming trigrams.
 
 1.0 is not "the JavaScript implementation is finished." 1.0 is **the
 contract is specified tightly enough to hold through architecture swaps
-that haven't happened yet**: the §10 invariants, the §9 wire contract,
-and eventually the guarantee-placement table. The JS packages are one
+that haven't happened yet**: the §10 invariants with their scope split,
+the §9 wire contract, the §13–§15 paradigm amendments (datum contract,
+phase contract, dispatch lifecycle), and the `MESH-SPEC.md` floor with
+its capability vocabulary. The JS packages are one
 deployment of that contract; the Go library is the second; the mesh is
 the third. The core is the grammar, the tooling makes each app's
 language feel native, and the architecture underneath — kernel, socket,
