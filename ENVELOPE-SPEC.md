@@ -15,7 +15,7 @@ Scope: `@tao.js/core` internals, `@tao.js/utils` adapters, new `@tao.js/telemetr
 This is the final hardening of the JS implementation's signal plane. It also
 serves as the reference model for cross-process transports and future
 implementations in other languages: the envelope scopes + trigram + handler
-phases defined here _are_ the protocol.
+phases defined here _are_ the paradigm contract.
 
 ---
 
@@ -591,6 +591,13 @@ reliable everywhere for everyone. Ordering beyond it is expressed by
 puts precedence in the visible, documented protocol instead of hidden
 registration mechanics.
 
+**Snapshot semantics.** The handlers a dispatch considers — in every
+phase — are those registered in its dispatch scope at dispatch time: its
+**snapshot**. Registration is dynamic (add and remove at any time); each
+dispatch binds to its snapshot exactly once, and a handler registered
+after dispatch is not retroactively included — true of this engine since
+its beginning, now stated as paradigm.
+
 ### Intercept
 
 Intercept handlers exist to **check pre-conditions and redirect chains**.
@@ -646,7 +653,7 @@ is `onDispatch`.)
   a mesh); calls are never awaited and completion is unobservable by
   design — this much is unchanged from §4's async-phase contract, whose
   initiation-before-inline ordering remains a local-scheduling
-  (deployment-level) guarantee.
+  (implementation-level) guarantee.
 - An AppCtx returned by an async handler enters as a new dispatch
   whenever it resolves.
 
@@ -659,8 +666,10 @@ is `onDispatch`.)
 
 ## 15. The dispatch lifecycle (paradigm, 1.0)
 
-Every dispatch produces four observable events — **monotone, each exactly
-once**:
+Every dispatch produces observable events from a fixed set of four — **in
+order, each at most once**; `received` and `concluded` fire for every
+dispatch, `dispatched` and `settled` exactly when the outcome is
+`proceeded`:
 
 | event        | meaning                                                                                  | whose job is done                    |
 | ------------ | ---------------------------------------------------------------------------------------- | ------------------------------------ |

@@ -230,9 +230,15 @@ alike. The dispatch gathers verdicts under conditional completeness
 Inline participation is **enrollment**: a binding registered in the dispatch
 scope's registry. Each dispatch takes a snapshot; `dispatched` and `settled`
 (§6) are exact over that snapshot. An enrolled binding may execute anywhere
-(§7), but its node's reachability is part of the signal's settlement path —
-enrolled means counted and waited on. Unreachable enrolled bindings are
-governed by posture (§9), anchored at `dispatched`.
+(§7), but its reachability is part of the signal's settlement path —
+enrolled means counted and waited on. Reachability of the full snapshot —
+gates _and_ enrolled inline bindings — is evaluated **before the dispatch
+proceeds**: a dispatch that cannot invoke its enrolled bindings concludes
+`failed` per the declared posture (§9), never stranding between
+`dispatched` and `settled`. A binding that fails _after_ conclusion (dies
+mid-invocation) is an invocation failure: it settles as an error under the
+failure contract (§1), and the dispatch still reaches `dispatched` and
+`settled`.
 
 ### 5.3 Async: interest
 
@@ -261,7 +267,9 @@ never positional.
 
 The paradigm defines four observable events per dispatch
 (`ENVELOPE-SPEC.md` §15): **received → concluded → dispatched → settled**,
-monotone, each exactly once. The mesh consumes them as its anchor points:
+in that order, each at most once — `received` and `concluded` fire for
+every dispatch; `dispatched` and `settled` fire exactly when the outcome
+is `proceeded`. The mesh consumes them as its anchor points:
 
 | event        | obligation owner whose job is done            | mesh usage                                                                                                                                                                       |
 | ------------ | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -356,13 +364,22 @@ capability.
 **Identity is normative.** Every signal has an identity:
 
 - Entry signals receive a fresh, unique id from their dispatch scope.
-- Chained signals MUST derive their id deterministically:
+- Signals chained by **enrolled** bindings — inline chains and gate
+  redirects (the producing gate is the replacement's binding) — MUST
+  derive their id deterministically:
   `id = H(parent id, producing binding's stable identity, ordinal among
 that binding's chained outputs in that dispatch)`. Binding identity comes
   from enrollment and MUST be stable across re-execution and failover.
   The derivation is order-independent across handlers (the ordinal is
   within one binding's own outputs), so unordered inline execution does not
   perturb ids.
+- An AppCtx returned by an **async** handler enters as a new entry with a
+  fresh id — interest has no enrolled binding identity to derive from
+  (§5.3). Consequence, stated as dissolution: a redelivered parent may
+  re-run async handlers and re-enter their chains as _distinct_ signals;
+  async-produced duplicates are not convergent under dedup, and an async
+  handler's effects are its author's to make idempotent — consistent with
+  async being the uncounted, fire-and-forget phase.
 
 Deterministic identity is what makes redelivery recognizable and re-drive
 convergent: a re-executed dispatch emits chained signals with the **same**
@@ -409,7 +426,9 @@ Four floor rules:
    a snapshotted gate; postures govern what happens _instead of_
    proceeding. Halt remains decisive on partial verdicts.
 2. **Postures are defined behaviorally.** An implementation declares, per
-   placement unit, its behavior when the snapshot is not fully reachable:
+   placement unit, its behavior when the snapshot is not fully reachable
+   (evaluated before proceeding, per §5.2; a failure _after_ conclusion
+   settles as an invocation error, never a posture outcome):
    - `fail-fast` — conclude `failed` immediately;
    - `bounded-queue(window)` — hold entry up to the declared window (riding
      out routine failover), then conclude `failed`;
@@ -503,8 +522,9 @@ containment per edge (§7.3); requirement⊆capability per placement unit.
 - **Propagation edges**: `@tao.js/transport-tck` (existing).
 - **Invocation edges**: a TCK sibling (to accompany the first
   non-degenerate implementation).
-- **Lifecycle**: assert the event state machine — four events, monotone,
-  once each; halted dispatches legally stop at `concluded`.
+- **Lifecycle**: assert the event state machine — in order, each at most
+  once; `received`/`concluded` for every dispatch, `dispatched`/`settled`
+  iff the outcome is `proceeded`.
 - **Cross-implementation runs are the induction proof**: mesh-wide
   guarantees are obtained by induction over edges, so a link with different
   implementations (or languages) on each side, passing the kits, is the

@@ -219,14 +219,15 @@ Client-server → mesh is the same move with a longer lever arm.
 ### The refinement that keeps the claim rigorous
 
 Orthogonality is only as real as the contract is precise about **which
-guarantees are protocol and which are accidents of deployment**:
+guarantees are paradigm and which are accidents of a deployment** (the
+`ENVELOPE-SPEC.md` §10 scope split's terms):
 
-- **protocol-level** (every architecture must honor them): chains, the
+- **paradigm-level** (every architecture must honor them): chains, the
   intercept veto, cascade scoping, handler-return/phase-order semantics;
-- **deployment-level** (the current architecture happens to make them):
-  invariant 8 — no added macrotask hops. An app whose business logic
-  quietly depends on same-tick inline completion will notice the mesh
-  even though its trigram chains never change.
+- **implementation-level** (the current architecture happens to make
+  them): invariant 8 — no added macrotask hops. An app whose business
+  logic quietly depends on same-tick inline completion will notice the
+  mesh even though its trigram chains never change.
 
 The instrument that makes this distinction explicit is now twofold: the
 §10 scope split in `ENVELOPE-SPEC.md` (which invariants are paradigm,

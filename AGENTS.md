@@ -70,7 +70,7 @@ Three handler phases — the one universal priority Intercept → Async → Inli
 
 1. **Intercept** — first; truthy return stops later phases. Returning an `AppCtx` replaces/forwards that context.
 2. **Async** — out-of-band side effects. Paradigm contract: once a signal passes the intercepts, **all** async handlers are guaranteed to be called **before any inline handler runs** (this engine enqueues them in registration order — scheduling detail, not contract) — but the calls are scheduled on the event loop, never executed in the entrant's synchronous stack, and the engine **never awaits them** (queue-order priority, not synchronous invocation) — completion timing is deliberately unobservable and must not affect inline serialization. The Promise plumbing is implementation, not contract. May return an `AppCtx`, which enters as a new hop (`hop.via: 'Async'`) whenever it resolves. (The 0.20 fix defers the call itself — `Promise.resolve().then(() => asyncH(...))` + one queue yield before inline — so sync throws are inherently rejections and `setCtx` never executes side-effect handlers in the caller's frame; the original `Promise.resolve(asyncH(...))` evaluated the call before any promise existed, a leak dating to the prototype port.)
-3. **Inline** — same execution context as the signal; returned `AppCtx` values are collected then set.
+3. **Inline** — runs after async initiation; returned `AppCtx` values are collected then set. (In this engine, same execution context as the signal — degenerate-edge behavior, not paradigm: the portable guarantee is settlement, `ENVELOPE-SPEC.md` §14/§15.)
 
 Register / unregister on a Kernel:
 
@@ -178,7 +178,9 @@ TAO.setCtx({ t: 'User', a: 'Find', o: 'Portal' }, { User: { id: '1' } });
 Promise-style settle (`Kernel.asPromiseHook` was removed in 0.19 — use a
 `Transponder` from `@tao.js/utils`, which resolves with the first handled
 AppCon of the cascade; `Transceiver` when handlers should control the
-Promise):
+Promise). Current behavior note: first-descendant resolution is a race
+under the `ENVELOPE-SPEC.md` §14 unordered contract — pre-1.0, wrappers
+move to declared responses (`MESH-SPEC.md` §4):
 
 ```js
 import { Transponder } from '@tao.js/utils';
