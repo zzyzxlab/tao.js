@@ -25,7 +25,7 @@ TODO
 - [x] create a mutation test suite and exercise it (Stryker on all public packages at 100% — `pnpm test:mutation:*`)
 - [ ] rewrite documentation site
 - [x] update to React 19 implementation for @taojs/react
-- [x] `@tao.js/react` data-context 0.17: hooks modernize + tree-scoped `useTaoData` + soft-deprecate `RenderHandler.context`/`DataConsumer` (see `AGENTS.md` §5; removal still open)
+- [x] `@tao.js/react` data-context 0.17: hooks modernize + tree-scoped `useTaoData` + soft-deprecate `RenderHandler.context`/`DataConsumer` (see `AGENTS.md` §5; removal completed in 0.21 — next entry)
 - [x] `@tao.js/react` remove deprecated data consume APIs — done in 0.21: `RenderHandler.context` + positional ctx args, `DataConsumer`, `Provider` alias, `useTaoDataContext` alias, the Provider data bag, and all `propTypes` + the `prop-types` dependency (React 19 ignores propTypes; d.ts covers typing)
 - [x] host-router adapters (`@tao.js/routing-core` + react-router / tanstack / next) — shipped in the fixed release group (0.18+)
 - [x] signal-plane hardening: envelope scopes + Network decorations + settlement hook per `ENVELOPE-SPEC.md` (`feat/network-envelope`); `@tao.js/telemetry` (causal Tracer + TaoLogger) + `@tao.js/opentelemetry`

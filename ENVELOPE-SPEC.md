@@ -215,10 +215,10 @@ Async handlers are out-of-band side effects — their completion timing is
 unobservable by design and must not affect the serialized execution of
 the inline phase. An AppCtx returned by an async handler enters as a new
 hop (`hop.via: 'Async'`) when it resolves. The initiation-before-inline
-ordering is a local-scheduling guarantee (implementation-level in the
-§10 scope-split terms; see also §14 and `MESH-SPEC.md` §5.3);
-fire-and-forget completion is paradigm-level and holds across process
-boundaries.
+ordering is a local-scheduling guarantee — this engine's realization of
+§14's commitment ordering (implementation-level in the §10 scope-split
+terms; see also `MESH-SPEC.md` §5.3); fire-and-forget completion is
+paradigm-level and holds across process boundaries.
 
 ## 5. Decorator interface
 
@@ -586,7 +586,15 @@ a conformant app and off-contract to rely upon.
 **One universal priority exists: Intercept → Async → Inline.** There is no
 other priority mechanism, and there never will be: one pre-condition
 mechanism with one guaranteed invocation priority is what keeps TAO
-reliable everywhere for everyone. Ordering beyond it is expressed by
+reliable everywhere for everyone. Its portable content, precisely: the
+intercept barrier concludes first and gates everything; on **proceed**,
+delivery to async interest is **committed** — owed to every matching
+async handler per the delivery policy, unaffected by anything the inline
+phase does or returns; the inline phase then executes and settles the
+dispatch. "Async before Inline" is a **commitment ordering, not a
+scheduling promise** — this engine realizes the commitment by enqueuing
+every async call before the first inline handler runs (§4), which is the
+implementation-level form. Ordering beyond it is expressed by
 **chaining trigrams** — declared as Protocols (`MESH-SPEC.md` §4) — which
 puts precedence in the visible, documented protocol instead of hidden
 registration mechanics.
@@ -621,13 +629,16 @@ is `onDispatch`.)
 - **An error is a missing verdict, never a falsey.** A throwing/failing
   intercept blocks proceed; errors are never passes.
 - **Determinism at races**: a concurrent truthy-vs-AppCon race resolves
-  deterministically; the implementation declares its tiebreak. Tooling
-  lints overlapping redirect-capable patterns.
+  deterministically **within a dispatch**; the implementation declares
+  its tiebreak. (Across duplicate dispatches no such promise exists —
+  gates read live state; `MESH-SPEC.md` §8.) Tooling lints overlapping
+  redirect-capable patterns.
 
 > **Plainly** — What you can rely on: if your signal runs, _every_
 > matching intercept was asked and said falsey; one truthy kills it; an
 > AppCon return redirects — the original dies and the new signal faces its
-> own gates; an unreachable gate blocks passage, never gets skipped. What
+> own gates; a gate that can't answer blocks passage — a missing verdict
+> is never a pass. What
 > you can't rely on: order (any order, maybe simultaneous) and being
 > called (a peer's verdict may conclude the dispatch without you). So
 > never put must-run-for-every-signal logic in an intercept — that's a
@@ -651,9 +662,11 @@ is `onDispatch`.)
 
 - Every matching async handler is called (delivery policy governs across
   a mesh); calls are never awaited and completion is unobservable by
-  design — this much is unchanged from §4's async-phase contract, whose
-  initiation-before-inline ordering remains a local-scheduling
-  (implementation-level) guarantee.
+  design. The paradigm ordering is the **commitment** stated above: once
+  the dispatch proceeds, async delivery is owed and cannot be gated,
+  delayed, or cancelled by inline execution or its outcomes. The engine's
+  initiation-before-inline scheduling (§4) is the implementation-level
+  realization of that commitment.
 - An AppCtx returned by an async handler enters as a new dispatch
   whenever it resolves.
 

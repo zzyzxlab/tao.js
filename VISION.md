@@ -84,9 +84,9 @@ one cascade, not several that happen to look alike.
    an attribute. Symmetry note: `onReturn` already reports the phase of
    non-AppCtx returns; `hop.via` reports the phase of AppCtx chains.
 5. **§9 goes normative.** The wire envelope becomes a versioned,
-   self-describing contract: `{ v, trigram, data, chain }` plus the
-   transport's own routing metadata in the transport's own protocol. This
-   is also the document the Go implementation builds from.
+   self-describing contract: `{ tao, data, envelope: { v, chain } }` plus
+   the transport's own routing metadata in the transport's own protocol.
+   This is also the document the Go implementation builds from.
 
 ### Design constraints (settled; do not relitigate without a spec change)
 

@@ -191,8 +191,10 @@ series of messages that, exchanged in order, get something done.
 The paradigm phase contract is `ENVELOPE-SPEC.md` §14 and is not restated
 here; this section specifies what distribution adds. One universal priority
 exists — Intercept → Async → Inline — and no other priority mechanism ever
-will (the rejection of prioritized handlers in `ENVELOPE-SPEC.md` §14 is
-paradigm-level).
+will; its portable content (gate, then commit async delivery, then execute
+and settle inline — a commitment ordering, not a scheduling promise) and
+the rejection of prioritized handlers are both paradigm-level
+(`ENVELOPE-SPEC.md` §14).
 
 ### 5.1 Intercepts: the distributed gather
 
@@ -384,9 +386,10 @@ capability.
 - Entry signals receive a fresh, unique id from their dispatch scope.
 - Signals chained by **enrolled** bindings — inline chains and gate
   redirects (the producing gate is the replacement's binding) — MUST
-  derive their id deterministically:
-  `id = H(parent id, producing binding's stable identity, ordinal among
-that binding's chained outputs in that dispatch)`. Binding identity comes
+  derive their id deterministically as
+  `H(parent id, producing binding's stable identity, per-binding output ordinal)`,
+  the ordinal counting that binding's chained outputs within that
+  dispatch. Binding identity comes
   from enrollment and MUST be stable across re-execution and failover.
   The derivation is order-independent across handlers (the ordinal is
   within one binding's own outputs), so unordered inline execution does not
@@ -534,7 +537,7 @@ pattern must be concrete in the axes the projection uses); datum-model
 containment per edge (§7.3); requirement⊆capability per placement unit.
 
 > **Plainly** — Your app writes down what each part of its Space needs
-> (exactly-once? survives partition how? binary data?). Each architecture
+> (effectively-once? survives partition how? binary data?). Each architecture
 > writes down what it gives. Deployment is a checkbox audit a tool runs —
 > including mixed deployments where half your Space lives on one
 > architecture and half on another. Moving architectures means re-running
