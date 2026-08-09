@@ -219,9 +219,12 @@ alike. The dispatch gathers verdicts under conditional completeness
   decisive-as-forward.
   The replacement signal enters as a new dispatch and faces its own
   complete intercept phase wherever it dispatches. A concurrent
-  truthy-vs-AppCon race MUST resolve deterministically; the implementation
-  declares its tiebreak. Tooling MUST be able to lint overlapping
-  redirect-capable patterns (statically derivable from the app's TAO).
+  truthy-vs-AppCon race MUST resolve deterministically **within a
+  dispatch**; the implementation declares its tiebreak. (Across
+  _duplicate_ dispatches no such promise exists — gates read live state
+  and may legitimately answer differently; see §8.) Tooling MUST be able
+  to lint overlapping redirect-capable patterns (statically derivable
+  from the app's TAO).
 - **A gate invocation failure is a missing verdict, never a falsey.**
   Errors block proceed (posture applies); errors are never passes.
 
@@ -245,11 +248,22 @@ failure contract (§1), and the dispatch still reaches `dispatched` and
 Async participation is **interest**: open subscription from anywhere, at any
 time, propagated however the substrate propagates interest. Interested
 handlers receive the signal per the delivery policy (§8) and are never
-counted: they do not appear in any lifecycle event, settlement, or ack.
-Completion of an async handler is unobservable by contract; an AppCtx it
-returns enters as a new dispatch whenever it resolves. Mesh-wide async
-invocation order is undefined — order across the mesh is causal (chains),
-never positional.
+counted: they do not appear in the _originating_ dispatch's lifecycle
+events, settlement, or acks. Completion of an async handler is
+unobservable by contract; an AppCtx it returns enters as a new dispatch
+whenever it resolves. Mesh-wide async invocation order is undefined —
+order across the mesh is causal (chains), never positional.
+
+**Delivery to interest is entry into the subscriber's dispatch scope** —
+not bare handler invocation. The subscriber's scope applies its own full
+contract: its own snapshot, its own lifecycle events, its own gates
+(per-scope policy — parallel scopes, exactly the invariant-5 structure
+channels already have). Two consequences: the subscriber's `received` is
+its own dedup anchor (a redelivered parent can be dropped there before
+its async handlers ever re-run — duplicate absorption upstream of the §8
+identity machinery), and the emitting dispatch never snapshots its
+audience — the audience is whatever interest the substrate holds at
+emission; each receiving scope snapshots only its own handlers on entry.
 
 > **Plainly** — Intercepts: every gate is asked before a signal passes; one
 > "no" kills it even mid-partition; a gate that can't be reached blocks
@@ -345,6 +359,10 @@ declared edge capability (JSON, msgpack, CBOR, …). Floors and matching:
   Each placement unit declares its required datum model in the app's TAO;
   an edge's declared data model MUST contain the datum models of every
   unit routed over it — statically checkable.
+- Handler **returns** cross the invocation edge under the same rule as
+  datums: a return value (settlement value, or a chained AppCtx's datum)
+  MUST fit the edge's declared data model. Datums and returns travel the
+  same wires; neither is exempt.
 
 > **Plainly** — Signals travel two ways: scope-to-scope (the signal moves)
 > and scope-to-handler (your code gets called). Both send values — copies,
@@ -400,6 +418,14 @@ Deterministic identity is what makes redelivery recognizable and re-drive
 convergent: a re-executed dispatch emits chained signals with the **same**
 ids, so the duplicate wave meets dedup one hop out and self-extinguishes
 (Appendix A: confluence).
+
+**Convergent identity is not outcome idempotency.** A duplicate dispatch
+re-consults its gates, and gates legitimately read live state — a cache
+gate may miss on the first dispatch and redirect on the duplicate. What
+prevents duplicate _decisions_ is dedup at `received` (drop the duplicate
+before any gate runs); identity convergence bounds the chained _wave_
+when a duplicate does run. Where neither applies, divergent outcomes
+across duplicates are part of the stated at-least-once dissolution.
 
 **Capabilities, not floor** (§10): dedup windows keyed on identity;
 delivery modes per placement unit — `at-least-once` (baseline),
@@ -494,6 +520,12 @@ semantics where it appears in this spec):
 | response awaiting       | declared-response wrappers (§4)                                                                                                                        |
 | subgraph settlement     | transitive settled-detection over inline-chained descendants (async branches are excluded in principle — their completion is unobservable by contract) |
 | execution bindings      | in-process · FaaS · container · … (invocation-edge implementations)                                                                                    |
+
+Capabilities attach at different **loci** — per placement unit (delivery
+mode, posture), per edge (codec/data model), per subscription (durable
+identity), per wrapper (response awaiting) — and the validity check
+evaluates each requirement at its locus; "requirements ⊆ capabilities"
+is the conjunction over all loci, not a single flat set.
 
 Lints that MUST be derivable from the declarations (tooling, not runtime):
 overlapping redirect-capable intercept patterns (§5.1); projection
