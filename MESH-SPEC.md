@@ -380,15 +380,21 @@ that binding's chained outputs in that dispatch)`. Binding identity comes
   already records): the parent id arrives with the signal, the
   discriminator is the **subscription's** stable identity, the ordinal is
   the handler's own output order. Where the subscription has durable
-  identity, async chains converge exactly like enrolled ones. Open
-  interest does not _require_ one, however: an anonymous subscription, or
-  pooled consumption where a redelivery is consumed by a different worker
-  than the original, has no stable discriminator, and its re-produced
-  chains enter as distinct signals. Async-chain convergence is therefore
-  a **declared capability** — durable subscription identity (§10) — not
-  floor; where it is absent, the duplicates are the stated dissolution of
-  open membership under at-least-once, and the async handler's effects
-  fall back to domain idempotency.
+  identity, async chains converge exactly like enrolled ones — and pooled
+  consumption converges too, because the discriminator is the _named
+  group's_ identity, never the worker's (workers may be anonymous so long
+  as the subscription is not; hashing worker-instance identity is an
+  implementation bug). The discriminator is genuinely absent only for
+  **ephemeral, unnamed subscriptions** — a browser socket whose
+  subscription is the connection, or an auto-generated consumer name that
+  changes on restart — and only when combined with redelivery (ephemeral
+  interest normally receives at-most-once, where no duplicates arise).
+  Async-chain convergence is therefore a **declared capability** —
+  durable subscription identity (§10): an app that requires it turns a
+  random-consumer-name deployment into an audit failure instead of a
+  production surprise. Where it is knowingly absent, duplicates fall back
+  to domain idempotency — the stated dissolution of ephemeral membership
+  under at-least-once.
 
 Deterministic identity is what makes redelivery recognizable and re-drive
 convergent: a re-executed dispatch emits chained signals with the **same**
