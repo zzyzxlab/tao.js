@@ -2,8 +2,8 @@
 
 Why tao.js fits how AI agents build and maintain software, what already
 delivers on that fit, and the checklist to close the rest. Companion to
-`ENVELOPE-SPEC.md` (the signal-plane contract) and `AGENTS.md` (the
-working guide for agents in this repo).
+`TAO-SPEC.md` (the paradigm), `MESH-SPEC.md` (the mesh floor), and
+`AGENTS.md` (the working guide for agents in this repo).
 
 ---
 
