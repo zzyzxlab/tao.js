@@ -23,8 +23,9 @@ Docs at [tao.js.org](https://tao.js.org)
 
 Specs and design records in this repo:
 
-- [`ENVELOPE-SPEC.md`](./ENVELOPE-SPEC.md) — the paradigm contract: envelope scopes, wire contract, behavioral invariants, datum contract, phase contract, dispatch lifecycle
+- [`TAO-SPEC.md`](./TAO-SPEC.md) — the TAO Paradigm: the portable contract every implementation honors (normative, drafted for 1.0)
 - [`MESH-SPEC.md`](./MESH-SPEC.md) — the TAO Mesh Profile (draft for 1.0)
+- [`ENVELOPE-SPEC.md`](./ENVELOPE-SPEC.md) — design record of the JS implementation's signal plane
 - [`VISION.md`](./VISION.md) — the forward view; [`AGENTIC.md`](./AGENTIC.md) — TAO and agentic programming
 - [`AGENTS.md`](./AGENTS.md) — working guide for agents in this repo
 

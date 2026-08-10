@@ -2,7 +2,9 @@
 
 Where TAO is going and why the sequencing is what it is. Companion to:
 
-- `ENVELOPE-SPEC.md` — the signal-plane contract (normative)
+- `TAO-SPEC.md` — the TAO Paradigm (normative)
+- `MESH-SPEC.md` — the TAO Mesh Profile (normative, draft for 1.0)
+- `ENVELOPE-SPEC.md` — the JS implementation's signal-plane design record
 - `AGENTIC.md` — why TAO fits agentic programming, and the tooling checklist
 - `FUTURE.md` — the working task list
 - `AGENTS.md` — how to work on this repo
@@ -142,9 +144,9 @@ round trip.
 > postures — was superseded by the 1.0 spec sessions: it had read the JS
 > engine's serialized implementation back into the paradigm. The
 > corrected contract lives in `MESH-SPEC.md` (the mesh floor + the
-> capability vocabulary) and `ENVELOPE-SPEC.md` §§13–15 (datum contract,
-> paradigm phase contract, dispatch lifecycle). What follows is the
-> summary and the analysis that survives.
+> capability vocabulary) and `TAO-SPEC.md` (the paradigm — datum
+> contract, phase contract, dispatch lifecycle — extracted standalone for
+> 1.0). What follows is the summary and the analysis that survives.
 
 ### What maps cleanly (unchanged)
 
@@ -157,11 +159,11 @@ most 8 probes).
 
 ### The phases encode locality — corrected
 
-| phase     | across a mesh                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ASYNC     | distribution-native: open interest, delivery per declared policy, completion unobservable. Zero contract loss                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| INLINE    | **enrollment**: registered bindings, counted and waited on; `dispatched`/`settled` are exact over a per-dispatch snapshot. Execution may live anywhere (invocation edges); timing was never contract                                                                                                                                                                                                                                                                                                                                 |
-| INTERCEPT | **not the crux it appeared to be.** The paradigm contract is an unordered verdict gather with conditional completeness (`ENVELOPE-SPEC.md` §14): proceed needs the complete all-falsey set; halt is decisive on partial verdicts. Verdict combination is commutative, so fan-out is legal by construction — no global sequencer, no leases, no consensus store. What remains of CAP: passage requires reachability of the gate snapshot — fail-closed by construction, with postures declared per placement unit (`MESH-SPEC.md` §9) |
+| phase     | across a mesh                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ASYNC     | distribution-native: open interest, delivery per declared policy, completion unobservable. Zero contract loss                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| INLINE    | **enrollment**: registered bindings, counted and waited on; `dispatched`/`settled` are exact over a per-dispatch snapshot. Execution may live anywhere (invocation edges); timing was never contract                                                                                                                                                                                                                                                                                                                           |
+| INTERCEPT | **not the crux it appeared to be.** The paradigm contract is an unordered verdict gather with conditional completeness (`TAO-SPEC.md` §3): proceed needs the complete all-falsey set; halt is decisive on partial verdicts. Verdict combination is commutative, so fan-out is legal by construction — no global sequencer, no leases, no consensus store. What remains of CAP: passage requires reachability of the gate snapshot — fail-closed by construction, with postures declared per placement unit (`MESH-SPEC.md` §9) |
 
 The earlier "sequential, awaited veto = CP" analysis mistook the JS
 engine's serialized loop for paradigm. The paradigm's intercept contract
@@ -185,9 +187,9 @@ mesh-ready answer.
    surface, placement input, and lint target** (`MESH-SPEC.md` §§3–4);
    the extractor (`AGENTIC.md`) generates its skeleton.
 4. The Go implementation (`FUTURE.md`) stops being a port and becomes a
-   mesh node by implementing §9 propagation edges, invocation edges, and
-   the §14/§15 contracts, then passing the kits — with a cross-language
-   TCK run as the induction proof (`MESH-SPEC.md` §12).
+   mesh node by implementing `TAO-SPEC.md` (wire, phases, lifecycle) plus
+   `MESH-SPEC.md`'s invocation edges, then passing the kits — with a
+   cross-language TCK run as the induction proof (`MESH-SPEC.md` §12).
 
 ### Effect on 0.20 (unchanged)
 
@@ -229,12 +231,13 @@ guarantees are paradigm and which are accidents of a deployment** (the
   logic quietly depends on same-tick inline completion will notice the
   mesh even though its trigram chains never change.
 
-The instrument that makes this distinction explicit is now twofold: the
-§10 scope split in `ENVELOPE-SPEC.md` (which invariants are paradigm,
-which are this engine showing through) and the capability model in
-`MESH-SPEC.md` §10 (requirements declared per placement unit, checked by
-containment against what an architecture declares). Contracts that skip
-this become fiction the first time the architecture moves.
+The instrument that makes this distinction explicit is now twofold:
+`TAO-SPEC.md` (the paradigm stated standalone, with `ENVELOPE-SPEC.md`
+§10's scope split recording which of this engine's guarantees are
+surplus) and the capability model in `MESH-SPEC.md` §10 (requirements
+declared per placement unit, checked by containment against what an
+architecture declares). Contracts that skip this become fiction the
+first time the architecture moves.
 
 ### TAO as a meta-framework
 
@@ -278,10 +281,10 @@ happens to have been authored by naming trigrams.
 
 1.0 is not "the JavaScript implementation is finished." 1.0 is **the
 contract is specified tightly enough to hold through architecture swaps
-that haven't happened yet**: the §10 invariants with their scope split,
-the §9 wire contract, the §13–§15 paradigm amendments (datum contract,
-phase contract, dispatch lifecycle), and the `MESH-SPEC.md` floor with
-its capability vocabulary. The JS packages are one
+that haven't happened yet**: `TAO-SPEC.md` (the paradigm — grammar,
+datum contract, phase contract, lifecycle, scopes, wire, invariants),
+the `MESH-SPEC.md` floor with its capability vocabulary, and
+`ENVELOPE-SPEC.md` §10's scope split recording what is engine surplus. The JS packages are one
 deployment of that contract; the Go library is the second; the mesh is
 the third. The core is the grammar, the tooling makes each app's
 language feel native, and the architecture underneath — kernel, socket,
@@ -289,11 +292,11 @@ mesh — is deliberately nobody's business but the operator's.
 
 ### The release ladder
 
-| release | delivers                                                                  | status                         |
-| ------- | ------------------------------------------------------------------------- | ------------------------------ |
-| 0.18.0  | envelope + decorations, dual-mode (insurance), telemetry/otel, routing    | shipped                        |
-| 0.19.0  | legacy retirement: one dispatch surface (`ENVELOPE-SPEC.md` §12)          | shipped                        |
-| 0.20.0  | the wire: chain transport, primitives + TCK, `hop.via`, §9 normative      | shipped                        |
-| 0.21.0  | types train: d.ts for all 13 packages + deprecation removals              | shipped                        |
-| 0.2x    | routing add-ons (loader-await, per-navigation Channels, SSR→hydration)    | open                           |
-| 1.0     | the contract + its proofs — incl. `MESH-SPEC.md` + the §13–§15 amendments | when the contract stops moving |
+| release | delivers                                                               | status                         |
+| ------- | ---------------------------------------------------------------------- | ------------------------------ |
+| 0.18.0  | envelope + decorations, dual-mode (insurance), telemetry/otel, routing | shipped                        |
+| 0.19.0  | legacy retirement: one dispatch surface (`ENVELOPE-SPEC.md` §12)       | shipped                        |
+| 0.20.0  | the wire: chain transport, primitives + TCK, `hop.via`, §9 normative   | shipped                        |
+| 0.21.0  | types train: d.ts for all 13 packages + deprecation removals           | shipped                        |
+| 0.2x    | routing add-ons (loader-await, per-navigation Channels, SSR→hydration) | open                           |
+| 1.0     | the contract + its proofs — incl. `TAO-SPEC.md` + `MESH-SPEC.md`       | when the contract stops moving |

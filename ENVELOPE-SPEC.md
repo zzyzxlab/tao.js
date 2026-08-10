@@ -3,19 +3,22 @@
 Status: **implemented** on `feat/network-envelope` (see §11 for the
 verification record; end-to-end proof at
 `tools/smoke/socketio-envelope-smoke.cjs`).
-Amended for 1.0 (the mesh-spec sessions, recorded in `MESH-SPEC.md`):
-§10 gains an explicit paradigm/implementation scope split, and §§13–15 add
-the datum contract, the paradigm phase contract, and the dispatch
-lifecycle. The amendments are normative; where they name engine behavior
-that does not exist yet (first-class lifecycle callbacks), the JS
+Purpose (clarified for 1.0): this document is the **design record of the
+JavaScript implementation's signal plane** (tao.js) — its architecture,
+adapter contracts, verification history, and the engine-level guarantees
+that are stronger than the paradigm. **The paradigm itself lives in
+`TAO-SPEC.md`**, extracted for 1.0 so the portable contract reads free of
+implementation history. The extracted sections' headings remain below
+(§9, §§13–15) as pointers so existing references resolve; §10 stays as
+the JS engine's invariant record with its paradigm/implementation scope
+split. Where the paradigm names behavior this engine does not have yet
+(first-class lifecycle callbacks, `TAO-SPEC.md` §4–5), the JS
 implementation follows pre-1.0.
 Scope: `@tao.js/core` internals, `@tao.js/utils` adapters, new `@tao.js/telemetry` +
 `@tao.js/opentelemetry`. **Zero changes** to the app-facing TAO surface.
 
-This is the final hardening of the JS implementation's signal plane. It also
-serves as the reference model for cross-process transports and future
-implementations in other languages: the envelope scopes + trigram + handler
-phases defined here _are_ the paradigm contract.
+This is the final hardening of the JS implementation's signal plane. The
+reference-model role its early versions carried moved to `TAO-SPEC.md`.
 
 ---
 
@@ -216,9 +219,10 @@ unobservable by design and must not affect the serialized execution of
 the inline phase. An AppCtx returned by an async handler enters as a new
 hop (`hop.via: 'Async'`) when it resolves. The initiation-before-inline
 ordering is a local-scheduling guarantee — this engine's realization of
-§14's commitment ordering (implementation-level in the §10 scope-split
-terms; see also `MESH-SPEC.md` §5.3); fire-and-forget completion is
-paradigm-level and holds across process boundaries.
+the paradigm's commitment ordering (`TAO-SPEC.md` §3; implementation-level
+in the §10 scope-split terms; see also `MESH-SPEC.md` §5.3);
+fire-and-forget completion is paradigm-level and holds across process
+boundaries.
 
 ## 5. Decorator interface
 
@@ -325,55 +329,19 @@ chains — because every v2 hop passes through the reducer. Legacy-mode entries
 (third-party `setCtxControl` with own forward) degrade to flat linkage,
 never corruption. `@tao.js/opentelemetry` ports unchanged (consumes records).
 
-## 9. Cross-process wire contract (normative as of 0.20)
+## 9. Cross-process wire contract
 
-`envelope.chain` is JSON-clean by construction and is the **only** envelope
-scope that crosses a process boundary. `cascade` never crosses (live
-function references; process-local affinity that the transport must
-_translate_, not copy). `hop` never crosses (boundary-local; the receiver
-stamps its own `source` marker, and `via` describes a local edge).
+> **Extracted to `TAO-SPEC.md` §7** (the 1.0 extraction). This heading is
+> retained because code and documents reference "§9"; the normative wire
+> contract — `{ tao, data, envelope: { v, chain } }`, the chain-only
+> crossing rule, receiver hop stamping and re-reduction, one-sided
+> compatibility, the HTTP `traceparent` mapping — lives there verbatim.
+> `@tao.js/transport-tck` remains its executable form.
 
-### Wire envelope
-
-A duplex transport forwards a signal by serializing, alongside its own
-protocol framing:
-
-```js
-{ tao: { t, a, o }, data, envelope: { v: 1, chain } }
-```
-
-- `v` — wire-envelope version, integer, starts at `1`. Receivers ignore
-  envelopes with an unknown `v` (treat as absent) rather than fail.
-- `chain` — the sending hop's `envelope.chain`, verbatim. May be absent
-  (pre-0.20 senders); the receiver treats absent/invalid chain as `null`.
-- The receiving side re-enters with
-  `enter(ac, { hop: { source: <its own name> }, chain })` — its own
-  reducers continue keys they own and re-root keys they don't recognize.
-
-Backward compatibility is one-sided by construction: a 0.20 receiver
-accepts payloads without `envelope`; a pre-0.20 receiver ignores the
-extra `envelope` property.
-
-### Request/response transports (HTTP)
-
-Map the tracing chain key to W3C `traceparent`: an inbound request's
-`traceparent` header becomes
-`chain: { taoTrace: { traceId, signalId: parentId } }` on entry
-(`@tao.js/telemetry` owns the codec). There is no standard W3C response
-header (`traceresponse` remains a draft), so responses carry no chain in
-0.20; full-chain HTTP transport via a custom header is a possible future
-`v` bump, not current contract.
-
-### Conformance
-
-`@tao.js/transport-tck` is the executable form of this section plus the
-transport-relevant §10 invariants (delivery, echo suppression with the
-bidirectional reflex, multi-hop emission, chain continuity across a
-round trip, cascade scoping). A transport that passes the TCK against a
-loopback link honors this contract. This three-scope contract — not the
-JS API — is what a Go/Rust/Python implementation must honor, plus the
-phase semantics specified in §14 (the paradigm phase contract) and the
-dispatch lifecycle in §15.
+JS-engine specifics that stay in this document: the receiving side
+re-enters with `enter(ac, { hop: { source: <its own name> }, chain })`;
+`@tao.js/telemetry` owns the `taoTrace`⇄`traceparent` codec
+(`chain: { taoTrace: { traceId, signalId: parentId } }` on entry).
 
 ## 10. Behavioral invariants
 
@@ -382,11 +350,11 @@ normative for this redesign, the §12 cutover, and any future
 implementation of the signal plane. Executable forms live in the package
 test suites and `tools/smoke/socketio-envelope-smoke.cjs`.
 
-**Scope split (1.0 amendment).** With the paradigm phase contract stated
-explicitly in §14, these invariants divide into two scopes. Invariants
-1–5 and 7 are **paradigm-portable**: communication semantics every
-implementation honors. Invariant 6's return semantics and phase order are
-paradigm (restated precisely in §14); its suppression and
+**Scope split (1.0 amendment).** These invariants divide into two scopes.
+Invariants 1–5 and 7 are **paradigm-portable** — their clean portable
+statements are `TAO-SPEC.md` §8, and this list remains their JS-flavored
+field form. Invariant 6's return semantics and phase order are paradigm
+(stated precisely in `TAO-SPEC.md` §3); its suppression and
 registration-order clauses, and invariant 8 entirely, are
 **implementation-level**: guarantees of this JS engine that are
 unobservable to a contract-conformant app and MUST NOT be relied upon —
@@ -422,7 +390,7 @@ ordering between handlers is expressed by chaining trigrams (Protocols,
    truthy halts; intercept undefined observes; inline/async AppCtx
    chains — all preserved exactly, including wildcard-intercept loggers
    firing first. _(Scope, per the 1.0 amendment: return semantics and
-   phase order are paradigm — see §14 for the precise statement.
+   phase order are paradigm — `TAO-SPEC.md` §3 is the precise statement.
    Suppression of remaining handlers and any registration-order effect
    are this engine's serialized execution showing through: unobservable
    to conformant apps, never contract.)_
@@ -533,187 +501,36 @@ features, and the TypeScript surface remain separate follow-ups — 0.19 is
 purely subtractive plus the one channel-chain semantic fix, to keep its
 diff reviewable against this spec's table above.
 
-## 13. The datum contract (normative, 1.0)
+## 13. The datum contract
 
-This is the first section of this spec stating **consumer obligations the
-engine relies on**, rather than engine guarantees consumers rely on. The
-governing principle: **a datum is a value.** Once a signal carries it, it
-has one meaning everywhere, forever.
+> **Extracted to `TAO-SPEC.md` §2** (the 1.0 extraction; heading retained
+> for references). Datums are immutable values: handlers never mutate,
+> ownership transfers at entry, observation is pure, returned datums may
+> share structure. JS-engine notes that stay here: the dev-mode
+> `freezeDatum` decoration (deep-freeze in `onDispatch`, before handlers
+> run) is the planned enforcement hook; typed vocabularies type handler
+> datum params as deep-`Readonly`.
 
-1. **Handlers MUST NOT mutate the received datum.** Enrichment happens
-   only by returning a new AppCtx — a divert or a chain.
-2. **Ownership transfers at entry.** After `setCtx`/`setAppCtx`/a chain
-   return, the datum belongs to the dispatch; the entrant MUST NOT mutate
-   it afterward. (Async handlers run after the entrant's frame — a caller
-   reusing a buffer would race its own cascade.)
-3. **Decorations observe purely** — already implied by the §5 composition
-   law for `onDispatch`; explicit for datum.
-4. **The license: a returned datum MAY share structure with the received
-   one.** `{ ...data, User: updatedUser }` keeps every untouched reference.
-   Sharing is sound _because of_ rules 1–3.
+## 14. The phase contract
 
-Immutability is not copying — it is what makes **zero-copy safe**:
-pass-by-reference and pass-by-value are indistinguishable exactly when
-nobody mutates. In-process, a large datum flowing through a ten-hop chain
-is one allocation and ten references; copies exist only at real
-serialization boundaries, where they are inherent. Consequence for
-distribution (`MESH-SPEC.md` §7): a conformant handler cannot distinguish
-in-process dispatch from edge dispatch by datum aliasing.
+> **Extracted to `TAO-SPEC.md` §3** (the 1.0 extraction; heading retained
+> for references). The universal priority as a commitment ordering,
+> snapshot semantics, intercept conditional completeness
+> (unordered; decisive halt; redirect-as-fresh-dispatch; error is never a
+> pass; no prioritized handlers, ever), inline settlement, async
+> commitment. This engine conforms with serialized surplus: its
+> one-at-a-time intercept loop, short-circuiting, and
+> registration-order scheduling are implementation detail per the §10
+> scope split — unobservable to conformant apps.
 
-Bulk state does not ride in datums: signals carry meaning and identity;
-stores carry bulk. Incremental accumulation across hops belongs in an
-app-owned store keyed by identity from the signal.
+## 15. The dispatch lifecycle
 
-Enforcement is layered, never a production cost: the obligation is
-normative here; a dev-mode `freezeDatum` decoration (deep-freeze in
-`onDispatch`, before handlers run) makes violations throw; typed
-vocabularies type handler datum params as deep-`Readonly`.
-
-> **Plainly** — Treat the datum you receive as read-only, and hands off
-> once you've fired a signal — the data rides the network now. To change
-> something, return a new signal whose datum reuses everything you didn't
-> change. You never need to copy for safety, and the engine never copies
-> either; that's the deal immutability buys.
-
-## 14. The phase contract (paradigm, 1.0)
-
-The portable contract of the three handler phases — what every
-implementation of TAO, in any language, on any architecture, must honor.
-This engine's serialized execution is one conformant implementation; where
-its behavior is stronger than this section, the surplus is unobservable to
-a conformant app and off-contract to rely upon.
-
-**One universal priority exists: Intercept → Async → Inline.** There is no
-other priority mechanism, and there never will be: one pre-condition
-mechanism with one guaranteed invocation priority is what keeps TAO
-reliable everywhere for everyone. Its portable content, precisely: the
-intercept barrier concludes first and gates everything; on **proceed**,
-delivery to async interest is **committed** — owed to every matching
-async handler per the delivery policy, unaffected by anything the inline
-phase does or returns; the inline phase then executes and settles the
-dispatch. "Async before Inline" is a **commitment ordering, not a
-scheduling promise** — this engine realizes the commitment by enqueuing
-every async call before the first inline handler runs (§4), which is the
-implementation-level form. Ordering beyond it is expressed by
-**chaining trigrams** — declared as Protocols (`MESH-SPEC.md` §4) — which
-puts precedence in the visible, documented protocol instead of hidden
-registration mechanics.
-
-**Snapshot semantics.** The handlers a dispatch considers — in every
-phase — are those registered in its dispatch scope at dispatch time: its
-**snapshot**. Registration is dynamic (add and remove at any time); each
-dispatch binds to its snapshot exactly once, and a handler registered
-after dispatch is not retroactively included — true of this engine since
-its beginning, now stated as paradigm.
-
-### Intercept
-
-Intercept handlers exist to **check pre-conditions and redirect chains**.
-Observation belongs to decorations. (The historical `{*,*,*}` TaoLogger
-intercept was a build-time convenience, not a pattern; its portable home
-is `onDispatch`.)
-
-- **Barrier**: the intercept phase settles before any async or inline
-  handler fires.
-- **Conditional completeness**: to **proceed**, every matching intercept
-  in the dispatch's snapshot MUST have been consulted and returned
-  falsey. **Halt** (one truthy) is decisive — remaining consultations are
-  unspecified: implementations may short-circuit, run all concurrently, or
-  cancel. **Redirect** (an AppCon return) is decisive-as-forward: the
-  current dispatch concludes with nothing proceeding, and the replacement
-  enters as a new dispatch that faces its own complete intercept phase —
-  a redirect changes which signal faces the gates, never skips them.
-- **Unordered**: intercepts may run in any order, possibly concurrently.
-  Verdict combination is commutative and associative, which is the formal
-  license for that freedom.
-- **An error is a missing verdict, never a falsey.** A throwing/failing
-  intercept blocks proceed; errors are never passes.
-- **Determinism at races**: a concurrent truthy-vs-AppCon race resolves
-  deterministically **within a dispatch**; the implementation declares
-  its tiebreak. (Across duplicate dispatches no such promise exists —
-  gates read live state; `MESH-SPEC.md` §8.) Tooling lints overlapping
-  redirect-capable patterns.
-
-> **Plainly** — What you can rely on: if your signal runs, _every_
-> matching intercept was asked and said falsey; one truthy kills it; an
-> AppCon return redirects — the original dies and the new signal faces its
-> own gates; a gate that can't answer blocks passage — a missing verdict
-> is never a pass. What
-> you can't rely on: order (any order, maybe simultaneous) and being
-> called (a peer's verdict may conclude the dispatch without you). So
-> never put must-run-for-every-signal logic in an intercept — that's a
-> decoration's job.
-
-### Inline
-
-- Inline handlers run only after the intercept phase passes.
-- **Every** matching inline handler in the dispatch's snapshot is called
-  — inline has no verdicts.
-- **Unordered** among themselves; sequence is chained trigrams.
-- A returned AppCtx chains the cascade.
-- **Settlement**: the signal settles when all inline handlers have
-  completed (returned or errored). Inline completion is part of "this
-  signal has been handled"; an inline error is part of settlement —
-  reported and isolated, never blocking sibling handlers.
-- "Same execution context / same tick" is not contract (§10 invariant 8
-  scope note).
-
-### Async
-
-- Every matching async handler is called (delivery policy governs across
-  a mesh); calls are never awaited and completion is unobservable by
-  design. The paradigm ordering is the **commitment** stated above: once
-  the dispatch proceeds, async delivery is owed and cannot be gated,
-  delayed, or cancelled by inline execution or its outcomes. The engine's
-  initiation-before-inline scheduling (§4) is the implementation-level
-  realization of that commitment.
-- An AppCtx returned by an async handler enters as a new dispatch
-  whenever it resolves.
-
-> **Plainly** — Inline: registering enrolls you — the signal isn't handled
-> until your handler finishes; you're counted and waited on. Async:
-> subscribe from anywhere; you get the signal, you react, nobody waits on
-> you. The one question that picks between them: does the system need to
-> consider the signal _unhandled_ until your code runs? Yes → inline. No,
-> you're just reacting → async.
-
-## 15. The dispatch lifecycle (paradigm, 1.0)
-
-Every dispatch produces observable events from a fixed set of four — **in
-order, each at most once**; `received` and `concluded` fire for every
-dispatch, `dispatched` and `settled` exactly when the outcome is
-`proceeded`:
-
-| event        | meaning                                                                                  | whose job is done                    |
-| ------------ | ---------------------------------------------------------------------------------------- | ------------------------------------ |
-| `received`   | the signal entered the dispatch scope, before any intercept runs                         | the edge/entry surface: it delivered |
-| `concluded`  | the intercept outcome is determined: `proceeded` \| `halted` \| `redirected` \| `failed` | the routing decision                 |
-| `dispatched` | every inline handler in the snapshot has been invoked                                    | the dispatch machinery               |
-| `settled`    | every inline handler has completed                                                       | the handlers                         |
-
-A halted, redirected, or failed dispatch legally stops at `concluded`.
-
-**Events are observation waypoints, never orchestration primitives.** The
-dispatch drives the events; events never gate the dispatch. They are not
-signals in the network — no meta-signals — and application logic does not
-branch on them. Machinery attaches _to_ them: tracing, delivery acks and
-dedup (`MESH-SPEC.md` §6), wrappers. Causality flows only outward.
-
-**There is no client await.** `setCtx` returns nothing, at every scale,
-permanently. Request/response ergonomics are wrapper contracts built by
-observing the network — and wrappers await _declared_ responses
-(`MESH-SPEC.md` §4), not whichever descendant happens to chain first.
-
-**Mechanism**: events surface on the decoration plane. In this engine,
-`onDispatch` already fires at the `received` point (pre-intercept — why
-the Tracer records halted signals and typo'd no-ops) and `onProceed` at
-`concluded`-as-proceeded; the four events become first-class decoration
-callbacks pre-1.0, with the existing per-handler hooks (`onReturn`)
-remaining the finer granularity beneath them.
-
-> **Plainly** — Every signal leaves a four-beat trail: it arrived, the
-> gates ruled, every handler was called, every handler finished. Tracing,
-> acks, and request/response wrappers all work by watching the trail. Your
-> code never steers by it — handlers and chains are the only wheel. And
-> firing a signal still returns nothing; if you want an answer, use a
-> wrapper that watches for the declared response.
+> **Extracted to `TAO-SPEC.md` §4** (the 1.0 extraction; heading retained
+> for references). Four observable events — received, concluded,
+> dispatched, settled — as observation waypoints; no client await, ever.
+> JS-engine mechanism notes that stay here: `onDispatch` already fires at
+> the `received` point (pre-intercept — why the Tracer records halted
+> signals and typo'd no-ops) and `onProceed` at `concluded`-as-proceeded;
+> the four events become first-class decoration callbacks pre-1.0, with
+> the per-handler hooks (`onReturn`) remaining the finer granularity
+> beneath them.
