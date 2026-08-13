@@ -326,7 +326,7 @@ Affected packages:
 - Match existing style (plain JS classes in core; Jest + mocks in tests). Prefer function components + hooks for new `@tao.js/react` Current API work (see Switch/Render modernization).
 - Do not rewrite the docs site (`packages/docs`) unless asked.
 - Keep this file accurate: if you change a public API, update the relevant section here.
-- Cross-doc §-references in the root specs are deep links to heading anchors. After renaming or adding headings in any root `.md`, run `pnpm run docs:links` (lint — names every broken link); after adding new plain references (a linkified doc name followed by a bare `§N`), run `pnpm run docs:links:write` to convert them to deep links. Tool: `tools/docs/link-spec-sections.mjs`.
+- Cross-doc §-references in the root specs are deep links to heading anchors. The link check runs in lint-staged on every commit — **a commit fails if a staged change leaves any root-doc link or anchor broken** (e.g., a heading rename orphaning inbound links). Fix by updating the links it names, or run `pnpm run docs:links:write` to convert plain references (a linkified doc name followed by a bare `§N`) into deep links; `pnpm run docs:links` runs the same check standalone. Tool: `tools/docs/link-spec-sections.mjs`.
 
 ### `@tao.js/react` data-context migration (agents)
 

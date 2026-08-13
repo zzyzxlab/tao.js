@@ -67,7 +67,8 @@
   "lint-staged": {
     "*.{js,json,css,md}": [
       "prettier --write",
-      "jest --bail --findRelatedTests --passWithNoTests"
+      "jest --bail --findRelatedTests --passWithNoTests",
+      "node tools/docs/link-spec-sections.mjs --check"
     ]
   },
   "dependencies": {
