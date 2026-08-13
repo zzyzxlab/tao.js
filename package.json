@@ -54,7 +54,9 @@
     "version": "cz bump",
     "prepare": "husky",
     "test:mutation:transport-tck": "pnpm --filter @tao.js/transport-tck test:mutation",
-    "test:types": "node tools/types-consumer/run.cjs"
+    "test:types": "node tools/types-consumer/run.cjs",
+    "docs:links": "node tools/docs/link-spec-sections.mjs --check",
+    "docs:links:write": "node tools/docs/link-spec-sections.mjs --write"
   },
   "type": "module",
   "config": {
