@@ -3,18 +3,24 @@
 Status: **draft for 1.0** — spec only; nothing here schedules implementation.
 Companion to:
 
-- [`TAO-SPEC.md`](./TAO-SPEC.md) — the paradigm layer: the grammar (§1), the datum contract
-  (§2), the phase contract (§3), the dispatch lifecycle (§4), the
-  observation plane (§5), the envelope scopes (§6), the wire contract (§7),
-  the invariants (§8)
+- [`TAO-SPEC.md`](./TAO-SPEC.md) — the paradigm layer: the
+  [grammar (§1)](./TAO-SPEC.md#1-the-grammar), the
+  [datum contract (§2)](./TAO-SPEC.md#2-the-datum-contract), the
+  [phase contract (§3)](./TAO-SPEC.md#3-the-phase-contract), the
+  [dispatch lifecycle (§4)](./TAO-SPEC.md#4-the-dispatch-lifecycle), the
+  [observation plane (§5)](./TAO-SPEC.md#5-the-observation-plane), the
+  [envelope scopes (§6)](./TAO-SPEC.md#6-the-envelope-scopes), the
+  [wire contract (§7)](./TAO-SPEC.md#7-the-wire-contract), the
+  [invariants (§8)](./TAO-SPEC.md#8-invariants)
 - [`ENVELOPE-SPEC.md`](./ENVELOPE-SPEC.md) — the design record of the JavaScript implementation's
   signal plane (engine architecture, adapter contracts, engine-level
   guarantees)
-- [`VISION.md`](./VISION.md) — the horizons; §2 records how this spec superseded the earlier
-  mesh sketch
+- [`VISION.md`](./VISION.md) — the horizons;
+  [§2](./VISION.md#2-the-mesh-the-architectural-end-state-specified-not-scheduled)
+  records how this spec superseded the earlier mesh sketch
 - [`AGENTIC.md`](./AGENTIC.md) — why the declared artifact doubles as agent context
-- `packages/tao-transport-tck` — the executable form of the propagation-edge
-  contract
+- [`packages/tao-transport-tck`](./packages/tao-transport-tck) — the
+  executable form of the propagation-edge contract
 
 This document specifies what a **mesh** — TAO dispatch spanning many nodes,
 processes, languages, and execution substrates — must guarantee, stated so
@@ -98,7 +104,7 @@ implementation MUST NOT stack them blindly.
 | **enrollment**                | Registration of an intercept or inline binding in a dispatch scope's registry — counted, waited on                              |
 | **interest**                  | An async subscription — open membership, never counted                                                                          |
 | **binding**                   | A registered handler reference: an in-process function, a FaaS ref, a queue subject — executable over an invocation edge        |
-| **propagation edge**          | A link carrying signals between dispatch scopes ([`TAO-SPEC.md`](./TAO-SPEC.md) §7)                                             |
+| **propagation edge**          | A link carrying signals between dispatch scopes ([`TAO-SPEC.md` §7](./TAO-SPEC.md#7-the-wire-contract))                         |
 | **invocation edge**           | A link carrying one handler invocation and its return (§7)                                                                      |
 | **placement unit**            | The granularity at which requirements attach: a declared slice of the Space (often per-Term, not necessarily)                   |
 | **projection**                | A deterministic map from trigram coordinates to a partition of the Space, used by implementations that shard dispatch           |
@@ -178,7 +184,7 @@ series of messages that, exchanged in order, get something done.
   plane.
 - Ordering of business steps is expressed **only** by Protocols — signals
   chained through the Space — never by handler registration order (§5, and
-  [`TAO-SPEC.md`](./TAO-SPEC.md) §3). Restructuring an ordering into a Protocol makes
+  [`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract)). Restructuring an ordering into a Protocol makes
   the intermediate signal visible: wildcards match it, observers see it,
   traces record it. That visibility is the point — precedence becomes
   documented protocol instead of hidden mechanics.
@@ -192,20 +198,20 @@ series of messages that, exchanged in order, get something done.
 
 ## 5. The phase contract at mesh scale
 
-The paradigm phase contract is [`TAO-SPEC.md`](./TAO-SPEC.md) §3 and is not restated
+The paradigm phase contract is [`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract) and is not restated
 here; this section specifies what distribution adds. One universal priority
 exists — Intercept → Async → Inline — and no other priority mechanism ever
 will; its portable content (gate, then commit async delivery, then execute
 and settle inline — a commitment ordering, not a scheduling promise) and
 the rejection of prioritized handlers are both paradigm-level
-([`TAO-SPEC.md`](./TAO-SPEC.md) §3).
+([`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract)).
 
 ### 5.1 Intercepts: the distributed gather
 
 The intercept set for a dispatch is the **snapshot** of gates registered in
 the dispatch scope at dispatch time — local functions and remote bindings
 alike. The dispatch gathers verdicts under conditional completeness
-([`TAO-SPEC.md`](./TAO-SPEC.md) §3):
+([`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract)):
 
 - **Proceed requires the complete verdict set, all falsey.** A dispatch
   MUST NOT proceed on partial verdicts — no posture, capability, or
@@ -221,7 +227,7 @@ alike. The dispatch gathers verdicts under conditional completeness
   and associative, so evaluation order and parallelism are unobservable
   (Appendix A). Gate invocations MAY be concurrent, scatter-gathered, or
   serialized — the outcome is identical for contract-conformant gates.
-- **Redirect at mesh scale** is unchanged from [`TAO-SPEC.md`](./TAO-SPEC.md) §3:
+- **Redirect at mesh scale** is unchanged from [`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract):
   decisive-as-forward.
   The replacement signal enters as a new dispatch and faces its own
   complete intercept phase wherever it dispatches. A concurrent
@@ -286,7 +292,7 @@ emission; each receiving scope snapshots only its own handlers on entry.
 ## 6. The dispatch lifecycle
 
 The paradigm defines four observable events per dispatch
-([`TAO-SPEC.md`](./TAO-SPEC.md) §4): **received → concluded → dispatched → settled**,
+([`TAO-SPEC.md` §4](./TAO-SPEC.md#4-the-dispatch-lifecycle)): **received → concluded → dispatched → settled**,
 in that order, each at most once — `received` and `concluded` fire for
 every dispatch; `dispatched` and `settled` fire exactly when the outcome
 is `proceeded`. The mesh consumes them as its anchor points:
@@ -326,13 +332,13 @@ paradigm.
 ## 7. Edges
 
 A mesh has exactly two edge kinds. Everything that crosses either one is a
-value ([`TAO-SPEC.md`](./TAO-SPEC.md) §2); a conformant handler cannot distinguish
+value ([`TAO-SPEC.md` §2](./TAO-SPEC.md#2-the-datum-contract)); a conformant handler cannot distinguish
 in-process dispatch from edge dispatch by datum aliasing.
 
 ### 7.1 Propagation edges
 
 A propagation edge carries signals between dispatch scopes. Its contract is
-[`TAO-SPEC.md`](./TAO-SPEC.md) §7, verbatim: `{ tao, data, envelope: { v, chain } }`
+[`TAO-SPEC.md` §7](./TAO-SPEC.md#7-the-wire-contract), verbatim: `{ tao, data, envelope: { v, chain } }`
 alongside the transport's own framing; `chain` is the only envelope scope
 that crosses; the receiver stamps its own hop. `@tao.js/transport-tck` is
 its executable form; a mesh link is a TCK-passing transport.
@@ -350,7 +356,7 @@ a binding and carries the return back:
 
 In-process, the invocation edge is degenerate — a function call. The
 paradigm's guarantees that mention "same tick" or reference sharing
-([`ENVELOPE-SPEC.md`](./ENVELOPE-SPEC.md) §10 invariant 8, datum reference passing) are
+([`ENVELOPE-SPEC.md` §10](./ENVELOPE-SPEC.md#10-behavioral-invariants) invariant 8, datum reference passing) are
 properties of the degenerate edge only. A conformance kit for invocation
 edges (a TCK sibling) accompanies the first non-degenerate implementation.
 

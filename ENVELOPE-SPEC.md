@@ -12,7 +12,7 @@ implementation history. The extracted sections' headings remain below
 (§9, §§13–15) as pointers so existing references resolve; §10 stays as
 the JS engine's invariant record with its paradigm/implementation scope
 split. Where the paradigm names behavior this engine does not have yet
-(first-class lifecycle callbacks, [`TAO-SPEC.md`](./TAO-SPEC.md) §4–5), the JS
+(first-class lifecycle callbacks, [`TAO-SPEC.md` §4–5](./TAO-SPEC.md#4-the-dispatch-lifecycle)), the JS
 implementation follows pre-1.0.
 Scope: `@tao.js/core` internals, `@tao.js/utils` adapters, new `@tao.js/telemetry` +
 `@tao.js/opentelemetry`. **Zero changes** to the app-facing TAO surface.
@@ -219,8 +219,8 @@ unobservable by design and must not affect the serialized execution of
 the inline phase. An AppCtx returned by an async handler enters as a new
 hop (`hop.via: 'Async'`) when it resolves. The initiation-before-inline
 ordering is a local-scheduling guarantee — this engine's realization of
-the paradigm's commitment ordering ([`TAO-SPEC.md`](./TAO-SPEC.md) §3; implementation-level
-in the §10 scope-split terms; see also [`MESH-SPEC.md`](./MESH-SPEC.md) §5.3);
+the paradigm's commitment ordering ([`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract); implementation-level
+in the §10 scope-split terms; see also [`MESH-SPEC.md` §5.3](./MESH-SPEC.md#53-async-interest));
 fire-and-forget completion is paradigm-level and holds across process
 boundaries.
 
@@ -291,7 +291,7 @@ everything). Still open pre-1.0: an `errorBoundary` helper and a revisit
 of the default's ergonomics — any change is a protocol decision,
 spec-first. At mesh scale the principle generalizes: a handler failure
 terminates its isolation unit, and loud-fail is that principle in its
-degenerate form, where the process is the unit ([`MESH-SPEC.md`](./MESH-SPEC.md) §1).
+degenerate form, where the process is the unit ([`MESH-SPEC.md` §1](./MESH-SPEC.md#1-the-three-layers)).
 Async handlers are exempt as of 0.20: their failures always settle or
 swallow inside the fork (§4 async-phase contract).
 `Transceiver` becomes: cascade key + `onReturn` mapping (intercept→reject,
@@ -331,7 +331,7 @@ never corruption. `@tao.js/opentelemetry` ports unchanged (consumes records).
 
 ## 9. Cross-process wire contract
 
-> **Extracted to [`TAO-SPEC.md`](./TAO-SPEC.md) §7** (the 1.0 extraction). This heading is
+> **Extracted to [`TAO-SPEC.md` §7](./TAO-SPEC.md#7-the-wire-contract)** (the 1.0 extraction). This heading is
 > retained because published JSDoc still cites "ENVELOPE-SPEC.md §9" —
 > the wire helpers (`@tao.js/utils` `wire.js`), the socket.io and koa
 > transports, the TCK (`compliance.js`), and Transponder/Transceiver's
@@ -357,14 +357,14 @@ test suites and `tools/smoke/socketio-envelope-smoke.cjs`.
 
 **Scope split (1.0 amendment).** These invariants divide into two scopes.
 Invariants 1–5 and 7 are **paradigm-portable** — their clean portable
-statements are [`TAO-SPEC.md`](./TAO-SPEC.md) §8, and this list remains their JS-flavored
+statements are [`TAO-SPEC.md` §8](./TAO-SPEC.md#8-invariants), and this list remains their JS-flavored
 field form. Invariant 6's return semantics and phase order are paradigm
-(stated precisely in [`TAO-SPEC.md`](./TAO-SPEC.md) §3); its suppression and
+(stated precisely in [`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract)); its suppression and
 registration-order clauses, and invariant 8 entirely, are
 **implementation-level**: guarantees of this JS engine that are
 unobservable to a contract-conformant app and MUST NOT be relied upon —
 ordering between handlers is expressed by chaining trigrams (Protocols,
-[`MESH-SPEC.md`](./MESH-SPEC.md) §4), never by registration.
+[`MESH-SPEC.md` §4](./MESH-SPEC.md#4-protocols)), never by registration.
 
 1. Every chained AppCon is observable on **every hop** (a Source's emit
    middleware must see chained signals, or client→server forwarding of
@@ -395,7 +395,7 @@ ordering between handlers is expressed by chaining trigrams (Protocols,
    truthy halts; intercept undefined observes; inline/async AppCtx
    chains — all preserved exactly, including wildcard-intercept loggers
    firing first. _(Scope, per the 1.0 amendment: return semantics and
-   phase order are paradigm — [`TAO-SPEC.md`](./TAO-SPEC.md) §3 is the precise statement.
+   phase order are paradigm — [`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract) is the precise statement.
    Suppression of remaining handlers and any registration-order effect
    are this engine's serialized execution showing through: unobservable
    to conformant apps, never contract.)_
@@ -408,7 +408,7 @@ ordering between handlers is expressed by chaining trigrams (Protocols,
    drain pending async work with a single `setImmediate`, and UI code
    assumes inline completion ordering. _(Scope, per the 1.0 amendment:
    a property of the degenerate invocation edge — dispatch and execution
-   sharing a process — never of the paradigm; see [`MESH-SPEC.md`](./MESH-SPEC.md) §7.)_
+   sharing a process — never of the paradigm; see [`MESH-SPEC.md` §7](./MESH-SPEC.md#7-edges).)_
 
 Deployment note: field lockfiles showed mixed patch versions in practice
 (core 0.16.0 running under utils/socket.io 0.16.2). v2 adapters call
@@ -508,7 +508,7 @@ diff reviewable against this spec's table above.
 
 ## 13. The datum contract
 
-> **Extracted to [`TAO-SPEC.md`](./TAO-SPEC.md) §2** (the 1.0 extraction; heading retained
+> **Extracted to [`TAO-SPEC.md` §2](./TAO-SPEC.md#2-the-datum-contract)** (the 1.0 extraction; heading retained
 > for references). Datums are immutable values: handlers never mutate,
 > ownership transfers at entry, observation is pure, returned datums may
 > share structure. JS-engine notes that stay here: the dev-mode
@@ -518,7 +518,7 @@ diff reviewable against this spec's table above.
 
 ## 14. The phase contract
 
-> **Extracted to [`TAO-SPEC.md`](./TAO-SPEC.md) §3** (the 1.0 extraction; heading retained
+> **Extracted to [`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract)** (the 1.0 extraction; heading retained
 > for references). The universal priority as a commitment ordering,
 > snapshot semantics, intercept conditional completeness
 > (unordered; decisive halt; redirect-as-fresh-dispatch; error is never a
@@ -530,7 +530,7 @@ diff reviewable against this spec's table above.
 
 ## 15. The dispatch lifecycle
 
-> **Extracted to [`TAO-SPEC.md`](./TAO-SPEC.md) §4** (the 1.0 extraction; heading retained
+> **Extracted to [`TAO-SPEC.md` §4](./TAO-SPEC.md#4-the-dispatch-lifecycle)** (the 1.0 extraction; heading retained
 > for references). Four observable events — received, concluded,
 > dispatched, settled — as observation waypoints; no client await, ever.
 > JS-engine mechanism notes that stay here: `onDispatch` already fires at

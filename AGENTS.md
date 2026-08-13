@@ -2,7 +2,7 @@
 
 Living notes for AI agents working on **this** monorepo (`tao.js` — the library itself). Append to **Agent notes** when you learn something durable.
 
-This is not `TAO.md`. In apps that _use_ `@tao.js/*`, `TAO.md` is the intentional artifact that documents that app’s TAO — its declared **Space** (Terms, Actions, Orients) and its **Protocols** (the declared signal paths through it); see [`MESH-SPEC.md`](./MESH-SPEC.md) §3. An app’s [`AGENTS.md`](./AGENTS.md) should point agents at that app’s `TAO.md`.
+This is not `TAO.md`. In apps that _use_ `@tao.js/*`, `TAO.md` is the intentional artifact that documents that app’s TAO — its declared **Space** (Terms, Actions, Orients) and its **Protocols** (the declared signal paths through it); see [`MESH-SPEC.md` §3](./MESH-SPEC.md#3-the-space-and-the-apps-tao). An app’s [`AGENTS.md`](./AGENTS.md) should point agents at that app’s `TAO.md`.
 
 For the case that TAO fits agentic programming — and the checklist to fully deliver on it — see [`AGENTIC.md`](./AGENTIC.md).
 
@@ -66,11 +66,11 @@ function handler(tao, data) {
 }
 ```
 
-Three handler phases — the one universal priority Intercept → Async → Inline is contract; ordering _within_ a phase is not (chain trigrams for sequence; [`TAO-SPEC.md`](./TAO-SPEC.md) §3) — constants exported as `INTERCEPT`, `ASYNC`, `INLINE`:
+Three handler phases — the one universal priority Intercept → Async → Inline is contract; ordering _within_ a phase is not (chain trigrams for sequence; [`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract)) — constants exported as `INTERCEPT`, `ASYNC`, `INLINE`:
 
 1. **Intercept** — first; truthy return stops later phases. Returning an `AppCtx` replaces/forwards that context.
-2. **Async** — out-of-band side effects. Paradigm contract: once a signal passes the intercepts, delivery to **all** matching async handlers is **committed** — nothing the inline phase does can gate or affect it ([`TAO-SPEC.md`](./TAO-SPEC.md) §3: a commitment ordering, not a scheduling promise). This engine realizes it by calling every async handler before any inline handler runs (enqueued in registration order — the scheduling is implementation detail) — but the calls are scheduled on the event loop, never executed in the entrant's synchronous stack, and the engine **never awaits them** (queue-order priority, not synchronous invocation) — completion timing is deliberately unobservable and must not affect inline serialization. The Promise plumbing is implementation, not contract. May return an `AppCtx`, which enters as a new hop (`hop.via: 'Async'`) whenever it resolves. (The 0.20 fix defers the call itself — `Promise.resolve().then(() => asyncH(...))` + one queue yield before inline — so sync throws are inherently rejections and `setCtx` never executes side-effect handlers in the caller's frame; the original `Promise.resolve(asyncH(...))` evaluated the call before any promise existed, a leak dating to the prototype port.)
-3. **Inline** — runs after async initiation; returned `AppCtx` values are collected then set. (In this engine, same execution context as the signal — degenerate-edge behavior, not paradigm: the portable guarantee is settlement, [`TAO-SPEC.md`](./TAO-SPEC.md) §§3–4.)
+2. **Async** — out-of-band side effects. Paradigm contract: once a signal passes the intercepts, delivery to **all** matching async handlers is **committed** — nothing the inline phase does can gate or affect it ([`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract): a commitment ordering, not a scheduling promise). This engine realizes it by calling every async handler before any inline handler runs (enqueued in registration order — the scheduling is implementation detail) — but the calls are scheduled on the event loop, never executed in the entrant's synchronous stack, and the engine **never awaits them** (queue-order priority, not synchronous invocation) — completion timing is deliberately unobservable and must not affect inline serialization. The Promise plumbing is implementation, not contract. May return an `AppCtx`, which enters as a new hop (`hop.via: 'Async'`) whenever it resolves. (The 0.20 fix defers the call itself — `Promise.resolve().then(() => asyncH(...))` + one queue yield before inline — so sync throws are inherently rejections and `setCtx` never executes side-effect handlers in the caller's frame; the original `Promise.resolve(asyncH(...))` evaluated the call before any promise existed, a leak dating to the prototype port.)
+3. **Inline** — runs after async initiation; returned `AppCtx` values are collected then set. (In this engine, same execution context as the signal — degenerate-edge behavior, not paradigm: the portable guarantee is settlement, [`TAO-SPEC.md` §§3–4](./TAO-SPEC.md#3-the-phase-contract).)
 
 Register / unregister on a Kernel:
 
@@ -110,14 +110,21 @@ The Network owns handler execution (as of 0.19: `_dispatch` invokes `AppCtxHandl
 
 ### Envelope & decorations (the signal plane)
 
-Read **TAO-SPEC.md** first — the paradigm (datum contract §2, phase
-contract §3, dispatch lifecycle §4, observation plane §5, envelope scopes
-§6, wire contract §7, invariants §8), extracted standalone for 1.0. Then
-**ENVELOPE-SPEC.md** before touching Network/Kernel internals or any
-utils adapter — it is the JS engine's design record, including §10 (the
-engine's invariant record with its paradigm/implementation scope split).
-**MESH-SPEC.md** layers the mesh floor above the paradigm. Summary of the
-JS engine's contract:
+Read [**TAO-SPEC.md**](./TAO-SPEC.md) first — the paradigm
+([datum contract §2](./TAO-SPEC.md#2-the-datum-contract),
+[phase contract §3](./TAO-SPEC.md#3-the-phase-contract),
+[dispatch lifecycle §4](./TAO-SPEC.md#4-the-dispatch-lifecycle),
+[observation plane §5](./TAO-SPEC.md#5-the-observation-plane),
+[envelope scopes §6](./TAO-SPEC.md#6-the-envelope-scopes),
+[wire contract §7](./TAO-SPEC.md#7-the-wire-contract),
+[invariants §8](./TAO-SPEC.md#8-invariants)), extracted standalone for
+1.0. Then [**ENVELOPE-SPEC.md**](./ENVELOPE-SPEC.md) before touching
+Network/Kernel internals or any utils adapter — it is the JS engine's
+design record, including
+[§10](./ENVELOPE-SPEC.md#10-behavioral-invariants) (the engine's
+invariant record with its paradigm/implementation scope split).
+[**MESH-SPEC.md**](./MESH-SPEC.md) layers the mesh floor above the
+paradigm. Summary of the JS engine's contract:
 
 - Every cascade carries an **envelope** with three scopes: `cascade` (the
   `control` object, one shared reference for the whole cascade —
@@ -182,8 +189,8 @@ Promise-style settle (`Kernel.asPromiseHook` was removed in 0.19 — use a
 `Transponder` from `@tao.js/utils`, which resolves with the first handled
 AppCon of the cascade; `Transceiver` when handlers should control the
 Promise). Current behavior note: first-descendant resolution is a race
-under the [`TAO-SPEC.md`](./TAO-SPEC.md) §3 unordered contract — pre-1.0, wrappers
-move to declared responses ([`MESH-SPEC.md`](./MESH-SPEC.md) §4):
+under the [`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract) unordered contract — pre-1.0, wrappers
+move to declared responses ([`MESH-SPEC.md` §4](./MESH-SPEC.md#4-protocols)):
 
 ```js
 import { Transponder } from '@tao.js/utils';

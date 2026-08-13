@@ -12,9 +12,9 @@ Companions:
   (tao.js): its signal-plane architecture, adapter contracts, and the
   engine-level guarantees that are stronger than this document
 - `TAO.md` (convention, per app) — an app's declared Space and Protocols
-  ([`MESH-SPEC.md`](./MESH-SPEC.md) §3)
-- `packages/tao-transport-tck` — the executable form of the wire contract
-  (§7)
+  ([`MESH-SPEC.md` §3](./MESH-SPEC.md#3-the-space-and-the-apps-tao))
+- [`packages/tao-transport-tck`](./packages/tao-transport-tck) — the
+  executable form of the [wire contract (§7)](#7-the-wire-contract)
 
 ---
 
@@ -58,7 +58,7 @@ everything else is vocabulary the application supplies.
   its transitive chains form a **cascade**.
 - **Chains are the paradigm's only ordering mechanism** beyond the phase
   priority (§3). Sequence between business steps is expressed as chained
-  signals — declarable as Protocols ([`MESH-SPEC.md`](./MESH-SPEC.md) §4) — never as
+  signals — declarable as Protocols ([`MESH-SPEC.md` §4](./MESH-SPEC.md#4-protocols)) — never as
   registration order, priorities, or scheduling assumptions.
 
 > **Plainly** — You name things (Terms), what happens to them (Actions),
@@ -91,7 +91,7 @@ pass-by-reference and pass-by-value are indistinguishable exactly when
 nobody mutates. In-process, a large datum flowing through a ten-hop chain
 is one allocation and ten references; copies exist only at real
 serialization boundaries, where they are inherent. The distribution
-consequence ([`MESH-SPEC.md`](./MESH-SPEC.md) §7): a conformant handler cannot distinguish
+consequence ([`MESH-SPEC.md` §7](./MESH-SPEC.md#7-edges)): a conformant handler cannot distinguish
 in-process dispatch from remote dispatch by datum aliasing.
 
 Bulk state does not ride in datums: signals carry meaning and identity;
@@ -155,7 +155,7 @@ Observation belongs to the observation plane (§5), never to intercepts.
 - **Determinism at races**: a concurrent truthy-vs-AppCon race resolves
   deterministically **within a dispatch**; the implementation declares
   its tiebreak. (Across duplicate dispatches no such promise exists —
-  intercepts read live state; [`MESH-SPEC.md`](./MESH-SPEC.md) §8.) Tooling lints
+  intercepts read live state; [`MESH-SPEC.md` §8](./MESH-SPEC.md#8-delivery-and-identity).) Tooling lints
   overlapping redirect-capable patterns.
 
 > **Plainly** — What you can rely on: if your signal runs, _every_
@@ -222,12 +222,12 @@ A halted, redirected, or failed dispatch legally stops at `concluded`.
 dispatch drives the events; events never gate the dispatch. They are not
 signals in the network — no meta-signals — and application logic does not
 branch on them. Machinery attaches _to_ them: tracing, delivery acks and
-dedup ([`MESH-SPEC.md`](./MESH-SPEC.md) §6), wrappers. Causality flows only outward.
+dedup ([`MESH-SPEC.md` §6](./MESH-SPEC.md#6-the-dispatch-lifecycle)), wrappers. Causality flows only outward.
 
 **There is no client await.** Firing a signal returns nothing, at every
 scale, permanently. Request/response ergonomics are wrapper contracts
 built by observing the network — and wrappers await _declared_ responses
-([`MESH-SPEC.md`](./MESH-SPEC.md) §4), not whichever descendant happens to chain first.
+([`MESH-SPEC.md` §4](./MESH-SPEC.md#4-protocols)), not whichever descendant happens to chain first.
 
 Events surface on the observation plane (§5).
 
@@ -267,7 +267,7 @@ each hop (trace context is the canonical case). Namespaces are owned;
 one owner per namespace per dispatch scope.
 
 The JavaScript engine's observation surface is its decoration interface
-([`ENVELOPE-SPEC.md`](./ENVELOPE-SPEC.md) §5) — one implementation of this section.
+([`ENVELOPE-SPEC.md` §5](./ENVELOPE-SPEC.md#5-decorator-interface)) — one implementation of this section.
 
 > **Plainly** — Watching is free and safe: you can see every signal,
 > every outcome, every error, with zero instrumentation — but watching
@@ -315,7 +315,7 @@ A transport forwards a signal by serializing, alongside its own framing:
   suppression must work locally) and re-reduces the chain with its own
   reducers.
 - The contract is **structural, not textual**: any codec carrying the
-  JSON data model is legal ([`MESH-SPEC.md`](./MESH-SPEC.md) §7.3); richer datum models are
+  JSON data model is legal ([`MESH-SPEC.md` §7.3](./MESH-SPEC.md#73-codecs-and-data-models)); richer datum models are
   a declared edge capability.
 - Compatibility is one-sided by construction: a receiver accepts payloads
   without `envelope`; an older receiver ignores an unknown `envelope`
@@ -341,7 +341,7 @@ trip, cascade scoping. A transport that passes it honors this contract.
 
 The paradigm's behavioral invariants, stated portably. (Engine-level
 guarantees stronger than these — e.g., same-tick chained dispatch — are
-recorded in that engine's design document: [`ENVELOPE-SPEC.md`](./ENVELOPE-SPEC.md) §10 records
+recorded in that engine's design document: [`ENVELOPE-SPEC.md` §10](./ENVELOPE-SPEC.md#10-behavioral-invariants) records
 the JavaScript engine's, including which of its clauses are engine
 surplus.)
 
@@ -388,4 +388,4 @@ surplus.)
   decisive halt, redirect-as-fresh-dispatch, error-is-not-a-pass — and
   the commutativity of verdict combination.
 - **Mesh-level conformance** composes from this layer by induction over
-  edges: [`MESH-SPEC.md`](./MESH-SPEC.md) §12.
+  edges: [`MESH-SPEC.md` §12](./MESH-SPEC.md#12-conformance).
