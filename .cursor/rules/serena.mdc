@@ -1,0 +1,18 @@
+---
+description: Serena agent LSP — bootstrap check, symbolic tools, LSP backend only (never JetBrains)
+alwaysApply: true
+---
+
+# Serena (agent LSP)
+
+Follow **AGENTS.md** § Serena and the project skill `.agents/skills/serena` (also at `.cursor/skills/serena`).
+
+Backend is **LSP**. Never JetBrains.
+
+## Session start
+
+1. Run `bash scripts/serena-bootstrap.sh --check`.
+2. If it fails, run `bash scripts/serena-bootstrap.sh`, then tell the user to reload Cursor MCP servers.
+3. Do not skip a failed check silently. Do not install Serena from an MCP marketplace.
+
+When Serena tools are available, prefer them for symbol navigation/edits over grep/full-file reads. Keep using Nx MCP for Nx graph/docs/generators.

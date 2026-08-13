@@ -284,6 +284,37 @@ packages through their built `lib/`, so run `pnpm build` first in a fresh
 checkout/worktree or cross-package suites fail confusingly (see the
 2026-07-24 agent note on worktree fall-through).
 
+### Serena (agent LSP)
+
+This repo uses [Serena](https://github.com/oraios/serena) as an **agent LSP**
+(symbolic find/overview/references/rename). Backend is
+**`language_backend: LSP`** in `.serena/project.yml` — never JetBrains.
+
+**Universal bootstrap** (every agent, every client):
+
+```sh
+bash scripts/serena-bootstrap.sh --check    # session start; exit 1 + install steps if missing
+bash scripts/serena-bootstrap.sh            # install uv + serena-agent, then `serena init` (LSP)
+```
+
+Do **not** install Serena from an MCP/plugin marketplace. Do **not** pass
+`-b JetBrains`. If the check fails, tell the user and run bootstrap; do not
+skip silently. After a first-time install, reload MCP in the client.
+
+Client wiring (all call `scripts/serena-mcp.sh`):
+
+| Client            | Config                               | Notes                                                                 |
+| ----------------- | ------------------------------------ | --------------------------------------------------------------------- |
+| Any / Claude Code | `.mcp.json`                          | `SERENA_CONTEXT=claude-code`; hooks in `.claude/settings.json`        |
+| Cursor            | `.cursor/mcp.json`                   | context defaults to `ide`                                             |
+| Everyone          | `AGENTS.md`, `.agents/skills/serena` | Cursor/Claude skill links; Cursor also has `.cursor/rules/serena.mdc` |
+
+Official quick start: https://github.com/oraios/serena#quick-start
+
+Prefer Serena symbol tools over grep for code structure. Keep using Nx MCP
+for Nx graph/docs/generators, and source + tests as the API source of truth.
+`.serena/` is prettier-ignored so Serena-written files are never rewritten.
+
 ### Commit messages
 
 This repo keeps a **Commitizen-compatible message contract** for changelog history. The interactive wizard (`pnpm run commit` / husky `prepare-commit-msg`) needs a TTY and is for humans. Agents should use `git commit -m` with the same shape; husky `commit-msg` validates it (not Cursor-specific — any non-interactive Git client).
@@ -367,6 +398,7 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
+- **2026-08-13** — Serena is the agent LSP (`language_backend: LSP` in `.serena/project.yml`; never JetBrains). Any agent bootstraps with `bash scripts/serena-bootstrap.sh` (`--check` at session start). Cursor: `.cursor/mcp.json` + `.cursor/rules/serena.mdc`. Claude Code: `.mcp.json` + `.claude/settings.json`. Shared skill: `.agents/skills/serena`. Do not install from an MCP marketplace. `.serena/` is in `.prettierignore`.
 - **2026-07-24 (b)** — Coverage measurement overhauled for 0.21 (see the commit "build(coverage)"). Facts that cost hours: (1) a **stale `stryker-tmp/` sandbox left in a package dir poisons everything** — jest haste-maps the sandbox copies, doubling suites and scrambling coverage attribution; if numbers look insane, `rm -rf packages/*/stryker-tmp` first. (2) The lerna-era root **`.babelrc` injected `babel-plugin-istanbul` in the test env** (so did `babel.config.cjs`) — that double-instrumented every babel-provider coverage run into `cov_x is not a function` crashes; both removed, don't re-add. (3) The **v8 coverage provider keeps only one isolated module copy per test file** — suites built on `jest.isolateModules` (socket.io) lose whole branches; the preset now uses `coverageProvider: "babel"` (istanbul counters merge across copies) and that is the accuracy standard. (4) istanbul honors `/* istanbul ignore */` pragmas, NOT `c8 ignore`; for a default-arg branch the pragma goes **before the parameter name**. (5) The aggregate docs-site report is produced by `tools/coverage/report.cjs` (`pnpm run test:coverage`): per-package JSON coverage merged into one istanbul HTML report at `packages/docs/src/content/coverage`, scoped to the release group. The old `nx run-many --coverage` path fragmented reports into per-package junk dirs (`packages/<p>/packages/docs/...`) and could never aggregate.
 - **2026-07-24** — d.ts emission wired for all 13 release packages (see §5 “TypeScript declarations”). Gotchas from the wiring: (1) TS narrowing cannot survive `param = new X(...)` reassignment when X structurally overlaps the param's other union members (AppCtxRoot has a `t` getter, so it IS a `Trigram`) — use a fresh `const`; (2) TanStack's `useLoaderData` typings require an options arg the adapter deliberately omits — comment-cast at the call site, documented; (3) `typescript` is pinned `^5.9.3` (bare `typescript` resolves to the native TS7 compiler, no JS API); (4) @types/react@19 at the root serves react-tao and the routing hooks' emissions. **Worktree fall-through trap:** a worktree nested inside the main repo resolves missing/unbuilt workspace deps through the MAIN repo's `node_modules` (pnpm symlink realpaths escape the worktree) — jest then mixes main-repo builds with worktree sources and `instanceof AppCtx` fails across the two core instances, and tsc type-checks the main repo's untyped bundles. Always `pnpm install && pnpm build` in a fresh worktree before testing.
 - **2026-07-19** — `@tao.js/react`: prefer named export `TaoProvider`; `Provider` remains a deprecated alias (dev once-warning via `deprecations.js`). Default export of `src/Provider.js` is `TaoProvider`.
