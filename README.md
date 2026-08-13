@@ -173,7 +173,7 @@ $ git commit
 $ pnpm run commit
 ```
 
-**Agents / non-interactive:** use `git commit -m` with the same message shape (must include an `Affected packages:` section). See `AGENTS.md` → Commit messages. The `commit-msg` hook validates; it does not require Cursor.
+**Agents / non-interactive:** use `git commit -m` with the same message shape (must include an `Affected packages:` section). See [`AGENTS.md`](./AGENTS.md) → Commit messages. The `commit-msg` hook validates; it does not require Cursor.
 
 ## To Dos
 
