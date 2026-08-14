@@ -35,6 +35,20 @@ codebase is a stranger.** Every design decision that was deferred as
 the system's behavior is an explicit, enumerable, product-language
 protocol rather than an emergent property of a call graph.
 
+The same re-pricing applies to knowledge representation. Ontologies
+formalized semantics because the machines reading them couldn't
+understand prose — and that formal layer (axioms, subsumption,
+reasoners) was the expensive part that killed most enterprise ontology
+efforts. LLMs make it nearly free to skip: an agent supplies the
+reasoning by reading `TAO.md`'s descriptions. What an agent cannot
+conjure is a closed, enumerable, structurally exact vocabulary —
+hallucination lives exactly where the signature is open. An app's
+declared Space keeps the scarce part of the ontology tradition — a
+closed signature of event classes, declared paths, checkable usage
+([`MESH-SPEC.md` §3](./MESH-SPEC.md#3-the-space-and-the-apps-tao),
+[Appendix A](./MESH-SPEC.md#appendix-a-formal-foundations-non-normative))
+— and discards the part LLMs obsoleted.
+
 ## 2. What agents get from TAO
 
 | property                                                                                                                                     | why it matters to an agent                                                                                              | status                                                                                                                                                                           |

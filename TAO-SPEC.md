@@ -94,9 +94,15 @@ serialization boundaries, where they are inherent. The distribution
 consequence ([`MESH-SPEC.md` §7](./MESH-SPEC.md#7-edges)): a conformant handler cannot distinguish
 in-process dispatch from remote dispatch by datum aliasing.
 
-Bulk state does not ride in datums: signals carry meaning and identity;
-stores carry bulk. Incremental accumulation across hops belongs in an
-app-owned store keyed by identity from the signal.
+Large datums are fine — carrying a big value through a chain is one
+allocation, per the paragraph above. What does not belong in datums is
+**accumulation across hops**: a value that grows a little at each hop
+and re-ships in full is quadratic in memory under immutable append, and
+quadratic on the wire regardless. Growing state lives in an app-owned
+store; the datum carries the key (a domain id, or the signal's identity
+where none exists), each hop writes its increment, and the consumer
+reads the store once. Signals are events, not data pipes: a datum
+carries meaning and identity; stores carry bulk.
 
 Enforcement is layered and never a production cost: the obligation is
 normative here; an implementation MAY offer a development-mode freeze (a
