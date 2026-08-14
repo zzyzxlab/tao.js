@@ -118,8 +118,8 @@ Read [**TAO-SPEC.md**](./TAO-SPEC.md) first — the paradigm
 [envelope scopes §6](./TAO-SPEC.md#6-the-envelope-scopes),
 [wire contract §7](./TAO-SPEC.md#7-the-wire-contract),
 [invariants §8](./TAO-SPEC.md#8-invariants),
-[declared Space & Protocols §9](./TAO-SPEC.md#9-the-declared-space-and-protocols)),
-extracted standalone for 1.0. Then [**ENVELOPE-SPEC.md**](./ENVELOPE-SPEC.md) before touching
+[declared Space & Protocols §9](./TAO-SPEC.md#9-the-declared-space-and-protocols)).
+Then [**ENVELOPE-SPEC.md**](./ENVELOPE-SPEC.md) before touching
 Network/Kernel internals or any utils adapter — it is the JS engine's
 design record, including
 [§10](./ENVELOPE-SPEC.md#10-behavioral-invariants) (the engine's

@@ -18,7 +18,7 @@ Companion to:
   guarantees)
 - [`VISION.md`](./VISION.md) — the horizons;
   [§2](./VISION.md#2-the-mesh-the-architectural-end-state-specified-not-scheduled)
-  records how this spec superseded the earlier mesh sketch
+  situates this profile in the road to 1.0
 - [`AGENTIC.md`](./AGENTIC.md) — why the declared artifact doubles as agent context
 - [`packages/tao-transport-tck`](./packages/tao-transport-tck) — the
   executable form of the propagation-edge contract

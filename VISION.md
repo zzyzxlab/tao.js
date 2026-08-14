@@ -139,16 +139,13 @@ round trip.
 
 ## 2. The mesh (the architectural end-state; specified, not scheduled)
 
-> **Status: specified.** The design record that used to live here — home
-> authorities, a sequential distributed veto, CAP-driven partition
-> postures — was superseded by the 1.0 spec sessions: it had read the JS
-> engine's serialized implementation back into the paradigm. The
-> corrected contract lives in [`MESH-SPEC.md`](./MESH-SPEC.md) (the mesh floor + the
-> capability vocabulary) and [`TAO-SPEC.md`](./TAO-SPEC.md) (the paradigm — datum
-> contract, phase contract, dispatch lifecycle — extracted standalone for
-> 1.0). What follows is the summary and the analysis that survives.
+> **Status: specified.** The mesh contract is [`MESH-SPEC.md`](./MESH-SPEC.md)
+> (the mesh floor + the capability vocabulary), layered on
+> [`TAO-SPEC.md`](./TAO-SPEC.md) (the paradigm). What follows is the
+> summary: what maps cleanly, how the phases behave at distance, and the
+> standing advice.
 
-### What maps cleanly (unchanged)
+### What maps cleanly
 
 Trigram listeners + wildcards across a dynamic mesh is **subject-based
 routing** — a solved problem. A trigram is a point in the app's declared
@@ -157,32 +154,33 @@ propagation. TAO's fixed three-token grammar makes this cheaper than
 general pub/sub, not harder ([`MESH-SPEC.md`](./MESH-SPEC.md) Appendix B: dispatch in at
 most 8 probes).
 
-### The phases encode locality — corrected
+### The phases encode locality
 
-| phase     | across a mesh                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ASYNC     | distribution-native: open interest, delivery per declared policy, completion unobservable. Zero contract loss                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| INLINE    | **enrollment**: registered bindings, counted and waited on; `dispatched`/`settled` are exact over a per-dispatch snapshot. Execution may live anywhere (invocation edges); timing was never contract                                                                                                                                                                                                                                                                                                                                                                                                     |
-| INTERCEPT | **not the crux it appeared to be.** The paradigm contract is an unordered verdict gather with conditional completeness ([`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract)): proceed needs the complete all-falsey set; halt is decisive on partial verdicts. Verdict combination is commutative, so fan-out is legal by construction — no global sequencer, no leases, no consensus store. What remains of CAP: passage requires reachability of the gate snapshot — fail-closed by construction, with postures declared per placement unit ([`MESH-SPEC.md` §9](./MESH-SPEC.md#9-partition-rules)) |
+| phase     | across a mesh                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ASYNC     | distribution-native: open interest, delivery per declared policy, completion unobservable. Zero contract loss                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| INLINE    | **enrollment**: registered bindings, counted and waited on; `dispatched`/`settled` are exact over a per-dispatch snapshot. Execution may live anywhere (invocation edges); timing was never contract                                                                                                                                                                                                                                                                                                                                        |
+| INTERCEPT | an unordered verdict gather with conditional completeness ([`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract)): proceed needs the complete all-falsey set; halt is decisive on partial verdicts. Verdict combination is commutative, so fan-out is legal by construction — no global sequencer, no leases, no consensus store. What remains of CAP: passage requires reachability of the gate snapshot — fail-closed by construction, with postures declared per placement unit ([`MESH-SPEC.md` §9](./MESH-SPEC.md#9-partition-rules)) |
 
-The earlier "sequential, awaited veto = CP" analysis mistook the JS
-engine's serialized loop for paradigm. The paradigm's intercept contract
-was always outcome-shaped — truthy halts, AppCon redirects, falsey
-proceeds — and pinning that precisely is what dissolved the
-distributed-veto problem. Global observation belongs to decorations
-either way: the Tracer-as-decoration + collector pattern remains the
-mesh-ready answer.
+A caution that shaped the contract: a serialized engine's intercept loop
+is engine behavior, not paradigm. The intercept contract is
+outcome-shaped — truthy halts, AppCon redirects, falsey proceeds — and
+pinning that precisely is what makes a distributed veto tractable at
+all; treating the serial loop as contract would have made it CP-bound
+and unparallelizable. Global observation belongs to decorations: the
+Tracer-as-decoration + collector pattern is the mesh-ready answer.
 
-### Standing advice (updated)
+### Standing advice
 
 1. **Don't write membership, gossip, or routing.** Bind the floor to an
    existing substrate ([`MESH-SPEC.md` §11](./MESH-SPEC.md#11-substrate-bindings-non-normative-examples) sketches subject brokers, FaaS,
    and blends). TAO's contribution is the phase contract and the
    product-language protocol, not transport plumbing.
-2. The invention budget went where it belonged: the **capability
-   vocabulary and the requirements⊆capabilities placement rule**
-   ([`MESH-SPEC.md` §10](./MESH-SPEC.md#10-capabilities-and-placement-validity)) — the successor of the "guarantee-placement
-   table" idea, with declared postures instead of a prescribed one.
+2. Spend the invention budget on the **capability vocabulary and the
+   requirements⊆capabilities placement rule**
+   ([`MESH-SPEC.md` §10](./MESH-SPEC.md#10-capabilities-and-placement-validity))
+   — the instrument that keeps "migrate without changing the protocol"
+   honest.
 3. **The app's TAO — its declared Space and Protocols — is the routing
    surface, placement input, and lint target** ([`TAO-SPEC.md` §9](./TAO-SPEC.md#9-the-declared-space-and-protocols), consumed per [`MESH-SPEC.md` §§3–4](./MESH-SPEC.md#3-the-space-and-the-apps-tao));
    the extractor ([`AGENTIC.md`](./AGENTIC.md)) generates its skeleton.
@@ -191,7 +189,7 @@ mesh-ready answer.
    [`MESH-SPEC.md`](./MESH-SPEC.md)'s invocation edges, then passing the kits — with a
    cross-language TCK run as the induction proof ([`MESH-SPEC.md` §12](./MESH-SPEC.md#12-conformance)).
 
-### Effect on 0.20 (unchanged)
+### Effect on 0.20
 
 Scope: none. 0.20 **is** the first mesh edge — a two-node mesh with
 static membership. Its wire contract and TCK survive the respecification
