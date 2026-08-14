@@ -12,7 +12,7 @@ Companions:
   (tao.js): its signal-plane architecture, adapter contracts, and the
   engine-level guarantees that are stronger than this document
 - `TAO.md` (convention, per app) — an app's declared Space and Protocols
-  ([`MESH-SPEC.md` §3](./MESH-SPEC.md#3-the-space-and-the-apps-tao))
+  (§10)
 - [`packages/tao-transport-tck`](./packages/tao-transport-tck) — the
   executable form of the [wire contract (§7)](#7-the-wire-contract)
 
@@ -58,8 +58,8 @@ everything else is vocabulary the application supplies.
   its transitive chains form a **cascade**.
 - **Chains are the paradigm's only ordering mechanism** beyond the phase
   priority (§3). Sequence between business steps is expressed as chained
-  signals — declarable as Protocols ([`MESH-SPEC.md` §4](./MESH-SPEC.md#4-protocols)) — never as
-  registration order, priorities, or scheduling assumptions.
+  signals — declarable as Protocols (§10) — never as registration order,
+  priorities, or scheduling assumptions.
 
 > **Plainly** — You name things (Terms), what happens to them (Actions),
 > and from whose perspective (Orients). A signal is one concrete
@@ -94,15 +94,18 @@ serialization boundaries, where they are inherent. The distribution
 consequence ([`MESH-SPEC.md` §7](./MESH-SPEC.md#7-edges)): a conformant handler cannot distinguish
 in-process dispatch from remote dispatch by datum aliasing.
 
-Large datums are fine — carrying a big value through a chain is one
-allocation, per the paragraph above. What does not belong in datums is
-**accumulation across hops**: a value that grows a little at each hop
-and re-ships in full is quadratic in memory under immutable append, and
-quadratic on the wire regardless. Growing state lives in an app-owned
-store; the datum carries the key (a domain id, or the signal's identity
-where none exists), each hop writes its increment, and the consumer
-reads the store once. Signals are events, not data pipes: a datum
-carries meaning and identity; stores carry bulk.
+**Guidance (non-normative): a datum's size should be a function of the
+event, not of the cascade's history — a datum carries meaning and
+identity; stores carry history.** Large datums are fine: carrying a big
+value through a chain is one allocation (above), and chains make fine
+per-element data pipelines — a record transformed stage by stage rides
+the cascade as each hop's datum, replaced hop over hop. The shape to
+avoid is the **accumulator**: a datum that grows with the cascade's
+history and re-ships in full each hop — quadratic in memory under
+immutable append, and quadratic on the wire regardless. History belongs
+in an app-owned store: the datum carries the key (a domain id, or the
+signal's identity where none exists), each hop writes its increment, and
+the consumer reads the store once.
 
 Enforcement is layered and never a production cost: the obligation is
 normative here; an implementation MAY offer a development-mode freeze (a
@@ -395,3 +398,90 @@ surplus.)
   the commutativity of verdict combination.
 - **Mesh-level conformance** composes from this layer by induction over
   edges: [`MESH-SPEC.md` §12](./MESH-SPEC.md#12-conformance).
+
+---
+
+## 10. The declared Space and Protocols
+
+Everything in §§1–9 binds every TAO app. This section is the **opt-in
+declaration layer** above it: writing the vocabulary down. Declaration is
+independent of any architecture — typed vocabularies, generated
+documentation, drift detection, and agent context all consume it with no
+distribution anywhere; a distributed profile ([`MESH-SPEC.md`](./MESH-SPEC.md))
+additionally reads the same artifact as its routing surface.
+
+### The Space
+
+A **Space** is declared by listing its three axes independently — the
+app's Terms, Actions, and Orients. The Space is what they span: every
+point `(t, a, o)` with `t ∈ Terms`, `a ∈ Actions`, `o ∈ Orients`. It is
+deliberately a superset of what the app exercises — declaring an axis
+token does not promise every combination is meaningful; it promises the
+token is part of the language. (Geometric shorthand, used throughout the
+spec set: a signal is a **point**; the set of points a pattern matches is
+a **slice**.)
+
+**Declaration is not registration.** Registration — which handlers are
+present right now — is dynamic in every mode, with snapshot semantics per
+dispatch (§3). Declaration closes the vocabulary, never the registry. A
+declared point with zero registered handlers is legal: the signal
+concludes, dispatches to nobody, settles trivially, and the trace shows
+an observable no-op.
+
+**Declared mode is opt-in, like a package.** The app's TAO — its Space
+plus its Protocols — is a versioned artifact, documented in `TAO.md` and
+installable as a dependency, that the app, its tooling, its types, and
+its agents all consume. Its value to the developer, in order:
+
+1. A living protocol document — "what does this app do?" is a file.
+2. Domain evolution through source control — a change to the business
+   language is a reviewable, diffable PR.
+3. Compact agent context — the app's whole working vocabulary loads in
+   one context window.
+
+**Open mode** — vocabulary emergent at runtime — remains fully legal:
+everything still works; nothing can be checked.
+
+### Protocols
+
+A **Protocol** is a named, declared path of signals through the Space
+that accomplishes a goal — the sense the word carries in networking: a
+series of messages that, exchanged in order, get something done.
+
+- A Protocol MAY branch: success and failure paths, alternative
+  responses. Formally it is a small graph of signal transitions with
+  entry points, not only a line.
+- A request point MAY declare its response point(s). Declared responses
+  are the sanctioned request/response surface: wrappers await _declared_
+  responses (§4), never "whatever chains first."
+- **Protocols are declared; chains happen.** The runtime mechanism keeps
+  the word "chain." Drift detection is the comparison: observed chains
+  checked against declared Protocols, within the declared Space — every
+  cascade is observable at the dispatch plane (§5), so the drift loop is
+  closed at runtime.
+- Ordering of business steps is expressed **only** by Protocols (§1, §3).
+  Restructuring an ordering into a Protocol makes the intermediate signal
+  visible — wildcards match it, observers see it, traces record it. That
+  visibility is the point: precedence becomes documented protocol instead
+  of hidden mechanics.
+
+### Three tiers of legality
+
+1. **On-Protocol** — the signal lies on a declared Protocol path:
+   expected behavior; responses, expectations, and optimizations attach
+   here.
+2. **In-Space, off-Protocol** — expressible but undeclared: legal,
+   dispatched normally, observable — the raw material of drift detection.
+3. **Out-of-Space** — not in the language. In declared mode this is a
+   vocabulary violation: a typo is caught here — at minimum by lint and
+   trace, by type error where typed vocabularies are in use, and a
+   routing layer MAY refuse to carry it. It is never silently a no-op.
+
+> **Plainly** — Your app's TAO is two declarations: the **Space** — every
+> Term, Action, and Orient your app can say — and your **Protocols** —
+> the named paths through that Space that mean something. Signals off a
+> Protocol are legal; signals outside the Space are typos. Could you
+> write down every signal your app sends? If yes, write them down — that
+> document becomes your docs, your types, and your lint target for free
+> (and your routing table, if you ever distribute). If you can't,
+> everything still works; nothing can be checked.

@@ -184,7 +184,7 @@ mesh-ready answer.
    ([`MESH-SPEC.md` §10](./MESH-SPEC.md#10-capabilities-and-placement-validity)) — the successor of the "guarantee-placement
    table" idea, with declared postures instead of a prescribed one.
 3. **The app's TAO — its declared Space and Protocols — is the routing
-   surface, placement input, and lint target** ([`MESH-SPEC.md` §§3–4](./MESH-SPEC.md#3-the-space-and-the-apps-tao));
+   surface, placement input, and lint target** ([`TAO-SPEC.md` §10](./TAO-SPEC.md#10-the-declared-space-and-protocols), consumed per [`MESH-SPEC.md` §§3–4](./MESH-SPEC.md#3-the-space-and-the-apps-tao));
    the extractor ([`AGENTIC.md`](./AGENTIC.md)) generates its skeleton.
 4. The Go implementation ([`FUTURE.md`](./FUTURE.md)) stops being a port and becomes a
    mesh node by implementing [`TAO-SPEC.md`](./TAO-SPEC.md) (wire, phases, lifecycle) plus

@@ -114,85 +114,63 @@ implementation MUST NOT stack them blindly.
 
 ## 3. The Space and the app's TAO
 
-A Space is declared by listing its three axes independently. The Space is
-what they span: every point `(t, a, o)` with `t ∈ Terms`, `a ∈ Actions`,
-`o ∈ Orients`. The Space is deliberately a superset of what the app
-exercises — declaring an axis token does not promise every combination is
-meaningful; it promises the token is part of the language.
+The declaration layer — the Space, Protocols, declared and open modes,
+the app's TAO — is **paradigm**, defined in
+[`TAO-SPEC.md` §10](./TAO-SPEC.md#10-the-declared-space-and-protocols):
+it exists independent of any mesh (typed vocabularies, generated
+documentation, drift detection, and agent context consume it with no
+distribution anywhere). This section states what the **mesh adds on
+top** of the declaration:
 
-Three tiers of legality follow, each with defined semantics:
+- The declared artifact is the mesh's **routing surface, placement
+  input, and lint target** — declare once, and the mesh reads the same
+  file everything else reads. This is a consequence of declaring, not a
+  separate task.
+- **Out-of-Space at mesh scope**: a mesh MAY refuse to route an
+  out-of-Space signal — the paradigm's "never silently a no-op" rule,
+  enforced at the routing layer.
+- **Open mode at mesh scope**: undeclared vocabulary still routes
+  (mechanical placement), but placement checking, postures, and lints
+  have nothing to attach to.
+- **Placement units are declared slices** of the Space (§2, §10) —
+  requirements attach to the declaration, so a deployment is auditable
+  before it exists.
+- **Declaration is not registration** holds unchanged at mesh scope:
+  enrollment and interest (§5) are dynamic in every mode; declaration
+  closes the vocabulary, never the registry.
 
-1. **On-Protocol** — the signal lies on a declared Protocol path: expected
-   behavior; responses, expectations, and optimizations attach here (§4).
-2. **In-Space, off-Protocol** — expressible but undeclared: legal,
-   dispatched normally, observable — and the raw material of drift
-   detection (§4).
-3. **Out-of-Space** — not in the language. In declared mode this is a
-   vocabulary violation: a typo is caught here — at minimum by lint and
-   trace, by type error where typed vocabularies are in use, and a mesh MAY
-   refuse to route it. It is never silently a no-op.
-
-**Declaration is not registration.** Registration — which handlers are
-enrolled or interested right now — is dynamic in every mode, with snapshot
-semantics per dispatch (§5). Declaration closes the vocabulary, never the
-registry. A declared point with zero registered handlers is legal: the
-signal concludes, dispatches to nobody, settles trivially, and the trace
-shows an observable no-op.
-
-**Declared mode is opt-in, like a package.** The app's TAO is a versioned
-artifact — documented in `TAO.md`, installable as a dependency — that the
-app, its tooling, the mesh, and agents all consume. Its value to the
-developer, in order:
-
-1. A living protocol document — "what does this app do?" is a file.
-2. Domain evolution through source control — a change to the business
-   language is a reviewable, diffable PR.
-3. Compact agent context — the app's whole working vocabulary loads in one
-   context window.
-
-The mesh consuming the same artifact — as its routing surface, placement
-input, and lint target — is a consequence of declaring, not a separate
-task.
-
-> **Plainly** — Your app's TAO is two declarations: the **Space** — every
-> Term, Action, and Orient your app can say — and your **Protocols** — the
-> named paths through that Space that mean something. Signals off a Protocol
-> are legal; signals outside the Space are typos. Could you write down every
-> signal your app sends? If yes, write them down — that document becomes
-> your docs, your types, your routing table, and your lint target for free.
-> If you can't, everything still works; nothing can be checked.
+> **Plainly** — Your TAO doubles as the mesh's map: declare your Space
+> and Protocols, and the mesh can route, place, and audit your app from
+> the same file that gives you docs, types, and lints. Don't declare,
+> and everything still runs — the mesh just can't check anything or
+> place anything intentionally.
 
 ---
 
 ## 4. Protocols
 
-A **Protocol** is a named, declared path of signals through the Space that
-accomplishes a goal — the same sense the word carries in networking: a
-series of messages that, exchanged in order, get something done.
+Protocols are **paradigm** — named declared paths through the Space,
+branching allowed, with declared responses
+([`TAO-SPEC.md` §10](./TAO-SPEC.md#10-the-declared-space-and-protocols)).
+At mesh scale they additionally serve as:
 
-- A Protocol MAY branch: success and failure paths, alternative responses.
-  Formally it is a small graph of signal transitions with entry points, not
-  only a line.
-- A request point MAY declare its response point(s). Declared responses are
-  the sanctioned request/response surface: wrappers await _declared_
-  responses (deterministic), never "whatever chains first" (a race).
-- **Protocols are declared; chains happen.** The runtime mechanism keeps
-  the word "chain" (`envelope.chain`, chained AppCons — unchanged, settled
-  0.20 naming). Drift detection is the comparison: observed chains checked
-  against declared Protocols, within the declared Space. The drift loop is
-  closed at runtime because every cascade is observable at the dispatch
-  plane.
-- Ordering of business steps is expressed **only** by Protocols — signals
-  chained through the Space — never by handler registration order (§5, and
-  [`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract)). Restructuring an ordering into a Protocol makes
-  the intermediate signal visible: wildcards match it, observers see it,
-  traces record it. That visibility is the point — precedence becomes
-  documented protocol instead of hidden mechanics.
+- **The reply surface**: declared responses are what reply-routing and
+  response-awaiting wrappers await (§6, §10 capabilities) — deterministic
+  request/response over the mesh, never "whatever chains first."
+- **The traffic map**: expectations and optimizations attach to declared
+  paths — co-locating consecutive Protocol steps is a legitimate
+  implementation optimization, invisible to the contract.
+- **The ordering authority at distance**: order across the mesh is causal
+  (chains) and declared (Protocols), never positional — the paradigm's
+  no-registration-order rule ([`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract))
+  matters most where "registration order" doesn't even exist as a
+  coherent concept.
 
-> **Plainly** — A Protocol is a story your app tells in signals: "this,
-> then this, then one of these." You write the stories down; the runtime
-> chains are checked against them. If step B must follow step A, that's a
-> Protocol — two signals chained — not two handlers racing on one signal.
+> **Plainly** — The stories your app declares are also the mesh's map of
+> expected traffic: responses route by them, audits check against them,
+> and implementations may optimize along them. If step B must follow
+> step A, that's still a Protocol — two signals chained — not two
+> handlers racing on one signal.
 
 ---
 
