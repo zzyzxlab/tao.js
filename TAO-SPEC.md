@@ -12,7 +12,7 @@ Companions:
   (tao.js): its signal-plane architecture, adapter contracts, and the
   engine-level guarantees that are stronger than this document
 - `TAO.md` (convention, per app) — an app's declared Space and Protocols
-  (§10)
+  (§9)
 - [`packages/tao-transport-tck`](./packages/tao-transport-tck) — the
   executable form of the [wire contract (§7)](#7-the-wire-contract)
 
@@ -58,7 +58,7 @@ everything else is vocabulary the application supplies.
   its transitive chains form a **cascade**.
 - **Chains are the paradigm's only ordering mechanism** beyond the phase
   priority (§3). Sequence between business steps is expressed as chained
-  signals — declarable as Protocols (§10) — never as registration order,
+  signals — declarable as Protocols (§9) — never as registration order,
   priorities, or scheduling assumptions.
 
 > **Plainly** — You name things (Terms), what happens to them (Actions),
@@ -386,22 +386,7 @@ surplus.)
 
 ---
 
-## 9. Conformance
-
-- All checks are behavioral, so any language can implement them.
-- **Wire**: `@tao.js/transport-tck` (§7).
-- **Lifecycle**: assert the §4 state machine — in order, each at most
-  once; `received`/`concluded` for every dispatch, `dispatched`/`settled`
-  iff `proceeded`.
-- **Phases**: §3's outcome semantics — conditional completeness,
-  decisive halt, redirect-as-fresh-dispatch, error-is-not-a-pass — and
-  the commutativity of verdict combination.
-- **Mesh-level conformance** composes from this layer by induction over
-  edges: [`MESH-SPEC.md` §12](./MESH-SPEC.md#12-conformance).
-
----
-
-## 10. The declared Space and Protocols
+## 9. The declared Space and Protocols
 
 Everything in §§1–9 binds every TAO app. This section is the **opt-in
 declaration layer** above it: writing the vocabulary down. Declaration is
@@ -485,3 +470,18 @@ series of messages that, exchanged in order, get something done.
 > document becomes your docs, your types, and your lint target for free
 > (and your routing table, if you ever distribute). If you can't,
 > everything still works; nothing can be checked.
+
+---
+
+## 10. Conformance
+
+- All checks are behavioral, so any language can implement them.
+- **Wire**: `@tao.js/transport-tck` (§7).
+- **Lifecycle**: assert the §4 state machine — in order, each at most
+  once; `received`/`concluded` for every dispatch, `dispatched`/`settled`
+  iff `proceeded`.
+- **Phases**: §3's outcome semantics — conditional completeness,
+  decisive halt, redirect-as-fresh-dispatch, error-is-not-a-pass — and
+  the commutativity of verdict combination.
+- **Mesh-level conformance** composes from this layer by induction over
+  edges: [`MESH-SPEC.md` §12](./MESH-SPEC.md#12-conformance).

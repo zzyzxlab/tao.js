@@ -2,7 +2,7 @@
 
 Living notes for AI agents working on **this** monorepo (`tao.js` — the library itself). Append to **Agent notes** when you learn something durable.
 
-This is not `TAO.md`. In apps that _use_ `@tao.js/*`, `TAO.md` is the intentional artifact that documents that app’s TAO — its declared **Space** (Terms, Actions, Orients) and its **Protocols** (the declared signal paths through it); see [`TAO-SPEC.md` §10](./TAO-SPEC.md#10-the-declared-space-and-protocols). An app’s [`AGENTS.md`](./AGENTS.md) should point agents at that app’s `TAO.md`.
+This is not `TAO.md`. In apps that _use_ `@tao.js/*`, `TAO.md` is the intentional artifact that documents that app’s TAO — its declared **Space** (Terms, Actions, Orients) and its **Protocols** (the declared signal paths through it); see [`TAO-SPEC.md` §9](./TAO-SPEC.md#9-the-declared-space-and-protocols). An app’s [`AGENTS.md`](./AGENTS.md) should point agents at that app’s `TAO.md`.
 
 For the case that TAO fits agentic programming — and the checklist to fully deliver on it — see [`AGENTIC.md`](./AGENTIC.md).
 
@@ -118,7 +118,7 @@ Read [**TAO-SPEC.md**](./TAO-SPEC.md) first — the paradigm
 [envelope scopes §6](./TAO-SPEC.md#6-the-envelope-scopes),
 [wire contract §7](./TAO-SPEC.md#7-the-wire-contract),
 [invariants §8](./TAO-SPEC.md#8-invariants),
-[declared Space & Protocols §10](./TAO-SPEC.md#10-the-declared-space-and-protocols)),
+[declared Space & Protocols §9](./TAO-SPEC.md#9-the-declared-space-and-protocols)),
 extracted standalone for 1.0. Then [**ENVELOPE-SPEC.md**](./ENVELOPE-SPEC.md) before touching
 Network/Kernel internals or any utils adapter — it is the JS engine's
 design record, including

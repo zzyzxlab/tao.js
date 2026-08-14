@@ -11,7 +11,8 @@ Companion to:
   [observation plane (§5)](./TAO-SPEC.md#5-the-observation-plane), the
   [envelope scopes (§6)](./TAO-SPEC.md#6-the-envelope-scopes), the
   [wire contract (§7)](./TAO-SPEC.md#7-the-wire-contract), the
-  [invariants (§8)](./TAO-SPEC.md#8-invariants)
+  [invariants (§8)](./TAO-SPEC.md#8-invariants), the
+  [declared Space and Protocols (§9)](./TAO-SPEC.md#9-the-declared-space-and-protocols)
 - [`ENVELOPE-SPEC.md`](./ENVELOPE-SPEC.md) — the design record of the JavaScript implementation's
   signal plane (engine architecture, adapter contracts, engine-level
   guarantees)
@@ -116,7 +117,7 @@ implementation MUST NOT stack them blindly.
 
 The declaration layer — the Space, Protocols, declared and open modes,
 the app's TAO — is **paradigm**, defined in
-[`TAO-SPEC.md` §10](./TAO-SPEC.md#10-the-declared-space-and-protocols):
+[`TAO-SPEC.md` §9](./TAO-SPEC.md#9-the-declared-space-and-protocols):
 it exists independent of any mesh (typed vocabularies, generated
 documentation, drift detection, and agent context consume it with no
 distribution anywhere). This section states what the **mesh adds on
@@ -151,7 +152,7 @@ top** of the declaration:
 
 Protocols are **paradigm** — named declared paths through the Space,
 branching allowed, with declared responses
-([`TAO-SPEC.md` §10](./TAO-SPEC.md#10-the-declared-space-and-protocols)).
+([`TAO-SPEC.md` §9](./TAO-SPEC.md#9-the-declared-space-and-protocols)).
 At mesh scale they additionally serve as:
 
 - **The reply surface**: declared responses are what reply-routing and

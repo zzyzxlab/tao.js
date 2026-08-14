@@ -5,7 +5,7 @@ TAO is:
 
 `TAO.md` (for apps that use tao.js):
 
-- documents that app's TAO — its declared Space (Terms, Actions, Orients) and its Protocols ([`TAO-SPEC.md` §10](./TAO-SPEC.md#10-the-declared-space-and-protocols))
+- documents that app's TAO — its declared Space (Terms, Actions, Orients) and its Protocols ([`TAO-SPEC.md` §9](./TAO-SPEC.md#9-the-declared-space-and-protocols))
 - is an intentional artifact of apps that implement with tao.js
 - should be referenced from that app’s [`AGENTS.md`](./AGENTS.md) so agents implementing there can find it
 
@@ -35,6 +35,6 @@ TODO
 - [x] remove the deprecated `TaoLogger` re-export from `@tao.js/utils` — done in 0.21 (utils no longer depends on telemetry at all)
 - [x] Stryker configs for `@tao.js/telemetry` + `@tao.js/opentelemetry` (both at 100% score; `pnpm test:mutation:telemetry` / `pnpm test:mutation:opentelemetry`)
 - [ ] transfer ownership to tao-land
-- [ ] implement TAO.md (spec/template + tooling for consuming apps — the app's TAO: Space + Protocols, [`TAO-SPEC.md` §10](./TAO-SPEC.md#10-the-declared-space-and-protocols); declared mode ships like a package)
+- [ ] implement TAO.md (spec/template + tooling for consuming apps — the app's TAO: Space + Protocols, [`TAO-SPEC.md` §9](./TAO-SPEC.md#9-the-declared-space-and-protocols); declared mode ships like a package)
 - [ ] implement a Go lib for the network — a mesh node, not a port: build to [`TAO-SPEC.md`](./TAO-SPEC.md) + [`MESH-SPEC.md`](./MESH-SPEC.md) (propagation + invocation edges, lifecycle, kits), with a cross-language TCK run as the proof
 - [ ] implement Schema parsing/validation layer hooks for messages in TS
