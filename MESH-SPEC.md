@@ -406,6 +406,21 @@ capability.
   to domain idempotency — the stated dissolution of ephemeral membership
   under at-least-once.
 
+**Where identity travels: `envelope.chain.taoMesh`.** Signal identity
+rides the chain scope under the reserved **`taoMesh`** namespace, owned
+by the mesh layer's chain reducer — one owner per dispatch scope, the
+exclusivity every chain namespace carries
+([`TAO-SPEC.md` §5](./TAO-SPEC.md#5-the-observation-plane)). The reducer
+implements this section's derivation: it mints entry ids and derives
+chained ids. Minimal shape: `{ id }`; the same namespace is the home for
+the routable reply-origin where reply routing (§10) is in play —
+affinity translated into a routable name, never copied. The key crosses
+edges like any chain namespace
+([`TAO-SPEC.md` §7](./TAO-SPEC.md#7-the-wire-contract)); receivers
+without a mesh reducer ignore it, and two independent mesh
+implementations interoperate on identity because the key and shape are
+spec-named. Apps and adapters MUST NOT write the `taoMesh` namespace.
+
 Deterministic identity is what makes redelivery recognizable and re-drive
 convergent: a re-executed dispatch emits chained signals with the **same**
 ids, so the duplicate wave meets dedup one hop out and self-extinguishes
