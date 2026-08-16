@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "serena": {
+      "command": "bash",
+      "args": ["scripts/serena-mcp.sh"],
+      "env": {
+        "SERENA_CONTEXT": "claude-code"
+      }
+    }
+  }
+}
