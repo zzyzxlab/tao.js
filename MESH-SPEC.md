@@ -314,6 +314,12 @@ A mesh has exactly two edge kinds. Everything that crosses either one is a
 value ([`TAO-SPEC.md` §2](./TAO-SPEC.md#2-the-datum-contract)); a conformant handler cannot distinguish
 in-process dispatch from edge dispatch by datum aliasing.
 
+**Trust is an edge property, not a floor concern.** Authentication,
+authorization — including who may register bindings, since registering a
+gate is acquiring veto power — and transport encryption belong to edge
+implementations and substrates, declarable as capabilities (§10). The
+floor defines what crosses an edge, never who is allowed to cross it.
+
 ### 7.1 Propagation edges
 
 A propagation edge carries signals between dispatch scopes. Its contract is

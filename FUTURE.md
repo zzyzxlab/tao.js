@@ -21,6 +21,7 @@ TODO
 - [ ] pre-1.0 (spec train follow-ups, PR #66): first-class lifecycle decoration callbacks for the four events ([`TAO-SPEC.md` §4](./TAO-SPEC.md#4-the-dispatch-lifecycle)); retire Transponder's first-descendant race in favor of declared responses ([`MESH-SPEC.md` §4](./MESH-SPEC.md#4-protocols)); `freezeDatum` dev decoration ([`TAO-SPEC.md` §2](./TAO-SPEC.md#2-the-datum-contract)); re-point code JSDoc citations of "ENVELOPE-SPEC.md §9" (utils `wire.js`, socket.io, koa, TCK `compliance.js`, Transponder/Transceiver) to `TAO-SPEC.md` §7 in the first PR that touches those packages
 - [ ] invocation-edge conformance kit (TCK sibling, [`MESH-SPEC.md` §7.2](./MESH-SPEC.md#72-invocation-edges)) — with the first non-degenerate execution binding
 - [ ] TLA+ model of the mesh floor ([`MESH-SPEC.md` §12](./MESH-SPEC.md#12-conformance)) — 1.0 candidate artifact
+- [ ] pre-1.0: thorough mesh trust treatment (edge authn/authz, binding authorization for gates, encryption postures as declared capabilities) — currently delegated to edges per [`MESH-SPEC.md` §7](./MESH-SPEC.md#7-edges); decide the depth closer to 1.0
 - [x] complete all tests for 100% code coverage
 - [x] create a mutation test suite and exercise it (Stryker on all public packages at 100% — `pnpm test:mutation:*`)
 - [ ] rewrite documentation site
