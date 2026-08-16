@@ -54,7 +54,9 @@
     "version": "cz bump",
     "prepare": "husky",
     "test:mutation:transport-tck": "pnpm --filter @tao.js/transport-tck test:mutation",
-    "test:types": "node tools/types-consumer/run.cjs"
+    "test:types": "node tools/types-consumer/run.cjs",
+    "docs:links": "node tools/docs/link-spec-sections.mjs --check",
+    "docs:links:write": "node tools/docs/link-spec-sections.mjs --write"
   },
   "type": "module",
   "config": {
@@ -65,7 +67,8 @@
   "lint-staged": {
     "*.{js,json,css,md}": [
       "prettier --write",
-      "jest --bail --findRelatedTests --passWithNoTests"
+      "jest --bail --findRelatedTests --passWithNoTests",
+      "node tools/docs/link-spec-sections.mjs --check"
     ]
   },
   "dependencies": {
