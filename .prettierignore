@@ -6,3 +6,7 @@ dist
 build
 
 .nx/self-healing
+
+# Serena writes project memories, cache, and local YAML here.
+# Never let prettier rewrite those files on commit or format-all.
+.serena

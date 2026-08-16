@@ -300,6 +300,37 @@ packages through their built `lib/`, so run `pnpm build` first in a fresh
 checkout/worktree or cross-package suites fail confusingly (see the
 2026-07-24 agent note on worktree fall-through).
 
+### Serena (agent LSP)
+
+This repo uses [Serena](https://github.com/oraios/serena) as an **agent LSP**
+(symbolic find/overview/references/rename). Backend is
+**`language_backend: LSP`** in `.serena/project.yml` — never JetBrains.
+
+**Universal bootstrap** (every agent, every client):
+
+```sh
+bash scripts/serena-bootstrap.sh --check    # session start; exit 1 + install steps if missing
+bash scripts/serena-bootstrap.sh            # install uv + serena-agent, then `serena init` (LSP)
+```
+
+Do **not** install Serena from an MCP/plugin marketplace. Do **not** pass
+`-b JetBrains`. If the check fails, tell the user and run bootstrap; do not
+skip silently. After a first-time install, reload MCP in the client.
+
+Client wiring (all call `scripts/serena-mcp.sh`):
+
+| Client            | Config                               | Notes                                                                 |
+| ----------------- | ------------------------------------ | --------------------------------------------------------------------- |
+| Any / Claude Code | `.mcp.json`                          | `SERENA_CONTEXT=claude-code`; hooks in `.claude/settings.json`        |
+| Cursor            | `.cursor/mcp.json`                   | context defaults to `ide`                                             |
+| Everyone          | `AGENTS.md`, `.agents/skills/serena` | Cursor/Claude skill links; Cursor also has `.cursor/rules/serena.mdc` |
+
+Official quick start: https://github.com/oraios/serena#quick-start
+
+Prefer Serena symbol tools over grep for code structure. Keep using Nx MCP
+for Nx graph/docs/generators, and source + tests as the API source of truth.
+`.serena/` is prettier-ignored so Serena-written files are never rewritten.
+
 ### Commit messages
 
 This repo keeps a **Commitizen-compatible message contract** for changelog history. The interactive wizard (`pnpm run commit` / husky `prepare-commit-msg`) needs a TTY and is for humans. Agents should use `git commit -m` with the same shape; husky `commit-msg` validates it (not Cursor-specific — any non-interactive Git client).
@@ -383,6 +414,8 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 ## 6. Agent notes
 
 _Append learnings for the next agent. Newest first._
+
+- **2026-08-13** — Serena is the agent LSP (`language_backend: LSP` in `.serena/project.yml`; never JetBrains). Any agent bootstraps with `bash scripts/serena-bootstrap.sh` (`--check` at session start). Cursor: `.cursor/mcp.json` + `.cursor/rules/serena.mdc`. Claude Code: `.mcp.json` + `.claude/settings.json`. Shared skill: `.agents/skills/serena`. Do not install from an MCP marketplace. `.serena/` is in `.prettierignore`.
 
 - **2026-08-09** — **The paradigm was extracted to [`TAO-SPEC.md`](./TAO-SPEC.md)** (1.0 extraction, on the PR #66 branch): the portable contract — grammar, datum contract, phase contract, dispatch lifecycle, observation plane, envelope scopes, wire contract, invariants — now lives there, free of implementation history. ENVELOPE-SPEC is the JS engine's design record; its §9/§13/§14/§15 headings remain as pointer stubs so old references resolve, and §10 stays as the engine's invariant record with the scope split. Cite [`TAO-SPEC.md`](./TAO-SPEC.md) for paradigm claims, [`ENVELOPE-SPEC.md`](./ENVELOPE-SPEC.md) for engine behavior. The 2026-08-08 note below predates the extraction — its §-references map: §13→TAO-SPEC §2, §14→§3, §15→§4.
 

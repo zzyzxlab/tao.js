@@ -3,6 +3,10 @@
     "nx-mcp": {
       "command": "npx",
       "args": ["-y", "nx-mcp@latest"]
+    },
+    "serena": {
+      "command": "bash",
+      "args": ["scripts/serena-mcp.sh"]
     }
   }
 }

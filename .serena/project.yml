@@ -1,0 +1,28 @@
+# Serena project config for tao.js.
+# Version this file. Local overrides go in project.local.yml (gitignored).
+# Docs: https://oraios.github.io/serena/02-usage/040_workflow.html
+
+project_name: tao.js
+
+# This workspace uses Serena's LSP backend (Cursor, Claude Code, and other
+# MCP clients). Never switch this to JetBrains.
+language_backend: LSP
+
+# JavaScript is served by the TypeScript language server.
+language_servers:
+  - typescript
+
+encoding: utf-8
+ignore_all_files_in_gitignore: true
+read_only: false
+
+# Index the monorepo root. node_modules / coverage / stryker sandboxes
+# are already excluded via gitignore.
+ls_workspace_folders:
+  - "."
+
+ignored_paths: []
+excluded_tools: []
+included_optional_tools: []
+ls_specific_settings: {}
+initial_prompt: ""
