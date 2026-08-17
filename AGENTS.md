@@ -357,7 +357,7 @@ Affected packages:
 
 This public repo is reviewed by the [CodeRabbit](https://coderabbit.ai) GitHub App (OSS Pro+ tier — no paid plan). Config lives at [`.coderabbit.yaml`](./.coderabbit.yaml). It already reads `AGENTS.md`, `CLAUDE.md`, and `.cursor/rules/*`; the YAML also maps `TAO-SPEC.md` / `ENVELOPE-SPEC.md` / `MESH-SPEC.md` as review guidelines.
 
-On a PR: `@coderabbitai review` (incremental) or `@coderabbitai full review`. Skip with `WIP` / `[skip review]` in the title, or `@coderabbitai pause`.
+On a PR: `@coderabbitai review` (incremental) or `@coderabbitai full review`. Skip automatic reviews with `WIP` / `[skip review]` in the title, or `@coderabbitai pause`. Explicit `@coderabbitai review` still works.
 
 ### Editing guidance
 
