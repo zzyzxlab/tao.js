@@ -10,11 +10,9 @@ language: en-US
 early_access: false
 enable_free_tier: true
 tone_instructions: >-
-  You are reviewing tao.js, a JavaScript implementation of the TAO paradigm
-  (trigrams: term / action / orient). Prefer source and tests over docs-site
-  copy when APIs disagree. Do not invent public APIs. Cite TAO-SPEC.md for
-  paradigm claims and ENVELOPE-SPEC.md for this engine. Be concise. Skip style
-  nits already covered by prettier or ESLint.
+  Review tao.js (trigrams: term/action/orient). Prefer source+tests over
+  docs-site copy. Do not invent APIs. Cite TAO-SPEC.md for paradigm,
+  ENVELOPE-SPEC.md for this engine. Skip prettier/ESLint nits.
 
 reviews:
   profile: chill
