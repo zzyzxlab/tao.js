@@ -353,6 +353,12 @@ Affected packages:
 - Optional: `ISSUES CLOSED: #123`, `BREAKING CHANGE: …`
 - Hooks: `pre-commit` → lint-staged; `prepare-commit-msg` → wizard if TTY and no `-m`; `commit-msg` → `scripts/validate-commit-msg.js`
 
+### Code review (CodeRabbit)
+
+This public repo is reviewed by the [CodeRabbit](https://coderabbit.ai) GitHub App (OSS Pro+ tier — no paid plan). Config lives at [`.coderabbit.yaml`](./.coderabbit.yaml). It already reads `AGENTS.md`, `CLAUDE.md`, and `.cursor/rules/*`; the YAML also maps `TAO-SPEC.md` / `ENVELOPE-SPEC.md` / `MESH-SPEC.md` as review guidelines.
+
+On a PR: `@coderabbitai review` (incremental) or `@coderabbitai full review`. Skip with `WIP` / `[skip review]` in the title, or `@coderabbitai pause`.
+
 ### Editing guidance
 
 - Match existing style (plain JS classes in core; Jest + mocks in tests). Prefer function components + hooks for new `@tao.js/react` Current API work (see Switch/Render modernization).
@@ -414,6 +420,8 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 ## 6. Agent notes
 
 _Append learnings for the next agent. Newest first._
+
+- **2026-08-17** — CodeRabbit GitHub App reviews PRs on this public OSS repo (Pro+ OSS tier, no paid plan). Repo config is `.coderabbit.yaml`. Manual trigger: `@coderabbitai review`. Do not add a GitHub Actions workflow for it — the native GitHub App is the integration.
 
 - **2026-08-13** — Serena is the agent LSP (`language_backend: LSP` in `.serena/project.yml`; never JetBrains). Any agent bootstraps with `bash scripts/serena-bootstrap.sh` (`--check` at session start). Cursor: `.cursor/mcp.json` + `.cursor/rules/serena.mdc`. Claude Code: `.mcp.json` + `.claude/settings.json`. Shared skill: `.agents/skills/serena`. Do not install from an MCP marketplace. `.serena/` is in `.prettierignore`.
 
