@@ -81,7 +81,7 @@ function buildCtxTao(transponder, chain) {
  * through its own short-lived `Transponder` so `ctx.tao.setCtx(...)` /
  * `ctx.tao.setAppCtx(...)` resolve with the first response AppCon handled
  * for that request's signal. Inbound W3C `traceparent` headers are
- * continued as the entry chain (ENVELOPE-SPEC.md §9).
+ * continued as the entry chain (TAO-SPEC.md §7).
  *
  * @export
  * @param {NetworkSurface} TAO - the Kernel (or other TAO Network surface) to signal on

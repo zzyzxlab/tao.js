@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { AppCtx, Kernel } from '@tao.js/core';
 import trigramFilter from '../src/trigram-filter';
 import seive from '../src/seive';
@@ -403,6 +404,7 @@ describe('package exports', () => {
     expect(utils).toEqual(
       expect.objectContaining({
         Channel: expect.any(Function),
+        freezeDatum: expect.any(Function),
         Source: expect.any(Function),
         Transponder: expect.any(Function),
         Transceiver: expect.any(Function),

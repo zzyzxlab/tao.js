@@ -15,7 +15,7 @@
  * {@link SocketIoServerLike}, {@link SocketLike}) with exactly the members
  * this package uses, so any conformant implementation works.
  *
- * Both directions speak the 0.20 wire contract (ENVELOPE-SPEC.md §9): a
+ * Both directions speak the 0.20 wire contract (TAO-SPEC.md §7): a
  * signal crosses the socket as `{ tao, data, envelope: { v, chain } }` —
  * only the envelope's `chain` scope is portable — and the receiving side
  * re-enters it stamping its own hop-scope `source` marker for echo
@@ -31,7 +31,7 @@
  */
 
 /**
- * The payload framing a TAO signal on the socket (ENVELOPE-SPEC.md §9),
+ * The payload framing a TAO signal on the socket (TAO-SPEC.md §7),
  * emitted as the `'fromClient'` / `'fromServer'` events.
  *
  * @typedef {Object} SocketPayload
@@ -150,7 +150,7 @@ const NOOP = () => {};
  *
  * Outbound, every hop on the network is emitted — phase-blind — as
  * `'fromClient'` with its wire envelope (the chain crosses the boundary —
- * ENVELOPE-SPEC.md §9), except hops that arrived from this socket (echo
+ * TAO-SPEC.md §7), except hops that arrived from this socket (echo
  * suppression with the bidirectional reflex). Inbound `'fromServer'`
  * payloads go through `transport.receive`, entering the network with the
  * transport's own hop-scope `source` marker and the received chain.
@@ -162,7 +162,7 @@ const NOOP = () => {};
  */
 function decorateNetwork(TAO, socket) {
   // duplex transport: every hop is emitted with its wire envelope (chain
-  // crosses the boundary — ENVELOPE-SPEC.md §9); arriving signals enter
+  // crosses the boundary — TAO-SPEC.md §7); arriving signals enter
   // with the transport's hop marker + continued chain
   const transport = createTransport(TAO, {
     send: (tao, data, envelope) =>
@@ -226,7 +226,7 @@ function onEventAuth(TAO, auth, authTransform, sourceName) {
 /**
  * Server side: wire one client socket to its Channel — the inbound entry
  * path (`'fromClient'` → `Channel.enter` with `hop.source` = `socket:<id>`
- * per ENVELOPE-SPEC.md §9) and the per-client reply path (an `onProceed`
+ * per TAO-SPEC.md §7) and the per-client reply path (an `onProceed`
  * decoration on the Channel's private network emitting `'fromServer'`).
  * The decoration is disposed on disconnect.
  *
@@ -309,7 +309,7 @@ const ioMiddleware =
 
 /**
  * Wire a TAO signal network to socket.io — the 0.20 wire contract
- * (ENVELOPE-SPEC.md §9) on both sides of the connection. Environment is
+ * (TAO-SPEC.md §7) on both sides of the connection. Environment is
  * detected by `typeof window` at module load:
  *
  * **Client** (`window` defined) — `io` must be a socket.io client factory;

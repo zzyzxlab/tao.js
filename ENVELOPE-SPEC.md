@@ -140,11 +140,17 @@ network.enter(ac, { cascade, hop, chain, forward? })
   └─ envelope = { cascade: cascade || {}, hop: hop || {}, chain: reduceChain(chain, ac) }
      dispatch(ac, envelope):
        1. for each decorator with chain reducers: already applied (envelope.chain)
-       2. for each decorator: onDispatch(ac, envelope, handler, forward)
+       2. for each decorator: onReceived(ac, envelope)
+          then onDispatch(ac, envelope, handler, forward)
        3. handler.handleAppCon(ac, coreForward, envelope.cascade, hooks)
           — the Network owns handler execution (0.19); hooks built from
-            onReturn decorations (§6); coreForward is the enter() `forward`
+            onReturn / onProceed / onConcluded / onDispatched / onSettled
+            decorations (§5, §6); coreForward is the enter() `forward`
             override when given, else the hop engine below
+          — intercept outcome → onConcluded(ac, envelope, outcome);
+            onProceed if proceeded; onDispatched after every inline in the
+            snapshot has been invoked; onSettled after every inline has
+            completed; then chained AppCons forward
        4. handler chains AppCon `next` → coreForward(next):
           a. nextEnvelope = { cascade: envelope.cascade,        // same ref
                               hop: {},                          // reset
@@ -229,6 +235,14 @@ boundaries.
 ```js
 const dispose = network.decorate({
   name: 'channel:abc',                      // diagnostic
+  onReceived(ac, envelope) {},              // entered this dispatch scope,
+                                            // before any intercept runs
+  onConcluded(ac, envelope, outcome) {},    // intercept outcome determined:
+                                            // 'proceeded' | 'halted' |
+                                            // 'redirected' | 'failed'
+  onDispatched(ac, envelope) {},            // every inline in the snapshot
+                                            // has been invoked
+  onSettled(ac, envelope) {},               // every inline has completed
   onDispatch(ac, envelope, handler, forward) {},  // observe every dispatch;
                                             // forward(chainedAc) continues
                                             // this hop's cascade (§4)
@@ -237,7 +251,7 @@ const dispose = network.decorate({
   onReturn(phase, value, ac, envelope) {},  // settle non-AppCtx handler returns
   onProceed(ac, envelope) {},               // fires when the intercept phase
                                             // passes (no halt, no divert),
-                                            // before async/inline run (0.20)
+                                            // before async/inline run
   chain: {                                  // per-hop reducer, namespaced
     key: 'trace',
     next(prev, ac, envelope) { return {...}; },   // prev = parent hop's value
@@ -245,23 +259,60 @@ const dispose = network.decorate({
 });
 ```
 
-`onProceed` exists for **veto-respecting emitters**: observers that must
-honor the intercept veto (§10 invariant 5) but need the envelope, which
+The four named callbacks `onReceived` / `onConcluded` / `onDispatched` /
+`onSettled` are this engine's observation waypoints for the dispatch
+lifecycle ([`TAO-SPEC.md` §4](./TAO-SPEC.md#4-the-dispatch-lifecycle)).
+They are powerless observers: no `forward`, no handler, and a throw never
+breaks dispatch. They fire in that order, each at most once per dispatch;
+`onReceived` and `onConcluded` fire for every dispatch that determines an
+intercept outcome; `onDispatched` and `onSettled` fire exactly when the
+outcome is `proceeded`. A halted or redirected dispatch stops at
+`onConcluded`. `'failed'` is reserved for mesh partition postures
+([`MESH-SPEC.md` §6](./MESH-SPEC.md#6-the-dispatch-lifecycle)); this
+engine has no in-process producer. A throw before an intercept outcome is
+determined does not conclude — it surfaces via `onReturn(ERROR)` or
+rethrow, same as today.
+
+`onDispatch` and `onProceed` remain the composition / veto-respecting
+surfaces they are. `onDispatch` fires at the same moment as `onReceived`
+(all `onReceived`, then all `onDispatch`, then handlers) and still
+receives `handler` and `forward`. `onProceed` fires only when the outcome
+is `proceeded`, immediately after `onConcluded(ac, envelope, 'proceeded')`,
+before async/inline run — veto-respecting emitters that need the envelope
 the handler signature `(tao, data)` never exposes. The socket.io server
-reply path is the motivating case: it previously emitted from a wildcard
-inline handler (envelope-blind); as an `onProceed` decoration it emits
-with the hop's chain while intercept-halted and -diverted signals remain
-suppressed. `onDispatch` remains the phase-blind observation point
-(Source's historical emit semantics); `onProceed` is the phase-gated one.
+reply path is the motivating case: it emits with the hop's chain while
+intercept-halted and -diverted signals remain suppressed.
+
+This engine serializes inline handlers (await each). `onDispatched` and
+`onSettled` are therefore adjacent after the last inline completes; they
+remain distinct events, in that order, each once. A proceeded dispatch
+with no inlines still fires both (vacuous invoke/complete). `onSettled`
+fires before chained AppCons are forwarded, so a child hop's `onReceived`
+follows its parent's `onSettled`.
+
+**`Network.mirror` and private registries.** `mirror(ac, envelope,
+forward)` is `_dispatch` with the envelope verbatim — the **same hop** on
+a second registry (§4). The receiving network's decorations observe a
+**full lifecycle for that dispatch**: their own `onReceived` →
+`onConcluded` → (`onDispatched` → `onSettled` if proceeded), with the
+shared envelope identity. Intercept outcome is per-registry (invariant 5):
+a Channel's private intercepts do not gate the main network's lifecycle,
+and the main network's intercepts do not gate the mirrored registry's.
+A Channel private-network decoration therefore sees events consistent
+with that private dispatch, not with the main network's outcome.
+
+`onReturn` remains the finer per-handler granularity beneath the four
+dispatch-level events (§6).
 
 Composition laws (what "non-competitive" means, normatively):
 
-| capability    | law                                                                                             |
-| ------------- | ----------------------------------------------------------------------------------------------- |
-| `onDispatch`  | commutes freely (pure observation)                                                              |
-| envelope keys | commute iff namespaced: cascade keys owned by their adapter; chain keys by reducer namespace    |
-| `onForward`   | commutes because mirrors are self-filtered by cascade keys and **never** re-enter main dispatch |
-| `onReturn`    | first-settlement-wins per entry, self-scoped by cascade key (`transceiverId`)                   |
+| capability                                                  | law                                                                                             |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `onReceived` / `onConcluded` / `onDispatched` / `onSettled` | commute freely (pure observation; powerless)                                                    |
+| `onDispatch`                                                | commutes freely (pure observation)                                                              |
+| envelope keys                                               | commute iff namespaced: cascade keys owned by their adapter; chain keys by reducer namespace    |
+| `onForward`                                                 | commutes because mirrors are self-filtered by cascade keys and **never** re-enter main dispatch |
+| `onReturn`                                                  | first-settlement-wins per entry, self-scoped by cascade key (`transceiverId`)                   |
 
 `network.use()` was removed in 0.19.0 (§12): `decorate({ onDispatch })` is
 its strict superset. `Channel` exposes the same decoration contract for its
@@ -511,10 +562,11 @@ diff reviewable against this spec's table above.
 > **Extracted to [`TAO-SPEC.md` §2](./TAO-SPEC.md#2-the-datum-contract)** (the 1.0 extraction; heading retained
 > for references). Datums are immutable values: handlers never mutate,
 > ownership transfers at entry, observation is pure, returned datums may
-> share structure. JS-engine notes that stay here: the dev-mode
-> `freezeDatum` decoration (deep-freeze in `onDispatch`, before handlers
-> run) is the planned enforcement hook; typed vocabularies type handler
-> datum params as deep-`Readonly`.
+> share structure. JS-engine notes that stay here: `@tao.js/utils`
+> `freezeDatum(surface)` is the development-mode enforcement decoration —
+> it deep-freezes `ac.data` in `onReceived`, before handlers run. Attach
+> it explicitly (Kernel or Network); core never inspects `NODE_ENV`.
+> Typed vocabularies type handler datum params as deep-`Readonly`.
 
 ## 14. The phase contract
 
@@ -533,9 +585,9 @@ diff reviewable against this spec's table above.
 > **Extracted to [`TAO-SPEC.md` §4](./TAO-SPEC.md#4-the-dispatch-lifecycle)** (the 1.0 extraction; heading retained
 > for references). Four observable events — received, concluded,
 > dispatched, settled — as observation waypoints; no client await, ever.
-> JS-engine mechanism notes that stay here: `onDispatch` already fires at
-> the `received` point (pre-intercept — why the Tracer records halted
-> signals and typo'd no-ops) and `onProceed` at `concluded`-as-proceeded;
-> the four events become first-class decoration callbacks pre-1.0, with
-> the per-handler hooks (`onReturn`) remaining the finer granularity
-> beneath them.
+> JS-engine mechanism: first-class decoration callbacks `onReceived` /
+> `onConcluded` / `onDispatched` / `onSettled` (§5). `onDispatch` fires at
+> the same moment as `onReceived` (pre-intercept — why the Tracer records
+> halted signals and typo'd no-ops). `onProceed` fires at
+> `concluded`-as-proceeded. `onReturn` remains the finer per-handler
+> granularity beneath them.

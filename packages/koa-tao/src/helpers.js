@@ -157,7 +157,7 @@ export const cleanInput = ({ term, action, orient }) => {
 
 /**
  * Continue an inbound W3C `traceparent` header as entry chain state
- * (ENVELOPE-SPEC.md §9: request/response transports map the tracing chain
+ * (TAO-SPEC.md §7: request/response transports map the tracing chain
  * key — `taoTrace` — to `traceparent`). Absent or malformed headers yield
  * `null` (a fresh chain). Responses carry no chain in 0.20 — there is no
  * standard W3C response header.

@@ -118,7 +118,7 @@ async function handleContext(transponder, bodyProp, ctx, next) {
  *           middleware serving the TAO HTTP surface under `/{root}`:
  *           `POST /{root}/context` signals the body's `{ tao, data }`
  *           through a per-request Transponder — continuing the request's
- *           W3C `traceparent` chain (ENVELOPE-SPEC.md §9) — and replies
+ *           W3C `traceparent` chain (TAO-SPEC.md §7) — and replies
  *           with the first response AppCon as `{ tao, data }`;
  *           `GET /{root}/responses` lists the trigrams with attached
  *           response handlers. Non-matching paths pass through; wrong

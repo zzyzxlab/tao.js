@@ -342,7 +342,7 @@ const CHECKS = [
 ];
 
 /**
- * Run the transport conformance kit (ENVELOPE-SPEC.md §9 plus the
+ * Run the transport conformance kit (TAO-SPEC.md §7 plus the
  * transport-relevant §10 invariants) against a transport. Framework-agnostic:
  * returns structured results for any test runner instead of throwing.
  *
