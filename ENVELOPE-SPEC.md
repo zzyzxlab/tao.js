@@ -268,18 +268,19 @@ are not awaited (an `async onXxx` that throws must not become an
 unhandled rejection, and must not stall the hop). They fire in that
 order, each at most once per dispatch;
 `onReceived` and `onConcluded` fire for every dispatch that determines an
-intercept outcome; `onDispatched` and `onSettled` fire when the outcome
-is `proceeded` **and** the inline snapshot finishes (every handler
-invoked, then every handler completed). A halted or redirected dispatch
-stops at `onConcluded`. `'failed'` is reserved for mesh partition postures
+intercept outcome; `onDispatched` and `onSettled` fire exactly when the
+outcome is `proceeded`. Those two keep their [`TAO-SPEC.md` §4](./TAO-SPEC.md#4-the-dispatch-lifecycle)
+meanings — `dispatched` is every inline in the snapshot **invoked**,
+`settled` is every inline **completed** — they are not the same event.
+A halted or redirected dispatch stops at `onConcluded`. `'failed'` is
+reserved for mesh partition postures
 ([`MESH-SPEC.md` §6](./MESH-SPEC.md#6-the-dispatch-lifecycle)); this
 engine has no in-process producer. A throw before an intercept outcome is
 determined does not conclude — it surfaces via `onReturn(ERROR)` or
 rethrow, same as today. A throw after `proceeded` (an inline handler in
-this engine) also skips `onDispatched` / `onSettled`: those waypoints mean
-the snapshot was fully invoked and fully completed, which a throw
-mid-loop is not. The error surfaces via `onReturn(ERROR)` or rethrow — do
-not invent `'failed'` for this.
+this engine) also skips both: a throw mid-loop means the snapshot was
+neither fully invoked nor fully completed. The error surfaces via
+`onReturn(ERROR)` or rethrow — do not invent `'failed'` for this.
 
 `onDispatch` and `onProceed` remain the composition / veto-respecting
 surfaces they are. `onDispatch` fires at the same moment as `onReceived`
@@ -291,12 +292,15 @@ the handler signature `(tao, data)` never exposes. The socket.io server
 reply path is the motivating case: it emits with the hop's chain while
 intercept-halted and -diverted signals remain suppressed.
 
-This engine serializes inline handlers (await each). `onDispatched` and
-`onSettled` are therefore adjacent after the last inline completes; they
-remain distinct events, in that order, each once. A proceeded dispatch
-with no inlines still fires both (vacuous invoke/complete). `onSettled`
-fires before chained AppCons are forwarded, so a child hop's `onReceived`
-follows its parent's `onSettled`.
+This engine serializes inline handlers (`await` each). The first moment
+every handler has been invoked is therefore also the moment every handler
+has completed, so `onDispatched` and `onSettled` are adjacent after the
+last `await` returns. They remain distinct events, in that order, each
+once — adjacency is this engine's scheduling, not a redefinition of
+`dispatched` as "completed". A proceeded dispatch with no inlines still
+fires both (vacuous invoke/complete). `onSettled` fires before chained
+AppCons are forwarded, so a child hop's `onReceived` follows its parent's
+`onSettled`.
 
 **`Network.mirror` and private registries.** `mirror(ac, envelope,
 forward)` is `_dispatch` with the envelope verbatim — the **same hop** on
