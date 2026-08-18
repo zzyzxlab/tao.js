@@ -353,6 +353,14 @@ Affected packages:
 - Optional: `ISSUES CLOSED: #123`, `BREAKING CHANGE: …`
 - Hooks: `pre-commit` → lint-staged; `prepare-commit-msg` → wizard if TTY and no `-m`; `commit-msg` → `scripts/validate-commit-msg.js`
 
+### Code review (CodeRabbit)
+
+This public repo is reviewed by the [CodeRabbit](https://coderabbit.ai) GitHub App (OSS Pro+ tier — no paid plan). Config lives at [`.coderabbit.yaml`](./.coderabbit.yaml). It already reads `AGENTS.md`, `CLAUDE.md`, and `.cursor/rules/*`; the YAML also maps `TAO-SPEC.md` / `ENVELOPE-SPEC.md` / `MESH-SPEC.md` as review guidelines.
+
+On a PR: `@coderabbitai review` (incremental) or `@coderabbitai full review`. CodeRabbit submits a GitHub review verdict (`CHANGES_REQUESTED` while its comments are open, `APPROVED` once they are resolved). `@coderabbitai approve` resolves its threads and approves when that workflow is enabled. Skip automatic reviews with `WIP` / `[skip review]` in the title, or `@coderabbitai pause`. Explicit `@coderabbitai review` still works.
+
+The repo ruleset **Default (main)** (`~DEFAULT_BRANCH`) requires that to merge: 1 approving review, all review threads resolved, last-push approval (the last pusher cannot be the approver), stale reviews dismissed on push, squash-only. There is no bypass. CodeRabbit’s `APPROVED` / `CHANGES_REQUESTED` reviews count. After you push, wait for CodeRabbit to re-review — a prior approval is stale.
+
 ### Editing guidance
 
 - Match existing style (plain JS classes in core; Jest + mocks in tests). Prefer function components + hooks for new `@tao.js/react` Current API work (see Switch/Render modernization).
@@ -417,7 +425,11 @@ _Append learnings for the next agent. Newest first._
 
 - **2026-08-18** — Decoration callbacks (`onReceived` / `onConcluded` / `onDispatched` / `onSettled` / `onDispatch` / `onForward` / `onReturn` / `onProceed`) go through `_guardedObserve`: sync throws are caught; a returned thenable is **never awaited** and its rejection is swallowed (`then(undefined, noop)`). `async onXxx` / `Promise.reject` must not become unhandled rejections (Jest 30 fails the suite) and must not stall the hop (`freezeDatum` stays a sync `onReceived` freeze). Chain reducers are not observers — their return value is the next chain state; do not catch their thenables.
 
+- **2026-08-18** — Ruleset **Default (main)** requires 1 approving review, resolved threads, last-push approval, dismiss-stale-on-push, squash-only; no bypass. CodeRabbit’s GitHub review verdicts satisfy it. After a push, wait for a fresh CodeRabbit approval. CodeRabbit `reviews.request_changes_workflow` is on (`CHANGES_REQUESTED` / `APPROVED`), not comment-only. `@coderabbitai approve` works. Pre-merge title/description checks stay `warning` (non-blocking).
+
 - **2026-08-17** — First-class lifecycle decoration callbacks on `Network.decorate` (`onReceived` / `onConcluded` / `onDispatched` / `onSettled`) — TAO-SPEC §4 waypoints, additive beside `onDispatch`/`onProceed`. All `onReceived` fire before all `onDispatch`, then handlers. `onConcluded` then `onProceed` on proceeded; halt/redirect stop at concluded. This engine serializes inlines, so dispatched and settled are adjacent after the last inline; `onSettled` fires before chained `setAppCtx`. `Network.mirror` is a same-hop `_dispatch`: the receiving registry sees its own full lifecycle on the shared envelope (invariant 5 — intercept outcome is per-registry). `'failed'` is reserved, no in-process producer. `freezeDatum` lives in `@tao.js/utils`, attaches via `onReceived`, opt-in (no `NODE_ENV` magic); utils `@tao.js/core` peer floor bumped to `>=0.22.0` in the same PR. Sibling worktree `tao.js-lifecycle` (not nested under `.claude/worktrees`) — nested worktrees fall through to main-repo `node_modules`.
+
+- **2026-08-17** — CodeRabbit GitHub App reviews PRs on this public OSS repo (Pro+ OSS tier, no paid plan). Repo config is `.coderabbit.yaml`. Manual trigger: `@coderabbitai review`. Do not add a GitHub Actions workflow for it — the native GitHub App is the integration.
 
 - **2026-08-13** — Serena is the agent LSP (`language_backend: LSP` in `.serena/project.yml`; never JetBrains). Any agent bootstraps with `bash scripts/serena-bootstrap.sh` (`--check` at session start). Cursor: `.cursor/mcp.json` + `.cursor/rules/serena.mdc`. Claude Code: `.mcp.json` + `.claude/settings.json`. Shared skill: `.agents/skills/serena`. Do not install from an MCP marketplace. `.serena/` is in `.prettierignore`.
 

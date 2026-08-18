@@ -1,0 +1,126 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+#
+# CodeRabbit reviews PRs on this public repo. Open-source repos get Pro+
+# features at no cost once the GitHub App is installed on zzyzxlab/tao.js.
+# Docs: https://docs.coderabbit.ai/getting-started/yaml-configuration
+#
+# Manual triggers on a PR: `@coderabbitai review` / `@coderabbitai full review`
+
+language: en-US
+early_access: false
+enable_free_tier: true
+tone_instructions: >-
+  Review tao.js (trigrams: term/action/orient). Prefer source+tests over
+  docs-site copy. Do not invent APIs. Cite TAO-SPEC.md for paradigm,
+  ENVELOPE-SPEC.md for this engine. Skip prettier/ESLint nits.
+
+reviews:
+  profile: chill
+  # Submit GitHub review verdicts: CHANGES_REQUESTED while comments are open,
+  # APPROVED once they are resolved (and pre-merge checks are not failing).
+  request_changes_workflow: true
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: true
+  changed_files_summary: true
+  sequence_diagrams: true
+  estimate_code_review_effort: true
+  poem: false
+  in_progress_fortune: false
+  enable_prompt_for_ai_agents: true
+  path_filters:
+    - '!**/lib/**'
+    - '!**/bundles/**'
+    - '!**/coverage/**'
+    - '!**/reports/**'
+    - '!**/stryker-tmp/**'
+    - '!packages/docs/src/content/coverage/**'
+    - '!**/*.chunk.*.js'
+    - '!**/chunk-*.js'
+  path_instructions:
+    - path: 'packages/*/src/**'
+      instructions: |
+        Confirm exports against packages/*/src/index.js and behavior against packages/*/test/**.
+        Public core surface is default TAO plus { AppCtx, Network, Kernel, INTERCEPT, ASYNC, INLINE }.
+        Trigram args must accept both { t, a, o } and { term, action, orient }.
+        Handler signature is (tao, data) with tao = { t, a, o }.
+        Do not invent APIs. Do not treat engine scheduling as paradigm contract.
+        JSDoc is the d.ts source of truth — flag @param {Object} (emits as any) and missing typedefs.
+        Prefer Kernel APIs in application-facing code; Network.enter / decorate for adapters.
+    - path: 'packages/*/test/**/*.spec.js'
+      instructions: |
+        Jest via @nx/jest. Assert behavior, not only coverage.
+        White-box adapter tests assert threading mechanics — rewrite intent, do not delete.
+        Stryker disable comments must use `: reason` (not `--`); disable-inside-try does not cover catch.
+        istanbul ignore pragmas (not c8) for babel-provider coverage.
+    - path: 'packages/react-tao/**'
+      instructions: |
+        Prefer function components + hooks. Named export TaoProvider.
+        DataHandler is tree-scoped by name; consumers use useTaoData('name').
+        RenderHandler child stays (tao, data) => … — no extra positional data-handler args.
+        Do not reintroduce Provider alias, DataConsumer, or RenderHandler.context.
+    - path: '{TAO,ENVELOPE,MESH}-SPEC.md'
+      instructions: |
+        Cite TAO-SPEC.md for paradigm claims, ENVELOPE-SPEC.md for this JS engine, MESH-SPEC.md for the mesh floor.
+        Every contract section needs a normative Plainly block.
+        Do not read engine scheduling (serialized intercept loop, queue order) back into the paradigm.
+        Cross-doc §-references are deep links to heading anchors — do not leave broken inbound links.
+    - path: 'packages/docs/**'
+      instructions: |
+        Do not rewrite the docs site unless the PR is explicitly about docs.
+        Prefer source + tests over marketing copy when APIs disagree.
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 5
+    base_branches:
+      - master
+    ignore_title_keywords:
+      - WIP
+      - '[skip review]'
+    ignore_usernames:
+      - dependabot[bot]
+      - renovate[bot]
+  pre_merge_checks:
+    docstrings:
+      mode: off
+    title:
+      mode: warning
+      requirements: >-
+        Prefer Conventional Commits: type(scope): subject. Types: feat, fix,
+        docs, style, refactor, perf, test, build, ci, chore. Scope is optional.
+    description:
+      mode: warning
+  tools:
+    eslint:
+      enabled: true
+      config_file: eslint.config.cjs
+    github-checks:
+      enabled: true
+    shellcheck:
+      enabled: true
+    gitleaks:
+      enabled: true
+    markdownlint:
+      enabled: false
+    languagetool:
+      enabled: false
+    yamllint:
+      enabled: false
+
+chat:
+  art: false
+  auto_reply: true
+  allow_non_org_members: true
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - files: TAO-SPEC.md
+        applyTo: 'packages/**/*.{js,cjs,mjs,ts,tsx,md},TAO-SPEC.md,ENVELOPE-SPEC.md,MESH-SPEC.md,AGENTS.md'
+      - files: ENVELOPE-SPEC.md
+        applyTo: 'packages/tao/**,packages/tao-utils/**,packages/tao-socket-io/**,packages/koa-tao/**,packages/tao-telemetry/**,packages/tao-opentelemetry/**,packages/tao-transport-tck/**,packages/tao-http-client/**,ENVELOPE-SPEC.md'
+      - files: MESH-SPEC.md
+        applyTo: 'packages/tao-socket-io/**,packages/tao-transport-tck/**,packages/koa-tao/**,MESH-SPEC.md'
