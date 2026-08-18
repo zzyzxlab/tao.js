@@ -268,13 +268,18 @@ are not awaited (an `async onXxx` that throws must not become an
 unhandled rejection, and must not stall the hop). They fire in that
 order, each at most once per dispatch;
 `onReceived` and `onConcluded` fire for every dispatch that determines an
-intercept outcome; `onDispatched` and `onSettled` fire exactly when the
-outcome is `proceeded`. A halted or redirected dispatch stops at
-`onConcluded`. `'failed'` is reserved for mesh partition postures
+intercept outcome; `onDispatched` and `onSettled` fire when the outcome
+is `proceeded` **and** the inline snapshot finishes (every handler
+invoked, then every handler completed). A halted or redirected dispatch
+stops at `onConcluded`. `'failed'` is reserved for mesh partition postures
 ([`MESH-SPEC.md` §6](./MESH-SPEC.md#6-the-dispatch-lifecycle)); this
 engine has no in-process producer. A throw before an intercept outcome is
 determined does not conclude — it surfaces via `onReturn(ERROR)` or
-rethrow, same as today.
+rethrow, same as today. A throw after `proceeded` (an inline handler in
+this engine) also skips `onDispatched` / `onSettled`: those waypoints mean
+the snapshot was fully invoked and fully completed, which a throw
+mid-loop is not. The error surfaces via `onReturn(ERROR)` or rethrow — do
+not invent `'failed'` for this.
 
 `onDispatch` and `onProceed` remain the composition / veto-respecting
 surfaces they are. `onDispatch` fires at the same moment as `onReceived`
@@ -591,7 +596,8 @@ diff reviewable against this spec's table above.
 > JS-engine mechanism: first-class decoration callbacks `onReceived` /
 > `onConcluded` / `onDispatched` / `onSettled` (§5). Returned thenables
 > from any decoration callback are not awaited; rejection is isolated
-> like a throw. `onDispatch` fires at
+> like a throw. A throw after `proceeded` skips `onDispatched` /
+> `onSettled` (§5). `onDispatch` fires at
 > the same moment as `onReceived` (pre-intercept — why the Tracer records
 > halted signals and typo'd no-ops). `onProceed` fires at
 > `concluded`-as-proceeded. `onReturn` remains the finer per-handler

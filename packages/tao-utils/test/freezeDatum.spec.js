@@ -118,6 +118,46 @@ describe('freezeDatum', () => {
     expect(Object.isFrozen(seen.User.tags[0])).toBe(true);
   });
 
+  it('freezes symbol-keyed and non-enumerable own data without invoking getters', async () => {
+    const network = new Network();
+    freezeDatum(network);
+    const symbolChild = { id: 'sym' };
+    const hiddenChild = { id: 'hid' };
+    const symbolKey = Symbol('nested');
+    const user = { id: '1' };
+    user[symbolKey] = symbolChild;
+    Object.defineProperty(user, 'hidden', {
+      value: hiddenChild,
+      enumerable: false,
+      writable: true,
+      configurable: true,
+    });
+    let getterCalls = 0;
+    Object.defineProperty(user, 'trap', {
+      get() {
+        getterCalls += 1;
+        throw new Error('getter invoked');
+      },
+      enumerable: true,
+    });
+    let seen;
+    network.addInlineHandler(TRIGRAM, (tao, data) => {
+      seen = data.User;
+    });
+    expect(() =>
+      network.enter(
+        new AppCtx(TRIGRAM.t, TRIGRAM.a, TRIGRAM.o, { User: user }),
+      ),
+    ).not.toThrow();
+    await flush();
+    expect(getterCalls).toBe(0);
+    expect(Object.isFrozen(seen[symbolKey])).toBe(true);
+    expect(Object.isFrozen(seen.hidden)).toBe(true);
+    expect(() => {
+      seen[symbolKey].id = 'hacked';
+    }).toThrow();
+  });
+
   it('does not stack-overflow on cyclic datums', async () => {
     const network = new Network();
     freezeDatum(network);

@@ -2,7 +2,9 @@
 
 /**
  * Recursively freeze a value. Objects already frozen are still walked so
- * unfrozen children become frozen. Cycles are skipped via `seen`.
+ * unfrozen children become frozen. Cycles are skipped via `seen`. Walks
+ * every own data property (`Reflect.ownKeys` + descriptors) so symbol-keyed
+ * and non-enumerable children freeze without invoking accessors.
  *
  * @param {*} value
  * @param {WeakSet<object>} [seen]
@@ -23,9 +25,11 @@ function deepFreeze(value, seen) {
   if (!Object.isFrozen(value)) {
     Object.freeze(value);
   }
-  const keys = Object.keys(value);
-  for (const key of keys) {
-    deepFreeze(value[key], seen);
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (descriptor && 'value' in descriptor) {
+      deepFreeze(descriptor.value, seen);
+    }
   }
   return value;
 }

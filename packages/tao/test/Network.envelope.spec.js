@@ -1033,7 +1033,7 @@ describe('Proceed hook (onProceed) — 0.20', () => {
           onProceed: 42,
         },
       ),
-    ).resolves.not.toThrow();
+    ).resolves.toBeUndefined();
     expect(handler).toHaveBeenCalledTimes(1);
   });
 });
@@ -1533,6 +1533,34 @@ describe('Dispatch lifecycle callbacks (TAO-SPEC §4 / ENVELOPE-SPEC §5)', () =
     expect(events[1].outcome).toBe('proceeded');
   });
 
+  it('should skip dispatched and settled when an inline handler throws after proceeded', async () => {
+    // Assemble — waypoints mean the snapshot finished invoke/complete; a
+    // throw mid-loop is not that (ENVELOPE-SPEC §5). onReturn swallows so
+    // the fire-and-forget dispatch does not become an unhandled rejection.
+    const events = [];
+    const returns = [];
+    recordLifecycle(TAO._network, events);
+    TAO._network.decorate({
+      onReturn: (phase, value) =>
+        returns.push(`${phase}:${value && value.message}`),
+    });
+    const later = jest.fn();
+    TAO.addInlineHandler(TRIGRAM, () => {
+      throw new Error('inline boom');
+    });
+    TAO.addInlineHandler(TRIGRAM, later);
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert
+    expect(events.map((e) => `${e.ev}:${e.outcome || ''}`)).toEqual([
+      'received:',
+      'concluded:proceeded',
+    ]);
+    expect(returns).toEqual([`${ERROR}:inline boom`]);
+    expect(later).not.toHaveBeenCalled();
+  });
+
   it('should never let a throwing lifecycle observer break dispatch or later observers', async () => {
     // Assemble
     const later = [];
@@ -1764,7 +1792,7 @@ describe('Dispatch lifecycle callbacks (TAO-SPEC §4 / ENVELOPE-SPEC §5)', () =
           onSettled: {},
         },
       ),
-    ).resolves.not.toThrow();
+    ).resolves.toBeUndefined();
     // Assert
     expect(handler).toHaveBeenCalledTimes(1);
   });
