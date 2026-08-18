@@ -416,13 +416,13 @@ export default class AppCtxHandlers extends AppCtxRoot {
         pending.push(Promise.reject(inlineErr));
       }
     }
-    // attach settlement handlers in this turn so a sync throw's
-    // Promise.reject is not an unhandled rejection before the await
-    const settling = Promise.allSettled(pending);
     if (onDispatched) {
       onDispatched();
     }
-    const settledResults = await settling;
+    // wrap after dispatched: allSettled is the wait, not the invoke.
+    // still this turn, so a sync throw's Promise.reject is handled
+    // before Node's next-tick unhandled-rejection check
+    const settledResults = await Promise.allSettled(pending);
     const nextSpool = [];
     const inlineErrors = [];
     for (let result of settledResults) {
