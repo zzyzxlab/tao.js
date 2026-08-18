@@ -357,7 +357,7 @@ Affected packages:
 
 This public repo is reviewed by the [CodeRabbit](https://coderabbit.ai) GitHub App (OSS Pro+ tier — no paid plan). Config lives at [`.coderabbit.yaml`](./.coderabbit.yaml). It already reads `AGENTS.md`, `CLAUDE.md`, and `.cursor/rules/*`; the YAML also maps `TAO-SPEC.md` / `ENVELOPE-SPEC.md` / `MESH-SPEC.md` as review guidelines.
 
-On a PR: `@coderabbitai review` (incremental) or `@coderabbitai full review`. Skip automatic reviews with `WIP` / `[skip review]` in the title, or `@coderabbitai pause`. Explicit `@coderabbitai review` still works.
+On a PR: `@coderabbitai review` (incremental) or `@coderabbitai full review`. CodeRabbit submits a GitHub review verdict (`CHANGES_REQUESTED` while its comments are open, `APPROVED` once they are resolved). `@coderabbitai approve` resolves its threads and approves when that workflow is enabled. Skip automatic reviews with `WIP` / `[skip review]` in the title, or `@coderabbitai pause`. Explicit `@coderabbitai review` still works.
 
 ### Editing guidance
 
@@ -421,6 +421,7 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
+- **2026-08-18** — CodeRabbit `reviews.request_changes_workflow` is on: it submits GitHub review verdicts (`CHANGES_REQUESTED` / `APPROVED`), not comment-only. `@coderabbitai approve` works. Pre-merge title/description checks stay `warning` (non-blocking).
 - **2026-08-17** — CodeRabbit GitHub App reviews PRs on this public OSS repo (Pro+ OSS tier, no paid plan). Repo config is `.coderabbit.yaml`. Manual trigger: `@coderabbitai review`. Do not add a GitHub Actions workflow for it — the native GitHub App is the integration.
 
 - **2026-08-13** — Serena is the agent LSP (`language_backend: LSP` in `.serena/project.yml`; never JetBrains). Any agent bootstraps with `bash scripts/serena-bootstrap.sh` (`--check` at session start). Cursor: `.cursor/mcp.json` + `.cursor/rules/serena.mdc`. Claude Code: `.mcp.json` + `.claude/settings.json`. Shared skill: `.agents/skills/serena`. Do not install from an MCP marketplace. `.serena/` is in `.prettierignore`.

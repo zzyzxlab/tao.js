@@ -16,7 +16,9 @@ tone_instructions: >-
 
 reviews:
   profile: chill
-  request_changes_workflow: false
+  # Submit GitHub review verdicts: CHANGES_REQUESTED while comments are open,
+  # APPROVED once they are resolved (and pre-merge checks are not failing).
+  request_changes_workflow: true
   high_level_summary: true
   review_status: true
   collapse_walkthrough: true
