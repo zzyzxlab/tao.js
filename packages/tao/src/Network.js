@@ -56,7 +56,8 @@ import { _cleanAC, _validateHandler } from './utils';
 /**
  * An additive, non-competitive Network decoration (ENVELOPE-SPEC.md §5).
  * All capabilities are optional but at least one is required; a throwing
- * decoration callback never breaks dispatch.
+ * decoration callback, or a rejected thenable it returns, never breaks
+ * dispatch. Returned thenables are not awaited.
  *
  * @typedef {Object} DecorationSpec
  * @property {string} [name] - diagnostic label
@@ -247,6 +248,50 @@ function _removeHandler(taoHandlers, { term, action, orient }, handler, type) {
 // }
 
 /**
+ * Rejection handler for observer thenables. Named (not an empty arrow) so
+ * the attach stays a real second argument under mutation.
+ */
+function _swallowObserverRejection() {}
+
+/**
+ * Invoke a decoration callback without letting it break dispatch: sync
+ * throws are caught; a returned thenable is never awaited and its
+ * rejection is swallowed (`async onXxx` / `Promise.reject`).
+ *
+ * @param {Function} fn
+ * @param {any[]} args
+ */
+function _guardedObserve(fn, args) {
+  try {
+    const result = fn(...args);
+    // Stryker disable next-line ConditionalExpression,LogicalOperator,EqualityOperator: forced-true on a non-thenable throws into this catch; skip-attach is the then() statement, killed by unhandled-rejection tests
+    if (result != null && typeof result.then === 'function') {
+      result.then(undefined, _swallowObserverRejection);
+    }
+  } catch {
+    // a failing decoration must never break dispatch
+  }
+}
+
+/**
+ * Fan-out `_guardedObserve` over a collector. A null/non-iterable
+ * collector (Stryker forcing a hook `if` to true) must not crash the
+ * worker — the loop is itself guarded.
+ *
+ * @param {Function[]|null} fns
+ * @param {any[]} args
+ */
+function _fanOutObserve(fns, args) {
+  try {
+    for (const fn of fns) {
+      _guardedObserve(fn, args);
+    }
+  } catch {
+    // a failing decoration must never break dispatch
+  }
+}
+
+/**
  * The wiring surface of the TAO: a trigram-indexed handler registry plus
  * the envelope hop engine. `enter()` is the only dispatch gate and
  * `decorate()` the only extension surface (ENVELOPE-SPEC.md). Application
@@ -303,7 +348,8 @@ export default class Network {
    * - `chain: { key, next(prev, ac, envelope) }` — per-hop derived envelope
    *   state under a namespaced key
    *
-   * A throwing decorator callback never breaks dispatch.
+   * A throwing decorator callback, or a rejected thenable it returns,
+   * never breaks dispatch. Returned thenables are not awaited.
    *
    * @param {DecorationSpec} spec
    * @returns {() => void} dispose - removes the decoration
@@ -520,14 +566,14 @@ export default class Network {
     for (const decorator of this._decorators) {
       // Stryker disable next-line ConditionalExpression: equivalent - calling a missing onForward throws inside the guarded try, so observable behavior is identical
       if (decorator.onForward) {
-        try {
-          decorator.onForward(nextAc, nextEnvelope, {
+        _guardedObserve(decorator.onForward, [
+          nextAc,
+          nextEnvelope,
+          {
             from: prevEnvelope,
             forward,
-          });
-        } catch {
-          // a failing decoration must never break dispatch
-        }
+          },
+        ]);
       }
     }
     this._dispatch(nextAc, nextEnvelope);
@@ -562,7 +608,8 @@ export default class Network {
    * Bridge decoration callbacks that fire from inside `handleAppCon` into
    * the settlement hooks: `onReturn`, `onProceed`, `onConcluded`,
    * `onDispatched`, `onSettled`. Undefined when no decoration needs them.
-   * Each decoration call is guarded — a throw never breaks dispatch.
+   * Each decoration call is guarded — a throw or a rejected thenable
+   * never breaks dispatch; returned thenables are not awaited.
    * @param {AppCtx} appCtx - the AppCtx being dispatched
    * @param {Envelope} envelope - this hop's envelope (appended to each call)
    * @returns {{onReturn?: (phase: string, value: any, ac: AppCtx) => void, onProceed?: () => void, onConcluded?: (outcome: LifecycleOutcome) => void, onDispatched?: () => void, onSettled?: () => void}|undefined}
@@ -625,59 +672,34 @@ export default class Network {
       return undefined;
     }
     const hooks = {};
+    // Stryker disable next-line ConditionalExpression: a forced-true guard on a null collector no-ops in _fanOutObserve
     if (settlers) {
       hooks.onReturn = (phase, value, ac) => {
-        for (const settle of settlers) {
-          try {
-            settle(phase, value, ac, envelope);
-          } catch {
-            // a failing decoration must never break dispatch
-          }
-        }
+        _fanOutObserve(settlers, [phase, value, ac, envelope]);
       };
     }
+    // Stryker disable next-line ConditionalExpression: a forced-true guard on a null collector no-ops in _fanOutObserve
     if (proceeders) {
       hooks.onProceed = () => {
-        for (const proceed of proceeders) {
-          try {
-            proceed(appCtx, envelope);
-          } catch {
-            // a failing decoration must never break dispatch
-          }
-        }
+        _fanOutObserve(proceeders, [appCtx, envelope]);
       };
     }
+    // Stryker disable next-line ConditionalExpression: a forced-true guard on a null collector no-ops in _fanOutObserve
     if (concluders) {
       hooks.onConcluded = (outcome) => {
-        for (const conclude of concluders) {
-          try {
-            conclude(appCtx, envelope, outcome);
-          } catch {
-            // a failing decoration must never break dispatch
-          }
-        }
+        _fanOutObserve(concluders, [appCtx, envelope, outcome]);
       };
     }
+    // Stryker disable next-line ConditionalExpression: a forced-true guard on a null collector no-ops in _fanOutObserve
     if (dispatchers) {
       hooks.onDispatched = () => {
-        for (const dispatched of dispatchers) {
-          try {
-            dispatched(appCtx, envelope);
-          } catch {
-            // a failing decoration must never break dispatch
-          }
-        }
+        _fanOutObserve(dispatchers, [appCtx, envelope]);
       };
     }
+    // Stryker disable next-line ConditionalExpression: a forced-true guard on a null collector no-ops in _fanOutObserve
     if (settlersDone) {
       hooks.onSettled = () => {
-        for (const settled of settlersDone) {
-          try {
-            settled(appCtx, envelope);
-          } catch {
-            // a failing decoration must never break dispatch
-          }
-        }
+        _fanOutObserve(settlersDone, [appCtx, envelope]);
       };
     }
     return hooks;
@@ -685,7 +707,8 @@ export default class Network {
 
   /**
    * Invoke every decoration's `onReceived` in registration order, guarding
-   * against throws. Fires before `onDispatch` and before any intercept.
+   * against throws and rejected thenables. Fires before `onDispatch` and
+   * before any intercept.
    * @param {AppCtx} appCtx
    * @param {Envelope} envelope
    */
@@ -693,18 +716,14 @@ export default class Network {
     for (const decorator of this._decorators) {
       // Stryker disable next-line ConditionalExpression: equivalent - calling a missing onReceived throws inside the guarded try, so observable behavior is identical
       if (decorator.onReceived) {
-        try {
-          decorator.onReceived(appCtx, envelope);
-        } catch {
-          // a failing decoration must never break dispatch
-        }
+        _guardedObserve(decorator.onReceived, [appCtx, envelope]);
       }
     }
   }
 
   /**
    * Invoke every decoration's `onDispatch` in registration order, guarding
-   * against throws.
+   * against throws and rejected thenables.
    * @param {AppCtx} appCtx
    * @param {Envelope} envelope
    * @param {AppCtxHandlers} handler - the group about to execute
@@ -714,11 +733,12 @@ export default class Network {
     for (const decorator of this._decorators) {
       // Stryker disable next-line ConditionalExpression: equivalent - calling a missing onDispatch throws inside the guarded try, so observable behavior is identical
       if (decorator.onDispatch) {
-        try {
-          decorator.onDispatch(appCtx, envelope, handler, forward);
-        } catch {
-          // a failing decoration must never break dispatch
-        }
+        _guardedObserve(decorator.onDispatch, [
+          appCtx,
+          envelope,
+          handler,
+          forward,
+        ]);
       }
     }
   }

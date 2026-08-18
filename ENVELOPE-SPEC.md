@@ -262,8 +262,11 @@ const dispose = network.decorate({
 The four named callbacks `onReceived` / `onConcluded` / `onDispatched` /
 `onSettled` are this engine's observation waypoints for the dispatch
 lifecycle ([`TAO-SPEC.md` §4](./TAO-SPEC.md#4-the-dispatch-lifecycle)).
-They are powerless observers: no `forward`, no handler, and a throw never
-breaks dispatch. They fire in that order, each at most once per dispatch;
+They are powerless observers: no `forward`, no handler. A throw, or a
+rejected thenable they return, never breaks dispatch — returned thenables
+are not awaited (an `async onXxx` that throws must not become an
+unhandled rejection, and must not stall the hop). They fire in that
+order, each at most once per dispatch;
 `onReceived` and `onConcluded` fire for every dispatch that determines an
 intercept outcome; `onDispatched` and `onSettled` fire exactly when the
 outcome is `proceeded`. A halted or redirected dispatch stops at
@@ -586,7 +589,9 @@ diff reviewable against this spec's table above.
 > for references). Four observable events — received, concluded,
 > dispatched, settled — as observation waypoints; no client await, ever.
 > JS-engine mechanism: first-class decoration callbacks `onReceived` /
-> `onConcluded` / `onDispatched` / `onSettled` (§5). `onDispatch` fires at
+> `onConcluded` / `onDispatched` / `onSettled` (§5). Returned thenables
+> from any decoration callback are not awaited; rejection is isolated
+> like a throw. `onDispatch` fires at
 > the same moment as `onReceived` (pre-intercept — why the Tracer records
 > halted signals and typo'd no-ops). `onProceed` fires at
 > `concluded`-as-proceeded. `onReturn` remains the finer per-handler

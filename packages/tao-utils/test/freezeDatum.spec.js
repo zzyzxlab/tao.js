@@ -66,6 +66,27 @@ describe('freezeDatum', () => {
     expect(mutations).toEqual(['frozen']);
   });
 
+  it('still freezes after an earlier onReceived returns a rejected thenable', async () => {
+    const network = new Network();
+    network.decorate({
+      onReceived: async () => {
+        throw new Error('async received boom');
+      },
+    });
+    freezeDatum(network);
+    let frozen = false;
+    network.addInlineHandler(TRIGRAM, (tao, data) => {
+      frozen = Object.isFrozen(data) && Object.isFrozen(data.User);
+    });
+    expect(() =>
+      network.enter(
+        new AppCtx(TRIGRAM.t, TRIGRAM.a, TRIGRAM.o, { User: { id: '1' } }),
+      ),
+    ).not.toThrow();
+    await flush();
+    expect(frozen).toBe(true);
+  });
+
   it('resolves a Kernel via _network', async () => {
     const kernel = new Kernel();
     freezeDatum(kernel);
