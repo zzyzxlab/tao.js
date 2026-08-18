@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { WILDCARD, INTERCEPT, ASYNC, INLINE, ERROR } from '../src/constants';
 import AppCtxRoot from '../src/AppCtxRoot';
 import AppCtx from '../src/AppCtx';
@@ -144,6 +145,18 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(handler1).toHaveBeenCalledWith(callingArg, {});
       expect(handler2).toHaveBeenCalledWith(callingArg, {});
       expect(handler3).toHaveBeenCalledWith(callingArg, {});
+    });
+
+    it('should still call later inline handlers when an earlier one throws', async () => {
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const later = jest.fn();
+      uut.addInlineHandler(() => {
+        throw new Error('inline boom');
+      });
+      uut.addInlineHandler(later);
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      await expect(uut.handleAppCon(matchAc)).rejects.toThrow('inline boom');
+      expect(later).toHaveBeenCalledTimes(1);
     });
 
     it('should not call a removed inline handler when asked to handle App Con', async () => {

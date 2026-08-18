@@ -423,6 +423,8 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
+- **2026-08-18** — Inline phase is invoke-all then settle (`Promise.allSettled`): `onDispatched` fires after every matching inline has been _called_, before those returns are awaited; `onSettled` after they complete. An inline error is isolated — siblings still run; both waypoints still fire; loud-fail rethrow (no `onReturn`) happens after settlement. Intercept remains serialized surplus. Do not restore `await` inside the invoke loop.
+
 - **2026-08-18** — Decoration callbacks (`onReceived` / `onConcluded` / `onDispatched` / `onSettled` / `onDispatch` / `onForward` / `onReturn` / `onProceed`) go through `_guardedObserve`: sync throws are caught; a returned thenable is **never awaited** and its rejection is swallowed (`then(undefined, noop)`). `async onXxx` / `Promise.reject` must not become unhandled rejections (Jest 30 fails the suite) and must not stall the hop (`freezeDatum` stays a sync `onReceived` freeze). Chain reducers are not observers — their return value is the next chain state; do not catch their thenables.
 
 - **2026-08-18** — Ruleset **Default (main)** requires 1 approving review, resolved threads, last-push approval, dismiss-stale-on-push, squash-only; no bypass. CodeRabbit’s GitHub review verdicts satisfy it. After a push, wait for a fresh CodeRabbit approval. CodeRabbit `reviews.request_changes_workflow` is on (`CHANGES_REQUESTED` / `APPROVED`), not comment-only. `@coderabbitai approve` works. Pre-merge title/description checks stay `warning` (non-blocking).

@@ -221,8 +221,8 @@ invocation: the engine enqueues every async call and yields once before
 the inline phase. A throw before an async handler's first await is
 inherently a rejection (no stack to escape into).
 Async handlers are out-of-band side effects — their completion timing is
-unobservable by design and must not affect the serialized execution of
-the inline phase. An AppCtx returned by an async handler enters as a new
+unobservable by design and must not affect inline invocation or
+settlement. An AppCtx returned by an async handler enters as a new
 hop (`hop.via: 'Async'`) when it resolves. The initiation-before-inline
 ordering is a local-scheduling guarantee — this engine's realization of
 the paradigm's commitment ordering ([`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract); implementation-level
@@ -272,15 +272,21 @@ intercept outcome; `onDispatched` and `onSettled` fire exactly when the
 outcome is `proceeded`. Those two keep their [`TAO-SPEC.md` §4](./TAO-SPEC.md#4-the-dispatch-lifecycle)
 meanings — `dispatched` is every inline in the snapshot **invoked**,
 `settled` is every inline **completed** — they are not the same event.
-A halted or redirected dispatch stops at `onConcluded`. `'failed'` is
-reserved for mesh partition postures
+This engine realizes that split by invoking every matching inline
+(capturing each return), firing `onDispatched`, awaiting those returns,
+then firing `onSettled`. A halted or redirected dispatch stops at
+`onConcluded`. `'failed'` is reserved for mesh partition postures
 ([`MESH-SPEC.md` §6](./MESH-SPEC.md#6-the-dispatch-lifecycle)); this
 engine has no in-process producer. A throw before an intercept outcome is
 determined does not conclude — it surfaces via `onReturn(ERROR)` or
-rethrow, same as today. A throw after `proceeded` (an inline handler in
-this engine) also skips both: a throw mid-loop means the snapshot was
-neither fully invoked nor fully completed. The error surfaces via
-`onReturn(ERROR)` or rethrow — do not invent `'failed'` for this.
+rethrow, same as today. An inline error after `proceeded` is isolated
+([`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract): never blocking
+siblings): remaining inlines are still invoked, `onDispatched` still fires
+(all were invoked), and `onSettled` still fires after every inline has
+completed, including those that errored. The error surfaces via
+`onReturn(ERROR)` when hooks are present; without `onReturn` the loud-fail
+default rethrows **after** settlement (§6). Do not invent `'failed'` for
+this.
 
 `onDispatch` and `onProceed` remain the composition / veto-respecting
 surfaces they are. `onDispatch` fires at the same moment as `onReceived`
@@ -292,15 +298,14 @@ the handler signature `(tao, data)` never exposes. The socket.io server
 reply path is the motivating case: it emits with the hop's chain while
 intercept-halted and -diverted signals remain suppressed.
 
-This engine serializes inline handlers (`await` each). The first moment
-every handler has been invoked is therefore also the moment every handler
-has completed, so `onDispatched` and `onSettled` are adjacent after the
-last `await` returns. They remain distinct events, in that order, each
-once — adjacency is this engine's scheduling, not a redefinition of
-`dispatched` as "completed". A proceeded dispatch with no inlines still
-fires both (vacuous invoke/complete). `onSettled` fires before chained
-AppCons are forwarded, so a child hop's `onReceived` follows its parent's
-`onSettled`.
+All-sync inlines still make `onDispatched` and `onSettled` adjacent
+(invoke _is_ complete). The gap is observable when any inline returns a
+thenable: `onDispatched` fires after the last call, before that thenable
+settles. They remain distinct events, in that order, each once. A
+proceeded dispatch with no inlines still fires both (vacuous
+invoke/complete). `onSettled` fires before chained AppCons are forwarded,
+so a child hop's `onReceived` follows its parent's `onSettled`. Chained
+AppCtxs are spooled in snapshot order, not completion order.
 
 **`Network.mirror` and private registries.** `mirror(ac, envelope,
 forward)` is `_dispatch` with the envelope verbatim — the **same hop** on
@@ -343,18 +348,19 @@ private network via `Channel.decorate(spec)`, and channel-scoped entry via
 - thrown errors: `onReturn('error', err)` when hooks present; legacy
   swallow/log behavior when absent (unchanged default).
 
-With no hooks the dispatch loop is behaviorally identical to today.
-
 Loud-fail default (deliberate, author-affirmed 0.20): an unsettled
 inline/intercept handler error rethrows into the fire-and-forget dispatch
 promise — under Node ≥15 defaults that is an unhandled rejection and
 terminates the process. This is intentional anti-parentalism: developers
 own their error boundaries (a five-line `onReturn` decoration settles
-everything). Still open pre-1.0: an `errorBoundary` helper and a revisit
-of the default's ergonomics — any change is a protocol decision,
-spec-first. At mesh scale the principle generalizes: a handler failure
-terminates its isolation unit, and loud-fail is that principle in its
-degenerate form, where the process is the unit ([`MESH-SPEC.md` §1](./MESH-SPEC.md#1-the-three-layers)).
+everything). An inline error does **not** skip sibling inlines or the
+`dispatched`/`settled` waypoints; loud-fail rethrows after that snapshot
+has been invoked and settled. Still open pre-1.0: an `errorBoundary`
+helper and a revisit of the default's ergonomics — any change is a
+protocol decision, spec-first. At mesh scale the principle generalizes: a
+handler failure terminates its isolation unit, and loud-fail is that
+principle in its degenerate form, where the process is the unit
+([`MESH-SPEC.md` §1](./MESH-SPEC.md#1-the-three-layers)).
 Async handlers are exempt as of 0.20: their failures always settle or
 swallow inside the fork (§4 async-phase contract).
 `Transceiver` becomes: cascade key + `onReturn` mapping (intercept→reject,
@@ -587,10 +593,13 @@ diff reviewable against this spec's table above.
 > snapshot semantics, intercept conditional completeness
 > (unordered; decisive halt; redirect-as-fresh-dispatch; error is never a
 > pass; no prioritized handlers, ever), inline settlement, async
-> commitment. This engine conforms with serialized surplus: its
-> one-at-a-time intercept loop, short-circuiting, and
-> registration-order scheduling are implementation detail per the §10
-> scope split — unobservable to conformant apps.
+> commitment. This engine's intercept loop remains serialized surplus
+> (one-at-a-time, short-circuit, registration-order scheduling) —
+> implementation detail per the §10 scope split, unobservable to
+> conformant apps. Inline is invoke-all then settle: every matching
+> handler is called before any return is awaited, so `dispatched` and
+> `settled` are distinct when a handler returns a thenable, and an
+> inline error never skips siblings.
 
 ## 15. The dispatch lifecycle
 
@@ -600,8 +609,9 @@ diff reviewable against this spec's table above.
 > JS-engine mechanism: first-class decoration callbacks `onReceived` /
 > `onConcluded` / `onDispatched` / `onSettled` (§5). Returned thenables
 > from any decoration callback are not awaited; rejection is isolated
-> like a throw. A throw after `proceeded` skips `onDispatched` /
-> `onSettled` (§5). `onDispatch` fires at
+> like a throw. An inline handler error is isolated: siblings still run,
+> `onDispatched` / `onSettled` still fire, then `onReturn(ERROR)` or
+> loud-fail rethrow (§5, §6). `onDispatch` fires at
 > the same moment as `onReceived` (pre-intercept — why the Tracer records
 > halted signals and typo'd no-ops). `onProceed` fires at
 > `concluded`-as-proceeded. `onReturn` remains the finer per-handler

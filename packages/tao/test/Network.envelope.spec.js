@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Kernel from '../src/Kernel';
 import Network from '../src/Network';
 import AppCtx from '../src/AppCtx';
@@ -1098,8 +1099,28 @@ describe('Settlement hook (onReturn)', () => {
     ]);
   });
 
-  it('should settle a thrown inline handler error as ERROR and skip the spool', async () => {
-    // Assemble
+  it('should settle a thrown intercept handler error as ERROR', async () => {
+    // Assemble — intercept throws before an outcome is determined; the
+    // outer catch reports ERROR (inline isolation does not apply here)
+    const returns = [];
+    settleInto(returns);
+    const later = jest.fn();
+    TAO.addInterceptHandler(TRIGRAM, () => {
+      throw new Error('intercept boom');
+    });
+    TAO.addInlineHandler(TRIGRAM, later);
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert
+    expect(returns).toHaveLength(1);
+    expect(returns[0].phase).toBe(ERROR);
+    expect(returns[0].value.message).toBe('intercept boom');
+    expect(later).not.toHaveBeenCalled();
+  });
+
+  it('should settle a thrown inline handler error as ERROR without inventing a chain', async () => {
+    // Assemble — a throw with no AppCtx return does not dispatch NEXT
     const returns = [];
     settleInto(returns);
     const later = jest.fn();
@@ -1115,6 +1136,23 @@ describe('Settlement hook (onReturn)', () => {
     expect(returns[0].phase).toBe(ERROR);
     expect(returns[0].value.message).toBe('inline boom');
     expect(later).not.toHaveBeenCalled();
+  });
+
+  it('should still spool a sibling inline AppCtx when another inline throws', async () => {
+    const returns = [];
+    settleInto(returns);
+    const later = jest.fn();
+    TAO.addInlineHandler(TRIGRAM, () => {
+      throw new Error('inline boom');
+    });
+    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
+    TAO.addInlineHandler(NEXT_TRIGRAM, later);
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    expect(later).toHaveBeenCalledTimes(1);
+    expect(returns).toHaveLength(1);
+    expect(returns[0].phase).toBe(ERROR);
+    expect(returns[0].value.message).toBe('inline boom');
   });
 
   it('should settle a rejected async handler as ERROR', async () => {
@@ -1232,16 +1270,20 @@ describe('Settlement hook (onReturn)', () => {
 
   it('should keep legacy error behavior when no settlement is decorated', async () => {
     // Assemble — without hooks, a throwing inline handler rejects the
-    // dispatch promise exactly as before (the rethrow branch)
+    // dispatch promise exactly as before (the rethrow branch), after
+    // siblings have been invoked
+    const later = jest.fn();
     TAO.addInlineHandler(TRIGRAM, () => {
       throw new Error('legacy boom');
     });
+    TAO.addInlineHandler(TRIGRAM, later);
     const ach = TAO._network._handlers.get(`${TERM}|${ACTION}|${ORIENT}`);
     // Act
     // Assert
     await expect(
       ach.handleAppCon(new AppCtx(TERM, ACTION, ORIENT), () => {}, {}),
     ).rejects.toThrow('legacy boom');
+    expect(later).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -1533,18 +1575,19 @@ describe('Dispatch lifecycle callbacks (TAO-SPEC §4 / ENVELOPE-SPEC §5)', () =
     expect(events[1].outcome).toBe('proceeded');
   });
 
-  it('should skip dispatched and settled when an inline handler throws after proceeded', async () => {
-    // Assemble — waypoints mean the snapshot finished invoke/complete; a
-    // throw mid-loop is not that (ENVELOPE-SPEC §5). onReturn swallows so
-    // the fire-and-forget dispatch does not become an unhandled rejection.
+  it('should isolate an inline error so siblings run and dispatched/settled still fire', async () => {
+    // Assemble — TAO-SPEC §3: an inline error never blocks siblings;
+    // §4: dispatched is all invoked, settled is all completed (including errors)
     const events = [];
     const returns = [];
     recordLifecycle(TAO._network, events);
     TAO._network.decorate({
       onReturn: (phase, value) =>
-        returns.push(`${phase}:${value && value.message}`),
+        returns.push(
+          `${phase}:${value && value.message ? value.message : value}`,
+        ),
     });
-    const later = jest.fn();
+    const later = jest.fn(() => 'later-ok');
     TAO.addInlineHandler(TRIGRAM, () => {
       throw new Error('inline boom');
     });
@@ -1556,9 +1599,38 @@ describe('Dispatch lifecycle callbacks (TAO-SPEC §4 / ENVELOPE-SPEC §5)', () =
     expect(events.map((e) => `${e.ev}:${e.outcome || ''}`)).toEqual([
       'received:',
       'concluded:proceeded',
+      'dispatched:',
+      'settled:',
     ]);
-    expect(returns).toEqual([`${ERROR}:inline boom`]);
-    expect(later).not.toHaveBeenCalled();
+    expect(later).toHaveBeenCalledTimes(1);
+    expect(returns).toEqual([`${ERROR}:inline boom`, `${INLINE}:later-ok`]);
+  });
+
+  it('should isolate a rejected inline thenable so siblings still complete', async () => {
+    const returns = [];
+    const events = [];
+    recordLifecycle(TAO._network, events);
+    TAO._network.decorate({
+      onReturn: (phase, value) =>
+        returns.push(
+          `${phase}:${value && value.message ? value.message : value}`,
+        ),
+    });
+    const later = jest.fn(() => 'later-ok');
+    TAO.addInlineHandler(TRIGRAM, () =>
+      Promise.reject(new Error('inline reject')),
+    );
+    TAO.addInlineHandler(TRIGRAM, later);
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    expect(later).toHaveBeenCalledTimes(1);
+    expect(events.map((e) => e.ev)).toEqual([
+      'received',
+      'concluded',
+      'dispatched',
+      'settled',
+    ]);
+    expect(returns).toEqual([`${ERROR}:inline reject`, `${INLINE}:later-ok`]);
   });
 
   it('should never let a throwing lifecycle observer break dispatch or later observers', async () => {
@@ -1797,21 +1869,32 @@ describe('Dispatch lifecycle callbacks (TAO-SPEC §4 / ENVELOPE-SPEC §5)', () =
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
-  it('should fire dispatched and settled after every inline has run', async () => {
-    // Assemble
+  it('should fire dispatched after every inline is invoked and settled after they complete', async () => {
+    // Assemble — a gated thenable makes the §4 split observable
     const order = [];
+    let release;
+    const gate = new Promise((resolve) => {
+      release = resolve;
+    });
     TAO._network.decorate({
       onDispatched: () => order.push('dispatched'),
       onSettled: () => order.push('settled'),
     });
+    TAO.addInlineHandler(TRIGRAM, () =>
+      gate.then(() => {
+        order.push('slow');
+      }),
+    );
     TAO.addInlineHandler(TRIGRAM, () => {
-      order.push('inline');
+      order.push('fast');
     });
     // Act
     TAO.setCtx(TRIGRAM, {});
+    // Assert — both called, dispatched fired, slow still pending
+    expect(order).toEqual(['fast', 'dispatched']);
+    release();
     await flush();
-    // Assert
-    expect(order).toEqual(['inline', 'dispatched', 'settled']);
+    expect(order).toEqual(['fast', 'dispatched', 'slow', 'settled']);
   });
 
   it('should pass hooks with onDispatched when only onDispatched is decorated', () => {

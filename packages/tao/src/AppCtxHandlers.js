@@ -202,7 +202,8 @@ export default class AppCtxHandlers extends AppCtxRoot {
    * the async/inline phases run (§5 — veto-respecting emitters). Lifecycle
    * waypoints: `hooks.onConcluded(outcome)` after the intercept outcome is
    * determined; `hooks.onDispatched()` after every inline in the snapshot
-   * has been invoked; `hooks.onSettled()` after every inline has completed.
+   * has been invoked (before those returns are awaited); `hooks.onSettled()`
+   * after every inline has completed, including those that errored.
    *
    * `setAppCtx` receives the producing phase as a third argument so the
    * hop engine can stamp `hop.via` on chained hops (§4).
@@ -261,8 +262,9 @@ export default class AppCtxHandlers extends AppCtxRoot {
 
   /**
    * Run the three phases in order: await intercepts (halt/divert
-   * short-circuits), fork async handlers, await inline handlers, settle
-   * inline returns, then set the spooled chained AppCtxs.
+   * short-circuits), fork async handlers, invoke every inline then await
+   * their completions, settle inline returns, then set the spooled chained
+   * AppCtxs.
    *
    * @param {AppCtx} ac - the Application Context being handled
    * @param {Forward} setAppCtx - continuation for chained AppCtxs
@@ -394,11 +396,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
      * Inline Handlers
      * fire if all Intercept Handlers don't intercept the fired AC
      * fired after all Async handlers are fired off
-     * work inside the same execution context as the caller
-     * can return an AC that will be set immediately in the TAO
-     * TODO: should these returns be spooled up then iterated to allow
-     * all handlers to handle this context before any new ones are set?
-     * YES: currently implemented that way
+     * every matching handler is invoked before any return is awaited
+     * (TAO-SPEC.md §4 dispatched vs settled; §3: an error never blocks
+     * siblings). Returned AppCtxs are spooled and forwarded after
+     * settlement so all handlers see this context before any chain runs.
      */
     if (asyncKickoffs) {
       // one microtask yield: the deferred async calls enqueued above are
@@ -407,23 +408,37 @@ export default class AppCtxHandlers extends AppCtxRoot {
       // protocol's priority guarantee without synchronous invocation
       await undefined;
     }
-    const nextSpool = [];
-    const inlineReturns = [];
+    const pending = [];
     for (let inlineH of this.inlineHandlers) {
-      let nextInlineAc = await inlineH({ t, a, o }, data);
-      if (nextInlineAc instanceof AppCtx) {
-        nextSpool.push(nextInlineAc);
-      } else if (onReturn && nextInlineAc != null) {
-        inlineReturns.push(nextInlineAc);
+      try {
+        pending.push(Promise.resolve(inlineH({ t, a, o }, data)));
+      } catch (inlineErr) {
+        pending.push(Promise.reject(inlineErr));
       }
     }
+    // attach settlement handlers in this turn so a sync throw's
+    // Promise.reject is not an unhandled rejection before the await
+    const settling = Promise.allSettled(pending);
     if (onDispatched) {
       onDispatched();
     }
-    // settlement sees inline returns after every inline handler has run and
-    // before any chained AppCons dispatch (Transceiver resolve ordering)
-    for (let inlineValue of inlineReturns) {
-      onReturn(INLINE, inlineValue, ac);
+    const settledResults = await settling;
+    const nextSpool = [];
+    const inlineErrors = [];
+    for (let result of settledResults) {
+      if (result.status === 'fulfilled') {
+        const nextInlineAc = result.value;
+        if (nextInlineAc instanceof AppCtx) {
+          nextSpool.push(nextInlineAc);
+        } else if (onReturn && nextInlineAc != null) {
+          onReturn(INLINE, nextInlineAc, ac);
+        }
+      } else {
+        inlineErrors.push(result.reason);
+        if (onReturn) {
+          onReturn(ERROR, result.reason, ac);
+        }
+      }
     }
     if (onSettled) {
       onSettled();
@@ -441,6 +456,9 @@ export default class AppCtxHandlers extends AppCtxRoot {
           console.error('error on next inline:', inlineErr);
         }
       }
+    }
+    if (inlineErrors.length && !onReturn) {
+      throw inlineErrors[0];
     }
   }
 }
