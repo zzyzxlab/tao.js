@@ -159,6 +159,19 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(later).toHaveBeenCalledTimes(1);
     });
 
+    it('should not call an inline handler registered during the current dispatch', async () => {
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const later = jest.fn();
+      uut.addInlineHandler(() => {
+        uut.addInlineHandler(later);
+      });
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      await uut.handleAppCon(matchAc);
+      expect(later).not.toHaveBeenCalled();
+      await uut.handleAppCon(matchAc);
+      expect(later).toHaveBeenCalledTimes(1);
+    });
+
     it('should not call a removed inline handler when asked to handle App Con', async () => {
       // Assemble
       const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
@@ -449,6 +462,19 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(handler3).toHaveBeenCalledWith(callingArg, {});
     });
 
+    it('should not call an async handler registered during the current dispatch', async () => {
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const later = jest.fn();
+      uut.addAsyncHandler(() => {
+        uut.addAsyncHandler(later);
+      });
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      await uut.handleAppCon(matchAc);
+      expect(later).not.toHaveBeenCalled();
+      await uut.handleAppCon(matchAc);
+      expect(later).toHaveBeenCalledTimes(1);
+    });
+
     it('should not call a removed async handler when asked to handle App Con', async () => {
       // Assemble
       const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
@@ -657,6 +683,32 @@ describe('AppCtxHandlers is used to attach handlers for Application Contexts', (
       expect(handler1).toHaveBeenCalledWith(callingArg, {});
       expect(handler2).toHaveBeenCalledWith(callingArg, {});
       expect(handler3).toHaveBeenCalledWith(callingArg, {});
+    });
+
+    it('should not call an intercept handler registered during the current dispatch', async () => {
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const later = jest.fn();
+      uut.addInterceptHandler(() => {
+        uut.addInterceptHandler(later);
+      });
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      await uut.handleAppCon(matchAc);
+      expect(later).not.toHaveBeenCalled();
+      await uut.handleAppCon(matchAc);
+      expect(later).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not call an inline registered by an intercept on the same dispatch', async () => {
+      const uut = new AppCtxHandlers(TERM, ACTION, ORIENT);
+      const later = jest.fn();
+      uut.addInterceptHandler(() => {
+        uut.addInlineHandler(later);
+      });
+      const matchAc = new AppCtx(TERM, ACTION, ORIENT);
+      await uut.handleAppCon(matchAc);
+      expect(later).not.toHaveBeenCalled();
+      await uut.handleAppCon(matchAc);
+      expect(later).toHaveBeenCalledTimes(1);
     });
 
     it('should not call a removed intercept handler when asked to handle App Con', async () => {

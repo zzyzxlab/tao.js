@@ -423,6 +423,8 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
+- **2026-08-18** — Handler sets are snapshotted at `_handlePhases` entry (`Array.from` of intercept/async/inline). A handler registered during this dispatch is not included (TAO-SPEC §3); next dispatch sees it. Do not iterate the live Sets.
+
 - **2026-08-18** — Inline phase is invoke-all then settle (`Promise.allSettled`): `onDispatched` fires after every matching inline has been _called_, before those returns are awaited; `onSettled` after they complete. An inline error is isolated — siblings still run; both waypoints still fire; loud-fail rethrow (no `onReturn`) happens after settlement. Intercept remains serialized surplus. Do not restore `await` inside the invoke loop.
 
 - **2026-08-18** — Decoration callbacks (`onReceived` / `onConcluded` / `onDispatched` / `onSettled` / `onDispatch` / `onForward` / `onReturn` / `onProceed`) go through `_guardedObserve`: sync throws are caught; a returned thenable is **never awaited** and its rejection is swallowed (`then(undefined, noop)`). `async onXxx` / `Promise.reject` must not become unhandled rejections (Jest 30 fails the suite) and must not stall the hop (`freezeDatum` stays a sync `onReceived` freeze). Chain reducers are not observers — their return value is the next chain state; do not catch their thenables.

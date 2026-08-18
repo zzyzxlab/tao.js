@@ -596,10 +596,13 @@ diff reviewable against this spec's table above.
 > commitment. This engine's intercept loop remains serialized surplus
 > (one-at-a-time, short-circuit, registration-order scheduling) —
 > implementation detail per the §10 scope split, unobservable to
-> conformant apps. Inline is invoke-all then settle: every matching
-> handler is called before any return is awaited, so `dispatched` and
-> `settled` are distinct when a handler returns a thenable, and an
-> inline error never skips siblings.
+> conformant apps. Handler sets are snapshotted at `_handlePhases`
+> entry ([`TAO-SPEC.md` §3](./TAO-SPEC.md#3-the-phase-contract): one
+> snapshot per dispatch; a handler registered during this dispatch is
+> not included). Inline is invoke-all then settle: every matching
+> handler in that snapshot is called before any return is awaited, so
+> `dispatched` and `settled` are distinct when a handler returns a
+> thenable, and an inline error never skips siblings.
 
 ## 15. The dispatch lifecycle
 

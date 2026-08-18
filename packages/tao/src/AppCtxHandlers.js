@@ -261,10 +261,11 @@ export default class AppCtxHandlers extends AppCtxRoot {
   }
 
   /**
-   * Run the three phases in order: await intercepts (halt/divert
-   * short-circuits), fork async handlers, invoke every inline then await
-   * their completions, settle inline returns, then set the spooled chained
-   * AppCtxs.
+   * Run the three phases in order: snapshot intercept/async/inline sets at
+   * entry (TAO-SPEC.md §3 — a handler registered during this dispatch is
+   * not included), await intercepts (halt/divert short-circuits), fork async
+   * handlers, invoke every inline then await their completions, settle
+   * inline returns, then set the spooled chained AppCtxs.
    *
    * @param {AppCtx} ac - the Application Context being handled
    * @param {Forward} setAppCtx - continuation for chained AppCtxs
@@ -294,13 +295,16 @@ export default class AppCtxHandlers extends AppCtxRoot {
     onDispatched,
     onSettled,
   ) {
+    const interceptSnapshot = Array.from(this.interceptHandlers);
+    const asyncSnapshot = Array.from(this.asyncHandlers);
+    const inlineSnapshot = Array.from(this.inlineHandlers);
     /*
      * Intercept Handlers
      * always occur first
      * have the ability to prevent other handlers from firing on this AC
      * optionally can return a single AC that will be set as the new AC instead of the incoming AC
      */
-    for (let interceptH of this.interceptHandlers) {
+    for (let interceptH of interceptSnapshot) {
       // using the decorator pattern to call these?
       let intercepted = await interceptH({ t, a, o }, data);
       if (!intercepted) {
@@ -353,7 +357,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
      * TODO: would ServiceWorkers make sense for this? tao-sw package
      */
     let asyncKickoffs = 0;
-    for (let asyncH of this.asyncHandlers) {
+    for (let asyncH of asyncSnapshot) {
       (() => {
         asyncKickoffs += 1;
         // Stryker disable next-line all: debug logging via noop console
@@ -409,7 +413,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
       await undefined;
     }
     const pending = [];
-    for (let inlineH of this.inlineHandlers) {
+    for (let inlineH of inlineSnapshot) {
       try {
         pending.push(Promise.resolve(inlineH({ t, a, o }, data)));
       } catch (inlineErr) {
