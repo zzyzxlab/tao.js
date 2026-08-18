@@ -359,6 +359,8 @@ This public repo is reviewed by the [CodeRabbit](https://coderabbit.ai) GitHub A
 
 On a PR: `@coderabbitai review` (incremental) or `@coderabbitai full review`. CodeRabbit submits a GitHub review verdict (`CHANGES_REQUESTED` while its comments are open, `APPROVED` once they are resolved). `@coderabbitai approve` resolves its threads and approves when that workflow is enabled. Skip automatic reviews with `WIP` / `[skip review]` in the title, or `@coderabbitai pause`. Explicit `@coderabbitai review` still works.
 
+The repo ruleset **Default (main)** (`~DEFAULT_BRANCH`) requires that to merge: 1 approving review, all review threads resolved, last-push approval (the last pusher cannot be the approver), stale reviews dismissed on push, squash-only. There is no bypass. CodeRabbit’s `APPROVED` / `CHANGES_REQUESTED` reviews count. After you push, wait for CodeRabbit to re-review — a prior approval is stale.
+
 ### Editing guidance
 
 - Match existing style (plain JS classes in core; Jest + mocks in tests). Prefer function components + hooks for new `@tao.js/react` Current API work (see Switch/Render modernization).
@@ -421,7 +423,7 @@ Append durable findings to **Agent notes** below (API quirks, migration status, 
 
 _Append learnings for the next agent. Newest first._
 
-- **2026-08-18** — CodeRabbit `reviews.request_changes_workflow` is on: it submits GitHub review verdicts (`CHANGES_REQUESTED` / `APPROVED`), not comment-only. `@coderabbitai approve` works. Pre-merge title/description checks stay `warning` (non-blocking).
+- **2026-08-18** — Ruleset **Default (main)** requires 1 approving review, resolved threads, last-push approval, dismiss-stale-on-push, squash-only; no bypass. CodeRabbit’s GitHub review verdicts satisfy it. After a push, wait for a fresh CodeRabbit approval. CodeRabbit `reviews.request_changes_workflow` is on (`CHANGES_REQUESTED` / `APPROVED`), not comment-only. `@coderabbitai approve` works. Pre-merge title/description checks stay `warning` (non-blocking).
 - **2026-08-17** — CodeRabbit GitHub App reviews PRs on this public OSS repo (Pro+ OSS tier, no paid plan). Repo config is `.coderabbit.yaml`. Manual trigger: `@coderabbitai review`. Do not add a GitHub Actions workflow for it — the native GitHub App is the integration.
 
 - **2026-08-13** — Serena is the agent LSP (`language_backend: LSP` in `.serena/project.yml`; never JetBrains). Any agent bootstraps with `bash scripts/serena-bootstrap.sh` (`--check` at session start). Cursor: `.cursor/mcp.json` + `.cursor/rules/serena.mdc`. Claude Code: `.mcp.json` + `.claude/settings.json`. Shared skill: `.agents/skills/serena`. Do not install from an MCP marketplace. `.serena/` is in `.prettierignore`.
