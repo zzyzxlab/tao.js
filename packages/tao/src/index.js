@@ -20,6 +20,7 @@
  * @typedef {import('./Network').Envelope} Envelope
  * @typedef {import('./Network').Forward} Forward
  * @typedef {import('./Network').DecorationSpec} DecorationSpec
+ * @typedef {import('./Network').LifecycleOutcome} LifecycleOutcome
  */
 import AppCtx from './AppCtx';
 import Network from './Network';

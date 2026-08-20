@@ -207,7 +207,7 @@ export default class Transponder {
    * @param {AppCtx} ac
    * @param {Object} [opts]
    * @param {(Object|null)} [opts.chain] - prior chain state to continue (e.g. a
-   *        remote trace received over a transport — ENVELOPE-SPEC.md §9)
+   *        remote trace received over a transport — TAO-SPEC.md §7)
    * @returns {Promise<AppCtx>} resolves with the first handled AppCon of the
    *          cascade; rejects with the string `reached timeout of: <ms>ms`
    *          when a `timeoutMs` was configured and no signal arrived in time

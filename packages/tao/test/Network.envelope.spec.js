@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Kernel from '../src/Kernel';
 import Network from '../src/Network';
 import AppCtx from '../src/AppCtx';
@@ -25,6 +26,18 @@ afterEach(clearTAO);
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+function trackUnhandledRejections() {
+  const unhandled = jest.fn();
+  const onUnhandled = (reason) => unhandled(reason);
+  process.on('unhandledRejection', onUnhandled);
+  return {
+    unhandled,
+    stop() {
+      process.off('unhandledRejection', onUnhandled);
+    },
+  };
+}
+
 describe('Network.decorate validates decorations', () => {
   it('should require a spec object with at least one capability', () => {
     // Assemble
@@ -47,6 +60,18 @@ describe('Network.decorate validates decorations', () => {
     expect(() => network.decorate({ onProceed: 'x' })).toThrow(
       'decoration onProceed must be a function',
     );
+    expect(() => network.decorate({ onReceived: 42 })).toThrow(
+      'decoration onReceived must be a function',
+    );
+    expect(() => network.decorate({ onConcluded: 'x' })).toThrow(
+      'decoration onConcluded must be a function',
+    );
+    expect(() => network.decorate({ onDispatched: 1 })).toThrow(
+      'decoration onDispatched must be a function',
+    );
+    expect(() => network.decorate({ onSettled: {} })).toThrow(
+      'decoration onSettled must be a function',
+    );
     expect(() => network.decorate({ chain: { key: 'x' } })).toThrow(
       /chain must be/,
     );
@@ -67,6 +92,21 @@ describe('Network.decorate validates decorations', () => {
     }).not.toThrow();
     expect(typeof dispose).toBe('function');
   });
+
+  it.each(['onReceived', 'onConcluded', 'onDispatched', 'onSettled'])(
+    'should accept a decoration with only an %s capability',
+    (key) => {
+      // Assemble
+      const network = new Network();
+      // Act
+      let dispose = null;
+      // Assert
+      expect(() => {
+        dispose = network.decorate({ [key]: jest.fn() });
+      }).not.toThrow();
+      expect(typeof dispose).toBe('function');
+    },
+  );
 
   it('should not release another decoration chain key on double dispose', () => {
     // Assemble
@@ -319,6 +359,41 @@ describe('Network decorations observe and mirror', () => {
     // Act
     // Assert
     expect(() => TAO.setCtx(TRIGRAM, {})).not.toThrow();
+    await flush();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('should never let a rejected thenable from onDispatch or onForward break dispatch', async () => {
+    const { unhandled, stop } = trackUnhandledRejections();
+    try {
+      const handler = jest.fn();
+      TAO._network.decorate({
+        onDispatch: async () => {
+          throw new Error('async observer boom');
+        },
+        onForward: () => Promise.reject(new Error('async forward boom')),
+      });
+      TAO.addInlineHandler(
+        TRIGRAM,
+        () => new AppCtx(TERM, NEXT_ACTION, ORIENT),
+      );
+      TAO.addInlineHandler(NEXT_TRIGRAM, handler);
+      expect(() => TAO.setCtx(TRIGRAM, {})).not.toThrow();
+      await flush();
+      expect(handler).toHaveBeenCalledTimes(1);
+      expect(unhandled).not.toHaveBeenCalled();
+    } finally {
+      stop();
+    }
+  });
+
+  it('should not await a hanging thenable from onDispatch', async () => {
+    const handler = jest.fn();
+    TAO._network.decorate({
+      onDispatch: () => new Promise(() => {}),
+    });
+    TAO.addInlineHandler(TRIGRAM, handler);
+    TAO.setCtx(TRIGRAM, {});
     await flush();
     expect(handler).toHaveBeenCalledTimes(1);
   });
@@ -903,6 +978,28 @@ describe('Proceed hook (onProceed) — 0.20', () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
+  it('should never let a rejected thenable from onProceed break dispatch or later proceeds', async () => {
+    const { unhandled, stop } = trackUnhandledRejections();
+    try {
+      const proceeded = jest.fn();
+      TAO._network.decorate({
+        onProceed: async () => {
+          throw new Error('async proceed boom');
+        },
+      });
+      TAO._network.decorate({ onProceed: proceeded });
+      const handler = jest.fn();
+      TAO.addInlineHandler(TRIGRAM, handler);
+      expect(() => TAO.setCtx(TRIGRAM, {})).not.toThrow();
+      await flush();
+      expect(proceeded).toHaveBeenCalledTimes(1);
+      expect(handler).toHaveBeenCalledTimes(1);
+      expect(unhandled).not.toHaveBeenCalled();
+    } finally {
+      stop();
+    }
+  });
+
   it('should pass hooks with onProceed and without onReturn when only onProceed is decorated', () => {
     // Assemble
     TAO._network.decorate({ onProceed: jest.fn() });
@@ -937,7 +1034,7 @@ describe('Proceed hook (onProceed) — 0.20', () => {
           onProceed: 42,
         },
       ),
-    ).resolves.not.toThrow();
+    ).resolves.toBeUndefined();
     expect(handler).toHaveBeenCalledTimes(1);
   });
 });
@@ -1002,8 +1099,28 @@ describe('Settlement hook (onReturn)', () => {
     ]);
   });
 
-  it('should settle a thrown inline handler error as ERROR and skip the spool', async () => {
-    // Assemble
+  it('should settle a thrown intercept handler error as ERROR', async () => {
+    // Assemble — intercept throws before an outcome is determined; the
+    // outer catch reports ERROR (inline isolation does not apply here)
+    const returns = [];
+    settleInto(returns);
+    const later = jest.fn();
+    TAO.addInterceptHandler(TRIGRAM, () => {
+      throw new Error('intercept boom');
+    });
+    TAO.addInlineHandler(TRIGRAM, later);
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert
+    expect(returns).toHaveLength(1);
+    expect(returns[0].phase).toBe(ERROR);
+    expect(returns[0].value.message).toBe('intercept boom');
+    expect(later).not.toHaveBeenCalled();
+  });
+
+  it('should settle a thrown inline handler error as ERROR without inventing a chain', async () => {
+    // Assemble — a throw with no AppCtx return does not dispatch NEXT
     const returns = [];
     settleInto(returns);
     const later = jest.fn();
@@ -1019,6 +1136,23 @@ describe('Settlement hook (onReturn)', () => {
     expect(returns[0].phase).toBe(ERROR);
     expect(returns[0].value.message).toBe('inline boom');
     expect(later).not.toHaveBeenCalled();
+  });
+
+  it('should still spool a sibling inline AppCtx when another inline throws', async () => {
+    const returns = [];
+    settleInto(returns);
+    const later = jest.fn();
+    TAO.addInlineHandler(TRIGRAM, () => {
+      throw new Error('inline boom');
+    });
+    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
+    TAO.addInlineHandler(NEXT_TRIGRAM, later);
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    expect(later).toHaveBeenCalledTimes(1);
+    expect(returns).toHaveLength(1);
+    expect(returns[0].phase).toBe(ERROR);
+    expect(returns[0].value.message).toBe('inline boom');
   });
 
   it('should settle a rejected async handler as ERROR', async () => {
@@ -1136,16 +1270,20 @@ describe('Settlement hook (onReturn)', () => {
 
   it('should keep legacy error behavior when no settlement is decorated', async () => {
     // Assemble — without hooks, a throwing inline handler rejects the
-    // dispatch promise exactly as before (the rethrow branch)
+    // dispatch promise exactly as before (the rethrow branch), after
+    // siblings have been invoked
+    const later = jest.fn();
     TAO.addInlineHandler(TRIGRAM, () => {
       throw new Error('legacy boom');
     });
+    TAO.addInlineHandler(TRIGRAM, later);
     const ach = TAO._network._handlers.get(`${TERM}|${ACTION}|${ORIENT}`);
     // Act
     // Assert
     await expect(
       ach.handleAppCon(new AppCtx(TERM, ACTION, ORIENT), () => {}, {}),
     ).rejects.toThrow('legacy boom');
+    expect(later).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -1189,6 +1327,26 @@ describe('compatibility and defensive coverage', () => {
     expect(() => TAO.setCtx(TRIGRAM, {})).not.toThrow();
     await flush();
     expect(settled).toEqual([`${INLINE}:settle-me`]);
+  });
+
+  it('should never let a rejected thenable from onReturn break settlement', async () => {
+    const { unhandled, stop } = trackUnhandledRejections();
+    try {
+      const settled = [];
+      TAO._network.decorate({
+        onReturn: () => Promise.reject(new Error('async settler boom')),
+      });
+      TAO._network.decorate({
+        onReturn: (phase, value) => settled.push(`${phase}:${value}`),
+      });
+      TAO.addInlineHandler(TRIGRAM, () => 'settle-me');
+      expect(() => TAO.setCtx(TRIGRAM, {})).not.toThrow();
+      await flush();
+      expect(settled).toEqual([`${INLINE}:settle-me`]);
+      expect(unhandled).not.toHaveBeenCalled();
+    } finally {
+      stop();
+    }
   });
 
   it('should settle forward errors from an intercept redirect as ERROR', async () => {
@@ -1241,5 +1399,547 @@ describe('compatibility and defensive coverage', () => {
     expect(returns).toHaveLength(1);
     expect(returns[0].phase).toBe(ERROR);
     expect(returns[0].value.message).toBe('spool forward failed');
+  });
+});
+
+describe('Dispatch lifecycle callbacks (TAO-SPEC §4 / ENVELOPE-SPEC §5)', () => {
+  function recordLifecycle(network, events, label = '') {
+    const prefix = label ? `${label}:` : '';
+    return network.decorate({
+      onReceived: (ac, envelope) =>
+        events.push({ ev: `${prefix}received`, ac, envelope }),
+      onConcluded: (ac, envelope, outcome) =>
+        events.push({ ev: `${prefix}concluded`, ac, envelope, outcome }),
+      onDispatched: (ac, envelope) =>
+        events.push({ ev: `${prefix}dispatched`, ac, envelope }),
+      onSettled: (ac, envelope) =>
+        events.push({ ev: `${prefix}settled`, ac, envelope }),
+    });
+  }
+
+  it('should fire received, concluded(proceeded), dispatched, settled in order, each once', async () => {
+    // Assemble
+    const events = [];
+    const envelopes = [];
+    TAO._network.decorate({
+      onDispatch: (ac, envelope) => envelopes.push(envelope),
+    });
+    recordLifecycle(TAO._network, events);
+    TAO.addInlineHandler(TRIGRAM, jest.fn());
+    const entry = new AppCtx(TERM, ACTION, ORIENT);
+    // Act
+    TAO._network.enter(entry);
+    await flush();
+    // Assert
+    expect(events.map((e) => e.ev)).toEqual([
+      'received',
+      'concluded',
+      'dispatched',
+      'settled',
+    ]);
+    expect(events[1].outcome).toBe('proceeded');
+    events.forEach((e) => {
+      expect(e.ac).toBe(entry);
+      expect(e.envelope).toBe(envelopes[0]);
+    });
+  });
+
+  it('should fire received before onDispatch, and both before intercepts', async () => {
+    // Assemble
+    const order = [];
+    TAO._network.decorate({
+      onReceived: () => order.push('received'),
+      onDispatch: () => order.push('onDispatch'),
+    });
+    TAO.addInterceptHandler(TRIGRAM, () => {
+      order.push('intercept');
+    });
+    TAO.addInlineHandler(TRIGRAM, () => {
+      order.push('inline');
+    });
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert
+    expect(order).toEqual(['received', 'onDispatch', 'intercept', 'inline']);
+  });
+
+  it('should fire concluded(proceeded) then onProceed before async and inline', async () => {
+    // Assemble
+    const order = [];
+    TAO._network.decorate({
+      onConcluded: (ac, envelope, outcome) =>
+        order.push(`concluded:${outcome}`),
+      onProceed: () => order.push('proceed'),
+    });
+    TAO.addAsyncHandler(TRIGRAM, () => {
+      order.push('async');
+    });
+    TAO.addInlineHandler(TRIGRAM, () => {
+      order.push('inline');
+    });
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert
+    expect(order).toEqual([
+      'concluded:proceeded',
+      'proceed',
+      'async',
+      'inline',
+    ]);
+  });
+
+  it('should stop at concluded(halted) with no dispatched or settled', async () => {
+    // Assemble
+    const events = [];
+    recordLifecycle(TAO._network, events);
+    const halted = jest.fn();
+    TAO.addInterceptHandler(TRIGRAM, () => 'halted-because');
+    TAO.addInlineHandler(TRIGRAM, halted);
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert
+    expect(events.map((e) => [e.ev, e.outcome])).toEqual([
+      ['received', undefined],
+      ['concluded', 'halted'],
+    ]);
+    expect(halted).not.toHaveBeenCalled();
+  });
+
+  it('should stop the redirected hop at concluded(redirected) and run a full lifecycle on the replacement', async () => {
+    // Assemble
+    const events = [];
+    recordLifecycle(TAO._network, events);
+    TAO.addInterceptHandler(
+      TRIGRAM,
+      () => new AppCtx(TERM, NEXT_ACTION, ORIENT),
+    );
+    const divertedTo = jest.fn();
+    TAO.addInlineHandler(NEXT_TRIGRAM, divertedTo);
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert — parent concluded as redirected before the child is received
+    expect(events.map((e) => `${e.ev}:${e.ac.a}:${e.outcome || ''}`)).toEqual([
+      `received:${ACTION}:`,
+      `concluded:${ACTION}:redirected`,
+      `received:${NEXT_ACTION}:`,
+      `concluded:${NEXT_ACTION}:proceeded`,
+      `dispatched:${NEXT_ACTION}:`,
+      `settled:${NEXT_ACTION}:`,
+    ]);
+    expect(divertedTo).toHaveBeenCalledTimes(1);
+  });
+
+  it('should give each chained hop its own four events, parent settled before child received', async () => {
+    // Assemble
+    const events = [];
+    recordLifecycle(TAO._network, events);
+    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
+    TAO.addInlineHandler(NEXT_TRIGRAM, jest.fn());
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert
+    expect(events.map((e) => `${e.ev}:${e.ac.a}`)).toEqual([
+      `received:${ACTION}`,
+      `concluded:${ACTION}`,
+      `dispatched:${ACTION}`,
+      `settled:${ACTION}`,
+      `received:${NEXT_ACTION}`,
+      `concluded:${NEXT_ACTION}`,
+      `dispatched:${NEXT_ACTION}`,
+      `settled:${NEXT_ACTION}`,
+    ]);
+    expect(events[1].outcome).toBe('proceeded');
+    expect(events[5].outcome).toBe('proceeded');
+  });
+
+  it('should fire dispatched and settled when proceeded with no inline handlers', async () => {
+    // Assemble — intercepts pass, snapshot is empty
+    const events = [];
+    recordLifecycle(TAO._network, events);
+    TAO.addInterceptHandler(TRIGRAM, () => undefined);
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert
+    expect(events.map((e) => e.ev)).toEqual([
+      'received',
+      'concluded',
+      'dispatched',
+      'settled',
+    ]);
+    expect(events[1].outcome).toBe('proceeded');
+  });
+
+  it('should isolate an inline error so siblings run and dispatched/settled still fire', async () => {
+    // Assemble — TAO-SPEC §3: an inline error never blocks siblings;
+    // §4: dispatched is all invoked, settled is all completed (including errors)
+    const events = [];
+    const returns = [];
+    recordLifecycle(TAO._network, events);
+    TAO._network.decorate({
+      onReturn: (phase, value) =>
+        returns.push(
+          `${phase}:${value && value.message ? value.message : value}`,
+        ),
+    });
+    const later = jest.fn(() => 'later-ok');
+    TAO.addInlineHandler(TRIGRAM, () => {
+      throw new Error('inline boom');
+    });
+    TAO.addInlineHandler(TRIGRAM, later);
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    // Assert
+    expect(events.map((e) => `${e.ev}:${e.outcome || ''}`)).toEqual([
+      'received:',
+      'concluded:proceeded',
+      'dispatched:',
+      'settled:',
+    ]);
+    expect(later).toHaveBeenCalledTimes(1);
+    expect(returns).toEqual([`${ERROR}:inline boom`, `${INLINE}:later-ok`]);
+  });
+
+  it('should isolate a rejected inline thenable so siblings still complete', async () => {
+    const returns = [];
+    const events = [];
+    recordLifecycle(TAO._network, events);
+    TAO._network.decorate({
+      onReturn: (phase, value) =>
+        returns.push(
+          `${phase}:${value && value.message ? value.message : value}`,
+        ),
+    });
+    const later = jest.fn(() => 'later-ok');
+    TAO.addInlineHandler(TRIGRAM, () =>
+      Promise.reject(new Error('inline reject')),
+    );
+    TAO.addInlineHandler(TRIGRAM, later);
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    expect(later).toHaveBeenCalledTimes(1);
+    expect(events.map((e) => e.ev)).toEqual([
+      'received',
+      'concluded',
+      'dispatched',
+      'settled',
+    ]);
+    expect(returns).toEqual([`${ERROR}:inline reject`, `${INLINE}:later-ok`]);
+  });
+
+  it('should never let a throwing lifecycle observer break dispatch or later observers', async () => {
+    // Assemble
+    const later = [];
+    TAO._network.decorate({
+      onReceived: () => {
+        throw new Error('received boom');
+      },
+      onConcluded: () => {
+        throw new Error('concluded boom');
+      },
+      onDispatched: () => {
+        throw new Error('dispatched boom');
+      },
+      onSettled: () => {
+        throw new Error('settled boom');
+      },
+    });
+    recordLifecycle(TAO._network, later);
+    const handler = jest.fn();
+    TAO.addInlineHandler(TRIGRAM, handler);
+    // Act
+    // Assert
+    expect(() => TAO.setCtx(TRIGRAM, {})).not.toThrow();
+    await flush();
+    expect(later.map((e) => e.ev)).toEqual([
+      'received',
+      'concluded',
+      'dispatched',
+      'settled',
+    ]);
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('should isolate a rejected thenable from every lifecycle observer without awaiting', async () => {
+    const { unhandled, stop } = trackUnhandledRejections();
+    try {
+      const calls = {
+        onReceived: 0,
+        onDispatch: 0,
+        onConcluded: 0,
+        onProceed: 0,
+        onDispatched: 0,
+        onSettled: 0,
+        onForward: 0,
+        onReturn: 0,
+      };
+      const boom = (name) => async () => {
+        calls[name] += 1;
+        throw new Error(`${name} reject`);
+      };
+      TAO._network.decorate({
+        onReceived: boom('onReceived'),
+        onDispatch: boom('onDispatch'),
+        onConcluded: boom('onConcluded'),
+        onProceed: boom('onProceed'),
+        onDispatched: boom('onDispatched'),
+        onSettled: boom('onSettled'),
+        onForward: boom('onForward'),
+        onReturn: boom('onReturn'),
+      });
+      const later = [];
+      recordLifecycle(TAO._network, later);
+      const child = jest.fn();
+      TAO.addInlineHandler(TRIGRAM, () => 'inline-value');
+      TAO.addInlineHandler(
+        TRIGRAM,
+        () => new AppCtx(TERM, NEXT_ACTION, ORIENT),
+      );
+      TAO.addInlineHandler(NEXT_TRIGRAM, child);
+      expect(() => TAO.setCtx(TRIGRAM, {})).not.toThrow();
+      await flush();
+      expect(calls).toEqual({
+        onReceived: 2,
+        onDispatch: 2,
+        onConcluded: 2,
+        onProceed: 2,
+        onDispatched: 2,
+        onSettled: 2,
+        onForward: 1,
+        onReturn: 1,
+      });
+      expect(later.map((e) => `${e.ev}:${e.ac.a}`)).toEqual([
+        `received:${ACTION}`,
+        `concluded:${ACTION}`,
+        `dispatched:${ACTION}`,
+        `settled:${ACTION}`,
+        `received:${NEXT_ACTION}`,
+        `concluded:${NEXT_ACTION}`,
+        `dispatched:${NEXT_ACTION}`,
+        `settled:${NEXT_ACTION}`,
+      ]);
+      expect(child).toHaveBeenCalledTimes(1);
+      expect(unhandled).not.toHaveBeenCalled();
+    } finally {
+      stop();
+    }
+  });
+
+  it('should still invoke later onReceived after a rejected thenable from an earlier one', async () => {
+    const later = jest.fn();
+    TAO._network.decorate({
+      onReceived: () => Promise.reject(new Error('first received')),
+    });
+    TAO._network.decorate({
+      onReceived: (ac) => later(ac),
+    });
+    const handler = jest.fn();
+    TAO.addInlineHandler(TRIGRAM, handler);
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    expect(later).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not await a hanging thenable from onSettled before forwarding chains', async () => {
+    TAO._network.decorate({
+      onSettled: () => new Promise(() => {}),
+    });
+    const child = jest.fn();
+    TAO.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
+    TAO.addInlineHandler(NEXT_TRIGRAM, child);
+    TAO.setCtx(TRIGRAM, {});
+    await flush();
+    expect(child).toHaveBeenCalledTimes(1);
+  });
+
+  it('should isolate a thenable whose then() throws', async () => {
+    const handler = jest.fn();
+    TAO._network.decorate({
+      onReceived: () => ({
+        then() {
+          throw new Error('then boom');
+        },
+      }),
+    });
+    TAO.addInlineHandler(TRIGRAM, handler);
+    expect(() => TAO.setCtx(TRIGRAM, {})).not.toThrow();
+    await flush();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('should give a mirrored registry its own lifecycle on the same envelope', async () => {
+    // Assemble — mirror is the SAME hop: shared envelope identity, independent
+    // intercept outcome (ENVELOPE-SPEC §5 / invariant 5)
+    const main = new Network();
+    const priv = new Network();
+    const mainEvents = [];
+    const privEvents = [];
+    recordLifecycle(main, mainEvents, 'main');
+    recordLifecycle(priv, privEvents, 'priv');
+    main.decorate({
+      onForward: (nextAc, envelope, meta) => {
+        priv.mirror(nextAc, envelope, meta.forward);
+      },
+    });
+    main.addInlineHandler(TRIGRAM, () => new AppCtx(TERM, NEXT_ACTION, ORIENT));
+    main.addInlineHandler(NEXT_TRIGRAM, jest.fn());
+    priv.addInterceptHandler(NEXT_TRIGRAM, () => 'private-halt');
+    priv.addInlineHandler(NEXT_TRIGRAM, jest.fn());
+    // Act
+    main.enter(new AppCtx(TERM, ACTION, ORIENT));
+    await flush();
+    // Assert — entry hop is main-only; chained hop is mirrored: main proceeds,
+    // private registry concludes halted on the SAME envelope
+    expect(
+      mainEvents.map((e) => `${e.ev}:${e.ac.a}:${e.outcome || ''}`),
+    ).toEqual([
+      `main:received:${ACTION}:`,
+      `main:concluded:${ACTION}:proceeded`,
+      `main:dispatched:${ACTION}:`,
+      `main:settled:${ACTION}:`,
+      `main:received:${NEXT_ACTION}:`,
+      `main:concluded:${NEXT_ACTION}:proceeded`,
+      `main:dispatched:${NEXT_ACTION}:`,
+      `main:settled:${NEXT_ACTION}:`,
+    ]);
+    expect(
+      privEvents.map((e) => `${e.ev}:${e.ac.a}:${e.outcome || ''}`),
+    ).toEqual([
+      `priv:received:${NEXT_ACTION}:`,
+      `priv:concluded:${NEXT_ACTION}:halted`,
+    ]);
+    expect(privEvents[0].envelope).toBe(mainEvents[4].envelope);
+  });
+
+  it('should observe a full proceeded lifecycle on Network.mirror itself', async () => {
+    // Assemble
+    const network = new Network();
+    const events = [];
+    recordLifecycle(network, events);
+    network.addInlineHandler(TRIGRAM, jest.fn());
+    const ac = new AppCtx(TERM, ACTION, ORIENT);
+    const envelope = {
+      cascade: { id: 'same-hop' },
+      hop: { via: 'Inline' },
+      chain: {},
+    };
+    // Act
+    network.mirror(ac, envelope);
+    await flush();
+    // Assert — verbatim envelope, full proceeded trail
+    expect(events.map((e) => e.ev)).toEqual([
+      'received',
+      'concluded',
+      'dispatched',
+      'settled',
+    ]);
+    expect(events[1].outcome).toBe('proceeded');
+    events.forEach((e) => {
+      expect(e.ac).toBe(ac);
+      expect(e.envelope).toBe(envelope);
+    });
+  });
+
+  it('should ignore non-function lifecycle hooks on the hooks object', async () => {
+    // Assemble
+    const handler = jest.fn();
+    TAO.addInlineHandler(TRIGRAM, handler);
+    const ach = TAO._network._handlers.get(`${TERM}|${ACTION}|${ORIENT}`);
+    // Act
+    await expect(
+      ach.handleAppCon(
+        new AppCtx(TERM, ACTION, ORIENT),
+        () => {},
+        {},
+        {
+          onConcluded: 42,
+          onDispatched: 'nope',
+          onSettled: {},
+        },
+      ),
+    ).resolves.toBeUndefined();
+    // Assert
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('should fire dispatched after every inline is invoked and settled after they complete', async () => {
+    // Assemble — a gated thenable makes the §4 split observable
+    const order = [];
+    let release;
+    const gate = new Promise((resolve) => {
+      release = resolve;
+    });
+    TAO._network.decorate({
+      onDispatched: () => order.push('dispatched'),
+      onSettled: () => order.push('settled'),
+    });
+    TAO.addInlineHandler(TRIGRAM, () =>
+      gate.then(() => {
+        order.push('slow');
+      }),
+    );
+    TAO.addInlineHandler(TRIGRAM, () => {
+      order.push('fast');
+    });
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    // Assert — both called, dispatched fired, slow still pending
+    expect(order).toEqual(['fast', 'dispatched']);
+    release();
+    await flush();
+    expect(order).toEqual(['fast', 'dispatched', 'slow', 'settled']);
+  });
+
+  it('should pass hooks with onDispatched when only onDispatched is decorated', () => {
+    // Assemble
+    TAO._network.decorate({ onDispatched: jest.fn() });
+    TAO.addInlineHandler(TRIGRAM, () => {});
+    const ach = TAO._network._handlers.get(`${TERM}|${ACTION}|${ORIENT}`);
+    const handleAppCon = jest.spyOn(ach, 'handleAppCon');
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    // Assert
+    const hooks = handleAppCon.mock.calls[0][3];
+    expect(typeof hooks.onDispatched).toBe('function');
+    expect(hooks.onSettled).toBeUndefined();
+    handleAppCon.mockRestore();
+  });
+
+  it('should pass hooks with onSettled when only onSettled is decorated', () => {
+    // Assemble
+    TAO._network.decorate({ onSettled: jest.fn() });
+    TAO.addInlineHandler(TRIGRAM, () => {});
+    const ach = TAO._network._handlers.get(`${TERM}|${ACTION}|${ORIENT}`);
+    const handleAppCon = jest.spyOn(ach, 'handleAppCon');
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    // Assert
+    const hooks = handleAppCon.mock.calls[0][3];
+    expect(typeof hooks.onSettled).toBe('function');
+    expect(hooks.onDispatched).toBeUndefined();
+    handleAppCon.mockRestore();
+  });
+
+  it('should pass hooks with onConcluded when only onConcluded is decorated', () => {
+    // Assemble
+    TAO._network.decorate({ onConcluded: jest.fn() });
+    TAO.addInlineHandler(TRIGRAM, () => {});
+    const ach = TAO._network._handlers.get(`${TERM}|${ACTION}|${ORIENT}`);
+    const handleAppCon = jest.spyOn(ach, 'handleAppCon');
+    // Act
+    TAO.setCtx(TRIGRAM, {});
+    // Assert
+    const hooks = handleAppCon.mock.calls[0][3];
+    expect(typeof hooks.onConcluded).toBe('function');
+    expect(hooks.onReturn).toBeUndefined();
+    expect(hooks.onProceed).toBeUndefined();
+    handleAppCon.mockRestore();
   });
 });

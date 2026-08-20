@@ -103,6 +103,22 @@ const channel = new tao.utils.Channel(tao.TAO);
 
 In the future, this will be published to a CDN for convenience.
 
+## freezeDatum
+
+Development-mode datum freeze ([TAO-SPEC.md §2](../../TAO-SPEC.md#2-the-datum-contract)):
+deep-freezes `ac.data` at `onReceived`, before handlers run. Attach it
+explicitly — core never inspects `NODE_ENV`.
+
+```js
+import TAO from '@tao.js/core';
+import { freezeDatum } from '@tao.js/utils';
+
+const dispose = freezeDatum(TAO); // or freezeDatum(network)
+```
+
+Pass the Kernel or Network you dispatch on. `freezeDatum(channel)` attaches
+to the Channel's private registry only.
+
 ## All Packages in the `@tao.js` family
 
 | package                                                                    | description                                                       | docs page                                                             |

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { AppCtx, Kernel } from '@tao.js/core';
 import { Tracer, InMemorySink } from '@tao.js/telemetry';
 import Channel from '../src/Channel';
@@ -73,7 +74,7 @@ describe('Tracer composes with Channel — full fidelity without instrumentation
     // Assemble
     new Tracer(TAO, { sinks: [sink] });
     const transponder = new Transponder(TAO, 'chain-continuing', 0);
-    // Act — the chain shape a transport hands over (ENVELOPE-SPEC.md §9)
+    // Act — the chain shape a transport hands over (TAO-SPEC.md §7)
     const settled = await transponder.setCtx(
       TRIGRAM,
       {},

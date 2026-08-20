@@ -15,7 +15,7 @@
  * Koa is **not** a dependency: `ctx`/`next` are typed structurally (see
  * {@link KoaContextLike}) with exactly the members this package uses.
  * All three factories continue an inbound W3C `traceparent` header as the
- * signal's entry chain (ENVELOPE-SPEC.md §9).
+ * signal's entry chain (TAO-SPEC.md §7).
  *
  * @module @tao.js/koa
  */

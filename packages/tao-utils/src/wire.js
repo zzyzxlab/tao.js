@@ -21,7 +21,7 @@ function transportName(name) {
 
 /**
  * Wire-envelope version. Receivers ignore wire envelopes with an unknown
- * version (treated as absent) rather than fail — see ENVELOPE-SPEC.md §9.
+ * version (treated as absent) rather than fail — see TAO-SPEC.md §7.
  *
  * @type {number}
  */
@@ -29,7 +29,7 @@ export const WIRE_VERSION = 1;
 
 /**
  * The portable part of a dispatch envelope — what a transport serializes
- * alongside a signal's trigram + data (ENVELOPE-SPEC.md §9).
+ * alongside a signal's trigram + data (TAO-SPEC.md §7).
  *
  * @typedef {Object} WireEnvelope
  * @property {number} v - wire-envelope version (`WIRE_VERSION`)
@@ -41,7 +41,7 @@ export const WIRE_VERSION = 1;
  * The portable part of a dispatch envelope, for serializing alongside a
  * signal's trigram + data. Only `chain` crosses a process boundary:
  * `cascade` holds live references and process-local affinity, and `hop` is
- * boundary-local (ENVELOPE-SPEC.md §9).
+ * boundary-local (TAO-SPEC.md §7).
  *
  * @param {Object} [envelope] - a dispatch envelope (`{ cascade, hop, chain }`)
  * @returns {WireEnvelope} `{ v: WIRE_VERSION, chain }` — `chain` is `null`

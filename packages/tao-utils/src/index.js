@@ -4,9 +4,18 @@ import Source from './Source';
 import Transponder from './Transponder';
 import Transceiver from './Transceiver';
 import seive from './seive';
+import freezeDatum from './freezeDatum';
 export * from './bridge';
 export * from './transfer';
 export * from './forward-chain';
 export * from './wire';
 
-export { trigramFilter, Channel, Source, Transponder, Transceiver, seive };
+export {
+  trigramFilter,
+  Channel,
+  Source,
+  Transponder,
+  Transceiver,
+  seive,
+  freezeDatum,
+};

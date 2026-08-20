@@ -82,7 +82,7 @@ function buildCtxTao(transceiver, chain) {
  * One long-lived `Transceiver` spans all requests (no per-request Channel);
  * `ctx.tao.setCtx(...)` / `ctx.tao.setAppCtx(...)` resolve per the
  * Transceiver's settlement semantics. Inbound W3C `traceparent` headers are
- * continued as the entry chain (ENVELOPE-SPEC.md §9).
+ * continued as the entry chain (TAO-SPEC.md §7).
  *
  * @export
  * @param {NetworkSurface} TAO - the Kernel (or other TAO Network surface) to signal on

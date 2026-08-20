@@ -193,13 +193,17 @@ export default class AppCtxHandlers extends AppCtxRoot {
    * Dispatch an AppCon through the three handler phases.
    *
    * `hooks` (optional, supplied by Network decorations — see ENVELOPE-SPEC.md
-   * §6) receives what the loop otherwise discards: `hooks.onReturn(phase,
+   * §5, §6) receives what the loop otherwise discards: `hooks.onReturn(phase,
    * value, ac)` is called for non-AppCtx truthy intercept returns (which
    * still halt), non-null non-AppCtx async/inline returns, and thrown
    * handler errors (phase = ERROR — which are rethrown when no hooks are
    * present, preserving pre-envelope behavior); `hooks.onProceed()` fires
    * when the intercept phase passes without halting or diverting, before
-   * the async/inline phases run (§5 — veto-respecting emitters).
+   * the async/inline phases run (§5 — veto-respecting emitters). Lifecycle
+   * waypoints: `hooks.onConcluded(outcome)` after the intercept outcome is
+   * determined; `hooks.onDispatched()` after every inline in the snapshot
+   * has been invoked (before those returns are awaited); `hooks.onSettled()`
+   * after every inline has completed, including those that errored.
    *
    * `setAppCtx` receives the producing phase as a third argument so the
    * hop engine can stamp `hop.via` on chained hops (§4).
@@ -210,7 +214,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
    *        `setAppCtx(nextAc, control, phase)`
    * @param {Object} control - the cascade scope (`envelope.cascade`), passed
    *        through to `setAppCtx`
-   * @param {{onReturn?: (phase: string, value: any, ac: AppCtx) => void, onProceed?: () => void}} [hooks]
+   * @param {{onReturn?: (phase: string, value: any, ac: AppCtx) => void, onProceed?: () => void, onConcluded?: (outcome: import('./Network').LifecycleOutcome) => void, onDispatched?: () => void, onSettled?: () => void}} [hooks]
    *        settlement hooks built by the Network from decorations
    * @returns {Promise<void>} settles after the intercept and inline phases
    *        complete (async handlers are forked, not awaited); rejects on a
@@ -222,6 +226,16 @@ export default class AppCtxHandlers extends AppCtxRoot {
       hooks && typeof hooks.onReturn === 'function' ? hooks.onReturn : null;
     const onProceed =
       hooks && typeof hooks.onProceed === 'function' ? hooks.onProceed : null;
+    const onConcluded =
+      hooks && typeof hooks.onConcluded === 'function'
+        ? hooks.onConcluded
+        : null;
+    const onDispatched =
+      hooks && typeof hooks.onDispatched === 'function'
+        ? hooks.onDispatched
+        : null;
+    const onSettled =
+      hooks && typeof hooks.onSettled === 'function' ? hooks.onSettled : null;
     try {
       await this._handlePhases(
         ac,
@@ -233,6 +247,9 @@ export default class AppCtxHandlers extends AppCtxRoot {
         a,
         o,
         data,
+        onConcluded,
+        onDispatched,
+        onSettled,
       );
     } catch (dispatchErr) {
       if (onReturn) {
@@ -244,8 +261,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
   }
 
   /**
-   * Run the three phases in order: await intercepts (halt/divert
-   * short-circuits), fork async handlers, await inline handlers, settle
+   * Run the three phases in order: snapshot intercept/async/inline sets at
+   * entry (TAO-SPEC.md §3 — a handler registered during this dispatch is
+   * not included), await intercepts (halt/divert short-circuits), fork async
+   * handlers, invoke every inline then await their completions, settle
    * inline returns, then set the spooled chained AppCtxs.
    *
    * @param {AppCtx} ac - the Application Context being handled
@@ -257,6 +276,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
    * @param {string} a - the action (from `ac`)
    * @param {string} o - the orient (from `ac`)
    * @param {Object} data - the context data (from `ac`)
+   * @param {((outcome: import('./Network').LifecycleOutcome) => void)|null} [onConcluded]
+   *        intercept-outcome waypoint
+   * @param {(() => void)|null} [onDispatched] - all-inlines-invoked waypoint
+   * @param {(() => void)|null} [onSettled] - all-inlines-completed waypoint
    */
   async _handlePhases(
     ac,
@@ -268,20 +291,29 @@ export default class AppCtxHandlers extends AppCtxRoot {
     a,
     o,
     data,
+    onConcluded,
+    onDispatched,
+    onSettled,
   ) {
+    const interceptSnapshot = Array.from(this.interceptHandlers);
+    const asyncSnapshot = Array.from(this.asyncHandlers);
+    const inlineSnapshot = Array.from(this.inlineHandlers);
     /*
      * Intercept Handlers
      * always occur first
      * have the ability to prevent other handlers from firing on this AC
      * optionally can return a single AC that will be set as the new AC instead of the incoming AC
      */
-    for (let interceptH of this.interceptHandlers) {
+    for (let interceptH of interceptSnapshot) {
       // using the decorator pattern to call these?
       let intercepted = await interceptH({ t, a, o }, data);
       if (!intercepted) {
         continue;
       }
       if (intercepted instanceof AppCtx) {
+        if (onConcluded) {
+          onConcluded('redirected');
+        }
         // Stryker disable all: local console is a noop; catch only swallows
         try {
           setAppCtx(intercepted, control, INTERCEPT);
@@ -295,11 +327,19 @@ export default class AppCtxHandlers extends AppCtxRoot {
           );
         }
         // Stryker restore all
-      } else if (onReturn) {
-        // truthy non-AppCtx intercept return still halts; settlement sees it
-        onReturn(INTERCEPT, intercepted, ac);
+      } else {
+        if (onConcluded) {
+          onConcluded('halted');
+        }
+        if (onReturn) {
+          // truthy non-AppCtx intercept return still halts; settlement sees it
+          onReturn(INTERCEPT, intercepted, ac);
+        }
       }
       return;
+    }
+    if (onConcluded) {
+      onConcluded('proceeded');
     }
     if (onProceed) {
       // the intercept phase passed without halt or divert
@@ -317,7 +357,7 @@ export default class AppCtxHandlers extends AppCtxRoot {
      * TODO: would ServiceWorkers make sense for this? tao-sw package
      */
     let asyncKickoffs = 0;
-    for (let asyncH of this.asyncHandlers) {
+    for (let asyncH of asyncSnapshot) {
       (() => {
         asyncKickoffs += 1;
         // Stryker disable next-line all: debug logging via noop console
@@ -360,11 +400,10 @@ export default class AppCtxHandlers extends AppCtxRoot {
      * Inline Handlers
      * fire if all Intercept Handlers don't intercept the fired AC
      * fired after all Async handlers are fired off
-     * work inside the same execution context as the caller
-     * can return an AC that will be set immediately in the TAO
-     * TODO: should these returns be spooled up then iterated to allow
-     * all handlers to handle this context before any new ones are set?
-     * YES: currently implemented that way
+     * every matching handler is invoked before any return is awaited
+     * (TAO-SPEC.md §4 dispatched vs settled; §3: an error never blocks
+     * siblings). Returned AppCtxs are spooled and forwarded after
+     * settlement so all handlers see this context before any chain runs.
      */
     if (asyncKickoffs) {
       // one microtask yield: the deferred async calls enqueued above are
@@ -373,20 +412,40 @@ export default class AppCtxHandlers extends AppCtxRoot {
       // protocol's priority guarantee without synchronous invocation
       await undefined;
     }
-    const nextSpool = [];
-    const inlineReturns = [];
-    for (let inlineH of this.inlineHandlers) {
-      let nextInlineAc = await inlineH({ t, a, o }, data);
-      if (nextInlineAc instanceof AppCtx) {
-        nextSpool.push(nextInlineAc);
-      } else if (onReturn && nextInlineAc != null) {
-        inlineReturns.push(nextInlineAc);
+    const pending = [];
+    for (let inlineH of inlineSnapshot) {
+      try {
+        pending.push(Promise.resolve(inlineH({ t, a, o }, data)));
+      } catch (inlineErr) {
+        pending.push(Promise.reject(inlineErr));
       }
     }
-    // settlement sees inline returns after every inline handler has run and
-    // before any chained AppCons dispatch (Transceiver resolve ordering)
-    for (let inlineValue of inlineReturns) {
-      onReturn(INLINE, inlineValue, ac);
+    if (onDispatched) {
+      onDispatched();
+    }
+    // wrap after dispatched: allSettled is the wait, not the invoke.
+    // still this turn, so a sync throw's Promise.reject is handled
+    // before Node's next-tick unhandled-rejection check
+    const settledResults = await Promise.allSettled(pending);
+    const nextSpool = [];
+    const inlineErrors = [];
+    for (let result of settledResults) {
+      if (result.status === 'fulfilled') {
+        const nextInlineAc = result.value;
+        if (nextInlineAc instanceof AppCtx) {
+          nextSpool.push(nextInlineAc);
+        } else if (onReturn && nextInlineAc != null) {
+          onReturn(INLINE, nextInlineAc, ac);
+        }
+      } else {
+        inlineErrors.push(result.reason);
+        if (onReturn) {
+          onReturn(ERROR, result.reason, ac);
+        }
+      }
+    }
+    if (onSettled) {
+      onSettled();
     }
     // Stryker disable next-line ConditionalExpression: empty spool makes the loop a no-op either way
     if (nextSpool.length) {
@@ -401,6 +460,9 @@ export default class AppCtxHandlers extends AppCtxRoot {
           console.error('error on next inline:', inlineErr);
         }
       }
+    }
+    if (inlineErrors.length && !onReturn) {
+      throw inlineErrors[0];
     }
   }
 }
