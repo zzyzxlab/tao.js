@@ -396,17 +396,19 @@ on a runtime's behalf. Whatever its size, a client hosts a dispatch
 scope, and the floor holds it to the scope's duties:
 
 - **Scope duties.** Delivery is entry into the client's dispatch scope
-  (§5.3): the client anchors dedup at its own `received`, snapshots its
-  own registrations per dispatch, stamps its own hop, and re-reduces
-  the chain with its own reducers (§7.1,
+  (§5.3): the client's own `received` is the dedup anchor — where dedup
+  is declared (§8), the identity check happens there, before any work —
+  and the client snapshots its own registrations per dispatch, stamps
+  its own hop, and re-reduces the chain with its own reducers (§7.1,
   [`TAO-SPEC.md` §7](./TAO-SPEC.md#7-the-wire-contract)).
 - **Identity hygiene.** A client MUST NOT write the `taoMesh` chain
   namespace (§8) and MUST forward the chain scope intact.
 - **Registration acknowledgment.** A mesh MUST make registration
   activation observable: every accepted registration has an
   acknowledgment, and an entry the client fires after receiving that
-  acknowledgment MUST dispatch against a snapshot that includes the
-  registration. This is what makes bootstrap idioms portable —
+  acknowledgment, and before the registration's lifetime ends, MUST
+  dispatch against a snapshot that includes the registration. This is
+  what makes bootstrap idioms portable —
   declare, await the acknowledgments, fire — and the degenerate
   in-process case satisfies it trivially (registration is
   synchronous). How long _other_ scopes take to observe a registration
@@ -457,8 +459,9 @@ buffering, transport fallback — is a declared capability (§10), never
 an assumed behavior.
 
 > **Plainly** — However small the client, it's a real citizen: it
-> de-duplicates what it receives, keeps tracing intact, and never
-> forges signal identity. And every mesh must be able to tell you
+> handles each delivery as a dispatch of its own, drops duplicates
+> there when your deployment declares dedup, keeps tracing intact, and
+> never forges signal identity. And every mesh must be able to tell you
 > "your registration is live" — so an app can set up, wait for that,
 > and fire its first signal knowing someone is listening. Anything
 > fancier your client does for you is a feature it declares, not a
