@@ -94,6 +94,7 @@ implementation MUST NOT stack them blindly.
 | term                          | meaning                                                                                                                         |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | **Space**                     | Everything an app can say: declared by its three axes — Terms, Actions, Orient(ation)s — and containing every trigram they span |
+| **System**                    | Everything connected to one mesh — its apps and services — sharing one Space; the mesh is the System's signal network           |
 | **axis**                      | One of the three declared sets (Terms, Actions, Orients)                                                                        |
 | **point**                     | A trigram — coordinates `(t, a, o)` in the Space                                                                                |
 | **slice**                     | The set of points matched by a wildcard pattern (fix some axes, range the rest)                                                 |
@@ -105,6 +106,7 @@ implementation MUST NOT stack them blindly.
 | **enrollment**                | Registration of an intercept or inline binding in a dispatch scope's registry — counted, waited on                              |
 | **interest**                  | An async subscription — open membership, never counted                                                                          |
 | **binding**                   | A registered handler reference: an in-process function, a FaaS ref, a queue subject — executable over an invocation edge        |
+| **client**                    | A runtime attached over the edges — a full engine, a minimal SDK scope, or a proxy scope — bound by the client contract (§7.4)  |
 | **propagation edge**          | A link carrying signals between dispatch scopes ([`TAO-SPEC.md` §7](./TAO-SPEC.md#7-the-wire-contract))                         |
 | **invocation edge**           | A link carrying one handler invocation and its return (§7)                                                                      |
 | **placement unit**            | The granularity at which requirements attach: a declared slice of the Space (often per-Term, not necessarily)                   |
@@ -140,11 +142,29 @@ top** of the declaration:
   enrollment and interest (§5) are dynamic in every mode; declaration
   closes the vocabulary, never the registry.
 
+- **The mesh's Space is the System's.** A mesh houses a System: many
+  apps and services share one Space, composed from each participant's
+  declared TAO, so the same trigram is the same signal for every
+  participant. The mesh assigns no meaning to any axis and imposes no
+  namespace beyond the trigram: how participants share, partition, or
+  reuse Terms, Actions, and Orients — an Orient mapped 1:1 to one
+  service, or one Orient reused across many — is the System's own
+  declaration — the developer's leverage point for defining their own
+  framework's communication paths, patterns, and integration hooks.
+  Slice ownership is part of the composition, and tooling MUST be able
+  to lint conflicting declarations across participants (§10). Isolation
+  between participants is a matter of edge trust over slices (§7) and
+  reply affinity (§8), never of separate meshes.
+
 > **Plainly** — Your TAO doubles as the mesh's map: declare your Space
 > and Protocols, and the mesh can route, place, and audit your app from
 > the same file that gives you docs, types, and lints. Don't declare,
 > and everything still runs — the mesh just can't check anything or
-> place anything intentionally.
+> place anything intentionally. One mesh, one System: every app and
+> service plugs into the same Space, and the same trigram is the same
+> signal for all of them. How you carve that Space up between them —
+> by Orient, by Term, by whatever fits your domain — is your design;
+> the mesh only carries it.
 
 ---
 
@@ -368,6 +388,90 @@ declared edge capability (JSON, msgpack, CBOR, …). Floors and matching:
 > architecture's choice; if your data needs a format an edge can't carry,
 > deployment checking tells you before production does.
 
+### 7.4 The client contract
+
+A **client** is any runtime attached over the edges — a full engine (a
+Kernel), a minimal SDK scope, or a proxy scope an implementation holds
+on a runtime's behalf. Whatever its size, a client hosts a dispatch
+scope, and the floor holds it to the scope's duties:
+
+- **Scope duties.** Delivery is entry into the client's dispatch scope
+  (§5.3): the client's own `received` is the dedup anchor — where dedup
+  is declared (§8), the identity check happens there, before any work —
+  and the client snapshots its own registrations per dispatch, stamps
+  its own hop, and re-reduces the chain with its own reducers (§7.1,
+  [`TAO-SPEC.md` §7](./TAO-SPEC.md#7-the-wire-contract)).
+- **Identity hygiene.** A client MUST NOT write the `taoMesh` chain
+  namespace (§8) and MUST forward the chain scope intact.
+- **Registration acknowledgment.** A mesh MUST make registration
+  activation observable: every accepted registration has an
+  acknowledgment, and an entry the client fires after receiving that
+  acknowledgment, and before the registration's lifetime ends, MUST
+  dispatch against a snapshot that includes the registration. This is
+  what makes bootstrap idioms portable —
+  declare, await the acknowledgments, fire — and the degenerate
+  in-process case satisfies it trivially (registration is
+  synchronous). How long _other_ scopes take to observe a registration
+  remains propagation, not contract.
+- **Registration carriers.** A registration MAY arrive over a live
+  session or as deployed configuration; both produce the same
+  registration. The acknowledgment takes the carrier's idiom — a
+  message on a session, a status condition on configuration — and the
+  snapshot guarantee binds every principal that has observed it: an
+  implementation issues the acknowledgment as late as that carrier's
+  audience requires (a widely-observable acknowledgment is simply
+  issued once propagation completes).
+- **Binding lifetime.** A registration's lifetime follows its binding,
+  never its carrier: a binding executable only over a session ends
+  with that session; a binding executable independently of any session
+  (an endpoint) persists until explicitly unregistered — including
+  across the disconnection of whatever registered it. Members of a
+  named group MAY be bindings of different kinds.
+- **Liveness and lifetime are different axes.** Unreachability governs
+  dispatch outcomes — reachability semantics and declared postures
+  (§5, §9) — and MUST NOT remove a registration. Membership ends only
+  by the binding's own terms: session end for a session binding,
+  explicit unregistration for an endpoint. Evicting an unreachable
+  gate would convert "gate down," which blocks passage, into "gate
+  gone," which silently skips it — the exact conversion the veto-skip
+  prohibition forbids. Unreachability changes outcomes, never
+  membership.
+
+The acknowledgment guarantee is a **session guarantee** —
+read-your-writes over registry state, scoped to one client session.
+Weaker, and the ack means only "active somewhere": a client could
+await every acknowledgment and still have its first entry bypass its
+own gates. Stronger — a globally consistent registry — would put
+coordination under every registration for nothing the bootstrap idiom
+needs. The floor therefore asks for exactly **one causal path** from
+"ack sent" to "this session's entries' snapshots," and an
+implementation has at least three ways to build it: coordinate a
+session's entries at the node where its registrations land; withhold
+the ack until propagation completes; or fence entries with a registry
+version their coordinator waits for. Only the design with no causal
+path at all — optimistic acks over fully asynchronous replication — is
+excluded. The guarantee re-establishes itself across failover through
+the same mechanism: re-declared registrations are re-acknowledged, and
+a client withholds buffered entries until they are.
+
+Everything else a client offers — reconnection with replay, offline
+buffering, transport fallback — is a declared capability (§10), never
+an assumed behavior.
+
+> **Plainly** — However small the client, it's a real citizen: it
+> handles each delivery as a dispatch of its own, drops duplicates
+> there when your deployment declares dedup, keeps tracing intact, and
+> never forges signal identity. And every mesh must be able to tell you
+> "your registration is live" — so an app can set up, wait for that,
+> and fire its first signal knowing someone is listening. Anything
+> fancier your client does for you is a feature it declares, not a
+> behavior you guess. And register however fits — from a live
+> connection or from deployed config: it's the same registration either
+> way, and how long it lives depends on what it points at, not on how
+> it arrived. A handler being down never quietly removes it from the
+> mesh: signals wait or fail loudly per the declared posture until
+> someone actually unregisters it.
+
 ---
 
 ## 8. Delivery and identity
@@ -418,9 +522,19 @@ by the mesh layer's chain reducer — one owner per dispatch scope, the
 exclusivity every chain namespace carries
 ([`TAO-SPEC.md` §5](./TAO-SPEC.md#5-the-observation-plane)). The reducer
 implements this section's derivation: it mints entry ids and derives
-chained ids. Minimal shape: `{ id }`; the same namespace is the home for
-the routable reply-origin where reply routing (§10) is in play —
-affinity translated into a routable name, never copied. The key crosses
+chained ids. Minimal shape: `{ id }`. Where reply routing (§10) is in
+play the namespace also carries **`origin`** — the routable reply-origin:
+a scoped entry's affinity
+([`TAO-SPEC.md` §8](./TAO-SPEC.md#8-invariants) invariant 2) translated
+into a name the mesh can route to, never copied. The mesh sets `origin`
+at the entry hop from what the edge tells it about the entering surface —
+a client declares its surface through the edge, never by writing the
+chain — and every chained descendant inherits it unchanged; an entry
+through an unscoped surface carries none (invariant 3). Its value is
+mesh-local and implementation-defined: receivers other than the owning
+mesh forward it intact and never interpret it, and a propagation edge
+between meshes translates it into the receiving mesh's own origin rather
+than carrying it through. The key crosses
 edges like any chain namespace
 ([`TAO-SPEC.md` §7](./TAO-SPEC.md#7-the-wire-contract)); receivers
 without a mesh reducer ignore it, and two independent mesh
@@ -530,18 +644,23 @@ semantics where it appears in this spec):
 | edge codec / data model | JSON model (floor for chain) · richer declared models per edge                                                                                         |
 | reply routing           | origin-correlated hop routing (feeds wrappers)                                                                                                         |
 | subscription identity   | durable consumer identity per async subscription (§8 — async-chain convergence)                                                                        |
+| session resume          | reconnection with delivery replay over a declared window, per session/subscription                                                                     |
+| offline buffering       | client-side entry buffering while disconnected — declared depth and durability (memory · durable), per session                                         |
+| transport bindings      | the set of edge transports an implementation serves, per edge                                                                                          |
 | response awaiting       | declared-response wrappers (§4)                                                                                                                        |
 | subgraph settlement     | transitive settled-detection over inline-chained descendants (async branches are excluded in principle — their completion is unobservable by contract) |
 | execution bindings      | in-process · FaaS · container · … (invocation-edge implementations)                                                                                    |
 
 Capabilities attach at different **loci** — per placement unit (delivery
-mode, posture), per edge (codec/data model), per subscription (durable
-identity), per wrapper (response awaiting) — and the validity check
+mode, posture), per edge (codec/data model, transport bindings), per
+subscription (durable identity), per session (resume, offline
+buffering), per wrapper (response awaiting) — and the validity check
 evaluates each requirement at its locus; "requirements ⊆ capabilities"
 is the conjunction over all loci, not a single flat set.
 
 Lints that MUST be derivable from the declarations (tooling, not runtime):
-overlapping redirect-capable intercept patterns (§5.1); projection
+overlapping redirect-capable intercept patterns (§5.1);
+cross-participant declaration conflicts (§3); projection
 concreteness for implementations that shard (a divert-capable gate's
 pattern must be concrete in the axes the projection uses); datum-model
 containment per edge (§7.3); requirement⊆capability per placement unit.
@@ -583,6 +702,9 @@ containment per edge (§7.3); requirement⊆capability per placement unit.
 - **Propagation edges**: `@tao.js/transport-tck` (existing).
 - **Invocation edges**: a TCK sibling (to accompany the first
   non-degenerate implementation).
+- **Clients**: a client-conformance kit — the §7.4 scope duties,
+  identity hygiene, and registration-acknowledgment checks (to
+  accompany the first standalone SDK).
 - **Lifecycle**: assert the event state machine — in order, each at most
   once; `received`/`concluded` for every dispatch, `dispatched`/`settled`
   iff the outcome is `proceeded`.
